@@ -1,4 +1,5 @@
 /// <reference path="globals/axios/index.d.ts" />
+/// <reference path="globals/bluebird/index.d.ts" />
 /// <reference path="globals/pdf/index.d.ts" />
 /// <reference path="globals/react-addons-css-transition-group/index.d.ts" />
 /// <reference path="globals/react-addons-shallow-compare/index.d.ts" />

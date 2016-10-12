@@ -7,8 +7,7 @@
     "url": "https://github.com/joshgagnon/concat.git"
   },
   "main": "index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
     "axios": "^0.12.0",
     "babel-polyfill": "^6.3.14",
@@ -17,8 +16,7 @@
     "clean-webpack-plugin": "^0.1.9",
     "extract-text-webpack-plugin": "^1.0.1",
     "pdfjs-dist": "^1.5.336",
-    "pure-render-decorator": "^0.2.0",
-    "react": "^15.0.0",
+    "react": "^15.3.2",
     "react-addons-css-transition-group": "^15.2.0",
     "react-bootstrap": "^0.28.2",
     "react-dnd": "^2.1.4",
@@ -27,7 +25,9 @@
     "react-pdf-component": "0.0.1",
     "react-redux": "^4.0.6",
     "redux": "^3.0.5",
+    "redux-logger": "^2.7.0",
     "redux-thunk": "^1.0.3",
+    "typescript": "^2.0.3",
     "url-loader": "^0.5.7"
   },
   "devDependencies": {

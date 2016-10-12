@@ -12,7 +12,7 @@ import Footer from './footer.tsx';
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { DragSource, DropTarget, DragDropContext } from 'react-dnd';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
-import * as PDF from './pdf.tsx'
+import { PDF } from './pdf.tsx'
 
 const serialize = function(obj, prefix?) {
   var str = [];
@@ -130,17 +130,26 @@ const documentDragTarget = {
   }
 };
 
-
 class DocumentView extends React.Component<DocumentViewProps, {}>  {
+    movePage(document, nPages) {
+        this.props.updateDocument({id: document.id, pageNumber: document.pageNumber + nPages})
+    }
+
     render() {
         const { isDragging, connectDragSource, connectDropTarget } = this.props;
         const opacity = isDragging ? 0 : 1;
+        const document = this.props.document;
 
-        return connectDragSource(connectDropTarget(<div className="document" style={{opacity}}>
+        console.log(document.pageNumber);
+        console.log(document);
+
+        return connectDragSource(connectDropTarget(
+            <div className="document" style={{opacity}}>
+                <button className="btn" onClick={() => this.movePage(document, -1)} disabled={document.pageNumber <= 0}>Prev</button>
+                <button className="btn" onClick={() => this.movePage(document, 1)} disabled={document.pageNumber >= document.numPages}>Next</button>
+                { document.arrayBuffer && <PDF data={document.arrayBuffer} width='500' /> }
+                
                 <button className="remove" onClick={() => this.props.removeDocument()}>✖</button>
-                <div className="image">
-                    { this.props.document.uuid && <img src={`/thumb/${this.props.document.uuid}`} /> }
-                </div>
                 <div className="filename">
                     { this.props.document.filename }
                 </div>
@@ -169,28 +178,40 @@ const DraggableDroppableDocumentView = DropTarget('DOCUMENTS', documentDragTarge
 
 class DocumentList extends React.Component<DocumentListProps, {}> {
 
-    constructor(props){
+    constructor(props) {
         super(props);
         this.moveDocument = this.moveDocument.bind(this);
-
     }
-    moveDocument(dragIndex, hoverIndex){
+
+    moveDocument(dragIndex, hoverIndex) {
         const dragDocument = this.props.documents.filelist[dragIndex];
         this.props.moveDocument({sourceIndex: dragIndex, destIndex: hoverIndex});
     }
-    componentWillReceiveProps(props){
+
+    componentWillReceiveProps(props) {
         this.uploadData(props);
     }
-    componentWillMount(){
+
+    componentWillMount() {
         this.uploadData(this.props);
     }
-    uploadData(props){
-        const unUploaded = props.documents.filelist.filter(d => !d.status);
-        unUploaded.map(doc => {
-            props.updateDocument({id: doc.id, status: 'posting', progress: 0});
-        });
-        eachSeries(unUploaded, (doc) => {
 
+    uploadData(props) {
+        const unUploaded = props.documents.filelist.filter(doc => !doc.status);
+
+        unUploaded.map(doc => {
+            // Update file upload progress
+            props.updateDocument({id: doc.id, status: 'posting', progress: 0});
+
+            // Create file reader, read file to BLOB, then call the updateDocument action
+            const fileReader = new FileReader();
+            fileReader.readAsArrayBuffer(doc.file);
+            fileReader.onload = () => {
+                props.updateDocument({id: doc.id, arrayBuffer: fileReader.result, pageNumber: 0});
+            };
+        });
+
+        eachSeries(unUploaded, (doc) => {
             const data = new FormData();
             data.append('file[]', doc.file);
             return axios.post('/upload', data,
@@ -200,7 +221,8 @@ class DocumentList extends React.Component<DocumentListProps, {}> {
                         const percentCompleted = progressEvent.loaded / progressEvent.total;
                         props.updateDocument({id: doc.id, progress: percentCompleted});
                     }
-                })
+                }
+            )
             .then((response) => {
                 props.updateDocument({id: doc.id, status: 'complete', uuid: response.data[doc.filename]});
             })
@@ -268,8 +290,9 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
     collectFiles(event) {
        this.onDrop([].filter.call(event.target.files, f => f.type === 'application/pdf'));
     }
+
     onClick() {
-        if(this._fileInput){
+        if (this._fileInput) {
             this._fileInput.value = null;
             this._fileInput.click();
         }
@@ -278,33 +301,26 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
     render() {
         const loaded = !!this.props.documents.filelist.length && this.props.documents.filelist.every(f => f.status === 'complete');
         const url = '/concat?' + serialize({file_ids: this.props.documents.filelist.map(f => f.uuid), deskew: this.props.form.deskew || false});
-        return  <ConnectedFileDropZone onDrop={this.onDrop}>
-            <div className="body">
-            <Header />
-                 <div className="explanation" onClick={this.onClick}>
-            Drag PDFs here to join them together
-                <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
-            </div>
-            <div className="container">
-                <DocumentList
-                    updateDocument={this.props.updateDocument}
-                    documents={this.props.documents}
-                    moveDocument={this.props.moveDocument}
-                    removeDocument={this.props.removeDocument}
-                     />
-                { loaded && <div className="button-bar">
-                    <a href={url} className="btn btn-primary">Merge</a>
-                      {/* <div className="checkbox"><label><input type="checkbox" name="deskew"
-                        checked={this.props.form.deskew || false}
-                        onChange={(e) => {
-                            this.props.updateForm({key: 'deskew', value: (e.target as any).checked})
-                    }}/>Deskew</label>
-                </div> */}
-                </div> }
-            </div>
-            <Footer />
-            </div>
-            </ConnectedFileDropZone>
+        return  (
+            <ConnectedFileDropZone onDrop={this.onDrop}>
+                <div className="body">
+                    <div className="explanation" onClick={this.onClick}>
+                        Drag a PDF here to sign it
+                        <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
+                    </div>
+                    <div className="container">
+                        <DocumentList
+                            updateDocument={this.props.updateDocument}
+                            documents={this.props.documents}
+                            moveDocument={this.props.moveDocument}
+                            removeDocument={this.props.removeDocument} />
+                        { loaded && <div className="button-bar">
+                            <a href={url} className="btn btn-primary">Sign</a>
+                        </div> }
+                    </div>
+                    <Footer />
+                </div>
+            </ConnectedFileDropZone>)
     }
 }
 
@@ -331,7 +347,7 @@ class App extends React.Component<{}, {}> {
 
 ReactDOM.render(
     <Provider store={store}>
-    <App />
-  </Provider>,
+        <App />
+    </Provider>,
     document.getElementById("main")
 );

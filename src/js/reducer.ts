@@ -18,7 +18,7 @@ const documents = (state = {filelist: []}, action) => {
                 return f;
             }))});
         case "UPDATE_DOCUMENT":
-            i = state.filelist.findIndex(f => f.id === action.payload.id);
+            i = state.filelist.findIndex(file => file.id === action.payload.id);
             filelist = [...state.filelist];
             filelist[i] = Object.assign({}, filelist[i], action.payload);
             return Object.assign({}, state, {filelist: filelist});
@@ -35,7 +35,6 @@ const documents = (state = {filelist: []}, action) => {
             filelist = [...state.filelist];
             filelist.splice(i, 1);
             return Object.assign({}, state, {filelist: filelist});
-
     }
     return state;
 }

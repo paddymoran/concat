@@ -1,6 +1,11 @@
 import * as React from "react";
 import { findDOMNode } from "react-dom";
+import * as Promise from 'bluebird';
 const PDFJS = require('pdfjs-dist');
+
+Promise.config({
+    cancellation: true
+});
 
 interface PDFProps {
     data: ArrayBuffer;
@@ -10,7 +15,7 @@ interface PDFProps {
     url?: string;
 }
 
-class PDF extends React.Component<PDFProps, any> {
+export class PDF extends React.Component<PDFProps, any> {
     _pdfPromise;
     _pagePromises;
     constructor(props) {
@@ -22,7 +27,7 @@ class PDF extends React.Component<PDFProps, any> {
     }
 
     componentDidMount() {
-        if(this.props.worker === false){
+        if (this.props.worker === false) {
             PDFJS.disableWorker = true;
         }
         this.loadDocument(this.props);
@@ -40,7 +45,7 @@ class PDF extends React.Component<PDFProps, any> {
     }
 
     loadDocument(props) {
-        if(props.data || props.url){
+        if (props.data || props.url) {
             this.cleanup();
             this._pdfPromise = Promise.resolve(PDFJS.getDocument(props.data ? { data: props.data } : props.url))
                 .then(this.completeDocument)
@@ -70,7 +75,7 @@ class PDF extends React.Component<PDFProps, any> {
     }
 
     componentDidUpdate() {
-        if(this.state.pdf && this.state.pages){
+        if (this.state.pdf && this.state.pages) {
             this.state.pages.map((page, i) => {
                 const canvas = findDOMNode(this.refs[i]),
                     context = canvas.getContext('2d'),
@@ -101,6 +106,3 @@ class PDF extends React.Component<PDFProps, any> {
         </div>
     }
 }
-
-
-export default PDF;

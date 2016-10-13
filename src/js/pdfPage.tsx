@@ -24,9 +24,7 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
         super(props);
         this._pdfPromise = null;
         this._pagePromises = null;
-        this.state = {
-            pageNumber: 1
-        };
+        this.state = {};
         this.completeDocument = this.completeDocument.bind(this);
     }
 
@@ -35,6 +33,9 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
             PDFJS.disableWorker = true;
         }
         this.loadDocument(this.props);
+        if (this.state.pdf && this.state.page) {
+            this.loadPage(this.props.pageNumber);
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -47,29 +48,34 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
         }
     }
 
-    loadDocument(props) {
-        if (props.data || props.url) {
+    loadDocument(newProps) {
+        if (newProps.data || newProps.url) {
             this.cleanup();
-            this._pdfPromise = Promise.resolve(PDFJS.getDocument(props.data ? { data: props.data } : props.url))
-                .then(this.completeDocument)
+            this._pdfPromise = Promise.resolve(PDFJS.getDocument(newProps.data ? { data: newProps.data } : newProps.url))
+                .then((pdf) => { this.handleDocumentUpload(pdf) })
+                .then(() => { this.loadPage(this.props.pageNumber) })
                 .catch(PDFJS.MissingPDFException, () => this.setState({error: "Can't find PDF"}))
                 .catch((e) => this.setState({error: e.message}))
         }
     }
 
-    completeDocument(pdf) {
+    handleDocumentUpload(pdf) {
+        this.setState({ pdf: pdf, error: null });
+        return this._pdfPromise;
+    }
+
+    completeDocument(pdf, newProps) {
         this.setState({ pdf: pdf, error: null });
         this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
-
-        this._pagePromises = pdf.getPage(this.props.pageNumber);
+        this._pagePromises = pdf.getPage(newProps.pageNumber);
         this._pagePromises.then((page) => {
             this.setState({ page: page });
         })
         .catch((e) => {
             throw e;
-        }).then(() => {
-            return this._pagePromises;
         });
+
+        return this._pagePromises;
     }
 
     componentWillUnmount() {
@@ -81,28 +87,33 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
         this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
     }
 
-    componentWillReceiveProps(nextProps) {
-        this.setState({ pageNumber: nextProps.pageNumer });
+    componentDidUpdate() {
+        if (this.state.pdf && this.state.page) {
+            this.loadPage(this.props.pageNumber);
+        }
     }
 
-    componentDidUpdate() {
-        console.log(1);
-        if (this.state.pdf && this.state.page) {
-            const canvas = findDOMNode(this.refs.pdfPage);
-            const context = canvas.getContext('2d');
-            const scale = this.props.scale || 1;
-            const viewport = this.state.page.getViewport(canvas.width / this.state.page.getViewport(scale).width);
+    loadPage(pageNumber) {
+        console.log(100);
+        // let promise = this.state.pdf.getPage(this.props.pageNumber);
+        // promise.then((newPage) => {
+        //     this.setState({ page: newPage });
+        // }).then(() => {
+        //     const canvas = findDOMNode(this.refs.pdfPage);
+        //     const context = canvas.getContext('2d');
+        //     const scale = this.props.scale || 1;
+        //     const viewport = this.state.page.getViewport(canvas.width / this.state.page.getViewport(scale).width);
             
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
+        //     canvas.height = viewport.height;
+        //     canvas.width = viewport.width;
 
-            this.state.page.render({
-                canvasContext: context,
-                viewport: viewport
-            });
+        //     this.state.page.render({
+        //         canvasContext: context,
+        //         viewport: viewport
+        //     });
 
-            this.props.finished && this.props.finished();
-        }
+        //     this.props.finished && this.props.finished();
+        // });
     }
 
     render() {

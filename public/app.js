@@ -42054,7 +42054,6 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var React = __webpack_require__(298);
-	var react_dom_1 = __webpack_require__(330);
 	var Promise = __webpack_require__(695);
 	var PDFJS = __webpack_require__(697);
 	Promise.config({
@@ -42071,9 +42070,7 @@
 	
 	        _this._pdfPromise = null;
 	        _this._pagePromises = null;
-	        _this.state = {
-	            pageNumber: 1
-	        };
+	        _this.state = {};
 	        _this.completeDocument = _this.completeDocument.bind(_this);
 	        return _this;
 	    }
@@ -42085,6 +42082,9 @@
 	                PDFJS.disableWorker = true;
 	            }
 	            this.loadDocument(this.props);
+	            if (this.state.pdf && this.state.page) {
+	                this.loadPage(this.props.pageNumber);
+	            }
 	        }
 	    }, {
 	        key: "shouldComponentUpdate",
@@ -42100,12 +42100,16 @@
 	        }
 	    }, {
 	        key: "loadDocument",
-	        value: function loadDocument(props) {
+	        value: function loadDocument(newProps) {
 	            var _this2 = this;
 	
-	            if (props.data || props.url) {
+	            if (newProps.data || newProps.url) {
 	                this.cleanup();
-	                this._pdfPromise = Promise.resolve(PDFJS.getDocument(props.data ? { data: props.data } : props.url)).then(this.completeDocument).catch(PDFJS.MissingPDFException, function () {
+	                this._pdfPromise = Promise.resolve(PDFJS.getDocument(newProps.data ? { data: newProps.data } : newProps.url)).then(function (pdf) {
+	                    _this2.handleDocumentUpload(pdf);
+	                }).then(function () {
+	                    _this2.loadPage(_this2.props.pageNumber);
+	                }).catch(PDFJS.MissingPDFException, function () {
 	                    return _this2.setState({ error: "Can't find PDF" });
 	                }).catch(function (e) {
 	                    return _this2.setState({ error: e.message });
@@ -42113,20 +42117,25 @@
 	            }
 	        }
 	    }, {
+	        key: "handleDocumentUpload",
+	        value: function handleDocumentUpload(pdf) {
+	            this.setState({ pdf: pdf, error: null });
+	            return this._pdfPromise;
+	        }
+	    }, {
 	        key: "completeDocument",
-	        value: function completeDocument(pdf) {
+	        value: function completeDocument(pdf, newProps) {
 	            var _this3 = this;
 	
 	            this.setState({ pdf: pdf, error: null });
 	            this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
-	            this._pagePromises = pdf.getPage(this.props.pageNumber);
+	            this._pagePromises = pdf.getPage(newProps.pageNumber);
 	            this._pagePromises.then(function (page) {
 	                _this3.setState({ page: page });
 	            }).catch(function (e) {
 	                throw e;
-	            }).then(function () {
-	                return _this3._pagePromises;
 	            });
+	            return this._pagePromises;
 	        }
 	    }, {
 	        key: "componentWillUnmount",
@@ -42140,27 +42149,32 @@
 	            this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
 	        }
 	    }, {
-	        key: "componentWillReceiveProps",
-	        value: function componentWillReceiveProps(nextProps) {
-	            this.setState({ pageNumber: nextProps.pageNumer });
-	        }
-	    }, {
 	        key: "componentDidUpdate",
 	        value: function componentDidUpdate() {
-	            console.log(1);
 	            if (this.state.pdf && this.state.page) {
-	                var canvas = react_dom_1.findDOMNode(this.refs.pdfPage);
-	                var context = canvas.getContext('2d');
-	                var scale = this.props.scale || 1;
-	                var viewport = this.state.page.getViewport(canvas.width / this.state.page.getViewport(scale).width);
-	                canvas.height = viewport.height;
-	                canvas.width = viewport.width;
-	                this.state.page.render({
-	                    canvasContext: context,
-	                    viewport: viewport
-	                });
-	                this.props.finished && this.props.finished();
+	                this.loadPage(this.props.pageNumber);
 	            }
+	        }
+	    }, {
+	        key: "loadPage",
+	        value: function loadPage(pageNumber) {
+	            console.log(100);
+	            // let promise = this.state.pdf.getPage(this.props.pageNumber);
+	            // promise.then((newPage) => {
+	            //     this.setState({ page: newPage });
+	            // }).then(() => {
+	            //     const canvas = findDOMNode(this.refs.pdfPage);
+	            //     const context = canvas.getContext('2d');
+	            //     const scale = this.props.scale || 1;
+	            //     const viewport = this.state.page.getViewport(canvas.width / this.state.page.getViewport(scale).width);
+	            //     canvas.height = viewport.height;
+	            //     canvas.width = viewport.width;
+	            //     this.state.page.render({
+	            //         canvasContext: context,
+	            //         viewport: viewport
+	            //     });
+	            //     this.props.finished && this.props.finished();
+	            // });
 	        }
 	    }, {
 	        key: "render",

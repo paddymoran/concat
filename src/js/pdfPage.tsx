@@ -7,22 +7,26 @@ Promise.config({
     cancellation: true
 });
 
-interface PDFProps {
+interface PDFPageProps {
     data: ArrayBuffer;
+    pageNumber: number;
     width: number;
     finished: Function;
     worker?: boolean;
     url?: string;
 }
 
-export class PDF extends React.Component<PDFProps, any> {
+export class PDFPage extends React.Component<PDFPageProps, any> {
     _pdfPromise;
     _pagePromises;
+
     constructor(props) {
         super(props);
         this._pdfPromise = null;
         this._pagePromises = null;
-        this.state = {};
+        this.state = {
+            pageNumber: 1
+        };
         this.completeDocument = this.completeDocument.bind(this);
     }
 
@@ -35,11 +39,10 @@ export class PDF extends React.Component<PDFProps, any> {
 
     shouldComponentUpdate(nextProps, nextState) {
         return true;
-       // return shallowCompare(this, nextProps, nextState);
     }
 
     componentWillReceiveProps(newProps) {
-        if((newProps.data && newProps.data !== this.props.data)) {
+        if (newProps.data && newProps.data !== this.props.data) {
             this.loadDocument(newProps);
         }
     }
@@ -57,12 +60,16 @@ export class PDF extends React.Component<PDFProps, any> {
     completeDocument(pdf) {
         this.setState({ pdf: pdf, error: null });
         this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
-        return this._pagePromises = Promise.map(Array(this.state.pdf.numPages).fill(), (p, i) => {
-            return pdf.getPage(i + 1);
+
+        this._pagePromises = pdf.getPage(this.props.pageNumber);
+        this._pagePromises.then((page) => {
+            this.setState({ page: page });
         })
-        .then((pages) => {
-            this.setState({ pages: pages });
-        })
+        .catch((e) => {
+            throw e;
+        }).then(() => {
+            return this._pagePromises;
+        });
     }
 
     componentWillUnmount() {
@@ -74,35 +81,43 @@ export class PDF extends React.Component<PDFProps, any> {
         this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
     }
 
+    componentWillReceiveProps(nextProps) {
+        this.setState({ pageNumber: nextProps.pageNumer });
+    }
+
     componentDidUpdate() {
-        if (this.state.pdf && this.state.pages) {
-            this.state.pages.map((page, i) => {
-                const canvas = findDOMNode(this.refs[i]),
-                    context = canvas.getContext('2d'),
-                    scale = this.props.scale || 1,
-                    viewport = page.getViewport(canvas.width / page.getViewport(scale).width);
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                page.render({
-                    canvasContext: context,
-                    viewport: viewport
-                });
+        console.log(1);
+        if (this.state.pdf && this.state.page) {
+            const canvas = findDOMNode(this.refs.pdfPage);
+            const context = canvas.getContext('2d');
+            const scale = this.props.scale || 1;
+            const viewport = this.state.page.getViewport(canvas.width / this.state.page.getViewport(scale).width);
+            
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            this.state.page.render({
+                canvasContext: context,
+                viewport: viewport
             });
+
             this.props.finished && this.props.finished();
         }
     }
 
     render() {
-        if(this.state.error){
+        if (this.state.error) {
             return <div>{ this.state.error }</div>
         }
-        if(!this.state.pdf){
+
+        if (!this.state.pdf) {
             return <div>No Document to show</div>
         }
-        return <div>
-            { Array(this.state.pdf.numPages).fill().map((page, i) => {
-                return <canvas key={i} ref={i} width={ this.props.width || 1500}  />
-            }) }
-        </div>
+
+        return (
+            <div>
+                <canvas ref='pdfPage' width={ this.props.width || 1500}  />
+            </div>
+        )
     }
 }

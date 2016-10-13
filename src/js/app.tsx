@@ -13,6 +13,7 @@ import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { DragSource, DropTarget, DragDropContext } from 'react-dnd';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { PDF } from './pdf.tsx'
+import { PDFPage } from './pdfPage.tsx'
 
 const serialize = function(obj, prefix?) {
   var str = [];
@@ -140,14 +141,11 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
         const opacity = isDragging ? 0 : 1;
         const document = this.props.document;
 
-        console.log(document.pageNumber);
-        console.log(document);
-
         return connectDragSource(connectDropTarget(
             <div className="document" style={{opacity}}>
-                <button className="btn" onClick={() => this.movePage(document, -1)} disabled={document.pageNumber <= 0}>Prev</button>
-                <button className="btn" onClick={() => this.movePage(document, 1)} disabled={document.pageNumber >= document.numPages}>Next</button>
-                { document.arrayBuffer && <PDF data={document.arrayBuffer} width='500' /> }
+                <button className="btn" onClick={() => this.movePage(document, -1)} disabled={document.pageNumber <= 1}>Prev</button>
+                <button className="btn" onClick={() => this.movePage(document, 1)}>Next</button>
+                { document.arrayBuffer && <PDFPage data={document.arrayBuffer} width={500} pageNumber={1} worker={false} /> }
                 
                 <button className="remove" onClick={() => this.props.removeDocument()}>✖</button>
                 <div className="filename">
@@ -207,7 +205,7 @@ class DocumentList extends React.Component<DocumentListProps, {}> {
             const fileReader = new FileReader();
             fileReader.readAsArrayBuffer(doc.file);
             fileReader.onload = () => {
-                props.updateDocument({id: doc.id, arrayBuffer: fileReader.result, pageNumber: 0});
+                props.updateDocument({id: doc.id, arrayBuffer: fileReader.result, pageNumber: 1});
             };
         });
 
@@ -240,7 +238,7 @@ class DocumentList extends React.Component<DocumentListProps, {}> {
                         this.props.updateDocument(Object.assign({id: f.id}, data));
                     }}
                     removeDocument={() => this.props.removeDocument({id: f.id})}
-                    moveDocument={this.moveDocument}/>
+                    moveDocument={this.moveDocument} />
                 })}
             </div>
     }
@@ -342,8 +340,6 @@ class App extends React.Component<{}, {}> {
         return <DragContextDocumentHandlerConnected  />
     }
 }
-
-
 
 ReactDOM.render(
     <Provider store={store}>

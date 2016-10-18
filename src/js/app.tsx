@@ -14,6 +14,7 @@ import { DragSource, DropTarget, DragDropContext } from 'react-dnd';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { PDF } from './pdf.tsx'
 import { PDFPage } from './pdfPage.tsx'
+import { PDFPreview } from './pdfPreview.tsx'
 
 const serialize = function(obj, prefix?) {
   var str = [];
@@ -141,20 +142,13 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
         });
     }
 
+    // Set the numPages and change the pageNumber to the last page
     documentLoaded(pdf) {
         this.props.updateDocument({
             id: this.props.document.id,
+            pageNumber: pdf.numPages,
             numPages: pdf.numPages
         });
-    }
-
-    isLastPage(document) {
-        console.log('testing testing testing');
-        if (!document.numPages) {
-            console.log('ERRRRRRROOOOORRRRRR')
-            return true;
-        }
-        return document.pageNumber == document.numPages;
     }
 
     render() {
@@ -173,7 +167,23 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
                     Next
                 </button>
 
+                <div className="filename">
+                    { this.props.document.filename }
+                </div>
+
+                { document.pageNumber && 
+                    <div className="pageNumber">
+                        Page {document.pageNumber} of {numPages}
+                    </div>
+                }
+
                 { document.arrayBuffer && 
+                    <PDFPreview 
+                        data={document.arrayBuffer} 
+                        documentLoaded={this.documentLoaded.bind(this)} 
+                        width={150} 
+                        pageNumber={document.pageNumber} 
+                        worker={false} />
                     <PDFPage 
                         data={document.arrayBuffer} 
                         documentLoaded={this.documentLoaded.bind(this)} 
@@ -183,19 +193,18 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
                 }
                 
                 <button className="remove" onClick={() => this.props.removeDocument()}>✖</button>
-                <div className="filename">
-                    { this.props.document.filename }
-                </div>
                 <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>
-                { (this.props.document.status === 'posting')  &&
+                    { (this.props.document.status === 'posting')  &&
 
-                    <div className="progress" key="progress">
-                      <div className="progress-bar progress-bar-striped active" style={{width: `${this.props.document.progress*100}%`}}>
-                      </div>
-                    </div>
-                   }
-                     </ReactCSSTransitionGroup>
-            </div>));
+                        <div className="progress" key="progress">
+                          <div
+                              className="progress-bar progress-bar-striped active"
+                              style={{width: `${this.props.document.progress * 100}%`}} />
+                        </div>
+                    }
+                 </ReactCSSTransitionGroup>
+            </div>
+        ));
     }
 }
 
@@ -240,7 +249,10 @@ class DocumentList extends React.Component<DocumentListProps, {}> {
             const fileReader = new FileReader();
             fileReader.readAsArrayBuffer(doc.file);
             fileReader.onload = () => {
-                props.updateDocument({id: doc.id, arrayBuffer: fileReader.result, pageNumber: 1});
+                props.updateDocument({
+                    id: doc.id,
+                    arrayBuffer: fileReader.result
+                });
             };
         });
 

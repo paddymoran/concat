@@ -164,6 +164,7 @@
 	var react_dnd_1 = __webpack_require__(539);
 	var HTML5Backend = __webpack_require__(657);
 	var pdfPage_tsx_1 = __webpack_require__(694);
+	var pdfPreview_tsx_1 = __webpack_require__(700);
 	var serialize = function serialize(obj, prefix) {
 	    var str = [];
 	    for (var p in obj) {
@@ -239,23 +240,16 @@
 	                pageNumber: newPageNumber
 	            });
 	        }
+	        // Set the numPages and change the pageNumber to the last page
+	
 	    }, {
 	        key: "documentLoaded",
 	        value: function documentLoaded(pdf) {
 	            this.props.updateDocument({
 	                id: this.props.document.id,
+	                pageNumber: pdf.numPages,
 	                numPages: pdf.numPages
 	            });
-	        }
-	    }, {
-	        key: "isLastPage",
-	        value: function isLastPage(document) {
-	            console.log('testing testing testing');
-	            if (!document.numPages) {
-	                console.log('ERRRRRRROOOOORRRRRR');
-	                return true;
-	            }
-	            return document.pageNumber == document.numPages;
 	        }
 	    }, {
 	        key: "render",
@@ -274,9 +268,9 @@
 	                    return _this2.movePage(document, -1);
 	                }, disabled: document.pageNumber <= 1 }, "Prev"), React.createElement("button", { className: "btn", onClick: function onClick() {
 	                    return _this2.movePage(document, 1);
-	                }, disabled: document.pageNumber == numPages }, "Next"), document.arrayBuffer && React.createElement(pdfPage_tsx_1.PDFPage, { data: document.arrayBuffer, documentLoaded: this.documentLoaded.bind(this), width: 500, pageNumber: document.pageNumber, worker: false }), React.createElement("button", { className: "remove", onClick: function onClick() {
+	                }, disabled: document.pageNumber == numPages }, "Next"), React.createElement("div", { className: "filename" }, this.props.document.filename), document.pageNumber && React.createElement("div", { className: "pageNumber" }, "Page ", document.pageNumber, " of ", numPages), document.arrayBuffer && React.createElement(pdfPreview_tsx_1.PDFPreview, { data: document.arrayBuffer, documentLoaded: this.documentLoaded.bind(this), width: 150, pageNumber: document.pageNumber, worker: false }), React.createElement(pdfPage_tsx_1.PDFPage, { data: document.arrayBuffer, documentLoaded: this.documentLoaded.bind(this), width: 500, pageNumber: document.pageNumber, worker: false }), React.createElement("button", { className: "remove", onClick: function onClick() {
 	                    return _this2.props.removeDocument();
-	                } }, "✖"), React.createElement("div", { className: "filename" }, this.props.document.filename), React.createElement(ReactCSSTransitionGroup, { transitionName: "progress", transitionEnterTimeout: 300, transitionLeaveTimeout: 500 }, this.props.document.status === 'posting' && React.createElement("div", { className: "progress", key: "progress" }, React.createElement("div", { className: "progress-bar progress-bar-striped active", style: { width: this.props.document.progress * 100 + "%" } }))))));
+	                } }, "✖"), React.createElement(ReactCSSTransitionGroup, { transitionName: "progress", transitionEnterTimeout: 300, transitionLeaveTimeout: 500 }, this.props.document.status === 'posting' && React.createElement("div", { className: "progress", key: "progress" }, React.createElement("div", { className: "progress-bar progress-bar-striped active", style: { width: this.props.document.progress * 100 + "%" } }))))));
 	        }
 	    }]);
 	
@@ -336,7 +330,10 @@
 	                var fileReader = new FileReader();
 	                fileReader.readAsArrayBuffer(doc.file);
 	                fileReader.onload = function () {
-	                    props.updateDocument({ id: doc.id, arrayBuffer: fileReader.result, pageNumber: 1 });
+	                    props.updateDocument({
+	                        id: doc.id,
+	                        arrayBuffer: fileReader.result
+	                    });
 	                };
 	            });
 	            eachSeries(unUploaded, function (doc) {
@@ -42106,9 +42103,6 @@
 	                PDFJS.disableWorker = true;
 	            }
 	            this.loadDocument(this.props);
-	            if (this.state.pdf && this.state.pages) {
-	                this.loadPage(this.props.pageNumber);
-	            }
 	        }
 	    }, {
 	        key: "componentWillReceiveProps",
@@ -42129,9 +42123,7 @@
 	                        _this2.props.documentLoaded(pdf);
 	                    }
 	                    return pdf;
-	                }).then(function (pdf) {
-	                    _this2.handleDocumentUpload(pdf);
-	                }).catch(PDFJS.MissingPDFException, function () {
+	                }).then(this.completeDocument).catch(PDFJS.MissingPDFException, function () {
 	                    return _this2.setState({ error: "Can't find PDF" });
 	                }).catch(function (e) {
 	                    return _this2.setState({ error: e.message });
@@ -42139,11 +42131,12 @@
 	            }
 	        }
 	    }, {
-	        key: "handleDocumentUpload",
-	        value: function handleDocumentUpload(pdf) {
+	        key: "completeDocument",
+	        value: function completeDocument(pdf) {
 	            var _this3 = this;
 	
 	            this.setState({ pdf: pdf, error: null });
+	            this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
 	            return this._pagePromises = Promise.map(Array(this.state.pdf.numPages).fill(), function (p, i) {
 	                return pdf.getPage(i + 1);
 	            }).then(function (pages) {
@@ -42152,12 +42145,6 @@
 	            }).then(function (pages) {
 	                _this3.loadPage(_this3.props.pageNumber);
 	            });
-	        }
-	    }, {
-	        key: "completeDocument",
-	        value: function completeDocument(pdf) {
-	            this.setState({ pdf: pdf, error: null });
-	            this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
 	        }
 	    }, {
 	        key: "componentWillUnmount",
@@ -59485,6 +59472,161 @@
 	
 	
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 698 */,
+/* 699 */,
+/* 700 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var React = __webpack_require__(298);
+	var react_dom_1 = __webpack_require__(330);
+	var Promise = __webpack_require__(695);
+	var PDFJS = __webpack_require__(697);
+	Promise.config({
+	    cancellation: true
+	});
+	
+	var PDFPreview = function (_React$Component) {
+	    _inherits(PDFPreview, _React$Component);
+	
+	    function PDFPreview(props) {
+	        _classCallCheck(this, PDFPreview);
+	
+	        var _this = _possibleConstructorReturn(this, (PDFPreview.__proto__ || Object.getPrototypeOf(PDFPreview)).call(this, props));
+	
+	        _this._pdfPromise = null;
+	        _this._pagePromises = null;
+	        _this.state = {};
+	        _this.completeDocument = _this.completeDocument.bind(_this);
+	        return _this;
+	    }
+	
+	    _createClass(PDFPreview, [{
+	        key: "componentDidMount",
+	        value: function componentDidMount() {
+	            if (this.props.worker === false) {
+	                PDFJS.disableWorker = true;
+	            }
+	            this.loadDocument(this.props);
+	        }
+	    }, {
+	        key: "componentWillReceiveProps",
+	        value: function componentWillReceiveProps(newProps) {
+	            if (newProps.data && newProps.data !== this.props.data) {
+	                this.loadDocument(newProps);
+	            }
+	        }
+	    }, {
+	        key: "loadDocument",
+	        value: function loadDocument(newProps) {
+	            var _this2 = this;
+	
+	            if (newProps.data || newProps.url) {
+	                this.cleanup();
+	                this._pdfPromise = Promise.resolve(PDFJS.getDocument(newProps.data ? { data: newProps.data } : newProps.url)).then(function (pdf) {
+	                    if (_this2.props.documentLoaded) {
+	                        _this2.props.documentLoaded(pdf);
+	                    }
+	                    return pdf;
+	                }).then(this.completeDocument).catch(PDFJS.MissingPDFException, function () {
+	                    return _this2.setState({ error: "Can't find PDF" });
+	                }).catch(function (e) {
+	                    return _this2.setState({ error: e.message });
+	                });
+	            }
+	        }
+	    }, {
+	        key: "completeDocument",
+	        value: function completeDocument(pdf) {
+	            var _this3 = this;
+	
+	            this.setState({ pdf: pdf, error: null });
+	            this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
+	            return this._pagePromises = Promise.map(Array(this.state.pdf.numPages).fill(), function (p, i) {
+	                return pdf.getPage(i + 1);
+	            }).then(function (pages) {
+	                _this3.setState({ pages: pages });
+	                return pages;
+	            }).then(function (pages) {
+	                _this3.loadPage(_this3.props.pageNumber);
+	            });
+	        }
+	    }, {
+	        key: "componentWillUnmount",
+	        value: function componentWillUnmount() {
+	            this.cleanup();
+	        }
+	    }, {
+	        key: "cleanup",
+	        value: function cleanup() {
+	            this._pdfPromise && this._pdfPromise.isPending() && this._pdfPromise.cancel();
+	            this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
+	        }
+	    }, {
+	        key: "componentDidUpdate",
+	        value: function componentDidUpdate(prevProps, prevState) {
+	            if (this.props.pageNumber != prevProps.pageNumber) {
+	                this.loadPage(this.props.pageNumber);
+	            }
+	        }
+	    }, {
+	        key: "loadPage",
+	        value: function loadPage() {
+	            var _this4 = this;
+	
+	            var page = void 0,
+	                canvas = void 0,
+	                context = void 0,
+	                viewport = void 0;
+	            var scale = this.props.scale || 1;
+	            if (this.state.pages) {
+	                this.state.pages.map(function (page, i) {
+	                    page = _this4.state.pages[i];
+	                    canvas = react_dom_1.findDOMNode(_this4.refs['preview-canvas-' + i]);
+	                    context = canvas.getContext('2d');
+	                    viewport = page.getViewport(canvas.width / page.getViewport(scale).width);
+	                    canvas.height = viewport.height;
+	                    canvas.width = viewport.width;
+	                    page.render({
+	                        canvasContext: context,
+	                        viewport: viewport
+	                    });
+	                });
+	                this.props.finished && this.props.finished();
+	            }
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var _this5 = this;
+	
+	            if (this.state.error) {
+	                return React.createElement("div", null, this.state.error);
+	            }
+	            if (!this.state.pdf) {
+	                return React.createElement("div", null, "Loading...");
+	            }
+	            return React.createElement("div", null, Array(this.state.pdf.numPages).fill().map(function (page, i) {
+	                return React.createElement("canvas", { key: i, ref: 'preview-canvas-' + i, width: _this5.props.width || 1500 });
+	            }));
+	        }
+	    }]);
+	
+	    return PDFPreview;
+	}(React.Component);
+	
+	exports.PDFPreview = PDFPreview;
 
 /***/ }
 /******/ ])));

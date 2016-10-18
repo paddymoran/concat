@@ -123,7 +123,8 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
 
         return (
             <div>
-                <canvas ref='pdfPage' width={ this.props.width || 1500}  />
+                <PDFPreview />
+                <PDFPage />
             </div>
         )
     }

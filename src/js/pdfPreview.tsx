@@ -7,7 +7,7 @@ Promise.config({
     cancellation: true
 });
 
-interface PDFPageProps {
+interface PDFPreviewProps {
     data: ArrayBuffer;
     pageNumber: number;
     width: number;
@@ -17,7 +17,7 @@ interface PDFPageProps {
     url?: string;
 }
 
-export class PDFPage extends React.Component<PDFPageProps, any> {
+export class PDFPreview extends React.Component<PDFPreviewProps, any> {
     _pdfPromise;
     _pagePromises;
 
@@ -89,23 +89,24 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
         }
     }
 
-    loadPage(pageNumber) {
-        const pageIndex = pageNumber - 1;
+    loadPage() {
+        let page, canvas, context, viewport;
+        const scale = this.props.scale || 1;
 
-        if (this.state.pages && this.state.pages[pageIndex]) {
-            const page = this.state.pages[pageIndex];
+        if (this.state.pages) {
+            this.state.pages.map((page, i) => {
+                page = this.state.pages[i];
+                canvas = findDOMNode(this.refs['preview-canvas-' + i]);
+                context = canvas.getContext('2d');
+                viewport = page.getViewport(canvas.width / page.getViewport(scale).width);
 
-            const canvas = findDOMNode(this.refs.pdfPage);
-            const context = canvas.getContext('2d');
-            const scale = this.props.scale || 1;
-            const viewport = page.getViewport(canvas.width / page.getViewport(scale).width);
-            
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
 
-            page.render({
-                canvasContext: context,
-                viewport: viewport
+                page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                });
             });
 
             this.props.finished && this.props.finished();
@@ -123,7 +124,9 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
 
         return (
             <div>
-                <canvas ref='pdfPage' width={ this.props.width || 1500}  />
+                { Array(this.state.pdf.numPages).fill().map((page, i) => {
+                    return <canvas key={i} ref={'preview-canvas-' + i} width={ this.props.width || 1500}  />
+                }) }
             </div>
         )
     }

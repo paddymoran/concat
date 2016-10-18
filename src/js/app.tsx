@@ -133,19 +133,54 @@ const documentDragTarget = {
 
 class DocumentView extends React.Component<DocumentViewProps, {}>  {
     movePage(document, nPages) {
-        this.props.updateDocument({id: document.id, pageNumber: document.pageNumber + nPages})
+        const newPageNumber = document.pageNumber + nPages;
+
+        this.props.updateDocument({
+            id: document.id,
+            pageNumber: newPageNumber
+        });
+    }
+
+    documentLoaded(pdf) {
+        this.props.updateDocument({
+            id: this.props.document.id,
+            numPages: pdf.numPages
+        });
+    }
+
+    isLastPage(document) {
+        console.log('testing testing testing');
+        if (!document.numPages) {
+            console.log('ERRRRRRROOOOORRRRRR')
+            return true;
+        }
+        return document.pageNumber == document.numPages;
     }
 
     render() {
         const { isDragging, connectDragSource, connectDropTarget } = this.props;
         const opacity = isDragging ? 0 : 1;
         const document = this.props.document;
+        const numPages = document.numPages || 1;
 
         return connectDragSource(connectDropTarget(
             <div className="document" style={{opacity}}>
-                <button className="btn" onClick={() => this.movePage(document, -1)} disabled={document.pageNumber <= 1}>Prev</button>
-                <button className="btn" onClick={() => this.movePage(document, 1)}>Next</button>
-                { document.arrayBuffer && <PDFPage data={document.arrayBuffer} width={500} pageNumber={1} worker={false} /> }
+                <button className="btn" onClick={() => this.movePage(document, -1)} disabled={document.pageNumber <= 1}>
+                    Prev
+                </button>
+                
+                <button className="btn" onClick={() => this.movePage(document, 1)} disabled={document.pageNumber == numPages}>
+                    Next
+                </button>
+
+                { document.arrayBuffer && 
+                    <PDFPage 
+                        data={document.arrayBuffer} 
+                        documentLoaded={this.documentLoaded.bind(this)} 
+                        width={500} 
+                        pageNumber={document.pageNumber} 
+                        worker={false} />
+                }
                 
                 <button className="remove" onClick={() => this.props.removeDocument()}>✖</button>
                 <div className="filename">

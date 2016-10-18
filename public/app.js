@@ -233,7 +233,29 @@
 	    _createClass(DocumentView, [{
 	        key: "movePage",
 	        value: function movePage(document, nPages) {
-	            this.props.updateDocument({ id: document.id, pageNumber: document.pageNumber + nPages });
+	            var newPageNumber = document.pageNumber + nPages;
+	            this.props.updateDocument({
+	                id: document.id,
+	                pageNumber: newPageNumber
+	            });
+	        }
+	    }, {
+	        key: "documentLoaded",
+	        value: function documentLoaded(pdf) {
+	            this.props.updateDocument({
+	                id: this.props.document.id,
+	                numPages: pdf.numPages
+	            });
+	        }
+	    }, {
+	        key: "isLastPage",
+	        value: function isLastPage(document) {
+	            console.log('testing testing testing');
+	            if (!document.numPages) {
+	                console.log('ERRRRRRROOOOORRRRRR');
+	                return true;
+	            }
+	            return document.pageNumber == document.numPages;
 	        }
 	    }, {
 	        key: "render",
@@ -247,11 +269,12 @@
 	
 	            var opacity = isDragging ? 0 : 1;
 	            var document = this.props.document;
+	            var numPages = document.numPages || 1;
 	            return connectDragSource(connectDropTarget(React.createElement("div", { className: "document", style: { opacity: opacity } }, React.createElement("button", { className: "btn", onClick: function onClick() {
 	                    return _this2.movePage(document, -1);
 	                }, disabled: document.pageNumber <= 1 }, "Prev"), React.createElement("button", { className: "btn", onClick: function onClick() {
 	                    return _this2.movePage(document, 1);
-	                } }, "Next"), document.arrayBuffer && React.createElement(pdfPage_tsx_1.PDFPage, { data: document.arrayBuffer, width: 500, pageNumber: 1, worker: false }), React.createElement("button", { className: "remove", onClick: function onClick() {
+	                }, disabled: document.pageNumber == numPages }, "Next"), document.arrayBuffer && React.createElement(pdfPage_tsx_1.PDFPage, { data: document.arrayBuffer, documentLoaded: this.documentLoaded.bind(this), width: 500, pageNumber: document.pageNumber, worker: false }), React.createElement("button", { className: "remove", onClick: function onClick() {
 	                    return _this2.props.removeDocument();
 	                } }, "✖"), React.createElement("div", { className: "filename" }, this.props.document.filename), React.createElement(ReactCSSTransitionGroup, { transitionName: "progress", transitionEnterTimeout: 300, transitionLeaveTimeout: 500 }, this.props.document.status === 'posting' && React.createElement("div", { className: "progress", key: "progress" }, React.createElement("div", { className: "progress-bar progress-bar-striped active", style: { width: this.props.document.progress * 100 + "%" } }))))));
 	        }
@@ -42054,6 +42077,7 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var React = __webpack_require__(298);
+	var react_dom_1 = __webpack_require__(330);
 	var Promise = __webpack_require__(695);
 	var PDFJS = __webpack_require__(697);
 	Promise.config({
@@ -42082,14 +42106,9 @@
 	                PDFJS.disableWorker = true;
 	            }
 	            this.loadDocument(this.props);
-	            if (this.state.pdf && this.state.page) {
+	            if (this.state.pdf && this.state.pages) {
 	                this.loadPage(this.props.pageNumber);
 	            }
-	        }
-	    }, {
-	        key: "shouldComponentUpdate",
-	        value: function shouldComponentUpdate(nextProps, nextState) {
-	            return true;
 	        }
 	    }, {
 	        key: "componentWillReceiveProps",
@@ -42106,9 +42125,12 @@
 	            if (newProps.data || newProps.url) {
 	                this.cleanup();
 	                this._pdfPromise = Promise.resolve(PDFJS.getDocument(newProps.data ? { data: newProps.data } : newProps.url)).then(function (pdf) {
+	                    if (_this2.props.documentLoaded) {
+	                        _this2.props.documentLoaded(pdf);
+	                    }
+	                    return pdf;
+	                }).then(function (pdf) {
 	                    _this2.handleDocumentUpload(pdf);
-	                }).then(function () {
-	                    _this2.loadPage(_this2.props.pageNumber);
 	                }).catch(PDFJS.MissingPDFException, function () {
 	                    return _this2.setState({ error: "Can't find PDF" });
 	                }).catch(function (e) {
@@ -42119,23 +42141,23 @@
 	    }, {
 	        key: "handleDocumentUpload",
 	        value: function handleDocumentUpload(pdf) {
-	            this.setState({ pdf: pdf, error: null });
-	            return this._pdfPromise;
-	        }
-	    }, {
-	        key: "completeDocument",
-	        value: function completeDocument(pdf, newProps) {
 	            var _this3 = this;
 	
 	            this.setState({ pdf: pdf, error: null });
-	            this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
-	            this._pagePromises = pdf.getPage(newProps.pageNumber);
-	            this._pagePromises.then(function (page) {
-	                _this3.setState({ page: page });
-	            }).catch(function (e) {
-	                throw e;
+	            return this._pagePromises = Promise.map(Array(this.state.pdf.numPages).fill(), function (p, i) {
+	                return pdf.getPage(i + 1);
+	            }).then(function (pages) {
+	                _this3.setState({ pages: pages });
+	                return pages;
+	            }).then(function (pages) {
+	                _this3.loadPage(_this3.props.pageNumber);
 	            });
-	            return this._pagePromises;
+	        }
+	    }, {
+	        key: "completeDocument",
+	        value: function completeDocument(pdf) {
+	            this.setState({ pdf: pdf, error: null });
+	            this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
 	        }
 	    }, {
 	        key: "componentWillUnmount",
@@ -42150,31 +42172,29 @@
 	        }
 	    }, {
 	        key: "componentDidUpdate",
-	        value: function componentDidUpdate() {
-	            if (this.state.pdf && this.state.page) {
+	        value: function componentDidUpdate(prevProps, prevState) {
+	            if (this.props.pageNumber != prevProps.pageNumber) {
 	                this.loadPage(this.props.pageNumber);
 	            }
 	        }
 	    }, {
 	        key: "loadPage",
 	        value: function loadPage(pageNumber) {
-	            console.log(100);
-	            // let promise = this.state.pdf.getPage(this.props.pageNumber);
-	            // promise.then((newPage) => {
-	            //     this.setState({ page: newPage });
-	            // }).then(() => {
-	            //     const canvas = findDOMNode(this.refs.pdfPage);
-	            //     const context = canvas.getContext('2d');
-	            //     const scale = this.props.scale || 1;
-	            //     const viewport = this.state.page.getViewport(canvas.width / this.state.page.getViewport(scale).width);
-	            //     canvas.height = viewport.height;
-	            //     canvas.width = viewport.width;
-	            //     this.state.page.render({
-	            //         canvasContext: context,
-	            //         viewport: viewport
-	            //     });
-	            //     this.props.finished && this.props.finished();
-	            // });
+	            var pageIndex = pageNumber - 1;
+	            if (this.state.pages && this.state.pages[pageIndex]) {
+	                var page = this.state.pages[pageIndex];
+	                var canvas = react_dom_1.findDOMNode(this.refs.pdfPage);
+	                var context = canvas.getContext('2d');
+	                var scale = this.props.scale || 1;
+	                var viewport = page.getViewport(canvas.width / page.getViewport(scale).width);
+	                canvas.height = viewport.height;
+	                canvas.width = viewport.width;
+	                page.render({
+	                    canvasContext: context,
+	                    viewport: viewport
+	                });
+	                this.props.finished && this.props.finished();
+	            }
 	        }
 	    }, {
 	        key: "render",
@@ -42183,7 +42203,7 @@
 	                return React.createElement("div", null, this.state.error);
 	            }
 	            if (!this.state.pdf) {
-	                return React.createElement("div", null, "No Document to show");
+	                return React.createElement("div", null, "Loading...");
 	            }
 	            return React.createElement("div", null, React.createElement("canvas", { ref: 'pdfPage', width: this.props.width || 1500 }));
 	        }

@@ -138,9 +138,7 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
         const numPages = document.numPages || 1;
 
         return connectDragSource(connectDropTarget(
-            <div className="" style={{opacity}}>
-                <button className="remove" onClick={() => this.props.removeDocument()}>✖</button>
-
+            <div className='pdf-screen' style={{opacity}}>
                 { document.pageNumber && 
                     <div className="pageNumber">
                         Page {document.pageNumber} of {numPages}
@@ -153,20 +151,6 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
                         data={document.arrayBuffer}  
                         worker={false} />
                 }
-                {/*{ document.arrayBuffer && 
-                    <PDFPreview 
-                        data={document.arrayBuffer} 
-                        documentLoaded={this.documentLoaded.bind(this)} 
-                        width={150} 
-                        pageNumber={document.pageNumber} 
-                        worker={false} />
-                    <PDFPage 
-                        data={document.arrayBuffer} 
-                        documentLoaded={this.documentLoaded.bind(this)} 
-                        width={500} 
-                        pageNumber={document.pageNumber} 
-                        worker={false} />
-                }*/}
 
                 <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>
                     { (this.props.document.status === 'posting')  &&
@@ -226,27 +210,28 @@ class DocumentList extends React.Component<DocumentListProps, {}> {
             fileReader.onload = () => {
                 props.updateDocument({
                     id: doc.id,
-                    arrayBuffer: fileReader.result
+                    arrayBuffer: fileReader.result,
+                    status: 'complete'
                 });
             };
         });
 
-        eachSeries(unUploaded, (doc) => {
-            const data = new FormData();
-            data.append('file[]', doc.file);
-            return axios.post('/upload', data,
-                {
-                    progress: (progressEvent) => {
-                        // upload loading percentage
-                        const percentCompleted = progressEvent.loaded / progressEvent.total;
-                        props.updateDocument({id: doc.id, progress: percentCompleted});
-                    }
-                }
-            )
-            .then((response) => {
-                props.updateDocument({id: doc.id, status: 'complete', uuid: response.data[doc.filename]});
-            })
-        });
+        // eachSeries(unUploaded, (doc) => {
+        //     const data = new FormData();
+        //     data.append('file[]', doc.file);
+        //     return axios.post('/upload', data,
+        //         {
+        //             progress: (progressEvent) => {
+        //                 // upload loading percentage
+        //                 const percentCompleted = progressEvent.loaded / progressEvent.total;
+        //                 props.updateDocument({id: doc.id, progress: percentCompleted});
+        //             }
+        //         }
+        //     )
+        //     .then((response) => {
+        //         props.updateDocument({id: doc.id, status: 'complete', uuid: response.data[doc.filename]});
+        //     })
+        // });
     }
 
     render() {

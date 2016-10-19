@@ -4,7 +4,7 @@ const PDFJS = require('pdfjs-dist');
 
 interface PDFPageProps {
     page: PDFPageProxy;
-    width: number;
+    drawWidth: number;
 }
 
 export class PDFPage extends React.Component<PDFPageProps, any> {
@@ -26,7 +26,10 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
         const canvas = findDOMNode(this.refs.pdfPage);
         const context = canvas.getContext('2d');
         const scale = this.props.scale || 1;
-        const viewport = this.props.page.getViewport(canvas.width / this.props.page.getViewport(scale).width);
+        const viewport = this.props.page.getViewport(this.props.drawWidth / this.props.page.getViewport(scale).width);
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
 
         this.props.page.render({
             canvasContext: context,
@@ -36,10 +39,8 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
 
     render() {
         return (
-            <div>
-                <canvas
-                    className='pdf-page'
-                    ref='pdfPage' />
+            <div className='pdf-page-wrapper'>
+                <canvas ref='pdfPage' />
             </div>
         )
     }

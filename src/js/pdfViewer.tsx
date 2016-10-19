@@ -103,18 +103,18 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                 <div className='pdf-title'>{this.props.filename}</div>
                 <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
                 
-                <div className='col-xs-3 pdf-preview-panel'>
+                <div className='pdf-preview-panel'>
                     <PDFPreview
                         pages={this.state.pages}
                         changePage={this.changePage.bind(this)}
                         activePageNumber={this.state.pageNumber}
-                        width={100} />
+                        width={120} />
                 </div>
 
-                <div className='col-xs-9'>
+                <div>
                     <PDFPage
                         page={page}
-                        width={1000} />
+                        drawWidth={1000} />
                 </div>
             </div>
         );

@@ -51,12 +51,16 @@ export class PDFPreview extends React.Component<PDFPreviewProps, any> {
                     let classes = pageNumber == this.props.activePageNumber ? 'pdf-thumbnail selected' : 'pdf-thumbnail';
 
                     return (
-                        <canvas
-                            className={classes}
-                            key={i}
-                            onClick={() => { this.changeActivePage(pageNumber); }}
-                            ref={'preview-canvas-' + i}
-                            width={ this.props.width || 1500} />
+                        <div className={classes} key={i}>
+                            <div className='pdf-thumbnail-number'>
+                                {pageNumber}
+                            </div>
+                            
+                            <canvas
+                                onClick={() => { this.changeActivePage(pageNumber); }}
+                                ref={'preview-canvas-' + i}
+                                width={ this.props.width || 1500} />
+                        </div>
                     );
                 }) }
             </div>

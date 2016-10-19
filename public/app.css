@@ -3547,24 +3547,50 @@ nav {
       vertical-align: middle;
       font-size: 13px; }
 
-.pdf-viewer .pdf-title {
-  font-size: 2em;
-  font-weight: 700;
-  text-align: center; }
-
-.pdf-viewer .pdf-preview-panel {
-  background: #ccc; }
-  .pdf-viewer .pdf-preview-panel .pdf-thumbnail {
-    cursor: pointer;
-    padding: 5px; }
-    .pdf-viewer .pdf-preview-panel .pdf-thumbnail.selected {
-      padding: 0;
-      border: 5px solid #c51b24; }
-
-.pdf-viewer .pdf-page {
+.pdf-screen {
+  background: #eaeaea;
+  z-index: 200;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  border: 1px solid black; }
+  overflow: scroll; }
+  .pdf-screen .pdf-viewer .pdf-title {
+    font-size: 2em;
+    font-weight: 700;
+    text-align: center; }
+  .pdf-screen .pdf-viewer .pdf-preview-panel {
+    background: #ccc;
+    position: absolute;
+    height: 100%;
+    left: 0;
+    top: 0;
+    width: 150px;
+    padding: 5px; }
+    .pdf-screen .pdf-viewer .pdf-preview-panel .pdf-thumbnail {
+      position: relative;
+      cursor: pointer;
+      border: 5px solid #666666;
+      margin: 5px; }
+      .pdf-screen .pdf-viewer .pdf-preview-panel .pdf-thumbnail.selected {
+        border-color: #c51b24; }
+        .pdf-screen .pdf-viewer .pdf-preview-panel .pdf-thumbnail.selected .pdf-thumbnail-number {
+          background: #c51b24; }
+      .pdf-screen .pdf-viewer .pdf-preview-panel .pdf-thumbnail .pdf-thumbnail-number {
+        background: #666666;
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0 10px 5px 5px;
+        text-align: center;
+        vertical-align: middle;
+        color: white;
+        text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2); }
+  .pdf-screen .pdf-viewer .pdf-page-wrapper {
+    width: 100%;
+    height: 100%;
+    border: 1px solid black; }
 
 html {
   position: relative;

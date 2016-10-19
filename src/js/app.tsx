@@ -12,9 +12,7 @@ import Footer from './footer.tsx';
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { DragSource, DropTarget, DragDropContext } from 'react-dnd';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
-import { PDF } from './pdf.tsx'
-import { PDFPage } from './pdfPage.tsx'
-import { PDFPreview } from './pdfPreview.tsx'
+import { PDFViewer } from './pdfViewer.tsx'
 
 const serialize = function(obj, prefix?) {
   var str = [];
@@ -133,24 +131,6 @@ const documentDragTarget = {
 };
 
 class DocumentView extends React.Component<DocumentViewProps, {}>  {
-    movePage(document, nPages) {
-        const newPageNumber = document.pageNumber + nPages;
-
-        this.props.updateDocument({
-            id: document.id,
-            pageNumber: newPageNumber
-        });
-    }
-
-    // Set the numPages and change the pageNumber to the last page
-    documentLoaded(pdf) {
-        this.props.updateDocument({
-            id: this.props.document.id,
-            pageNumber: pdf.numPages,
-            numPages: pdf.numPages
-        });
-    }
-
     render() {
         const { isDragging, connectDragSource, connectDropTarget } = this.props;
         const opacity = isDragging ? 0 : 1;
@@ -158,18 +138,8 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
         const numPages = document.numPages || 1;
 
         return connectDragSource(connectDropTarget(
-            <div className="document" style={{opacity}}>
-                <button className="btn" onClick={() => this.movePage(document, -1)} disabled={document.pageNumber <= 1}>
-                    Prev
-                </button>
-                
-                <button className="btn" onClick={() => this.movePage(document, 1)} disabled={document.pageNumber == numPages}>
-                    Next
-                </button>
-
-                <div className="filename">
-                    { this.props.document.filename }
-                </div>
+            <div className="" style={{opacity}}>
+                <button className="remove" onClick={() => this.props.removeDocument()}>✖</button>
 
                 { document.pageNumber && 
                     <div className="pageNumber">
@@ -178,6 +148,12 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
                 }
 
                 { document.arrayBuffer && 
+                    <PDFViewer 
+                        filename={document.filename}
+                        data={document.arrayBuffer}  
+                        worker={false} />
+                }
+                {/*{ document.arrayBuffer && 
                     <PDFPreview 
                         data={document.arrayBuffer} 
                         documentLoaded={this.documentLoaded.bind(this)} 
@@ -190,9 +166,8 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
                         width={500} 
                         pageNumber={document.pageNumber} 
                         worker={false} />
-                }
-                
-                <button className="remove" onClick={() => this.props.removeDocument()}>✖</button>
+                }*/}
+
                 <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>
                     { (this.props.document.status === 'posting')  &&
 

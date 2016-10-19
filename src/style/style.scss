@@ -37,6 +37,7 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 @import 'logo';
 @import "header";
 @import "footer";
+@import "pdf-viewer";
 
 html {
   position: relative;

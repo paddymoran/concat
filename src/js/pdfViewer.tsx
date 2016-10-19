@@ -1,23 +1,22 @@
 import * as React from "react";
 import { findDOMNode } from "react-dom";
 import * as Promise from 'bluebird';
+import { PDFPreview } from './pdfPreview.tsx'
+import { PDFPage } from './pdfPage.tsx'
 const PDFJS = require('pdfjs-dist');
 
 Promise.config({
     cancellation: true
 });
 
-interface PDFPageProps {
+interface PDFViewerProps {
     data: ArrayBuffer;
-    pageNumber: number;
-    width: number;
-    finished: Function;
-    documentLoaded?: Function;
+    filename: string;
     worker?: boolean;
     url?: string;
 }
 
-export class PDFPage extends React.Component<PDFPageProps, any> {
+export class PDFViewer extends React.Component<PDFViewerProps, any> {
     _pdfPromise;
     _pagePromises;
 
@@ -25,7 +24,9 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
         super(props);
         this._pdfPromise = null;
         this._pagePromises = null;
-        this.state = {};
+        this.state = {
+            pageNumber: 1
+        };
         this.completeDocument = this.completeDocument.bind(this);
     }
 
@@ -46,12 +47,6 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
         if (newProps.data || newProps.url) {
             this.cleanup();
             this._pdfPromise = Promise.resolve(PDFJS.getDocument(newProps.data ? { data: newProps.data } : newProps.url))
-                .then((pdf) => {
-                    if (this.props.documentLoaded) {
-                        this.props.documentLoaded(pdf);
-                    }
-                    return pdf;
-                })
                 .then(this.completeDocument)
                 .catch(PDFJS.MissingPDFException, () => this.setState({error: "Can't find PDF"}))
                 .catch((e) => this.setState({error: e.message}))
@@ -68,9 +63,6 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
         .then((pages) => {
             this.setState({ pages: pages });
             return pages;
-        })
-        .then((pages) => {
-            this.loadPage(this.props.pageNumber);
         });
     }
 
@@ -89,26 +81,9 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
         }
     }
 
-    loadPage(pageNumber) {
-        const pageIndex = pageNumber - 1;
-
-        if (this.state.pages && this.state.pages[pageIndex]) {
-            const page = this.state.pages[pageIndex];
-
-            const canvas = findDOMNode(this.refs.pdfPage);
-            const context = canvas.getContext('2d');
-            const scale = this.props.scale || 1;
-            const viewport = page.getViewport(canvas.width / page.getViewport(scale).width);
-            
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            page.render({
-                canvasContext: context,
-                viewport: viewport
-            });
-
-            this.props.finished && this.props.finished();
+    changePage(newPageNumber) {
+        if (newPageNumber != this.state.pageNumber) {
+            this.setState({ pageNumber: newPageNumber });
         }
     }
 
@@ -117,15 +92,31 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
             return <div>{ this.state.error }</div>
         }
 
-        if (!this.state.pdf) {
+        if (!this.state.pdf || !this.state.pages) {
             return <div>Loading...</div>
         }
 
+        const page = this.state.pages[this.state.pageNumber - 1];
+
         return (
-            <div>
-                <PDFPreview />
-                <PDFPage />
+            <div className='row pdf-viewer'>
+                <div className='pdf-title'>{this.props.filename}</div>
+                <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
+                
+                <div className='col-xs-3 pdf-preview-panel'>
+                    <PDFPreview
+                        pages={this.state.pages}
+                        changePage={this.changePage.bind(this)}
+                        activePageNumber={this.state.pageNumber}
+                        width={100} />
+                </div>
+
+                <div className='col-xs-9'>
+                    <PDFPage
+                        page={page}
+                        width={1000} />
+                </div>
             </div>
-        )
+        );
     }
 }

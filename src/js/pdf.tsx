@@ -93,10 +93,10 @@ export class PDF extends React.Component<PDFProps, any> {
     }
 
     render() {
-        if(this.state.error){
+        if (this.state.error) {
             return <div>{ this.state.error }</div>
         }
-        if(!this.state.pdf){
+        if (!this.state.pdf) {
             return <div>No Document to show</div>
         }
         return <div>

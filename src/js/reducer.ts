@@ -26,7 +26,6 @@ const documents = (state = {filelist: []}, action) => {
             const {sourceIndex, destIndex} = action.payload;
             filelist = [...state.filelist];
             const doc = filelist[sourceIndex];
-            console.log(sourceIndex, destIndex)
             filelist.splice(sourceIndex, 1);
             filelist.splice(destIndex, 0, doc)
             return Object.assign({}, state, {filelist: filelist});

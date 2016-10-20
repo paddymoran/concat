@@ -22,7 +22,6 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
     }
 
     displayPage() {
-        console.log('drawing');
         const canvas = findDOMNode(this.refs.pdfPage);
         const context = canvas.getContext('2d');
         const scale = this.props.scale || 1;

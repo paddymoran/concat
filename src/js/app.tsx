@@ -14,6 +14,7 @@ import { DragSource, DropTarget, DragDropContext } from 'react-dnd';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { PDFViewer } from './pdfViewer.tsx'
 
+
 const serialize = function(obj, prefix?) {
   var str = [];
   for(var p in obj) {
@@ -134,22 +135,16 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
     render() {
         const { isDragging, connectDragSource, connectDropTarget } = this.props;
         const opacity = isDragging ? 0 : 1;
-        const document = this.props.document;
-        const numPages = document.numPages || 1;
 
         return connectDragSource(connectDropTarget(
             <div className='pdf-screen' style={{opacity}}>
-                { document.pageNumber && 
-                    <div className="pageNumber">
-                        Page {document.pageNumber} of {numPages}
-                    </div>
-                }
 
-                { document.arrayBuffer && 
+                { this.props.document.arrayBuffer && 
                     <PDFViewer 
-                        filename={document.filename}
-                        data={document.arrayBuffer}  
-                        worker={false} />
+                        filename={this.props.document.filename}
+                        data={this.props.document.arrayBuffer}  
+                        worker={false}
+                        removeDocument={() => {this.props.removeDocument()}} />
                 }
 
                 <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>

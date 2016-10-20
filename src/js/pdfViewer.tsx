@@ -1,9 +1,11 @@
-import * as React from "react";
-import { findDOMNode } from "react-dom";
+import * as React from 'react';
+import { findDOMNode } from 'react-dom';
 import * as Promise from 'bluebird';
 import { PDFPreview } from './pdfPreview.tsx'
 import { PDFPage } from './pdfPage.tsx'
+import SignatureSelector from './signatureSelector.tsx';
 const PDFJS = require('pdfjs-dist');
+
 
 Promise.config({
     cancellation: true
@@ -14,6 +16,7 @@ interface PDFViewerProps {
     filename: string;
     worker?: boolean;
     url?: string;
+    removeDocument: Function;
 }
 
 export class PDFViewer extends React.Component<PDFViewerProps, any> {
@@ -25,7 +28,8 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         this._pdfPromise = null;
         this._pagePromises = null;
         this.state = {
-            pageNumber: 1
+            pageNumber: 1,
+            show: false
         };
         this.completeDocument = this.completeDocument.bind(this);
     }
@@ -87,6 +91,14 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         }
     }
 
+    showModal() {
+        this.setState({show: true});
+    }
+
+    hideModal() {
+        this.setState({show: false});
+    }
+
     render() {
         if (this.state.error) {
             return <div>{ this.state.error }</div>
@@ -100,22 +112,25 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
 
         return (
             <div className='row pdf-viewer'>
+                <SignatureSelector
+                    isVisible={this.state.show}
+                    showModal={this.showModal.bind(this)}
+                    hideModal={this.hideModal.bind(this)} />
+
+                <PDFPreview
+                    pages={this.state.pages}
+                    changePage={this.changePage.bind(this)}
+                    activePageNumber={this.state.pageNumber}
+                    width={120} />
+
+                <PDFPage
+                    page={page}
+                    drawWidth={1000} />
+
                 <div className='pdf-title'>{this.props.filename}</div>
                 <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
-                
-                <div className='pdf-preview-panel'>
-                    <PDFPreview
-                        pages={this.state.pages}
-                        changePage={this.changePage.bind(this)}
-                        activePageNumber={this.state.pageNumber}
-                        width={120} />
-                </div>
 
-                <div>
-                    <PDFPage
-                        page={page}
-                        drawWidth={1000} />
-                </div>
+                <button className="pdf-viewer-close" onClick={() => this.props.removeDocument()}>&times;</button>
             </div>
         );
     }

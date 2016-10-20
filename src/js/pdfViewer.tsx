@@ -99,6 +99,10 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         this.setState({show: false});
     }
 
+    signatureSelected(signature) {
+        console.log(signature);
+    }
+
     render() {
         if (this.state.error) {
             return <div>{ this.state.error }</div>
@@ -115,7 +119,13 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                 <SignatureSelector
                     isVisible={this.state.show}
                     showModal={this.showModal.bind(this)}
-                    hideModal={this.hideModal.bind(this)} />
+                    hideModal={this.hideModal.bind(this)}
+                    signatureURLs={[
+                        'https://assets.paddymoran.nz/twp/twp-tasks.png',
+                        'https://assets.paddymoran.nz/twp/twp-tasks.png',
+                        'https://assets.paddymoran.nz/twp/twp-tasks.png'
+                    ]}
+                    onSignatureSelected={this.signatureSelected.bind(this)} />
 
                 <PDFPreview
                     pages={this.state.pages}

@@ -94,6 +94,10 @@ def upload(files):
         f.save(os.path.join(TMP_DIR, file_id + '.pdf'))
     return results
 
+def upload_signature(base64_image):
+    file = open(os.path.join(TMP_DIR, file_id + '.pdf')) #"imageToSave.png", "wb")
+    file.write(base64_image.decode('base64'))
+    file.close()
 
 @app.route('/upload', methods=['POST'])
 def upload_files():
@@ -102,7 +106,6 @@ def upload_files():
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)
-
 
 @app.route('/thumb/<uuid>', methods=['GET'])
 def thumbview(uuid):

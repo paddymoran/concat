@@ -2,10 +2,12 @@ import * as React from "react";
 import { findDOMNode } from "react-dom";
 import SignatureCanvas from 'react-signature-canvas'
 import { Button, Modal, Tabs, Tab } from 'react-bootstrap';
+import * as Promise from 'bluebird';
+import * as axios from 'axios';
 
 interface SignatureSelectorProps {
     isVisible: boolean;
-    signatureURLs?: Array<string>;
+    signatureIds?: Array<string>;
     onSignatureSelected: Function;
     showModal: Function;
     hideModal: Function;
@@ -37,22 +39,24 @@ export default class SignatureSelector extends React.Component<SignatureSelector
     }
 
     select() {
-        let signature;
+        let signatureId = -1;
 
+        // If the user selected an existing signature, trigger the parents signatureSelected method with the signature ID
         if (this.state.currentTab == SELECT_SIGNATURE_TAB) {
-            signature = this.props.signatureURLs[this.state.selectedSignature];
+            signatureId = this.props.signatureIds[this.state.selectedSignature];
+            this.props.onSignatureSelected(signatureId);
         } else {
-            const signatureCanvas = this.refs['signature-canvas'];
-
-            const signatureContext = signatureCanvas.getTrimmedCanvas().getContext('2d');
-            const width = signatureContext.canvas.width;
-            const height = signatureContext.canvas.height;
-
-            //signature = signatureContext.getImageData(0, 0, width, height);
-            signature = signatureCanvas.getTrimmedCanvas().toDataURL();
+            // Get the signature image as a Data URL
+            const signature = this.refs['signature-canvas'].getTrimmedCanvas().toDataURL();
+            
+            // Upload image and trigger the parents signatureSelected method with the signature ID
+            axios.post('/signatures/upload', {
+                base64Image: signature
+            }).then((response) => {
+                signatureId = response.data.signature_id;
+                this.props.onSignatureSelected(signatureId);
+            });
         }
-
-        this.props.onSignatureSelected(signature);
     }
 
     render() {
@@ -76,13 +80,13 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                         <Tabs activeKey={this.state.currentTab} onSelect={this.changeTab.bind(this)} animation={false} id='select-signature-tabs'>
                             <Tab eventKey={SELECT_SIGNATURE_TAB} title="Select Signature" className="select-signature">
                                 <div className="row">
-                                    {this.props.signatureURLs.map((url, i) => {
+                                    {this.props.signatureIds.map((id, i) => {
                                             let classes = 'img-responsive selectable';
                                             classes += i == this.state.selectedSignature ? ' selected' : '';
 
                                             return (
                                                 <div className="col-sm-6" key={i} onClick={() => this.changeSelectedSignature(i) }>
-                                                    <img className={classes} src={url} />
+                                                    <img className={classes} src={`/signatures/${id}`} />
                                                 </div>
                                             )
                                         })

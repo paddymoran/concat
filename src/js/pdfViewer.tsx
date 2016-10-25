@@ -99,8 +99,11 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         this.setState({show: false});
     }
 
-    signatureSelected(signature) {
-        console.log(signature);
+    signatureSelected(signatureId) {
+        this.setState({
+            signatureId: signatureId,
+            show: false
+        });
     }
 
     render() {
@@ -120,10 +123,10 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                     isVisible={this.state.show}
                     showModal={this.showModal.bind(this)}
                     hideModal={this.hideModal.bind(this)}
-                    signatureURLs={[
-                        'https://assets.paddymoran.nz/twp/twp-tasks.png',
-                        'https://assets.paddymoran.nz/twp/twp-tasks.png',
-                        'https://assets.paddymoran.nz/twp/twp-tasks.png'
+                    signatureIds={[
+                        'df162380-cd78-4247-8a85-9c66d76b2c15',
+                        '98295127-5db4-46ab-84dd-a82859700b96',
+                        '899cb186-38be-4e10-81ee-b6ed23634092'
                     ]}
                     onSignatureSelected={this.signatureSelected.bind(this)} />
 
@@ -140,7 +143,13 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                 <div className='pdf-title'>{this.props.filename}</div>
                 <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
 
-                <button className="pdf-viewer-close" onClick={() => this.props.removeDocument()}>&times;</button>
+                <button className='pdf-viewer-close' onClick={() => this.props.removeDocument()}>&times;</button>
+
+                { this.state.signatureId && 
+                    <div className='signature-bounds' ref='signature-bounds' width='1000' height='1000'>
+                        <img src={'signatures/' + this.state.signatureId} />
+                    </div>
+                }
             </div>
         );
     }

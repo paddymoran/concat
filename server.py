@@ -1,13 +1,15 @@
 from __future__ import print_function
 import errno
 import logging
-from flask import Flask, request, send_file, jsonify
+import json
+from flask import Flask, request, send_file, jsonify, send_from_directory
 import os
 import os.path
 from io import BytesIO
 import tempfile
 from subprocess import Popen, STDOUT
 import uuid
+from base64 import decodestring
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -68,8 +70,6 @@ def thumb(file_id):
     finally:
         output.close()
 
-
-
 class InvalidUsage(Exception):
     status_code = 400
 
@@ -86,7 +86,7 @@ class InvalidUsage(Exception):
         return rv
 
 
-def upload(files):
+def upload_document(files):
     results = {}
     for f in files:
         file_id = str(uuid.uuid4())
@@ -94,15 +94,39 @@ def upload(files):
         f.save(os.path.join(TMP_DIR, file_id + '.pdf'))
     return results
 
-def upload_signature(base64_image):
-    file = open(os.path.join(TMP_DIR, file_id + '.pdf')) #"imageToSave.png", "wb")
-    file.write(base64_image.decode('base64'))
-    file.close()
+def upload_signature(base64Image):
+    results = {}
+    file_id = str(uuid.uuid4())
+    results['signature_id'] = file_id
 
-@app.route('/upload', methods=['POST'])
-def upload_files():
+    fh = open(os.path.join(TMP_DIR, file_id + '.png'), "wb")
+    fh.write(str(base64Image.split(",")[1].decode('base64')))
+    fh.close()
+
+    return results
+
+@app.route('/documents/upload', methods=['POST'])
+def document_upload():
     try:
-        return jsonify(upload(request.files.getlist("file[]")))
+        return jsonify(upload_document(request.files.getlist("file[]")))
+    except Exception as e:
+        print(e)
+        raise InvalidUsage(e.message, status_code=500)
+
+@app.route('/signatures/upload', methods=['POST'])
+def signature_upload():
+    try:
+        base64Image = json.loads(request.data)['base64Image']
+        return jsonify(upload_signature(base64Image))
+    except Exception as e:
+        print(e)
+        raise InvalidUsage(e.message, status_code=500)
+
+
+@app.route('/signatures/<uuid>', methods=['GET'])
+def signature(uuid):
+    try:
+        return send_from_directory(TMP_DIR, uuid + '.png')
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)

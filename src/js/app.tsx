@@ -16,16 +16,16 @@ import { PDFViewer } from './pdfViewer.tsx'
 
 
 const serialize = function(obj, prefix?) {
-  var str = [];
-  for(var p in obj) {
-    if (obj.hasOwnProperty(p)) {
-      var k = prefix ? prefix + "[]" : p, v = obj[p];
-      str.push(typeof v == "object" ?
-        serialize(v, k) :
-        k + "=" + encodeURIComponent(v));
+    var str = [];
+    for(var p in obj) {
+        if (obj.hasOwnProperty(p)) {
+            var k = prefix ? prefix + "[]" : p, v = obj[p];
+            str.push(typeof v == "object" ?
+            serialize(v, k) :
+            k + "=" + encodeURIComponent(v));
+        }
     }
-  }
-  return str.filter(s => s).join("&");
+    return str.filter(s => s).join("&");
 }
 
 function eachSeries(arr: Array<any>, iteratorFn: Function) {
@@ -92,43 +92,43 @@ interface FileReaderEvent extends Event {
 }
 
 const documentDragSource = {
-  beginDrag(props) {
-    return {
-      id: props.id,
-      index: props.index
-    };
-  }
+    beginDrag(props) {
+        return {
+            id: props.id,
+            index: props.index
+        };
+    }
 };
 
 
 const documentDragTarget = {
-  hover(props, monitor, component) {
-    const dragIndex = monitor.getItem().index;
-    const hoverIndex = props.index;
-    // Don't replace items with themselves
-    if (dragIndex === hoverIndex) {
-      return;
+    hover(props, monitor, component) {
+        const dragIndex = monitor.getItem().index;
+        const hoverIndex = props.index;
+        // Don't replace items with themselves
+        if (dragIndex === hoverIndex) {
+            return;
+        }
+
+        // Determine rectangle on screen
+        const hoverBoundingRect = ReactDOM.findDOMNode(component).getBoundingClientRect();
+
+        // Get vertical middle
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+
+        // Determine mouse position
+        const clientOffset = monitor.getClientOffset();
+
+        // Get pixels to the top
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+        props.moveDocument(dragIndex, hoverIndex);
+
+        // Note: we're mutating the monitor item here!
+        // Generally it's better to avoid mutations,
+        // but it's good here for the sake of performance
+        // to avoid expensive index searches.
+        monitor.getItem().index = hoverIndex;
     }
-
-    // Determine rectangle on screen
-    const hoverBoundingRect = ReactDOM.findDOMNode(component).getBoundingClientRect();
-
-    // Get vertical middle
-    const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-
-    // Determine mouse position
-    const clientOffset = monitor.getClientOffset();
-
-    // Get pixels to the top
-    const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-    props.moveDocument(dragIndex, hoverIndex);
-
-    // Note: we're mutating the monitor item here!
-    // Generally it's better to avoid mutations,
-    // but it's good here for the sake of performance
-    // to avoid expensive index searches.
-    monitor.getItem().index = hoverIndex;
-  }
 };
 
 class DocumentView extends React.Component<DocumentViewProps, {}>  {
@@ -163,12 +163,12 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
 }
 
 const DraggableDocumentView = DragSource('DOCUMENTS', documentDragSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging()
+    connectDragSource: connect.dragSource(),
+    isDragging: monitor.isDragging()
 }))(DocumentView);
 
 const DraggableDroppableDocumentView = DropTarget('DOCUMENTS', documentDragTarget, connect => ({
-  connectDropTarget: connect.dropTarget()
+    connectDropTarget: connect.dropTarget()
 }))(DraggableDocumentView);
 
 

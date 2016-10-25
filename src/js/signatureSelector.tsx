@@ -24,14 +24,16 @@ export default class SignatureSelector extends React.Component<SignatureSelector
     }
 
     changeTab(newTab) {
-        console.log("New tab: " + newTab);
-        console.log("Current tab: " + this.state.currentTab);
-
         this.setState({ currentTab: newTab });
     }
 
     changeSelectedSignature(key) {
         this.setState({ selectedSignature: key });
+    }
+
+    clearCanvas() {
+        const signatureCanvas = this.refs['signature-canvas'];
+        signatureCanvas.clear();
     }
 
     select() {
@@ -89,7 +91,10 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                             </Tab>
 
                             <Tab eventKey={DRAW_SIGNATURE_TAB} title="Draw Signature">
-                                <SignatureCanvas canvasProps={signatureCanvasOptions} ref='signature-canvas' />
+                                <div className='signature-canvas-conatiner clearfix'>
+                                    <SignatureCanvas canvasProps={signatureCanvasOptions} ref='signature-canvas' />
+                                    <a className='pull-right' onClick={this.clearCanvas.bind(this)}>Clear</a>
+                                </div>
                             </Tab>
                         </Tabs>
                     </Modal.Body>

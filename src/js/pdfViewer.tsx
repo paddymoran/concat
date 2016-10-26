@@ -29,7 +29,9 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         this._pagePromises = null;
         this.state = {
             pageNumber: 1,
-            show: false
+            show: false,
+            pdfActualHeight: 0,
+            pdfActualHeight 0
         };
         this.completeDocument = this.completeDocument.bind(this);
     }
@@ -106,6 +108,12 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         });
     }
 
+    save() {
+        const signatureContainer = this.refs['signature-container'];
+
+        console.log(signatureContainer.relativeSignaturePosition());
+    }
+
     render() {
         if (this.state.error) {
             return <div>{ this.state.error }</div>
@@ -118,36 +126,38 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         const page = this.state.pages[this.state.pageNumber - 1];
 
         return (
-            <div className='row pdf-viewer'>
-                <SignatureSelector
-                    isVisible={this.state.show}
-                    showModal={this.showModal.bind(this)}
-                    hideModal={this.hideModal.bind(this)}
-                    signatureIds={[
-                        'df162380-cd78-4247-8a85-9c66d76b2c15',
-                        '98295127-5db4-46ab-84dd-a82859700b96',
-                        '899cb186-38be-4e10-81ee-b6ed23634092'
-                    ]}
-                    onSignatureSelected={this.signatureSelected.bind(this)} />
-
+            <div className='pdf-viewer'>
                 <PDFPreview
                     pages={this.state.pages}
                     changePage={this.changePage.bind(this)}
                     activePageNumber={this.state.pageNumber}
                     width={120} />
 
-                <PDFPage
-                    page={page}
-                    drawWidth={1000} />
+                <div className='pdf-container'>
+                    <button className='pdf-viewer-close' onClick={() => this.props.removeDocument()}>&times;</button>
 
-                <div className='pdf-title'>{this.props.filename}</div>
-                <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
+                    <div className='pdf-title'>{this.props.filename}</div>
+                    <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
 
-                <button className='pdf-viewer-close' onClick={() => this.props.removeDocument()}>&times;</button>
+                    <SignatureSelector
+                        isVisible={this.state.show}
+                        showModal={this.showModal.bind(this)}
+                        hideModal={this.hideModal.bind(this)}
+                        signatureIds={[
+                            'df162380-cd78-4247-8a85-9c66d76b2c15',
+                            '98295127-5db4-46ab-84dd-a82859700b96',
+                            '899cb186-38be-4e10-81ee-b6ed23634092'
+                        ]}
+                        onSignatureSelected={this.signatureSelected.bind(this)} />
 
-                { this.state.signatureId && 
-                    <SignatureDragContainer signatureId={this.state.signatureId}/>
-                }
+                    <button onClick={this.save.bind(this)}>&times;</button>
+
+                    <SignatureDragContainer signatureId={this.state.signatureId} className='pdf-page-wrapper' ref='signature-container'>
+                        <PDFPage
+                            page={page}
+                            drawWidth={1000} />
+                    </SignatureDragContainer>
+                </div>
             </div>
         );
     }

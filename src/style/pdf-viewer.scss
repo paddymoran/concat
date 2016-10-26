@@ -2,13 +2,14 @@ $background: #eaeaea;
 
 .pdf-screen {
     background: $background;
-    z-index: 200;
+    z-index: 10;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     max-height: 100%;
-    overflow: scroll;
+    overflow: hidden;
+    height: 100%;
 
     .pdf-viewer {
         .pdf-title {
@@ -25,6 +26,7 @@ $background: #eaeaea;
             top: 0;
             width: 150px;
             padding: 5px;
+            overflow-y: scroll;
 
             .pdf-thumbnail {
                 position: relative;
@@ -50,6 +52,13 @@ $background: #eaeaea;
             }
         }
 
+        .pdf-container {
+            margin-left: 150px;
+            position: absolute;
+            overflow-y: scroll;
+            height: 100%;
+        }
+
         .pdf-viewer-close {
             position: fixed;
             top: 0;
@@ -64,9 +73,12 @@ $background: #eaeaea;
         }
 
         .pdf-page-wrapper {
-            width: calc(100% - 200px);
-            margin-left: 200px;
-            height: 100%;
+            position: relative;
+            margin: 60px;
+        }
+        
+        .pdf-page {
+            width: 100%;
             border: 1px solid $dark;
         }
     }

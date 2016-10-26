@@ -3841,13 +3841,14 @@ nav {
 
 .pdf-screen {
   background: #eaeaea;
-  z-index: 200;
+  z-index: 10;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   max-height: 100%;
-  overflow: scroll; }
+  overflow: hidden;
+  height: 100%; }
   .pdf-screen .pdf-viewer .pdf-title {
     font-size: 2em;
     font-weight: 700;
@@ -3859,7 +3860,8 @@ nav {
     left: 0;
     top: 0;
     width: 150px;
-    padding: 5px; }
+    padding: 5px;
+    overflow-y: scroll; }
     .pdf-screen .pdf-viewer .pdf-preview-panel .pdf-thumbnail {
       position: relative;
       margin: 5px; }
@@ -3875,6 +3877,11 @@ nav {
         vertical-align: middle;
         color: white;
         text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2); }
+  .pdf-screen .pdf-viewer .pdf-container {
+    margin-left: 150px;
+    position: absolute;
+    overflow-y: scroll;
+    height: 100%; }
   .pdf-screen .pdf-viewer .pdf-viewer-close {
     position: fixed;
     top: 0;
@@ -3887,11 +3894,10 @@ nav {
     background: #595959;
     border: none; }
   .pdf-screen .pdf-viewer .pdf-page-wrapper {
-    width: -webkit-calc(100% - 200px);
-    width: -moz-calc(100% - 200px);
-    width: calc(100% - 200px);
-    margin-left: 200px;
-    height: 100%;
+    position: relative;
+    margin: 60px; }
+  .pdf-screen .pdf-viewer .pdf-page {
+    width: 100%;
     border: 1px solid #595959; }
 
 .signature-canvas-conatiner {

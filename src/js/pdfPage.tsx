@@ -4,20 +4,21 @@ const PDFJS = require('pdfjs-dist');
 
 interface PDFPageProps {
     page: PDFPageProxy;
+    pageNumber: number;
     drawWidth: number;
+    onResize: Function;
 }
 
 export class PDFPage extends React.Component<PDFPageProps, any> {
     constructor(props) {
         super(props);
-        this.state = {};
-    }
-
-    componentDidMount() {
-        this.displayPage();
     }
 
     componentDidUpdate(prevProps, prevState) {
+        this.displayPage();
+    }
+
+    componentDidMount() {
         this.displayPage();
     }
 
@@ -38,9 +39,7 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
 
     render() {
         return (
-            <div className='pdf-page-wrapper'>
-                <canvas ref='pdfPage' />
-            </div>
+            <canvas ref='pdfPage' className='pdf-page' />
         )
     }
 }

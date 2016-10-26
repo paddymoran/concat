@@ -69,7 +69,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         return (
             <div>
                 <button className="btn btn-primary" onClick={() => this.props.showModal()}>
-                    Launch demo modal
+                    Sign
                 </button>
 
                 <Modal show={this.props.isVisible} onHide={() => this.props.hideModal()}>

@@ -146,7 +146,7 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                 <button className='pdf-viewer-close' onClick={() => this.props.removeDocument()}>&times;</button>
 
                 { this.state.signatureId && 
-                    <SignatureDragContainer />
+                    <SignatureDragContainer signatureId={this.state.signatureId}/>
                 }
             </div>
         );

@@ -18,8 +18,12 @@ const SignatureTarget = {
     drop(props, monitor, component) {
         const item = monitor.getItem();
         const delta = monitor.getDifferenceFromInitialOffset();
-        const top = Math.round(item.top + delta.y);
-        const left = Math.round(item.left + delta.x);
+        let top = Math.round(item.top + delta.y);
+        let left = Math.round(item.left + delta.x);
+
+        top = top > 0 ? top : 0;
+        left = left > 0 ? left : 0;
+        left = left + component.state.width < styles.width ? left : styles.width - component.state.width;
 
         component.moveBox(top, left);
     }
@@ -35,7 +39,8 @@ export default class SignatureDragContainer extends React.Component<SignatureDra
 
         this.state = {
             top: 0,
-            left: 0
+            left: 0,
+            width: 300
         };
     }
 
@@ -44,16 +49,10 @@ export default class SignatureDragContainer extends React.Component<SignatureDra
     }
 
     render() {
-        const { connectDropTarget } = this.props;
-        const { top, left } = this.state;
-
-        return connectDropTarget(
+        return this.props.connectDropTarget(
             <div style={styles}>
                 <Signature
-                    left={left}
-                    top={top}
-                    signatureId='899cb186-38be-4e10-81ee-b6ed23634092' />
-            });
+                    signatureId={this.props.signatureId} />
             </div>
         );
     }

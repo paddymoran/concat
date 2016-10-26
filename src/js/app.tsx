@@ -336,8 +336,6 @@ class App extends React.Component<{}, {}> {
     render() {
         const doc = this.props.documents.filelist[0];
 
-        console.log(doc);
-
         if (doc) {
             return (
                 <DocumentView

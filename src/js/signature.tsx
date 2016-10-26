@@ -1,50 +1,52 @@
 import * as React from 'react';
 import { DragSource } from 'react-dnd';
+const ReactRnd = require('react-rnd');
 
 interface SignatureProps {
     signatureId: string;
-    top: number;
-    left: number;
-    isDragging: boolean;
-    connectDragSource: Function;
 }
 
-const SignatureSource = {
-    beginDrag(props) {
-        const { signatureId, top, left } = props;
-        return { signatureId, top, left };
-    }
+const style = {
+    border: '1px solid black',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
 };
 
-@DragSource("SIGNATURE", SignatureSource, (connect, monitor) => ({
-    connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging()
-}))
 export default class Signature extends React.Component<SignatureProps, any> {
     constructor(props) {
         super(props);
     }
 
     render() {
-        const { left, top, connectDragSource, isDragging } = this.props;
-
-        const styles = {
-            position: 'absolute',
-            border: '1px dashed gray',
-            padding: '0.5rem 1rem',
-            cursor: 'move',
-            top: top,
-            left: left
+        const handleStyles = {
+            bottomRight: {
+                background: 'black',
+                position: 'absolute',
+                width: '20px',
+                height: '20px',
+                right: '-10px',
+                bottom: '-10px',
+                cursor: 'nw-resize'
+            }
         };
-
-        if (isDragging) {
-            return null;
-        }
-
-        return connectDragSource(
-            <div style={styles} >
-                <img src={'signatures/' + this.props.signatureId} />
-            </div>
+        return (
+            <ReactRnd
+                initial={{
+                    x: window.innerWidth / 2 - 200,
+                    y: window.innerHeight / 2 - 80,
+                    width: 400,
+                    height: 160,
+                }}
+                style={style}
+                minWidth={200}
+                maxWidth={800}
+                bounds={'parent'}
+                resizerHandleStyle={handleStyles}
+                lockAspectRatio={true}
+            >
+                <img src={'signatures/' + this.props.signatureId} style={{width: '100%'}} draggable="false" />
+            </ReactRnd>
         );
     }
 }

@@ -6,7 +6,7 @@ import { Store, createStore } from 'redux';
 import configureStore from './configureStore.ts';
 import '../style/style.scss';
 import * as axios from 'axios';
-import { addDocuments, updateDocument, submitDocuments, moveDocument, removeDocument, updateForm } from './actions.ts';
+import { addDocuments, updateDocument, submitDocuments, removeDocument, updateForm } from './actions.ts';
 import Header from './header.tsx';
 import Footer from './footer.tsx';
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
@@ -52,7 +52,6 @@ interface DocumentHandlerProps {
     addDocuments(files: any);
     updateDocument(options: Object);
     submitDocuments(options: Object);
-    moveDocument(options: Object);
     removeDocument(options: Object);
     updateForm(options: Object);
     documents: any;
@@ -62,20 +61,15 @@ interface DocumentHandlerProps {
 interface DocumentListProps {
     removeDocument(options: Object);
     updateDocument(options: Object);
-    moveDocument(options: Object);
     documents: any;
 };
 
 
 interface DocumentViewProps {
     document: Document;
-    updateDocument: Function;
     removeDocument: Function;
-    isDragging: boolean;
-    connectDragSource: Function;
-    connectDropTarget: Function;
+    updateDocument: Function;
     index: number;
-
 }
 
 interface IDocumentHandler {
@@ -121,7 +115,7 @@ const documentDragTarget = {
 
         // Get pixels to the top
         const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-        props.moveDocument(dragIndex, hoverIndex);
+        // props.moveDocument(dragIndex, hoverIndex);
 
         // Note: we're mutating the monitor item here!
         // Generally it's better to avoid mutations,
@@ -132,12 +126,40 @@ const documentDragTarget = {
 };
 
 class DocumentView extends React.Component<DocumentViewProps, {}>  {
-    render() {
-        const { isDragging, connectDragSource, connectDropTarget } = this.props;
-        const opacity = isDragging ? 0 : 1;
 
-        return connectDragSource(connectDropTarget(
-            <div className='pdf-screen' style={{opacity}}>
+    constructor(props) {
+        super(props);
+    }
+
+    componentWillReceiveProps(props) {
+        this.uploadData(props);
+    }
+
+    componentWillMount() {
+        this.uploadData(this.props);
+    }
+
+    uploadData(props) {
+        if (!props.document.status) {
+            // Update file upload progress
+            props.updateDocument({id: props.document.id, status: 'posting', progress: 0});
+
+            // Create file reader, read file to BLOB, then call the updateDocument action
+            const fileReader = new FileReader();
+            fileReader.readAsArrayBuffer(props.document.file);
+            fileReader.onload = () => {
+                props.updateDocument({
+                    id: props.document.id,
+                    arrayBuffer: fileReader.result,
+                    status: 'complete'
+                });
+            };
+        }
+    }
+
+    render() {
+        return (
+            <div className='pdf-screen'>
 
                 { this.props.document.arrayBuffer && 
                     <PDFViewer 
@@ -158,7 +180,7 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
                     }
                  </ReactCSSTransitionGroup>
             </div>
-        ));
+        );
     }
 }
 
@@ -176,12 +198,6 @@ class DocumentList extends React.Component<DocumentListProps, {}> {
 
     constructor(props) {
         super(props);
-        this.moveDocument = this.moveDocument.bind(this);
-    }
-
-    moveDocument(dragIndex, hoverIndex) {
-        const dragDocument = this.props.documents.filelist[dragIndex];
-        this.props.moveDocument({sourceIndex: dragIndex, destIndex: hoverIndex});
     }
 
     componentWillReceiveProps(props) {
@@ -195,52 +211,31 @@ class DocumentList extends React.Component<DocumentListProps, {}> {
     uploadData(props) {
         const unUploaded = props.documents.filelist.filter(doc => !doc.status);
 
-        unUploaded.map(doc => {
-            // Update file upload progress
-            props.updateDocument({id: doc.id, status: 'posting', progress: 0});
+        const document = props.documents.filelist[0];
 
-            // Create file reader, read file to BLOB, then call the updateDocument action
-            const fileReader = new FileReader();
-            fileReader.readAsArrayBuffer(doc.file);
-            fileReader.onload = () => {
-                props.updateDocument({
-                    id: doc.id,
-                    arrayBuffer: fileReader.result,
-                    status: 'complete'
-                });
-            };
-        });
+        // Update file upload progress
+        props.updateDocument({id: document.id, status: 'posting', progress: 0});
 
-        // eachSeries(unUploaded, (doc) => {
-        //     const data = new FormData();
-        //     data.append('file[]', doc.file);
-        //     return axios.post('/upload', data,
-        //         {
-        //             progress: (progressEvent) => {
-        //                 // upload loading percentage
-        //                 const percentCompleted = progressEvent.loaded / progressEvent.total;
-        //                 props.updateDocument({id: doc.id, progress: percentCompleted});
-        //             }
-        //         }
-        //     )
-        //     .then((response) => {
-        //         props.updateDocument({id: doc.id, status: 'complete', uuid: response.data[doc.filename]});
-        //     })
-        // });
+        // Create file reader, read file to BLOB, then call the updateDocument action
+        const fileReader = new FileReader();
+        fileReader.readAsArrayBuffer(document.file);
+        fileReader.onload = () => {
+            props.updateDocument({
+                id: document.id,
+                arrayBuffer: fileReader.result,
+                status: 'complete'
+            });
+        };
     }
 
     render() {
          return <div className="document-list">
             { this.props.documents.filelist.map((f, i) => {
-                return <DraggableDroppableDocumentView
+                return <DocumentView
                     document={f}
                     key={f.id}
                     index={i}
-                    updateDocument={(data) => {
-                        this.props.updateDocument(Object.assign({id: f.id}, data));
-                    }}
-                    removeDocument={() => this.props.removeDocument({id: f.id})}
-                    moveDocument={this.moveDocument} />
+                    removeDocument={() => this.props.removeDocument({id: f.id})} />
                 })}
             </div>
     }
@@ -309,14 +304,15 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
                         <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
                     </div>
                     <div className="container">
+                    {/*
                         <DocumentList
                             updateDocument={this.props.updateDocument}
                             documents={this.props.documents}
-                            moveDocument={this.props.moveDocument}
                             removeDocument={this.props.removeDocument} />
                         { loaded && <div className="button-bar">
                             <a href={url} className="btn btn-primary">Sign</a>
                         </div> }
+                    */}
                     </div>
                     <Footer />
                 </div>
@@ -331,7 +327,6 @@ const DragContextDocumentHandlerConnected  = connect(state => ({documents: state
     updateDocument: updateDocument,
     submitDocuments: submitDocuments,
     removeDocument: removeDocument,
-    moveDocument: moveDocument,
     updateForm: updateForm
 })(DragContext);
 
@@ -339,13 +334,36 @@ const DragContextDocumentHandlerConnected  = connect(state => ({documents: state
 
 class App extends React.Component<{}, {}> {
     render() {
-        return <DragContextDocumentHandlerConnected  />
+        const doc = this.props.documents.filelist[0];
+
+        console.log(doc);
+
+        if (doc) {
+            return (
+                <DocumentView
+                    document={doc}
+                    key={doc.id}
+                    index={doc.id}
+                    updateDocument={this.props.updateDocument}
+                    removeDocument={() => this.props.removeDocument({id: doc.id})} />
+            );
+        } else {
+            return <DragContextDocumentHandlerConnected  />
+        }
     }
 }
 
+const ConnectedApp = connect(state => ({documents: state.documents, form: state.form}), {
+    addDocuments: addDocuments,
+    updateDocument: updateDocument,
+    submitDocuments: submitDocuments,
+    removeDocument: removeDocument,
+    updateForm: updateForm
+})(App);
+
 ReactDOM.render(
     <Provider store={store}>
-        <App />
+        <ConnectedApp />
     </Provider>,
     document.getElementById("main")
 );

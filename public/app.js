@@ -211,7 +211,7 @@
 	        var clientOffset = monitor.getClientOffset();
 	        // Get pixels to the top
 	        var hoverClientY = clientOffset.y - hoverBoundingRect.top;
-	        props.moveDocument(dragIndex, hoverIndex);
+	        // props.moveDocument(dragIndex, hoverIndex);
 	        // Note: we're mutating the monitor item here!
 	        // Generally it's better to avoid mutations,
 	        // but it's good here for the sake of performance
@@ -223,26 +223,50 @@
 	var DocumentView = function (_React$Component) {
 	    _inherits(DocumentView, _React$Component);
 	
-	    function DocumentView() {
+	    function DocumentView(props) {
 	        _classCallCheck(this, DocumentView);
 	
-	        return _possibleConstructorReturn(this, (DocumentView.__proto__ || Object.getPrototypeOf(DocumentView)).apply(this, arguments));
+	        return _possibleConstructorReturn(this, (DocumentView.__proto__ || Object.getPrototypeOf(DocumentView)).call(this, props));
 	    }
 	
 	    _createClass(DocumentView, [{
+	        key: "componentWillReceiveProps",
+	        value: function componentWillReceiveProps(props) {
+	            this.uploadData(props);
+	        }
+	    }, {
+	        key: "componentWillMount",
+	        value: function componentWillMount() {
+	            this.uploadData(this.props);
+	        }
+	    }, {
+	        key: "uploadData",
+	        value: function uploadData(props) {
+	            if (!props.document.status) {
+	                (function () {
+	                    // Update file upload progress
+	                    props.updateDocument({ id: props.document.id, status: 'posting', progress: 0 });
+	                    // Create file reader, read file to BLOB, then call the updateDocument action
+	                    var fileReader = new FileReader();
+	                    fileReader.readAsArrayBuffer(props.document.file);
+	                    fileReader.onload = function () {
+	                        props.updateDocument({
+	                            id: props.document.id,
+	                            arrayBuffer: fileReader.result,
+	                            status: 'complete'
+	                        });
+	                    };
+	                })();
+	            }
+	        }
+	    }, {
 	        key: "render",
 	        value: function render() {
 	            var _this2 = this;
 	
-	            var _props = this.props;
-	            var isDragging = _props.isDragging;
-	            var connectDragSource = _props.connectDragSource;
-	            var connectDropTarget = _props.connectDropTarget;
-	
-	            var opacity = isDragging ? 0 : 1;
-	            return connectDragSource(connectDropTarget(React.createElement("div", { className: 'pdf-screen', style: { opacity: opacity } }, this.props.document.arrayBuffer && React.createElement(pdfViewer_tsx_1.PDFViewer, { filename: this.props.document.filename, data: this.props.document.arrayBuffer, worker: false, removeDocument: function removeDocument() {
+	            return React.createElement("div", { className: 'pdf-screen' }, this.props.document.arrayBuffer && React.createElement(pdfViewer_tsx_1.PDFViewer, { filename: this.props.document.filename, data: this.props.document.arrayBuffer, worker: false, removeDocument: function removeDocument() {
 	                    _this2.props.removeDocument();
-	                } }), React.createElement(ReactCSSTransitionGroup, { transitionName: "progress", transitionEnterTimeout: 300, transitionLeaveTimeout: 500 }, this.props.document.status === 'posting' && React.createElement("div", { className: "progress", key: "progress" }, React.createElement("div", { className: "progress-bar progress-bar-striped active", style: { width: this.props.document.progress * 100 + "%" } }))))));
+	                } }), React.createElement(ReactCSSTransitionGroup, { transitionName: "progress", transitionEnterTimeout: 300, transitionLeaveTimeout: 500 }, this.props.document.status === 'posting' && React.createElement("div", { className: "progress", key: "progress" }, React.createElement("div", { className: "progress-bar progress-bar-striped active", style: { width: this.props.document.progress * 100 + "%" } }))));
 	        }
 	    }]);
 	
@@ -267,19 +291,10 @@
 	    function DocumentList(props) {
 	        _classCallCheck(this, DocumentList);
 	
-	        var _this3 = _possibleConstructorReturn(this, (DocumentList.__proto__ || Object.getPrototypeOf(DocumentList)).call(this, props));
-	
-	        _this3.moveDocument = _this3.moveDocument.bind(_this3);
-	        return _this3;
+	        return _possibleConstructorReturn(this, (DocumentList.__proto__ || Object.getPrototypeOf(DocumentList)).call(this, props));
 	    }
 	
 	    _createClass(DocumentList, [{
-	        key: "moveDocument",
-	        value: function moveDocument(dragIndex, hoverIndex) {
-	            var dragDocument = this.props.documents.filelist[dragIndex];
-	            this.props.moveDocument({ sourceIndex: dragIndex, destIndex: hoverIndex });
-	        }
-	    }, {
 	        key: "componentWillReceiveProps",
 	        value: function componentWillReceiveProps(props) {
 	            this.uploadData(props);
@@ -295,36 +310,19 @@
 	            var unUploaded = props.documents.filelist.filter(function (doc) {
 	                return !doc.status;
 	            });
-	            unUploaded.map(function (doc) {
-	                // Update file upload progress
-	                props.updateDocument({ id: doc.id, status: 'posting', progress: 0 });
-	                // Create file reader, read file to BLOB, then call the updateDocument action
-	                var fileReader = new FileReader();
-	                fileReader.readAsArrayBuffer(doc.file);
-	                fileReader.onload = function () {
-	                    props.updateDocument({
-	                        id: doc.id,
-	                        arrayBuffer: fileReader.result,
-	                        status: 'complete'
-	                    });
-	                };
-	            });
-	            // eachSeries(unUploaded, (doc) => {
-	            //     const data = new FormData();
-	            //     data.append('file[]', doc.file);
-	            //     return axios.post('/upload', data,
-	            //         {
-	            //             progress: (progressEvent) => {
-	            //                 // upload loading percentage
-	            //                 const percentCompleted = progressEvent.loaded / progressEvent.total;
-	            //                 props.updateDocument({id: doc.id, progress: percentCompleted});
-	            //             }
-	            //         }
-	            //     )
-	            //     .then((response) => {
-	            //         props.updateDocument({id: doc.id, status: 'complete', uuid: response.data[doc.filename]});
-	            //     })
-	            // });
+	            var document = props.documents.filelist[0];
+	            // Update file upload progress
+	            props.updateDocument({ id: document.id, status: 'posting', progress: 0 });
+	            // Create file reader, read file to BLOB, then call the updateDocument action
+	            var fileReader = new FileReader();
+	            fileReader.readAsArrayBuffer(document.file);
+	            fileReader.onload = function () {
+	                props.updateDocument({
+	                    id: document.id,
+	                    arrayBuffer: fileReader.result,
+	                    status: 'complete'
+	                });
+	            };
 	        }
 	    }, {
 	        key: "render",
@@ -332,11 +330,9 @@
 	            var _this4 = this;
 	
 	            return React.createElement("div", { className: "document-list" }, this.props.documents.filelist.map(function (f, i) {
-	                return React.createElement(DraggableDroppableDocumentView, { document: f, key: f.id, index: i, updateDocument: function updateDocument(data) {
-	                        _this4.props.updateDocument(Object.assign({ id: f.id }, data));
-	                    }, removeDocument: function removeDocument() {
+	                return React.createElement(DocumentView, { document: f, key: f.id, index: i, removeDocument: function removeDocument() {
 	                        return _this4.props.removeDocument({ id: f.id });
-	                    }, moveDocument: _this4.moveDocument });
+	                    } });
 	            }));
 	        }
 	    }]);
@@ -356,10 +352,10 @@
 	    _createClass(FileDropZone, [{
 	        key: "render",
 	        value: function render() {
-	            var _props2 = this.props;
-	            var connectDropTarget = _props2.connectDropTarget;
-	            var isOver = _props2.isOver;
-	            var canDrop = _props2.canDrop;
+	            var _props = this.props;
+	            var connectDropTarget = _props.connectDropTarget;
+	            var isOver = _props.isOver;
+	            var canDrop = _props.canDrop;
 	
 	            return connectDropTarget(React.createElement("div", { className: "dropzone" }, this.props.children, React.createElement("div", { className: "push-catch" })));
 	        }
@@ -435,7 +431,7 @@
 	                }), deskew: this.props.form.deskew || false });
 	            return React.createElement(ConnectedFileDropZone, { onDrop: this.onDrop }, React.createElement("div", { className: "body" }, React.createElement("div", { className: "explanation", onClick: this.onClick }, "Drag a PDF here to sign it", React.createElement("input", { type: "file", multiple: true, name: "files", style: { display: 'none' }, ref: function ref(el) {
 	                    return _this7._fileInput = el;
-	                }, onChange: this.collectFiles })), React.createElement("div", { className: "container" }, React.createElement(DocumentList, { updateDocument: this.props.updateDocument, documents: this.props.documents, moveDocument: this.props.moveDocument, removeDocument: this.props.removeDocument }), loaded && React.createElement("div", { className: "button-bar" }, React.createElement("a", { href: url, className: "btn btn-primary" }, "Sign"))), React.createElement(footer_tsx_1.default, null)));
+	                }, onChange: this.collectFiles })), React.createElement("div", { className: "container" }), React.createElement(footer_tsx_1.default, null)));
 	        }
 	    }]);
 	
@@ -450,7 +446,6 @@
 	    updateDocument: actions_ts_1.updateDocument,
 	    submitDocuments: actions_ts_1.submitDocuments,
 	    removeDocument: actions_ts_1.removeDocument,
-	    moveDocument: actions_ts_1.moveDocument,
 	    updateForm: actions_ts_1.updateForm
 	})(DragContext);
 	
@@ -466,14 +461,33 @@
 	    _createClass(App, [{
 	        key: "render",
 	        value: function render() {
-	            return React.createElement(DragContextDocumentHandlerConnected, null);
+	            var _this9 = this;
+	
+	            var doc = this.props.documents.filelist[0];
+	            console.log(doc);
+	            if (doc) {
+	                return React.createElement(DocumentView, { document: doc, key: doc.id, index: doc.id, updateDocument: this.props.updateDocument, removeDocument: function removeDocument() {
+	                        return _this9.props.removeDocument({ id: doc.id });
+	                    } });
+	            } else {
+	                return React.createElement(DragContextDocumentHandlerConnected, null);
+	            }
 	        }
 	    }]);
 	
 	    return App;
 	}(React.Component);
 	
-	ReactDOM.render(React.createElement(react_redux_1.Provider, { store: store }, React.createElement(App, null)), document.getElementById("main"));
+	var ConnectedApp = react_redux_1.connect(function (state) {
+	    return { documents: state.documents, form: state.form };
+	}, {
+	    addDocuments: actions_ts_1.addDocuments,
+	    updateDocument: actions_ts_1.updateDocument,
+	    submitDocuments: actions_ts_1.submitDocuments,
+	    removeDocument: actions_ts_1.removeDocument,
+	    updateForm: actions_ts_1.updateForm
+	})(App);
+	ReactDOM.render(React.createElement(react_redux_1.Provider, { store: store }, React.createElement(ConnectedApp, null)), document.getElementById("main"));
 
 /***/ },
 /* 1 */
@@ -30216,16 +30230,6 @@
 	            filelist = [].concat(_toConsumableArray(state.filelist));
 	            filelist[i] = Object.assign({}, filelist[i], action.payload);
 	            return Object.assign({}, state, { filelist: filelist });
-	        case "MOVE_DOCUMENT":
-	            var _action$payload = action.payload;
-	            var sourceIndex = _action$payload.sourceIndex;
-	            var destIndex = _action$payload.destIndex;
-	
-	            filelist = [].concat(_toConsumableArray(state.filelist));
-	            var doc = filelist[sourceIndex];
-	            filelist.splice(sourceIndex, 1);
-	            filelist.splice(destIndex, 0, doc);
-	            return Object.assign({}, state, { filelist: filelist });
 	        case "REMOVE_DOCUMENT":
 	            i = state.filelist.findIndex(function (f) {
 	                return f.id === action.payload.id;
@@ -31144,7 +31148,6 @@
 	exports.addDocuments = actionCreator('ADD_DOCUMENTS');
 	exports.updateDocument = actionCreator('UPDATE_DOCUMENT');
 	exports.submitDocuments = actionCreator('SUBMIT_DOCUMENTS');
-	exports.moveDocument = actionCreator('MOVE_DOCUMENT');
 	exports.removeDocument = actionCreator('REMOVE_DOCUMENT');
 	exports.updateForm = actionCreator('UPDATE_FORM');
 
@@ -39685,6 +39688,7 @@
 	var pdfPreview_tsx_1 = __webpack_require__(678);
 	var pdfPage_tsx_1 = __webpack_require__(681);
 	var signatureSelector_tsx_1 = __webpack_require__(682);
+	var SignatureDragContainer_tsx_1 = __webpack_require__(1011);
 	var PDFJS = __webpack_require__(679);
 	Promise.config({
 	    cancellation: true
@@ -39808,7 +39812,7 @@
 	            var page = this.state.pages[this.state.pageNumber - 1];
 	            return React.createElement("div", { className: 'row pdf-viewer' }, React.createElement(signatureSelector_tsx_1.default, { isVisible: this.state.show, showModal: this.showModal.bind(this), hideModal: this.hideModal.bind(this), signatureIds: ['df162380-cd78-4247-8a85-9c66d76b2c15', '98295127-5db4-46ab-84dd-a82859700b96', '899cb186-38be-4e10-81ee-b6ed23634092'], onSignatureSelected: this.signatureSelected.bind(this) }), React.createElement(pdfPreview_tsx_1.PDFPreview, { pages: this.state.pages, changePage: this.changePage.bind(this), activePageNumber: this.state.pageNumber, width: 120 }), React.createElement(pdfPage_tsx_1.PDFPage, { page: page, drawWidth: 1000 }), React.createElement("div", { className: 'pdf-title' }, this.props.filename), React.createElement("div", { className: 'pdf-page-number' }, "Page ", this.state.pageNumber, " of ", this.state.pdf.numPages), React.createElement("button", { className: 'pdf-viewer-close', onClick: function onClick() {
 	                    return _this4.props.removeDocument();
-	                } }, "×"), this.state.signatureId && React.createElement("div", { className: 'signature-bounds', ref: 'signature-bounds', width: '1000', height: '1000' }, React.createElement("img", { src: 'signatures/' + this.state.signatureId })));
+	                } }, "×"), this.state.signatureId && React.createElement(SignatureDragContainer_tsx_1.default, null));
 	        }
 	    }]);
 	
@@ -76276,6 +76280,170 @@
 	    return $entries(it);
 	  }
 	});
+
+/***/ },
+/* 1011 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var __decorate = undefined && undefined.__decorate || function (decorators, target, key, desc) {
+	    var c = arguments.length,
+	        r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+	        d;
+	    if ((typeof Reflect === "undefined" ? "undefined" : _typeof(Reflect)) === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) {
+	        if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    }return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var React = __webpack_require__(298);
+	var react_dnd_1 = __webpack_require__(520);
+	var react_dnd_html5_backend_1 = __webpack_require__(638);
+	var Signature_tsx_1 = __webpack_require__(1012);
+	var styles = {
+	    width: 800,
+	    height: 800,
+	    border: '1px solid black',
+	    position: 'relative'
+	};
+	var SignatureTarget = {
+	    drop: function drop(props, monitor, component) {
+	        var item = monitor.getItem();
+	        var delta = monitor.getDifferenceFromInitialOffset();
+	        var top = Math.round(item.top + delta.y);
+	        var left = Math.round(item.left + delta.x);
+	        component.moveBox(top, left);
+	    }
+	};
+	var SignatureDragContainer = function (_React$Component) {
+	    _inherits(SignatureDragContainer, _React$Component);
+	
+	    function SignatureDragContainer(props) {
+	        _classCallCheck(this, SignatureDragContainer);
+	
+	        var _this = _possibleConstructorReturn(this, (SignatureDragContainer.__proto__ || Object.getPrototypeOf(SignatureDragContainer)).call(this, props));
+	
+	        _this.state = {
+	            top: 0,
+	            left: 0
+	        };
+	        return _this;
+	    }
+	
+	    _createClass(SignatureDragContainer, [{
+	        key: "moveBox",
+	        value: function moveBox(top, left) {
+	            this.setState({ top: top, left: left });
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var connectDropTarget = this.props.connectDropTarget;
+	            var _state = this.state;
+	            var top = _state.top;
+	            var left = _state.left;
+	
+	            return connectDropTarget(React.createElement("div", { style: styles }, React.createElement(Signature_tsx_1.default, { left: left, top: top, signatureId: '899cb186-38be-4e10-81ee-b6ed23634092' }), "});"));
+	        }
+	    }]);
+	
+	    return SignatureDragContainer;
+	}(React.Component);
+	SignatureDragContainer = __decorate([react_dnd_1.DragDropContext(react_dnd_html5_backend_1.default), react_dnd_1.DropTarget("SIGNATURE", SignatureTarget, function (connect) {
+	    return {
+	        connectDropTarget: connect.dropTarget()
+	    };
+	})], SignatureDragContainer);
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = SignatureDragContainer;
+
+/***/ },
+/* 1012 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var __decorate = undefined && undefined.__decorate || function (decorators, target, key, desc) {
+	    var c = arguments.length,
+	        r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+	        d;
+	    if ((typeof Reflect === "undefined" ? "undefined" : _typeof(Reflect)) === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) {
+	        if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    }return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var React = __webpack_require__(298);
+	var react_dnd_1 = __webpack_require__(520);
+	var SignatureSource = {
+	    beginDrag: function beginDrag(props) {
+	        var signatureId = props.signatureId;
+	        var top = props.top;
+	        var left = props.left;
+	
+	        return { signatureId: signatureId, top: top, left: left };
+	    }
+	};
+	var Signature = function (_React$Component) {
+	    _inherits(Signature, _React$Component);
+	
+	    function Signature(props) {
+	        _classCallCheck(this, Signature);
+	
+	        return _possibleConstructorReturn(this, (Signature.__proto__ || Object.getPrototypeOf(Signature)).call(this, props));
+	    }
+	
+	    _createClass(Signature, [{
+	        key: "render",
+	        value: function render() {
+	            var _props = this.props;
+	            var left = _props.left;
+	            var top = _props.top;
+	            var connectDragSource = _props.connectDragSource;
+	            var isDragging = _props.isDragging;
+	
+	            var styles = {
+	                position: 'absolute',
+	                border: '1px dashed gray',
+	                padding: '0.5rem 1rem',
+	                cursor: 'move',
+	                top: top,
+	                left: left
+	            };
+	            if (isDragging) {
+	                return null;
+	            }
+	            return connectDragSource(React.createElement("div", { style: styles }, React.createElement("img", { src: 'signatures/' + this.props.signatureId })));
+	        }
+	    }]);
+	
+	    return Signature;
+	}(React.Component);
+	Signature = __decorate([react_dnd_1.DragSource("SIGNATURE", SignatureSource, function (connect, monitor) {
+	    return {
+	        connectDragSource: connect.dragSource(),
+	        isDragging: monitor.isDragging()
+	    };
+	})], Signature);
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = Signature;
 
 /***/ }
 /******/ ])));

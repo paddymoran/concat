@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import * as Promise from 'bluebird';
-import { PDFPreview } from './pdfPreview.tsx'
-import { PDFPage } from './pdfPage.tsx'
+import { PDFPreview } from './pdfPreview.tsx';
+import { PDFPage } from './pdfPage.tsx';
 import SignatureSelector from './signatureSelector.tsx';
+import SignatureDragContainer from './SignatureDragContainer.tsx';
 const PDFJS = require('pdfjs-dist');
-
 
 Promise.config({
     cancellation: true
@@ -146,9 +146,7 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                 <button className='pdf-viewer-close' onClick={() => this.props.removeDocument()}>&times;</button>
 
                 { this.state.signatureId && 
-                    <div className='signature-bounds' ref='signature-bounds' width='1000' height='1000'>
-                        <img src={'signatures/' + this.state.signatureId} />
-                    </div>
+                    <SignatureDragContainer />
                 }
             </div>
         );

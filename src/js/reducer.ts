@@ -22,13 +22,6 @@ const documents = (state = {filelist: []}, action) => {
             filelist = [...state.filelist];
             filelist[i] = Object.assign({}, filelist[i], action.payload);
             return Object.assign({}, state, {filelist: filelist});
-        case "MOVE_DOCUMENT":
-            const {sourceIndex, destIndex} = action.payload;
-            filelist = [...state.filelist];
-            const doc = filelist[sourceIndex];
-            filelist.splice(sourceIndex, 1);
-            filelist.splice(destIndex, 0, doc)
-            return Object.assign({}, state, {filelist: filelist});
          case "REMOVE_DOCUMENT":
             i = state.filelist.findIndex(f => f.id === action.payload.id);
             filelist = [...state.filelist];

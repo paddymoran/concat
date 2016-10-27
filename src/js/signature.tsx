@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { findDOMNode } from "react-dom";
 import { DragSource } from 'react-dnd';
 const ReactRnd = require('react-rnd');
 
@@ -13,25 +14,21 @@ const style = {
     justifyContent: 'center'
 };
 
+const handleStyles = {
+    bottomRight: {
+        background: 'black',
+        position: 'absolute',
+        width: '20px',
+        height: '20px',
+        right: '-10px',
+        bottom: '-10px',
+        cursor: 'nw-resize'
+    }
+};
+
 export default class Signature extends React.Component<SignatureProps, any> {
     constructor(props) {
         super(props);
-        this.state = {
-            width: 400,
-            height: 160
-        }
-    }
-
-    onResize(direction, styleSize, clientSize, delta, newPos) {
-        const { signature } = this.refs;
-        console.log(signature);
-        console.log(signature.offsetWidth);
-        console.log(signature.offsetHeight);
-
-        this.setState({
-            width: signature.offsetWidth,
-            height: signature.offsetHeight
-        });
     }
 
     position() {
@@ -41,39 +38,25 @@ export default class Signature extends React.Component<SignatureProps, any> {
             throw new Error('Signature does not exist');
         }
 
-        console.log(signature);
-        console.log(signature.width);
-        console.log(signature.height);
+        const signatureNode = findDOMNode(signature);
 
         return {
             x: signature.state.x,
             y: signature.state.y,
-            width: this.state.width,
-            height: this.state.height
+            width: signatureNode.offsetWidth,
+            height: signatureNode.offsetHeight
         }
     }
 
     render() {
-        const handleStyles = {
-            bottomRight: {
-                background: 'black',
-                position: 'absolute',
-                width: '20px',
-                height: '20px',
-                right: '-10px',
-                bottom: '-10px',
-                cursor: 'nw-resize'
-            }
-        };
-
         return (
             <ReactRnd
                 ref='signature'
                 initial={{
                     x: 0,
                     y: 0,
-                    width: this.state.width,
-                    height: this.state.height
+                    width: 400,
+                    height: 160
                 }}
                 style={style}
                 minWidth={200}
@@ -81,7 +64,6 @@ export default class Signature extends React.Component<SignatureProps, any> {
                 bounds={'parent'}
                 resizerHandleStyle={handleStyles}
                 lockAspectRatio={true}
-                onResize={this.onResize.bind(this)}
             >
                 <img src={'signatures/' + this.props.signatureId} style={{width: '100%'}} draggable="false" />
             </ReactRnd>

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import * as Promise from 'bluebird';
+import { Button } from 'react-bootstrap';
 import { PDFPreview } from './pdfPreview.tsx';
 import { PDFPage } from './pdfPage.tsx';
 import SignatureSelector from './signatureSelector.tsx';
@@ -111,7 +112,11 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
     save() {
         const signatureContainer = this.refs['signature-container'];
 
-        console.log(signatureContainer.relativeSignaturePosition());
+        const position = signatureContainer.relativeSignaturePosition();
+
+        console.log(position);
+        console.log(position.x + position.width);
+        console.log(position.y + position.height);
     }
 
     render() {
@@ -150,7 +155,7 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                         ]}
                         onSignatureSelected={this.signatureSelected.bind(this)} />
 
-                    <button onClick={this.save.bind(this)}>&times;</button>
+                    <Button onClick={this.save.bind(this)}>Save</Button>
 
                     <SignatureDragContainer signatureId={this.state.signatureId} className='pdf-page-wrapper' ref='signature-container'>
                         <PDFPage

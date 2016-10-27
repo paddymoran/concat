@@ -22,18 +22,15 @@ export default class SignatureDragContainer extends React.Component<SignatureDra
             throw new Error('Signature does not exist');
         }
 
-        let signaturePosition = signature.position();
-
-        console.log(signaturePosition);
+        const signaturePosition = signature.position();
+        const sizeRatio = (size, input) => { return (1 / size) * input }
 
         return {
-            x: this.relativePosition(container.offsetWidth, signaturePosition.x),
-            y: this.relativePosition(container.offsetHeight, signaturePosition.y)
+            x: sizeRatio(container.offsetWidth, signaturePosition.x),
+            y: sizeRatio(container.offsetHeight, signaturePosition.y),
+            width: sizeRatio(container.offsetWidth, signaturePosition.width),
+            height: sizeRatio(container.offsetHeight, signaturePosition.height),
         }
-    }
-
-    relativePosition(size, position) {
-        return (1 / size) * position;
     }
 
     render() {

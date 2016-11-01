@@ -70,6 +70,20 @@ $background: #eaeaea;
             height: 60px;
             background: $dark;
             border: none;
+
+            .close-icon {
+                display: block;
+                line-height: 0;
+                font-size: 1.3em;
+                margin-top: -6px;
+                margin-right: -1px;
+                text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+                opacity: .75;
+
+                &:hover {
+                    opacity: 1;
+                }
+            }
         }
 
         .pdf-page-wrapper {

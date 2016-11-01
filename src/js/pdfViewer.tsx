@@ -139,7 +139,9 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                     width={120} />
 
                 <div className='pdf-container'>
-                    <button className='pdf-viewer-close' onClick={() => this.props.removeDocument()}>&times;</button>
+                    <button className='pdf-viewer-close' onClick={() => this.props.removeDocument()}>
+                        <span className='close-icon'>×</span>
+                    </button>
 
                     <div className='pdf-title'>{this.props.filename}</div>
                     <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>

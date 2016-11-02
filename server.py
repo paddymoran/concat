@@ -2,7 +2,8 @@ from __future__ import print_function
 import errno
 import logging
 import json
-from flask import Flask, request, send_file, jsonify, send_from_directory
+from flask import Flask, request, redirect, send_file, jsonify, send_from_directory, session
+import requests
 import os
 import os.path
 from io import BytesIO
@@ -20,11 +21,10 @@ logging.basicConfig()
 
 PORT = 5669
 
-
 app = Flask(__name__, static_url_path='', static_folder='public')
+app.config.from_pyfile('./config_dev.py' or sys.argv[1])
 
-concat_cmds = ['gs', '-dBATCH', '-dNOPAUSE', '-q', '-sDEVICE=pdfwrite']  # '-dPDFSETTINGS=/prepress']
-
+concat_cmds = ['gs', '-dBATCH', '-dNOPAUSE', '-q', '-sDEVICE=pdfwrite']
 thumb_cmds = ['convert', '-thumbnail', '150x', '-background', 'white', '-alpha', 'remove']
 
 
@@ -153,6 +153,46 @@ def concat():
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)
+
+
+@app.route('/login', methods=['GET'])
+def login():
+    args = request.args
+    provided_code = args.get('code')
+
+    if not all([provided_code]):
+        return redirect('http://catalexusers.dev/sign-login')
+
+    params = {
+        'code': provided_code,
+        'grant_type': 'authorization_code',
+        'client_id': 'sign',
+        'client_secret': 'test',
+        'redirect_uri': 'http://localhost:5669/login'
+    }
+
+    response = requests.post('http://catalexusers.dev/oauth/access_token', data=params)
+    print(response.text)
+    data = response.json()
+
+    response = requests.get('http://catalexusers.dev/api/user', params={'access_token': data['access_token']})
+    data = response.json()
+    session['user_id'] = data['id']
+    session['user_name'] = data['email']
+
+    # Register this device/IP session
+    db = get_db()
+    with db.cursor() as cur:
+        try:
+            cur.execute('INSERT INTO user_logins (user_id, access_hash, access_time) VALUES (%(user_id)s, \'%(access_hash)s\', NOW())', {
+                'user_id': data['id'],
+                'access_hash': hash(request.headers.get('user_agent') + request.remote_addr)
+            })
+            db.commit()
+        except Exception:
+            # User might be already logged in with this device/IP, ignore
+            db.rollback()
+    return redirect('/')
 
 
 @app.route('/', methods=['GET'])

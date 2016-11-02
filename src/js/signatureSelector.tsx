@@ -7,7 +7,6 @@ import * as axios from 'axios';
 
 interface SignatureSelectorProps {
     isVisible: boolean;
-    signatureIds?: Array<string>;
     onSignatureSelected: Function;
     showModal: Function;
     hideModal: Function;
@@ -21,8 +20,18 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         super(props);
         this.state = {
             selectedSignature: 0,
-            currentTab: SELECT_SIGNATURE_TAB
+            currentTab: SELECT_SIGNATURE_TAB,
+            signatureIds: []
         };
+    }
+
+    componentDidMount() {
+        axios.get('/signatures') .then((response) => {
+            let signatureIds = [];
+            response.data.map((signature) => signatureIds.push(signature.id));
+
+            this.setState({ signatureIds });
+        });
     }
 
     changeTab(newTab) {
@@ -43,7 +52,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
 
         // If the user selected an existing signature, trigger the parents signatureSelected method with the signature ID
         if (this.state.currentTab == SELECT_SIGNATURE_TAB) {
-            signatureId = this.props.signatureIds[this.state.selectedSignature];
+            signatureId = this.state.signatureIds[this.state.selectedSignature];
             this.props.onSignatureSelected(signatureId);
         } else {
             // Get the signature image as a Data URL
@@ -80,7 +89,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                         <Tabs activeKey={this.state.currentTab} onSelect={this.changeTab.bind(this)} animation={false} id='select-signature-tabs'>
                             <Tab eventKey={SELECT_SIGNATURE_TAB} title="Select Signature" className="select-signature">
                                 <div className="row">
-                                    {this.props.signatureIds.map((id, i) => {
+                                    {this.state.signatureIds.map((id, i) => {
                                             let classes = 'img-responsive selectable';
                                             classes += i == this.state.selectedSignature ? ' selected' : '';
 

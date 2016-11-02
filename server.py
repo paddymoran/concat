@@ -130,7 +130,7 @@ def signatures():
 @app.route('/signatures/<id>', methods=['GET'])
 def signature(id):
     try:
-        signature = db.get_signature(id)
+        signature = db.get_signature(id, 1)
 
         if not signature:
             abort(404)

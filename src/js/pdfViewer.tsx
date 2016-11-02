@@ -150,11 +150,6 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                         isVisible={this.state.show}
                         showModal={this.showModal.bind(this)}
                         hideModal={this.hideModal.bind(this)}
-                        signatureIds={[
-                            'df162380-cd78-4247-8a85-9c66d76b2c15',
-                            '98295127-5db4-46ab-84dd-a82859700b96',
-                            '899cb186-38be-4e10-81ee-b6ed23634092'
-                        ]}
                         onSignatureSelected={this.signatureSelected.bind(this)} />
 
                     <Button onClick={this.save.bind(this)}>Save</Button>

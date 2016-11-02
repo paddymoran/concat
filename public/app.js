@@ -39824,7 +39824,7 @@
 	            var page = this.state.pages[this.state.pageNumber - 1];
 	            return React.createElement("div", { className: 'pdf-viewer' }, React.createElement(pdfPreview_tsx_1.PDFPreview, { pages: this.state.pages, changePage: this.changePage.bind(this), activePageNumber: this.state.pageNumber, width: 120 }), React.createElement("div", { className: 'pdf-container' }, React.createElement("button", { className: 'pdf-viewer-close', onClick: function onClick() {
 	                    return _this4.props.removeDocument();
-	                } }, React.createElement("span", { className: 'close-icon' }, "×")), React.createElement("div", { className: 'pdf-title' }, this.props.filename), React.createElement("div", { className: 'pdf-page-number' }, "Page ", this.state.pageNumber, " of ", this.state.pdf.numPages), React.createElement(signatureSelector_tsx_1.default, { isVisible: this.state.show, showModal: this.showModal.bind(this), hideModal: this.hideModal.bind(this), signatureIds: ['df162380-cd78-4247-8a85-9c66d76b2c15', '98295127-5db4-46ab-84dd-a82859700b96', '899cb186-38be-4e10-81ee-b6ed23634092'], onSignatureSelected: this.signatureSelected.bind(this) }), React.createElement(react_bootstrap_1.Button, { onClick: this.save.bind(this) }, "Save"), React.createElement(SignatureDragContainer_tsx_1.default, { signatureId: this.state.signatureId, className: 'pdf-page-wrapper', ref: 'signature-container' }, React.createElement(pdfPage_tsx_1.PDFPage, { page: page, drawWidth: 1000 }))));
+	                } }, React.createElement("span", { className: 'close-icon' }, "×")), React.createElement("div", { className: 'pdf-title' }, this.props.filename), React.createElement("div", { className: 'pdf-page-number' }, "Page ", this.state.pageNumber, " of ", this.state.pdf.numPages), React.createElement(signatureSelector_tsx_1.default, { isVisible: this.state.show, showModal: this.showModal.bind(this), hideModal: this.hideModal.bind(this), onSignatureSelected: this.signatureSelected.bind(this) }), React.createElement(react_bootstrap_1.Button, { onClick: this.save.bind(this) }, "Save"), React.createElement(SignatureDragContainer_tsx_1.default, { signatureId: this.state.signatureId, className: 'pdf-page-wrapper', ref: 'signature-container' }, React.createElement(pdfPage_tsx_1.PDFPage, { page: page, drawWidth: 1000 }))));
 	        }
 	    }]);
 	
@@ -73721,12 +73721,26 @@
 	
 	        _this.state = {
 	            selectedSignature: 0,
-	            currentTab: SELECT_SIGNATURE_TAB
+	            currentTab: SELECT_SIGNATURE_TAB,
+	            signatureIds: []
 	        };
 	        return _this;
 	    }
 	
 	    _createClass(SignatureSelector, [{
+	        key: "componentDidMount",
+	        value: function componentDidMount() {
+	            var _this2 = this;
+	
+	            axios.get('/signatures').then(function (response) {
+	                var signatureIds = [];
+	                response.data.map(function (signature) {
+	                    return signatureIds.push(signature.id);
+	                });
+	                _this2.setState({ signatureIds: signatureIds });
+	            });
+	        }
+	    }, {
 	        key: "changeTab",
 	        value: function changeTab(newTab) {
 	            this.setState({ currentTab: newTab });
@@ -73745,12 +73759,12 @@
 	    }, {
 	        key: "select",
 	        value: function select() {
-	            var _this2 = this;
+	            var _this3 = this;
 	
 	            var signatureId = -1;
 	            // If the user selected an existing signature, trigger the parents signatureSelected method with the signature ID
 	            if (this.state.currentTab == SELECT_SIGNATURE_TAB) {
-	                signatureId = this.props.signatureIds[this.state.selectedSignature];
+	                signatureId = this.state.signatureIds[this.state.selectedSignature];
 	                this.props.onSignatureSelected(signatureId);
 	            } else {
 	                // Get the signature image as a Data URL
@@ -73760,14 +73774,14 @@
 	                    base64Image: signature
 	                }).then(function (response) {
 	                    signatureId = response.data.signature_id;
-	                    _this2.props.onSignatureSelected(signatureId);
+	                    _this3.props.onSignatureSelected(signatureId);
 	                });
 	            }
 	        }
 	    }, {
 	        key: "render",
 	        value: function render() {
-	            var _this3 = this;
+	            var _this4 = this;
 	
 	            var signatureCanvasOptions = {
 	                width: 500,
@@ -73775,17 +73789,17 @@
 	                className: 'signature-drawer'
 	            };
 	            return React.createElement("div", null, React.createElement(react_bootstrap_1.Button, { bsStyle: 'primary', onClick: function onClick() {
-	                    return _this3.props.showModal();
+	                    return _this4.props.showModal();
 	                } }, "Sign"), React.createElement(react_bootstrap_1.Modal, { show: this.props.isVisible, onHide: function onHide() {
-	                    return _this3.props.hideModal();
-	                } }, React.createElement(react_bootstrap_1.Modal.Header, { closeButton: true }, React.createElement(react_bootstrap_1.Modal.Title, null, "Select Signature")), React.createElement(react_bootstrap_1.Modal.Body, null, React.createElement(react_bootstrap_1.Tabs, { activeKey: this.state.currentTab, onSelect: this.changeTab.bind(this), animation: false, id: 'select-signature-tabs' }, React.createElement(react_bootstrap_1.Tab, { eventKey: SELECT_SIGNATURE_TAB, title: "Select Signature", className: "select-signature" }, React.createElement("div", { className: "row" }, this.props.signatureIds.map(function (id, i) {
+	                    return _this4.props.hideModal();
+	                } }, React.createElement(react_bootstrap_1.Modal.Header, { closeButton: true }, React.createElement(react_bootstrap_1.Modal.Title, null, "Select Signature")), React.createElement(react_bootstrap_1.Modal.Body, null, React.createElement(react_bootstrap_1.Tabs, { activeKey: this.state.currentTab, onSelect: this.changeTab.bind(this), animation: false, id: 'select-signature-tabs' }, React.createElement(react_bootstrap_1.Tab, { eventKey: SELECT_SIGNATURE_TAB, title: "Select Signature", className: "select-signature" }, React.createElement("div", { className: "row" }, this.state.signatureIds.map(function (id, i) {
 	                var classes = 'img-responsive selectable';
-	                classes += i == _this3.state.selectedSignature ? ' selected' : '';
+	                classes += i == _this4.state.selectedSignature ? ' selected' : '';
 	                return React.createElement("div", { className: "col-sm-6", key: i, onClick: function onClick() {
-	                        return _this3.changeSelectedSignature(i);
+	                        return _this4.changeSelectedSignature(i);
 	                    } }, React.createElement("img", { className: classes, src: "/signatures/" + id }));
 	            }))), React.createElement(react_bootstrap_1.Tab, { eventKey: DRAW_SIGNATURE_TAB, title: "Draw Signature" }, React.createElement("div", { className: 'signature-canvas-conatiner clearfix' }, React.createElement(react_signature_canvas_1.default, { canvasProps: signatureCanvasOptions, ref: 'signature-canvas' }), React.createElement("a", { className: 'pull-right', onClick: this.clearCanvas.bind(this) }, "Clear"))))), React.createElement(react_bootstrap_1.Modal.Footer, null, React.createElement(react_bootstrap_1.Button, { onClick: function onClick() {
-	                    return _this3.props.hideModal();
+	                    return _this4.props.hideModal();
 	                } }, "Close"), React.createElement(react_bootstrap_1.Button, { bsStyle: 'primary', onClick: this.select.bind(this) }, "Select"))));
 	        }
 	    }]);

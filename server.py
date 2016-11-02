@@ -3,8 +3,8 @@ import errno
 import logging
 import json
 import sys
-from flask import Flask, request, redirect, send_file, jsonify, send_from_directory, session
-from db import get_db, add_signature, get_signature
+from flask import Flask, request, redirect, send_file, jsonify, send_from_directory, session, abort
+import db
 import requests
 import os
 import os.path
@@ -118,12 +118,25 @@ def signature_upload():
         raise InvalidUsage(e.message, status_code=500)
 
 
+@app.route('/signatures', methods=['GET'])
+def signatures():
+    try:
+        signatures = db.get_signatures_for_user(1)
+        return jsonify(signatures)
+    except Exception as e:
+        print(e)
+        raise InvalidUsage(e.message, status_code=500)
+
 @app.route('/signatures/<id>', methods=['GET'])
 def signature(id):
     try:
-        # return jsonify({ 'hello': get_signature(id) })#send_file(io.BytesIO(image_binary))
-        # img = Image.open(BytesIO(base64.b64decode(get_signature(id))))
-        return send_file(BytesIO(get_signature(id)));
+        signature = db.get_signature(id)
+
+        if not signature:
+            abort(404)
+
+        signature_file = BytesIO(signature)
+        return send_file(signature_file, attachment_filename='signature.png');
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)

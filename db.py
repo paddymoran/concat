@@ -1,10 +1,6 @@
 import psycopg2
 import psycopg2.extras
 from flask import g, current_app
-import StringIO
-import pickle
-from io import BytesIO
-import base64
 
 def get_db():
     if not hasattr(g, 'db') or g.db.closed:
@@ -20,6 +16,7 @@ def connect_db():
         host=current_app.config['DB_HOST'])
     return connection
 
+
 def add_signature(user_id, binary_file_data):
     db = get_db()
     with db.cursor() as cursor:
@@ -29,21 +26,27 @@ def add_signature(user_id, binary_file_data):
         })
         db.commit()
 
+
+def get_signatures_for_user(user_id):
+    db = get_db()
+    with db.cursor() as cursor:
+        cursor.execute("SELECT id FROM signatures WHERE user_id = %(user_id)s", {'user_id': user_id})
+        signatures = cursor.fetchall()
+        return_data = []
+
+        for signature in signatures:
+            return_item = { 'id': signature[0] }
+            return_data.append(return_item)
+
+        return return_data
+
 def get_signature(signature_id):
     db = get_db();
     with db.cursor() as cursor:
-        cursor.execute("SELECT signature FROM signatures WHERE id = %(signature_id)s", {
-            'signature_id': signature_id,
-        })
-        result = cursor.fetchone()
-        base64_img = base64.b64encode(result[0])
-
-        # print(base64_img)
-
-        # result[0]
-        # print(StringIO.StringIO(result[0]))
-        # print(pickle.load(result))
-        # bio = BytesIO(b"some initial binary data: \x00\x01")
-        # print(str(bio))
-        return result[0]
-        return base64_img
+        cursor.execute("SELECT signature FROM signatures WHERE id = %(signature_id)s", {'signature_id': signature_id})
+        first_row = cursor.fetchone()
+        
+        if first_row is None:
+            return None
+        
+        return first_row[0]

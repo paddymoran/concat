@@ -58,8 +58,14 @@ def concat_file_ids(file_ids, options):
         output.close()
 
 
+def upload_document(file):
+    path = os.path.join(TMP_DIR, str(uuid.uuid4()) + '.pdf')
+    file.save(path)
 
-def thumb(file_id):
+    return path
+
+
+def sign_document(file, signature_id, user_id):
     try:
         output = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
         args = thumb_cmds[:] + [os.path.join(TMP_DIR, file_id + '.pdf[0]'), output.name]
@@ -86,15 +92,6 @@ class InvalidUsage(Exception):
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
-
-
-def upload_document(files):
-    results = {}
-    for f in files:
-        file_id = str(uuid.uuid4())
-        results[f.filename] = file_id
-        f.save(os.path.join(TMP_DIR, file_id + '.pdf'))
-    return results
 
 def upload_signature(base64Image):
     add_signature(1, str(base64Image.split(",")[1].decode('base64')))

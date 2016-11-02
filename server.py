@@ -4,7 +4,7 @@ import logging
 import json
 import sys
 from flask import Flask, request, redirect, send_file, jsonify, send_from_directory, session
-from db import get_db, create_missing_tables
+from db import get_db, add_signature, get_signature
 import requests
 import os
 import os.path
@@ -97,15 +97,8 @@ def upload_document(files):
     return results
 
 def upload_signature(base64Image):
-    results = {}
-    file_id = str(uuid.uuid4())
-    results['signature_id'] = file_id
-
-    fh = open(os.path.join(TMP_DIR, file_id + '.png'), "wb")
-    fh.write(str(base64Image.split(",")[1].decode('base64')))
-    fh.close()
-
-    return results
+    add_signature(1, str(base64Image.split(",")[1].decode('base64')))
+    return { 'success': True }
 
 @app.route('/documents/upload', methods=['POST'])
 def document_upload():
@@ -125,20 +118,12 @@ def signature_upload():
         raise InvalidUsage(e.message, status_code=500)
 
 
-@app.route('/signatures/<uuid>', methods=['GET'])
-def signature(uuid):
+@app.route('/signatures/<id>', methods=['GET'])
+def signature(id):
     try:
-        return send_from_directory(TMP_DIR, uuid + '.png')
-    except Exception as e:
-        print(e)
-        raise InvalidUsage(e.message, status_code=500)
-
-@app.route('/thumb/<uuid>', methods=['GET'])
-def thumbview(uuid):
-    try:
-        result = thumb(uuid)
-        return send_file(BytesIO(result),
-                         mimetype='image/png')
+        # return jsonify({ 'hello': get_signature(id) })#send_file(io.BytesIO(image_binary))
+        # img = Image.open(BytesIO(base64.b64decode(get_signature(id))))
+        return send_file(BytesIO(get_signature(id)));
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)
@@ -174,23 +159,15 @@ def login():
     }
 
     response = requests.post('http://catalexusers.dev/oauth/access_token', data=params)
-    data = response.json()
+    access_data = response.json()
 
-    response = requests.get('http://catalexusers.dev/api/user', params={'access_token': data['access_token']})
-    userData = response.json()
+    response = requests.get('http://catalexusers.dev/api/user', params={'access_token': access_data['access_token']})
+    user_data = response.json()
 
-    session['user_id'] = userData['id']
-    session['user_name'] = userData['email']
+    session['user_id'] = user_data['id']
+    session['user_name'] = user_data['email']
 
-    return_data = {
-        'success': True,
-        'user_id': userData['id'],
-        'name': userData['name']
-    }
-
-    print(get_db())
-
-    return jsonify(return_data)
+    return jsonify({'success': True})
 
 
 @app.route('/', methods=['GET'])
@@ -212,5 +189,4 @@ except OSError as exception:
         raise
 if __name__ == '__main__':
     print('Running on %d' % PORT)
-    print(create_missing_tables());
     app.run(port=PORT, debug=True, host='0.0.0.0')

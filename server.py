@@ -2,7 +2,9 @@ from __future__ import print_function
 import errno
 import logging
 import json
+import sys
 from flask import Flask, request, redirect, send_file, jsonify, send_from_directory, session
+from db import get_db, create_missing_tables
 import requests
 import os
 import os.path
@@ -19,10 +21,10 @@ except ImportError:
 
 logging.basicConfig()
 
-PORT = 5669
-
 app = Flask(__name__, static_url_path='', static_folder='public')
-app.config.from_pyfile('./config_dev.py' or sys.argv[1])
+app.config.from_pyfile('./config_dev.py')
+
+PORT = app.config.get('PORT')
 
 concat_cmds = ['gs', '-dBATCH', '-dNOPAUSE', '-q', '-sDEVICE=pdfwrite']
 thumb_cmds = ['convert', '-thumbnail', '150x', '-background', 'white', '-alpha', 'remove']
@@ -172,27 +174,23 @@ def login():
     }
 
     response = requests.post('http://catalexusers.dev/oauth/access_token', data=params)
-    print(response.text)
     data = response.json()
 
     response = requests.get('http://catalexusers.dev/api/user', params={'access_token': data['access_token']})
-    data = response.json()
-    session['user_id'] = data['id']
-    session['user_name'] = data['email']
+    userData = response.json()
 
-    # Register this device/IP session
-    db = get_db()
-    with db.cursor() as cur:
-        try:
-            cur.execute('INSERT INTO user_logins (user_id, access_hash, access_time) VALUES (%(user_id)s, \'%(access_hash)s\', NOW())', {
-                'user_id': data['id'],
-                'access_hash': hash(request.headers.get('user_agent') + request.remote_addr)
-            })
-            db.commit()
-        except Exception:
-            # User might be already logged in with this device/IP, ignore
-            db.rollback()
-    return redirect('/')
+    session['user_id'] = userData['id']
+    session['user_name'] = userData['email']
+
+    return_data = {
+        'success': True,
+        'user_id': userData['id'],
+        'name': userData['name']
+    }
+
+    print(get_db())
+
+    return jsonify(return_data)
 
 
 @app.route('/', methods=['GET'])
@@ -214,4 +212,5 @@ except OSError as exception:
         raise
 if __name__ == '__main__':
     print('Running on %d' % PORT)
+    print(create_missing_tables());
     app.run(port=PORT, debug=True, host='0.0.0.0')

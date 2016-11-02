@@ -1,8 +1,8 @@
 Metadata-Version: 1.0
-Name: concat
+Name: catalex-sign
 Version: 0.0.1
-Summary: Concat PDFs together
-Home-page: http://github.com/joshgagnon/concat
+Summary: Digitally sign PDFs
+Home-page: http://github.com/paddymoran/document-signer
 Author: Joshua Gagnon
 Author-email: josh.n.gagnon@gmail.com
 License: MIT

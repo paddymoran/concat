@@ -27,6 +27,8 @@ app.config.from_pyfile('./config_dev.py')
 PORT = app.config.get('PORT')
 
 TMP_DIR = '/tmp/.catalex_sign/'
+SIGNED_FILE_PREFIX = 'signed_'
+SIGNED_FILE_EXTENSION = 'signed_'
 
 
 def upload_document(file):
@@ -36,15 +38,20 @@ def upload_document(file):
     return path
 
 
+def generate_signed_filename(file_id):
+    return 'signed_' + file_id + '.pdf'
+
+
 def sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale):
     pdf_filepath = upload_document(file)
-    signed_filepath = os.path.join(TMP_DIR, 'signed_' + str(uuid.uuid4()) + '.pdf')
+    signed_file_id = str(uuid.uuid4())
+    signed_filename = generate_signed_filename(signed_file_id)
     
-    Popen(['sh', './sign.sh', pdf_filepath, str(page_number), '/Users/paddy/sign/signature.png', str(x_offset), str(y_offset), str(x_scale), str(y_scale), signed_filepath],
+    Popen(['sh', './sign.sh', pdf_filepath, str(page_number), '/Users/paddy/sign/signature.png', str(x_offset), str(y_offset), str(x_scale), str(y_scale), os.path.join(TMP_DIR, signed_filename)],
         stdout=DEVNULL,
         stderr=STDOUT).wait()
 
-    return signed_filepath
+    return signed_file_id
 
 
 def upload_signature(base64Image):
@@ -113,7 +120,6 @@ def signature(id):
 @app.route('/sign', methods=['POST'])
 def sign():
     file = request.files['file']
-
     signature_id = request.form['signature_id']
     user_id = 1#session['user_id']
     page_number = request.form['page_number']
@@ -122,12 +128,17 @@ def sign():
     x_scale = request.form['x_scale']
     y_scale = request.form['y_scale']
 
+    file_id = sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale)
+
+    return jsonify({ 'file_id': file_id })
 
 
-    signed_filepath = sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale)
-    
-    return send_file(signed_filepath,
-             attachment_filename=file.filename,
+@app.route('/signed-documents/<uuid>', methods=['GET'])
+def get_signed_pdf(uuid):
+    filepath = os.path.join(TMP_DIR, generate_signed_filename(uuid))
+
+    return send_file(filepath,
+             attachment_filename=request.args.get('filename', 'signed-document.pdf'),
              as_attachment=True,
              mimetype='application/pdf')
 

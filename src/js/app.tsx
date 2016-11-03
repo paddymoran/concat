@@ -162,7 +162,7 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
 
                 { this.props.document.arrayBuffer && 
                     <PDFViewer 
-                        filename={this.props.document.filename}
+                        file={this.props.document}
                         data={this.props.document.arrayBuffer}  
                         worker={false}
                         removeDocument={() => {this.props.removeDocument()}} />

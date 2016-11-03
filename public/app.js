@@ -264,7 +264,7 @@
 	        value: function render() {
 	            var _this2 = this;
 	
-	            return React.createElement("div", { className: 'pdf-screen' }, this.props.document.arrayBuffer && React.createElement(pdfViewer_tsx_1.PDFViewer, { filename: this.props.document.filename, data: this.props.document.arrayBuffer, worker: false, removeDocument: function removeDocument() {
+	            return React.createElement("div", { className: 'pdf-screen' }, this.props.document.arrayBuffer && React.createElement(pdfViewer_tsx_1.PDFViewer, { file: this.props.document, data: this.props.document.arrayBuffer, worker: false, removeDocument: function removeDocument() {
 	                    _this2.props.removeDocument();
 	                } }), React.createElement(ReactCSSTransitionGroup, { transitionName: "progress", transitionEnterTimeout: 300, transitionLeaveTimeout: 500 }, this.props.document.status === 'posting' && React.createElement("div", { className: "progress", key: "progress" }, React.createElement("div", { className: "progress-bar progress-bar-striped active", style: { width: this.props.document.progress * 100 + "%" } }))));
 	        }
@@ -39691,6 +39691,7 @@
 	var pdfPage_tsx_1 = __webpack_require__(932);
 	var signatureSelector_tsx_1 = __webpack_require__(933);
 	var SignatureDragContainer_tsx_1 = __webpack_require__(955);
+	var axios = __webpack_require__(936);
 	var PDFJS = __webpack_require__(930);
 	Promise.config({
 	    cancellation: true
@@ -39809,6 +39810,18 @@
 	            console.log(position);
 	            console.log(position.x + position.width);
 	            console.log(position.y + position.height);
+	            var data = new FormData();
+	            data.append('file', this.props.file.file);
+	            data.append('signature_id', 4);
+	            data.append('page_number', 1);
+	            data.append('x_offset', .5);
+	            data.append('y_offset', .5);
+	            data.append('x_scale', 4);
+	            data.append('y_scale', 3);
+	            axios.post('/sign', data).then(function (response) {
+	                var signedPDFLink = 'localhost:5669/signed-documents/' + response.data.file_id + '?filename=test.pdf';
+	                window.open(signedPDFLink, '_blank');
+	            });
 	        }
 	    }, {
 	        key: 'render',
@@ -39824,7 +39837,7 @@
 	            var page = this.state.pages[this.state.pageNumber - 1];
 	            return React.createElement("div", { className: 'pdf-viewer' }, React.createElement(pdfPreview_tsx_1.PDFPreview, { pages: this.state.pages, changePage: this.changePage.bind(this), activePageNumber: this.state.pageNumber, width: 120 }), React.createElement("div", { className: 'pdf-container' }, React.createElement("button", { className: 'pdf-viewer-close', onClick: function onClick() {
 	                    return _this4.props.removeDocument();
-	                } }, React.createElement("span", { className: 'close-icon' }, "×")), React.createElement("div", { className: 'pdf-title' }, this.props.filename), React.createElement("div", { className: 'pdf-page-number' }, "Page ", this.state.pageNumber, " of ", this.state.pdf.numPages), React.createElement(signatureSelector_tsx_1.default, { isVisible: this.state.show, showModal: this.showModal.bind(this), hideModal: this.hideModal.bind(this), onSignatureSelected: this.signatureSelected.bind(this) }), React.createElement(react_bootstrap_1.Button, { onClick: this.save.bind(this) }, "Save"), React.createElement(SignatureDragContainer_tsx_1.default, { signatureId: this.state.signatureId, className: 'pdf-page-wrapper', ref: 'signature-container' }, React.createElement(pdfPage_tsx_1.PDFPage, { page: page, drawWidth: 1000 }))));
+	                } }, React.createElement("span", { className: 'close-icon' }, "×")), React.createElement("div", { className: 'pdf-title' }, this.props.file.filename), React.createElement("div", { className: 'pdf-page-number' }, "Page ", this.state.pageNumber, " of ", this.state.pdf.numPages), React.createElement(signatureSelector_tsx_1.default, { isVisible: this.state.show, showModal: this.showModal.bind(this), hideModal: this.hideModal.bind(this), onSignatureSelected: this.signatureSelected.bind(this) }), React.createElement(react_bootstrap_1.Button, { onClick: this.save.bind(this) }, "Save"), React.createElement(SignatureDragContainer_tsx_1.default, { signatureId: this.state.signatureId, className: 'pdf-page-wrapper', ref: 'signature-container' }, React.createElement(pdfPage_tsx_1.PDFPage, { page: page, drawWidth: 1000 }))));
 	        }
 	    }]);
 	

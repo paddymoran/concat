@@ -6,6 +6,7 @@ import { PDFPreview } from './pdfPreview.tsx';
 import { PDFPage } from './pdfPage.tsx';
 import SignatureSelector from './signatureSelector.tsx';
 import SignatureDragContainer from './SignatureDragContainer.tsx';
+import * as axios from 'axios';
 const PDFJS = require('pdfjs-dist');
 
 Promise.config({
@@ -15,6 +16,7 @@ Promise.config({
 interface PDFViewerProps {
     data: ArrayBuffer;
     filename: string;
+    file: Any;
     worker?: boolean;
     url?: string;
     removeDocument: Function;
@@ -109,7 +111,7 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         });
     }
 
-    save() {
+     save() {
         const signatureContainer = this.refs['signature-container'];
 
         const position = signatureContainer.relativeSignaturePosition();
@@ -117,6 +119,20 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         console.log(position);
         console.log(position.x + position.width);
         console.log(position.y + position.height);
+
+        let data = new FormData();
+        data.append('file', this.props.file.file);
+        data.append('signature_id', 4);
+        data.append('page_number', 1);
+        data.append('x_offset', .5);
+        data.append('y_offset', .5);
+        data.append('x_scale', 4);
+        data.append('y_scale', 3);
+
+        axios.post('/sign', data).then((response) => {
+            const signedPDFLink = 'localhost:5669/signed-documents/' + response.data.file_id + '?filename=test.pdf';
+            window.open(signedPDFLink, '_blank');
+        });
     }
 
     render() {
@@ -143,7 +159,7 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                         <span className='close-icon'>×</span>
                     </button>
 
-                    <div className='pdf-title'>{this.props.filename}</div>
+                    <div className='pdf-title'>{this.props.file.filename}</div>
                     <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
 
                     <SignatureSelector

@@ -5,7 +5,6 @@ import { Provider, connect } from 'react-redux';
 import { Store, createStore } from 'redux';
 import configureStore from './configureStore.ts';
 import '../style/style.scss';
-import * as axios from 'axios';
 import { addDocuments, updateDocument, submitDocuments, removeDocument, updateForm } from './actions.ts';
 import Header from './header.tsx';
 import Footer from './footer.tsx';

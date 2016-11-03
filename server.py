@@ -26,36 +26,7 @@ app.config.from_pyfile('./config_dev.py')
 
 PORT = app.config.get('PORT')
 
-concat_cmds = ['gs', '-dBATCH', '-dNOPAUSE', '-q', '-sDEVICE=pdfwrite']
-thumb_cmds = ['convert', '-thumbnail', '150x', '-background', 'white', '-alpha', 'remove']
-
-
-
-TMP_DIR = '/tmp/.concat/'
-
-
-def concat_file_ids(file_ids, options):
-    try:
-        print(file_ids)
-        output = tempfile.NamedTemporaryFile(suffix='.pdf', delete=False)
-        args = concat_cmds[:] + ['-sOutputFile=%s' % output.name]
-
-        if options.get('deskew') == 'true':
-            args += ['-deskew', '40']
-
-
-        for f in file_ids:
-            args.append(os.path.join(TMP_DIR, f)+'.pdf')
-
-        print(' '.join(args))
-        Popen(args,
-              stdout=DEVNULL,
-              stderr=STDOUT).wait()
-        return output.read()
-    except Exception as e:
-        raise e
-    finally:
-        output.close()
+TMP_DIR = '/tmp/.catalex_sign/'
 
 
 def upload_document(file):
@@ -65,18 +36,21 @@ def upload_document(file):
     return path
 
 
-def sign_document(file, signature_id, user_id):
-    try:
-        output = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
-        args = thumb_cmds[:] + [os.path.join(TMP_DIR, file_id + '.pdf[0]'), output.name]
-        Popen(args,
-              stdout=DEVNULL,
-              stderr=STDOUT).wait()
-        return output.read()
-    except Exception, e:
-        raise e
-    finally:
-        output.close()
+def sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale):
+    pdf_filepath = upload_document(file)
+    signed_filepath = os.path.join(TMP_DIR, 'signed_' + str(uuid.uuid4()) + '.pdf')
+    
+    Popen(['sh', './sign.sh', pdf_filepath, str(page_number), '/Users/paddy/sign/signature.png', str(x_offset), str(y_offset), str(x_scale), str(y_scale), signed_filepath],
+        stdout=DEVNULL,
+        stderr=STDOUT).wait()
+
+    return signed_filepath
+
+
+def upload_signature(base64Image):
+    db.add_signature(1, str(base64Image.split(",")[1].decode('base64')))
+    return { 'success': True }
+
 
 class InvalidUsage(Exception):
     status_code = 400
@@ -93,9 +67,6 @@ class InvalidUsage(Exception):
         rv['message'] = self.message
         return rv
 
-def upload_signature(base64Image):
-    add_signature(1, str(base64Image.split(",")[1].decode('base64')))
-    return { 'success': True }
 
 @app.route('/documents/upload', methods=['POST'])
 def document_upload():
@@ -133,23 +104,32 @@ def signature(id):
             abort(404)
 
         signature_file = BytesIO(signature)
-        return send_file(signature_file, attachment_filename='signature.png');
+        return send_file(signature_file, attachment_filename='signature.png')
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)
 
 
-@app.route('/concat', methods=['GET'])
-def concat():
-    try:
-        result = concat_file_ids(request.args.getlist("file_ids[]"), options=request.args)
-        return send_file(BytesIO(result),
-                         attachment_filename=request.args.get('filename', 'concat-merge.pdf'),
-                         as_attachment=True,
-                         mimetype='application/pdf')
-    except Exception as e:
-        print(e)
-        raise InvalidUsage(e.message, status_code=500)
+@app.route('/sign', methods=['POST'])
+def sign():
+    file = request.files['file']
+
+    signature_id = request.form['signature_id']
+    user_id = 1#session['user_id']
+    page_number = request.form['page_number']
+    x_offset = request.form['x_offset']
+    y_offset = request.form['y_offset']
+    x_scale = request.form['x_scale']
+    y_scale = request.form['y_scale']
+
+
+
+    signed_filepath = sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale)
+    
+    return send_file(signed_filepath,
+             attachment_filename=file.filename,
+             as_attachment=True,
+             mimetype='application/pdf')
 
 
 @app.route('/login', methods=['GET'])

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { DropTarget, DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import Signature from './Signature.tsx';
+import Signature from './signature.tsx';
 
 interface SignatureDragContainerProps {
     signatureId?: string;

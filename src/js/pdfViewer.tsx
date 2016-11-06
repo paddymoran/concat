@@ -117,6 +117,10 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         console.log(position);
         console.log(position.x + position.width);
         console.log(position.y + position.height);
+        this.props.save({
+            position: position,
+            signatureId: this.state.signatureId,
+        })
     }
 
     render() {
@@ -139,25 +143,24 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                     width={120} />
 
                 <div className='pdf-container'>
-                    <button className='pdf-viewer-close' onClick={() => this.props.removeDocument()}>
-                        <span className='close-icon'>×</span>
-                    </button>
 
                     <div className='pdf-title'>{this.props.filename}</div>
                     <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
 
+                    <div className="button-row">
+                    <Button bsStyle='info' onClick={() => this.props.removeDocument()}>
+                        Close Document
+                    </Button>
                     <SignatureSelector
                         isVisible={this.state.show}
                         showModal={this.showModal.bind(this)}
                         hideModal={this.hideModal.bind(this)}
                         signatureIds={[
-                            'df162380-cd78-4247-8a85-9c66d76b2c15',
-                            '98295127-5db4-46ab-84dd-a82859700b96',
-                            '899cb186-38be-4e10-81ee-b6ed23634092'
                         ]}
                         onSignatureSelected={this.signatureSelected.bind(this)} />
 
-                    <Button onClick={this.save.bind(this)}>Save</Button>
+                    <Button onClick={this.save.bind(this)}>Sign Document</Button>
+                    </div>
 
                     <SignatureDragContainer signatureId={this.state.signatureId} className='pdf-page-wrapper' ref='signature-container'>
                         <PDFPage

@@ -1,15 +1,15 @@
-$background: #eaeaea;
+$background: #fff;
+
 
 .pdf-screen {
     background: $background;
     z-index: 10;
     position: absolute;
-    top: 0;
+    top: 150px;
+    bottom: 60px;
     left: 0;
     width: 100%;
-    max-height: 100%;
     overflow: hidden;
-    height: 100%;
 
     .pdf-viewer {
         .pdf-title {
@@ -19,31 +19,42 @@ $background: #eaeaea;
         }
 
         .pdf-preview-panel {
-            background: #ccc;
+            background: $background;
             position: absolute;
             height: 100%;
             left: 0;
             top: 0;
-            width: 150px;
+            width: 250px;
             padding: 5px;
             overflow-y: scroll;
 
-            .pdf-thumbnail {
-                position: relative;
-                margin: 5px;
-
+            .selectable {
+                cursor: pointer;
+                canvas{
+                    border: 5px solid $dark;
+                    
+                }
                 &.selected {
-                    .pdf-thumbnail-number {
-                        background: $light-red;
+                    canvas{
+                        border: 5px solid $light-red;
                     }
                 }
+    
+            }
 
+            .pdf-thumbnail {
+                position: relative;
+                margin: 10px 40px;
+
+                canvas{
+
+                }
                 .pdf-thumbnail-number {
                     background: $dark;
                     position: absolute;
                     top: 0;
                     left: 0;
-                    padding: 0 10px 5px 5px;
+                    width: 1.5em;
                     text-align: center;
                     vertical-align: middle;
                     color: white;
@@ -53,13 +64,14 @@ $background: #eaeaea;
         }
 
         .pdf-container {
-            margin-left: 150px;
+            left:250px;
+            right:0;
             position: absolute;
             overflow-y: scroll;
             height: 100%;
         }
 
-        .pdf-viewer-close {
+        /*.pdf-viewer-close {
             position: fixed;
             top: 0;
             right: 0;
@@ -84,16 +96,29 @@ $background: #eaeaea;
                     opacity: 1;
                 }
             }
-        }
+        }*/
 
         .pdf-page-wrapper {
             position: relative;
-            margin: 60px;
+            margin: 2em auto;
+            max-width: 900px;
         }
         
         .pdf-page {
             width: 100%;
             border: 1px solid $dark;
+        }
+        
+        .pdf-page-number{
+            text-align: center;
+        }
+
+        .button-row{
+            text-align:center;
+            & > *{
+                display:inline-block;
+                margin: 0.2em 1em;
+            }
         }
     }
 }

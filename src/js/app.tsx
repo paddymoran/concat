@@ -166,6 +166,9 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
                         filename={this.props.document.filename}
                         data={this.props.document.arrayBuffer}  
                         worker={false}
+                        save={(data) => {
+                            
+                        }}
                         removeDocument={() => {this.props.removeDocument()}} />
                 }
 
@@ -298,21 +301,11 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
         const url = '/concat?' + serialize({file_ids: this.props.documents.filelist.map(f => f.uuid), deskew: this.props.form.deskew || false});
         return  (
             <ConnectedFileDropZone onDrop={this.onDrop}>
+                <Header />
                 <div className="body">
                     <div className="explanation" onClick={this.onClick}>
                         Drag a PDF here to sign it
                         <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
-                    </div>
-                    <div className="container">
-                    {/*
-                        <DocumentList
-                            updateDocument={this.props.updateDocument}
-                            documents={this.props.documents}
-                            removeDocument={this.props.removeDocument} />
-                        { loaded && <div className="button-bar">
-                            <a href={url} className="btn btn-primary">Sign</a>
-                        </div> }
-                    */}
                     </div>
                     <Footer />
                 </div>
@@ -338,12 +331,18 @@ class App extends React.Component<{}, {}> {
 
         if (doc) {
             return (
+                <div>
+                <Header />
+                <div className="body">
                 <DocumentView
                     document={doc}
                     key={doc.id}
                     index={doc.id}
                     updateDocument={this.props.updateDocument}
                     removeDocument={() => this.props.removeDocument({id: doc.id})} />
+                </div>
+                <Footer />
+                </div>
             );
         } else {
             return <DragContextDocumentHandlerConnected  />

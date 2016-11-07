@@ -16,8 +16,7 @@ if [ $# -eq 0 ]
 then
     echo "
 Usage:
-    sign <PdfFile> <PageNumber> <SignatureFile> <x_offset> <y_offset> <x_scale> <y_scale> <output>
-    sign <PdfFile> <PageNumber>
+    sign <PdfFile> <PageNumber> <SignatureFile> <x_offset> <y_offset> <ratio_width> <ratio_height> <output>
 Example:
     sign guide.pdf 1 doodle.png 0.2 0.2 0.3 0.3 out.pdf
     "
@@ -26,19 +25,16 @@ else
     SIGNATURE=$3
 fi
 
-
-SCALEX=`echo $6*100 | bc `%
-SCALEY=`echo $7*100 | bc `%
 OUTPUT=$8
-
-DIR=`pwd`;
-
+DIR=`pwd`
 
 pdftk "$1" burst output $TMP/page_%d.pdf
 
-
 HEIGHT=$(identify -format "%h" $TMP/page_$2.pdf)
 WIDTH=$(identify -format "%w" $TMP/page_$2.pdf)
+
+SIGNATURE_WIDTH=`echo $6*$WIDTH | bc`
+SIGNATURE_HEIGHT=`echo $6*$HEIGHT | bc`
 
 POSX=`echo $4*$WIDTH | bc `
 POSY=`echo $5*$HEIGHT | bc `
@@ -46,9 +42,7 @@ POSY=`echo $5*$HEIGHT | bc `
 gs -o $TMP/stamp-out.pdf -sDEVICE=pdfwrite -g$WIDTH"0x"$HEIGHT"0"
 
 
-composite -geometry  "$SCALEX"x"$SCALEY"+"$POSX"+"$POSY" "$SIGNATURE" $TMP/stamp-out.pdf $TMP/stamp-out-signed.pdf
-echo "$SCALEX"x"$SCALEY"+"$POSX"+"$POSY"
-#$TMP/stamp-out-signed.pdf
+composite -geometry  "$SIGNATURE_WIDTH"x"$SIGNATURE_HEIGHT!"+"$POSX"+"$POSY" "$SIGNATURE" $TMP/stamp-out.pdf $TMP/stamp-out-signed.pdf
 
 echo "made stamp"
 pdftk $TMP/page_$2.pdf stamp $TMP/stamp-out-signed.pdf output $TMP/page_$2_out.pdf

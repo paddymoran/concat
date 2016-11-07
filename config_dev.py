@@ -1,8 +1,9 @@
 PORT=5669
 
-LAW_BROWSER_LOGIN_URL = 'http://localhost:5669/login'
-USERS_LOGIN_URL = 'http://catalexusers.dev/sign-login'
-OAUTH_ACCESS_TOKEN_URL = 'http://catalesusers.dev/oauth/access_token'
+SERVER_NAME = 'localhost:5669'
+LOGIN_URL = 'http://localhost:5669/login'
+AUTH_SERVER = 'http://catalexusers.dev'
+OAUTH_URL = 'http://catalexusers.dev/sign-login'
 
 OAUTH_CLIENT_ID = 'sign'
 OAUTH_CLIENT_SECRET = 'test'

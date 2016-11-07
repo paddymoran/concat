@@ -3,16 +3,14 @@ import errno
 import logging
 import json
 import sys
-from flask import Flask, request, redirect, send_file, jsonify, send_from_directory, session, abort, url_for
+from flask import Flask, request, redirect, send_file, jsonify, session, abort, url_for
 import db
 import requests
 import os
 import os.path
 from io import BytesIO
-import tempfile
 from subprocess import Popen, STDOUT
 import uuid
-from base64 import decodestring
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -162,20 +160,20 @@ def login():
     provided_code = args.get('code')
 
     if not all([provided_code]):
-        return redirect('http://catalexusers.dev/sign-login')
+        return redirect(app.config.get('OAUTH_URL'))
 
     params = {
         'code': provided_code,
         'grant_type': 'authorization_code',
-        'client_id': 'sign',
-        'client_secret': 'test',
-        'redirect_uri': 'http://localhost:5669/login'
+        'client_id': app.config.get('OAUTH_CLIENT_ID'),
+        'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
+        'redirect_uri': app.config.get('LOGIN_URL')
     }
 
-    response = requests.post('http://catalexusers.dev/oauth/access_token', data=params)
+    response = requests.post(app.config.get('AUTH_SERVER') + '/oauth/access_token', data=params)
     access_data = response.json()
 
-    response = requests.get('http://catalexusers.dev/api/user', params={'access_token': access_data['access_token']})
+    response = requests.get(app.config.get('AUTH_SERVER') + '/api/user', params={'access_token': access_data['access_token']})
     user_data = response.json()
 
     session['user_id'] = user_data['id']
@@ -196,8 +194,10 @@ def handle_invalid_usage(error):
     return response
 
 
+
 @app.before_request
 def before_request():
+    # session.clear()
     if not 'user_id' in session and request.endpoint is not 'login':
         return redirect(url_for('login'))
 

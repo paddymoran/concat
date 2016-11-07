@@ -1,8 +1,12 @@
 .selectable {
     cursor: pointer;
-    border: 5px solid $dark;
-    
+    canvas{
+        border: 5px solid $dark;
+        
+    }
     &.selected {
-        border-color: $light-red;
+        canvas{
+            border-color: $light-red;
+        }
     }
 }

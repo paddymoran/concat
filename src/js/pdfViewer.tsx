@@ -113,12 +113,7 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
 
      save() {
         const signatureContainer = this.refs['signature-container'];
-
         const position = signatureContainer.relativeSignaturePosition();
-
-        console.log(position);
-        console.log(position.x + position.width);
-        console.log(position.y + position.height);
 
         let data = new FormData();
         data.append('file', this.props.file.file);
@@ -155,20 +150,23 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                     width={120} />
 
                 <div className='pdf-container'>
-                    <button className='pdf-viewer-close' onClick={() => this.props.removeDocument()}>
-                        <span className='close-icon'>×</span>
-                    </button>
 
                     <div className='pdf-title'>{this.props.file.filename}</div>
                     <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
 
+                    <div className="button-row">
+                    <Button bsStyle='info' onClick={() => this.props.removeDocument()}>
+                        Close Document
+                    </Button>
                     <SignatureSelector
                         isVisible={this.state.show}
                         showModal={this.showModal.bind(this)}
                         hideModal={this.hideModal.bind(this)}
+                        signatureIds={[4, 5]}
                         onSignatureSelected={this.signatureSelected.bind(this)} />
 
-                    <Button onClick={this.save.bind(this)}>Save</Button>
+                    <Button onClick={this.save.bind(this)}>Sign Document</Button>
+                    </div>
 
                     <SignatureDragContainer signatureId={this.state.signatureId} className='pdf-page-wrapper' ref='signature-container'>
                         <PDFPage

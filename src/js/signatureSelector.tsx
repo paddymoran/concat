@@ -78,7 +78,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         return (
             <div>
                 <Button bsStyle='primary' onClick={() => this.props.showModal()}>
-                    Sign
+                    Add Signature
                 </Button>
 
                 <Modal show={this.props.isVisible} onHide={() => this.props.hideModal()}>
@@ -99,6 +99,12 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                                                 </div>
                                             )
                                         })
+                                    }
+
+                                    { this.props.signatureIds.length == 0 &&
+                                        <div className="col-xs-12">
+                                            <p>No saved signatures</p>
+                                        </div>
                                     }
                                 </div>
                             </Tab>

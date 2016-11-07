@@ -1,3 +1,4 @@
 /node_modules/
 /dist/
 /catalex_sign.egg-info/
+db.pyc

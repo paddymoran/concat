@@ -34,7 +34,7 @@ HEIGHT=$(identify -format "%h" $TMP/page_$2.pdf)
 WIDTH=$(identify -format "%w" $TMP/page_$2.pdf)
 
 SIGNATURE_WIDTH=`echo $6*$WIDTH | bc`
-SIGNATURE_HEIGHT=`echo $6*$HEIGHT | bc`
+SIGNATURE_HEIGHT=`echo $7*$HEIGHT | bc`
 
 POSX=`echo $4*$WIDTH | bc `
 POSY=`echo $5*$HEIGHT | bc `

@@ -1,0 +1,7 @@
+setup.py
+catalex_sign.egg-info/PKG-INFO
+catalex_sign.egg-info/SOURCES.txt
+catalex_sign.egg-info/dependency_links.txt
+catalex_sign.egg-info/not-zip-safe
+catalex_sign.egg-info/requires.txt
+catalex_sign.egg-info/top_level.txt

@@ -111,12 +111,8 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
 
     save() {
         const signatureContainer = this.refs['signature-container'];
-
         const position = signatureContainer.relativeSignaturePosition();
 
-        console.log(position);
-        console.log(position.x + position.width);
-        console.log(position.y + position.height);
         this.props.save({
             position: position,
             signatureId: this.state.signatureId,

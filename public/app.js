@@ -39729,7 +39729,7 @@
 	var pdfPreview_tsx_1 = __webpack_require__(930);
 	var pdfPage_tsx_1 = __webpack_require__(933);
 	var signatureSelector_tsx_1 = __webpack_require__(934);
-	var SignatureDragContainer_tsx_1 = __webpack_require__(956);
+	var signatureDragContainer_tsx_1 = __webpack_require__(1019);
 	var axios = __webpack_require__(937);
 	var PDFJS = __webpack_require__(931);
 	Promise.config({
@@ -39848,14 +39848,16 @@
 	            var position = signatureContainer.relativeSignaturePosition();
 	            var data = new FormData();
 	            data.append('file', this.props.file.file);
-	            data.append('signature_id', 4);
-	            data.append('page_number', 1);
-	            data.append('x_offset', .5);
-	            data.append('y_offset', .5);
-	            data.append('x_scale', 4);
-	            data.append('y_scale', 3);
+	            data.append('signature_id', this.state.signatureId);
+	            data.append('page_number', this.state.pageNumber);
+	            data.append('x_offset', position.x);
+	            data.append('y_offset', position.y);
+	            data.append('width_ratio', position.width);
+	            data.append('height_ratio', position.height);
+	            console.log(position.width);
+	            console.log(position.height);
 	            axios.post('/sign', data).then(function (response) {
-	                var signedPDFLink = 'localhost:5669/signed-documents/' + response.data.file_id + '?filename=test.pdf';
+	                var signedPDFLink = 'http://localhost:5669/signed-documents/' + response.data.file_id + '?filename=test.pdf';
 	                window.open(signedPDFLink, '_blank');
 	            });
 	        }
@@ -39873,7 +39875,7 @@
 	            var page = this.state.pages[this.state.pageNumber - 1];
 	            return React.createElement("div", { className: 'pdf-viewer' }, React.createElement(pdfPreview_tsx_1.PDFPreview, { pages: this.state.pages, changePage: this.changePage.bind(this), activePageNumber: this.state.pageNumber, width: 120 }), React.createElement("div", { className: 'pdf-container' }, React.createElement("div", { className: 'pdf-title' }, this.props.file.filename), React.createElement("div", { className: 'pdf-page-number' }, "Page ", this.state.pageNumber, " of ", this.state.pdf.numPages), React.createElement("div", { className: "button-row" }, React.createElement(react_bootstrap_1.Button, { bsStyle: 'info', onClick: function onClick() {
 	                    return _this4.props.removeDocument();
-	                } }, "Close Document"), React.createElement(signatureSelector_tsx_1.default, { isVisible: this.state.show, showModal: this.showModal.bind(this), hideModal: this.hideModal.bind(this), signatureIds: [4, 5], onSignatureSelected: this.signatureSelected.bind(this) }), React.createElement(react_bootstrap_1.Button, { onClick: this.save.bind(this) }, "Sign Document")), React.createElement(SignatureDragContainer_tsx_1.default, { signatureId: this.state.signatureId, className: 'pdf-page-wrapper', ref: 'signature-container' }, React.createElement(pdfPage_tsx_1.PDFPage, { page: page, drawWidth: 1000 }))));
+	                } }, "Close Document"), React.createElement(signatureSelector_tsx_1.default, { isVisible: this.state.show, showModal: this.showModal.bind(this), hideModal: this.hideModal.bind(this), onSignatureSelected: this.signatureSelected.bind(this) }), React.createElement(react_bootstrap_1.Button, { onClick: this.save.bind(this) }, "Sign Document")), React.createElement(signatureDragContainer_tsx_1.default, { signatureId: this.state.signatureId, className: 'pdf-page-wrapper', ref: 'signature-container' }, React.createElement(pdfPage_tsx_1.PDFPage, { page: page, drawWidth: 1000 }))));
 	        }
 	    }]);
 	
@@ -73847,7 +73849,7 @@
 	                return React.createElement("div", { className: "col-sm-6", key: i, onClick: function onClick() {
 	                        return _this4.changeSelectedSignature(i);
 	                    } }, React.createElement("img", { className: classes, src: "/signatures/" + id }));
-	            }), this.props.signatureIds.length == 0 && React.createElement("div", { className: "col-xs-12" }, React.createElement("p", null, "No saved signatures")))), React.createElement(react_bootstrap_1.Tab, { eventKey: DRAW_SIGNATURE_TAB, title: "Draw Signature" }, React.createElement("div", { className: 'signature-canvas-conatiner clearfix' }, React.createElement(react_signature_canvas_1.default, { canvasProps: signatureCanvasOptions, ref: 'signature-canvas' }), React.createElement("a", { className: 'pull-right', onClick: this.clearCanvas.bind(this) }, "Clear"))))), React.createElement(react_bootstrap_1.Modal.Footer, null, React.createElement(react_bootstrap_1.Button, { onClick: function onClick() {
+	            }), this.state.signatureIds.length == 0 && React.createElement("div", { className: "col-xs-12" }, React.createElement("p", null, "No saved signatures")))), React.createElement(react_bootstrap_1.Tab, { eventKey: DRAW_SIGNATURE_TAB, title: "Draw Signature" }, React.createElement("div", { className: 'signature-canvas-conatiner clearfix' }, React.createElement(react_signature_canvas_1.default, { canvasProps: signatureCanvasOptions, ref: 'signature-canvas' }), React.createElement("a", { className: 'pull-right', onClick: this.clearCanvas.bind(this) }, "Clear"))))), React.createElement(react_bootstrap_1.Modal.Footer, null, React.createElement(react_bootstrap_1.Button, { onClick: function onClick() {
 	                    return _this4.props.hideModal();
 	                } }, "Close"), React.createElement(react_bootstrap_1.Button, { bsStyle: 'primary', onClick: this.select.bind(this) }, "Select"))));
 	        }
@@ -75083,66 +75085,7 @@
 
 
 /***/ },
-/* 956 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var React = __webpack_require__(298);
-	var signature_tsx_1 = __webpack_require__(957);
-	
-	var SignatureDragContainer = function (_React$Component) {
-	    _inherits(SignatureDragContainer, _React$Component);
-	
-	    function SignatureDragContainer(props) {
-	        _classCallCheck(this, SignatureDragContainer);
-	
-	        return _possibleConstructorReturn(this, (SignatureDragContainer.__proto__ || Object.getPrototypeOf(SignatureDragContainer)).call(this, props));
-	    }
-	
-	    _createClass(SignatureDragContainer, [{
-	        key: 'relativeSignaturePosition',
-	        value: function relativeSignaturePosition() {
-	            var _refs = this.refs,
-	                signature = _refs.signature,
-	                container = _refs.container;
-	
-	            if (!signature) {
-	                throw new Error('Signature does not exist');
-	            }
-	            var signaturePosition = signature.position();
-	            var sizeRatio = function sizeRatio(size, input) {
-	                return 1 / size * input;
-	            };
-	            return {
-	                x: sizeRatio(container.offsetWidth, signaturePosition.x),
-	                y: sizeRatio(container.offsetHeight, signaturePosition.y),
-	                width: sizeRatio(container.offsetWidth, signaturePosition.width),
-	                height: sizeRatio(container.offsetHeight, signaturePosition.height)
-	            };
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return React.createElement("div", { className: this.props.className || '', ref: 'container' }, this.props.signatureId && React.createElement(signature_tsx_1.default, { signatureId: this.props.signatureId, ref: 'signature' }), this.props.children);
-	        }
-	    }]);
-	
-	    return SignatureDragContainer;
-	}(React.Component);
-	
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = SignatureDragContainer;
-
-/***/ },
+/* 956 */,
 /* 957 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -80405,6 +80348,66 @@
 	    return $entries(it);
 	  }
 	});
+
+/***/ },
+/* 1019 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var React = __webpack_require__(298);
+	var signature_tsx_1 = __webpack_require__(957);
+	
+	var SignatureDragContainer = function (_React$Component) {
+	    _inherits(SignatureDragContainer, _React$Component);
+	
+	    function SignatureDragContainer(props) {
+	        _classCallCheck(this, SignatureDragContainer);
+	
+	        return _possibleConstructorReturn(this, (SignatureDragContainer.__proto__ || Object.getPrototypeOf(SignatureDragContainer)).call(this, props));
+	    }
+	
+	    _createClass(SignatureDragContainer, [{
+	        key: 'relativeSignaturePosition',
+	        value: function relativeSignaturePosition() {
+	            var _refs = this.refs,
+	                signature = _refs.signature,
+	                container = _refs.container;
+	
+	            if (!signature) {
+	                throw new Error('Signature does not exist');
+	            }
+	            var signaturePosition = signature.position();
+	            var sizeRatio = function sizeRatio(size, input) {
+	                return 1 / size * input;
+	            };
+	            return {
+	                x: sizeRatio(container.offsetWidth, signaturePosition.x),
+	                y: sizeRatio(container.offsetHeight, signaturePosition.y),
+	                width: sizeRatio(container.offsetWidth, signaturePosition.width),
+	                height: sizeRatio(container.offsetHeight, signaturePosition.height)
+	            };
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            return React.createElement("div", { className: this.props.className || '', ref: 'container' }, this.props.signatureId && React.createElement(signature_tsx_1.default, { signatureId: this.props.signatureId, ref: 'signature' }), this.props.children);
+	        }
+	    }]);
+	
+	    return SignatureDragContainer;
+	}(React.Component);
+	
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = SignatureDragContainer;
 
 /***/ }
 /******/ ])));

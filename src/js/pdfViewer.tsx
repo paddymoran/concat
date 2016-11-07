@@ -5,7 +5,7 @@ import { Button } from 'react-bootstrap';
 import { PDFPreview } from './pdfPreview.tsx';
 import { PDFPage } from './pdfPage.tsx';
 import SignatureSelector from './signatureSelector.tsx';
-import SignatureDragContainer from './SignatureDragContainer.tsx';
+import SignatureDragContainer from './signatureDragContainer.tsx';
 import * as axios from 'axios';
 const PDFJS = require('pdfjs-dist');
 
@@ -117,15 +117,18 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
 
         let data = new FormData();
         data.append('file', this.props.file.file);
-        data.append('signature_id', 4);
-        data.append('page_number', 1);
-        data.append('x_offset', .5);
-        data.append('y_offset', .5);
-        data.append('x_scale', 4);
-        data.append('y_scale', 3);
+        data.append('signature_id', this.state.signatureId);
+        data.append('page_number', this.state.pageNumber);
+        data.append('x_offset', position.x);
+        data.append('y_offset', position.y);
+        data.append('width_ratio', position.width);
+        data.append('height_ratio', position.height);
+
+        console.log(position.width);
+        console.log(position.height);
 
         axios.post('/sign', data).then((response) => {
-            const signedPDFLink = 'localhost:5669/signed-documents/' + response.data.file_id + '?filename=test.pdf';
+            const signedPDFLink = 'http://localhost:5669/signed-documents/' + response.data.file_id + '?filename=test.pdf';
             window.open(signedPDFLink, '_blank');
         });
     }
@@ -155,20 +158,24 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                     <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
 
                     <div className="button-row">
-                    <Button bsStyle='info' onClick={() => this.props.removeDocument()}>
-                        Close Document
-                    </Button>
-                    <SignatureSelector
-                        isVisible={this.state.show}
-                        showModal={this.showModal.bind(this)}
-                        hideModal={this.hideModal.bind(this)}
-                        signatureIds={[4, 5]}
-                        onSignatureSelected={this.signatureSelected.bind(this)} />
+                        <Button bsStyle='info' onClick={() => this.props.removeDocument()}>
+                            Close Document
+                        </Button>
 
-                    <Button onClick={this.save.bind(this)}>Sign Document</Button>
+                        <SignatureSelector
+                            isVisible={this.state.show}
+                            showModal={this.showModal.bind(this)}
+                            hideModal={this.hideModal.bind(this)}
+                            onSignatureSelected={this.signatureSelected.bind(this)} />
+
+                        <Button onClick={this.save.bind(this)}>Sign Document</Button>
                     </div>
 
-                    <SignatureDragContainer signatureId={this.state.signatureId} className='pdf-page-wrapper' ref='signature-container'>
+                    <SignatureDragContainer
+                        signatureId={this.state.signatureId}
+                        className='pdf-page-wrapper'
+                        ref='signature-container'
+                    >
                         <PDFPage
                             page={page}
                             drawWidth={1000} />

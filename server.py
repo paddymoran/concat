@@ -3,7 +3,7 @@ import errno
 import logging
 import json
 import sys
-from flask import Flask, request, redirect, send_file, jsonify, send_from_directory, session, abort
+from flask import Flask, request, redirect, send_file, jsonify, send_from_directory, session, abort, url_for
 import db
 import requests
 import os
@@ -27,8 +27,8 @@ app.config.from_pyfile('./config_dev.py')
 PORT = app.config.get('PORT')
 
 TMP_DIR = '/tmp/.catalex_sign/'
+SIGNATURE_FILE_PREFIX = 'signature_'
 SIGNED_FILE_PREFIX = 'signed_'
-SIGNED_FILE_EXTENSION = 'signed_'
 
 
 def upload_document(file):
@@ -39,23 +39,36 @@ def upload_document(file):
 
 
 def generate_signed_filename(file_id):
-    return 'signed_' + file_id + '.pdf'
+    return SIGNED_FILE_PREFIX + file_id + '.pdf'
 
 
 def sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale):
     pdf_filepath = upload_document(file)
     signed_file_id = str(uuid.uuid4())
     signed_filename = generate_signed_filename(signed_file_id)
+
+    signature_filepath = save_temp_signature(signature_id, user_id)
     
-    Popen(['sh', './sign.sh', pdf_filepath, str(page_number), '/Users/paddy/sign/signature.png', str(x_offset), str(y_offset), str(x_scale), str(y_scale), os.path.join(TMP_DIR, signed_filename)],
+    Popen(['sh', './sign.sh', pdf_filepath, str(page_number), signature_filepath, str(x_offset), str(y_offset), str(x_scale), str(y_scale), os.path.join(TMP_DIR, signed_filename)],
         stdout=DEVNULL,
         stderr=STDOUT).wait()
 
     return signed_file_id
 
+def save_temp_signature(signature_id, user_id):
+    signature_binary = db.get_signature(signature_id, user_id)
+    
+    signature_filename = SIGNATURE_FILE_PREFIX + str(uuid.uuid4()) + '.png'
+    signature_filepath = os.path.join(TMP_DIR, signature_filename)
+
+    signature_writer = open(signature_filepath, "wb")
+    signature_writer.write(signature_binary)
+    signature_writer.close()
+
+    return signature_filepath
 
 def upload_signature(base64Image):
-    db.add_signature(1, str(base64Image.split(",")[1].decode('base64')))
+    db.add_signature(session['user_id'], str(base64Image.split(",")[1].decode('base64')))
     return { 'success': True }
 
 
@@ -96,7 +109,7 @@ def signature_upload():
 @app.route('/signatures', methods=['GET'])
 def signatures():
     try:
-        signatures = db.get_signatures_for_user(1)
+        signatures = db.get_signatures_for_user(session['user_id'])
         return jsonify(signatures)
     except Exception as e:
         print(e)
@@ -105,7 +118,7 @@ def signatures():
 @app.route('/signatures/<id>', methods=['GET'])
 def signature(id):
     try:
-        signature = db.get_signature(id, 1)
+        signature = db.get_signature(id, session['user_id'])
 
         if not signature:
             abort(404)
@@ -121,12 +134,12 @@ def signature(id):
 def sign():
     file = request.files['file']
     signature_id = request.form['signature_id']
-    user_id = 1#session['user_id']
+    user_id = session['user_id']
     page_number = request.form['page_number']
     x_offset = request.form['x_offset']
     y_offset = request.form['y_offset']
-    x_scale = request.form['x_scale']
-    y_scale = request.form['y_scale']
+    x_scale = request.form['width_ratio']
+    y_scale = request.form['height_ratio']
 
     file_id = sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale)
 
@@ -168,7 +181,7 @@ def login():
     session['user_id'] = user_data['id']
     session['user_name'] = user_data['email']
 
-    return jsonify({'success': True})
+    return redirect(url_for('index'))
 
 
 @app.route('/', methods=['GET'])
@@ -181,6 +194,12 @@ def handle_invalid_usage(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
+
+
+@app.before_request
+def before_request():
+    if not 'user_id' in session and request.endpoint is not 'login':
+        return redirect(url_for('login'))
 
 
 try:

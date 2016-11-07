@@ -101,7 +101,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                                         })
                                     }
 
-                                    { this.props.signatureIds.length == 0 &&
+                                    { this.state.signatureIds.length == 0 &&
                                         <div className="col-xs-12">
                                             <p>No saved signatures</p>
                                         </div>

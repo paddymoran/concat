@@ -62,7 +62,6 @@ export default class SignatureSelector extends React.Component<SignatureSelector
             axios.post('/signatures/upload', {
                 base64Image: signature
             }).then((response) => {
-                console.log(response);
                 signatureId = response.data.signature_id;
                 this.props.onSignatureSelected(signatureId);
             });

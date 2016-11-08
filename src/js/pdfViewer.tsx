@@ -124,9 +124,6 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         data.append('width_ratio', position.width);
         data.append('height_ratio', position.height);
 
-        console.log(position.width);
-        console.log(position.height);
-
         axios.post('/sign', data).then((response) => {
             const signedPDFLink = 'http://localhost:5669/signed-documents/' + response.data.file_id + '?filename=test.pdf';
             window.open(signedPDFLink, '_blank');

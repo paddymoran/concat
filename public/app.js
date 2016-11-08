@@ -39854,8 +39854,6 @@
 	            data.append('y_offset', position.y);
 	            data.append('width_ratio', position.width);
 	            data.append('height_ratio', position.height);
-	            console.log(position.width);
-	            console.log(position.height);
 	            axios.post('/sign', data).then(function (response) {
 	                var signedPDFLink = 'http://localhost:5669/signed-documents/' + response.data.file_id + '?filename=test.pdf';
 	                window.open(signedPDFLink, '_blank');
@@ -73824,7 +73822,6 @@
 	                axios.post('/signatures/upload', {
 	                    base64Image: signature
 	                }).then(function (response) {
-	                    console.log(response);
 	                    signatureId = response.data.signature_id;
 	                    _this3.props.onSignatureSelected(signatureId);
 	                });

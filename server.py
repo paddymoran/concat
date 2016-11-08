@@ -66,8 +66,8 @@ def save_temp_signature(signature_id, user_id):
     return signature_filepath
 
 def upload_signature(base64Image):
-    db.add_signature(session['user_id'], str(base64Image.split(",")[1].decode('base64')))
-    return { 'success': True }
+    signature_id = db.add_signature(session['user_id'], str(base64Image.split(",")[1].decode('base64')))
+    return { 'signature_id': signature_id }
 
 
 class InvalidUsage(Exception):

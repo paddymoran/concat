@@ -62,6 +62,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
             axios.post('/signatures/upload', {
                 base64Image: signature
             }).then((response) => {
+                console.log(response);
                 signatureId = response.data.signature_id;
                 this.props.onSignatureSelected(signatureId);
             });
@@ -90,12 +91,12 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                             <Tab eventKey={SELECT_SIGNATURE_TAB} title="Select Signature" className="select-signature">
                                 <div className="row">
                                     {this.state.signatureIds.map((id, i) => {
-                                            let classes = 'img-responsive selectable';
+                                            let classes = 'col-sm-6 selectable';
                                             classes += i == this.state.selectedSignature ? ' selected' : '';
 
                                             return (
-                                                <div className="col-sm-6" key={i} onClick={() => this.changeSelectedSignature(i) }>
-                                                    <img className={classes} src={`/signatures/${id}`} />
+                                                <div className={classes} key={i} onClick={() => this.changeSelectedSignature(i) }>
+                                                    <img className='img-responsive' src={`/signatures/${id}`} />
                                                 </div>
                                             )
                                         })

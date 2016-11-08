@@ -3457,13 +3457,6 @@ nav {
       vertical-align: middle;
       font-size: 13px; }
 
-.selectable {
-  cursor: pointer; }
-  .selectable canvas {
-    border: 5px solid #595959; }
-  .selectable.selected canvas {
-    border-color: #c51b24; }
-
 .pdf-screen {
   background: #fff;
   z-index: 10;
@@ -3540,7 +3533,13 @@ nav {
     display: block; }
 
 .select-signature .selectable {
-  margin: 15px 0; }
+  border: 5px solid #595959;
+  margin: 15px;
+  width: -webkit-calc(50% - 30px);
+  width: -moz-calc(50% - 30px);
+  width: calc(50% - 30px); }
+  .select-signature .selectable.selected {
+    border-color: #c51b24; }
 
 html {
   position: relative;

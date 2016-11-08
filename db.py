@@ -20,11 +20,12 @@ def connect_db():
 def add_signature(user_id, binary_file_data):
     db = get_db()
     with db.cursor() as cursor:
-        cursor.execute("INSERT INTO signatures (user_id, signature) VALUES (%(user_id)s, %(blob)s)", {
+        cursor.execute("INSERT INTO signatures (user_id, signature) VALUES (%(user_id)s, %(blob)s) RETURNING id", {
             'user_id': user_id,
             'blob': psycopg2.Binary(binary_file_data)
         })
         db.commit()
+        return cursor.fetchone()[0]
 
 
 def get_signatures_for_user(user_id):

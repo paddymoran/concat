@@ -1,5 +1,11 @@
 .select-signature {
     .selectable {
-        margin: 15px 0;
+        border: 5px solid $dark;
+        margin: 15px;
+        width: calc(50% - 30px);
+
+        &.selected {
+            border-color: $light-red;
+        }
     }
 }

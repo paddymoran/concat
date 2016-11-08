@@ -73824,6 +73824,7 @@
 	                axios.post('/signatures/upload', {
 	                    base64Image: signature
 	                }).then(function (response) {
+	                    console.log(response);
 	                    signatureId = response.data.signature_id;
 	                    _this3.props.onSignatureSelected(signatureId);
 	                });
@@ -73844,11 +73845,11 @@
 	                } }, "Add Signature"), React.createElement(react_bootstrap_1.Modal, { show: this.props.isVisible, onHide: function onHide() {
 	                    return _this4.props.hideModal();
 	                } }, React.createElement(react_bootstrap_1.Modal.Header, { closeButton: true }, React.createElement(react_bootstrap_1.Modal.Title, null, "Select Signature")), React.createElement(react_bootstrap_1.Modal.Body, null, React.createElement(react_bootstrap_1.Tabs, { activeKey: this.state.currentTab, onSelect: this.changeTab.bind(this), animation: false, id: 'select-signature-tabs' }, React.createElement(react_bootstrap_1.Tab, { eventKey: SELECT_SIGNATURE_TAB, title: "Select Signature", className: "select-signature" }, React.createElement("div", { className: "row" }, this.state.signatureIds.map(function (id, i) {
-	                var classes = 'img-responsive selectable';
+	                var classes = 'col-sm-6 selectable';
 	                classes += i == _this4.state.selectedSignature ? ' selected' : '';
-	                return React.createElement("div", { className: "col-sm-6", key: i, onClick: function onClick() {
+	                return React.createElement("div", { className: classes, key: i, onClick: function onClick() {
 	                        return _this4.changeSelectedSignature(i);
-	                    } }, React.createElement("img", { className: classes, src: "/signatures/" + id }));
+	                    } }, React.createElement("img", { className: 'img-responsive', src: "/signatures/" + id }));
 	            }), this.state.signatureIds.length == 0 && React.createElement("div", { className: "col-xs-12" }, React.createElement("p", null, "No saved signatures")))), React.createElement(react_bootstrap_1.Tab, { eventKey: DRAW_SIGNATURE_TAB, title: "Draw Signature" }, React.createElement("div", { className: 'signature-canvas-conatiner clearfix' }, React.createElement(react_signature_canvas_1.default, { canvasProps: signatureCanvasOptions, ref: 'signature-canvas' }), React.createElement("a", { className: 'pull-right', onClick: this.clearCanvas.bind(this) }, "Clear"))))), React.createElement(react_bootstrap_1.Modal.Footer, null, React.createElement(react_bootstrap_1.Button, { onClick: function onClick() {
 	                    return _this4.props.hideModal();
 	                } }, "Close"), React.createElement(react_bootstrap_1.Button, { bsStyle: 'primary', onClick: this.select.bind(this) }, "Select"))));

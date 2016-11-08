@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import * as Promise from 'bluebird';
-import { Button } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 import { PDFPreview } from './pdfPreview.tsx';
 import { PDFPage } from './pdfPage.tsx';
 import SignatureSelector from './signatureSelector.tsx';
@@ -32,7 +32,7 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         this._pagePromises = null;
         this.state = {
             pageNumber: 1,
-            show: false,
+            selectSignatureModalIsVisible: false,
             pdfActualHeight: 0,
             pdfActualHeight: 0
         };
@@ -97,37 +97,42 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
     }
 
     showModal() {
-        this.setState({show: true});
+        this.setState({ selectSignatureModalIsVisible: true });
     }
 
     hideModal() {
-        this.setState({show: false});
+        this.setState({ selectSignatureModalIsVisible: false });
     }
 
     signatureSelected(signatureId) {
         this.setState({
             signatureId: signatureId,
-            show: false
+            selectSignatureModalIsVisible: false,
+            signingError: null
         });
     }
 
-     save() {
-        const signatureContainer = this.refs['signature-container'];
-        const position = signatureContainer.relativeSignaturePosition();
+    sign() {
+        if (!this.state.signatureId) {
+            this.setState({ signingError: 'Please select add a signature' })
+        } else {
+            const signatureContainer = this.refs['signature-container'];
+            const position = signatureContainer.relativeSignaturePosition();
 
-        let data = new FormData();
-        data.append('file', this.props.file.file);
-        data.append('signature_id', this.state.signatureId);
-        data.append('page_number', this.state.pageNumber);
-        data.append('x_offset', position.x);
-        data.append('y_offset', position.y);
-        data.append('width_ratio', position.width);
-        data.append('height_ratio', position.height);
+            let data = new FormData();
+            data.append('file', this.props.file.file);
+            data.append('signature_id', this.state.signatureId);
+            data.append('page_number', this.state.pageNumber);
+            data.append('x_offset', position.x);
+            data.append('y_offset', position.y);
+            data.append('width_ratio', position.width);
+            data.append('height_ratio', position.height);
 
-        axios.post('/sign', data).then((response) => {
-            const signedPDFLink = 'http://localhost:5669/signed-documents/' + response.data.file_id + '?filename=test.pdf';
-            window.open(signedPDFLink, '_blank');
-        });
+            axios.post('/sign', data).then((response) => {
+                const signedPDFLink = 'http://localhost:5669/signed-documents/' + response.data.file_id + '?filename=test.pdf';
+                window.open(signedPDFLink, '_blank');
+            });
+        }
     }
 
     render() {
@@ -150,7 +155,6 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                     width={120} />
 
                 <div className='pdf-container'>
-
                     <div className='pdf-title'>{this.props.file.filename}</div>
                     <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
 
@@ -160,13 +164,19 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                         </Button>
 
                         <SignatureSelector
-                            isVisible={this.state.show}
+                            isVisible={this.state.selectSignatureModalIsVisible}
                             showModal={this.showModal.bind(this)}
                             hideModal={this.hideModal.bind(this)}
                             onSignatureSelected={this.signatureSelected.bind(this)} />
 
-                        <Button onClick={this.save.bind(this)}>Sign Document</Button>
+                        <Button onClick={this.sign.bind(this)}>Sign Document</Button>
                     </div>
+
+                    { this.state.signingError && 
+                        <Alert bsStyle='danger'>
+                            { this.state.signingError }
+                        </Alert>
+                    }
 
                     <SignatureDragContainer
                         signatureId={this.state.signatureId}

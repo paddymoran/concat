@@ -39729,7 +39729,7 @@
 	var pdfPreview_tsx_1 = __webpack_require__(930);
 	var pdfPage_tsx_1 = __webpack_require__(933);
 	var signatureSelector_tsx_1 = __webpack_require__(934);
-	var signatureDragContainer_tsx_1 = __webpack_require__(1019);
+	var signatureDragContainer_tsx_1 = __webpack_require__(956);
 	var axios = __webpack_require__(937);
 	var PDFJS = __webpack_require__(931);
 	Promise.config({
@@ -75085,7 +75085,66 @@
 
 
 /***/ },
-/* 956 */,
+/* 956 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var React = __webpack_require__(298);
+	var signature_tsx_1 = __webpack_require__(957);
+	
+	var SignatureDragContainer = function (_React$Component) {
+	    _inherits(SignatureDragContainer, _React$Component);
+	
+	    function SignatureDragContainer(props) {
+	        _classCallCheck(this, SignatureDragContainer);
+	
+	        return _possibleConstructorReturn(this, (SignatureDragContainer.__proto__ || Object.getPrototypeOf(SignatureDragContainer)).call(this, props));
+	    }
+	
+	    _createClass(SignatureDragContainer, [{
+	        key: 'relativeSignaturePosition',
+	        value: function relativeSignaturePosition() {
+	            var _refs = this.refs,
+	                signature = _refs.signature,
+	                container = _refs.container;
+	
+	            if (!signature) {
+	                throw new Error('Signature does not exist');
+	            }
+	            var signaturePosition = signature.position();
+	            var sizeRatio = function sizeRatio(size, input) {
+	                return 1 / size * input;
+	            };
+	            return {
+	                x: sizeRatio(container.offsetWidth, signaturePosition.x),
+	                y: sizeRatio(container.offsetHeight, signaturePosition.y),
+	                width: sizeRatio(container.offsetWidth, signaturePosition.width),
+	                height: sizeRatio(container.offsetHeight, signaturePosition.height)
+	            };
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            return React.createElement("div", { className: this.props.className || '', ref: 'container' }, this.props.signatureId && React.createElement(signature_tsx_1.default, { signatureId: this.props.signatureId, ref: 'signature' }), this.props.children);
+	        }
+	    }]);
+	
+	    return SignatureDragContainer;
+	}(React.Component);
+	
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = SignatureDragContainer;
+
+/***/ },
 /* 957 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -80348,66 +80407,6 @@
 	    return $entries(it);
 	  }
 	});
-
-/***/ },
-/* 1019 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var React = __webpack_require__(298);
-	var signature_tsx_1 = __webpack_require__(957);
-	
-	var SignatureDragContainer = function (_React$Component) {
-	    _inherits(SignatureDragContainer, _React$Component);
-	
-	    function SignatureDragContainer(props) {
-	        _classCallCheck(this, SignatureDragContainer);
-	
-	        return _possibleConstructorReturn(this, (SignatureDragContainer.__proto__ || Object.getPrototypeOf(SignatureDragContainer)).call(this, props));
-	    }
-	
-	    _createClass(SignatureDragContainer, [{
-	        key: 'relativeSignaturePosition',
-	        value: function relativeSignaturePosition() {
-	            var _refs = this.refs,
-	                signature = _refs.signature,
-	                container = _refs.container;
-	
-	            if (!signature) {
-	                throw new Error('Signature does not exist');
-	            }
-	            var signaturePosition = signature.position();
-	            var sizeRatio = function sizeRatio(size, input) {
-	                return 1 / size * input;
-	            };
-	            return {
-	                x: sizeRatio(container.offsetWidth, signaturePosition.x),
-	                y: sizeRatio(container.offsetHeight, signaturePosition.y),
-	                width: sizeRatio(container.offsetWidth, signaturePosition.width),
-	                height: sizeRatio(container.offsetHeight, signaturePosition.height)
-	            };
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return React.createElement("div", { className: this.props.className || '', ref: 'container' }, this.props.signatureId && React.createElement(signature_tsx_1.default, { signatureId: this.props.signatureId, ref: 'signature' }), this.props.children);
-	        }
-	    }]);
-	
-	    return SignatureDragContainer;
-	}(React.Component);
-	
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = SignatureDragContainer;
 
 /***/ }
 /******/ ])));

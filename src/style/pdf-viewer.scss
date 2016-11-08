@@ -28,37 +28,38 @@ $background: #fff;
             padding: 5px;
             overflow-y: scroll;
 
-            .selectable {
-                cursor: pointer;
-                canvas{
-                    border: 5px solid $dark;
-                    
-                }
-                &.selected {
-                    canvas{
-                        border: 5px solid $light-red;
-                    }
-                }
-    
-            }
-
             .pdf-thumbnail {
                 position: relative;
                 margin: 10px 40px;
 
-                canvas{
-
-                }
                 .pdf-thumbnail-number {
                     background: $dark;
                     position: absolute;
                     top: 0;
                     left: 0;
-                    width: 1.5em;
+                    padding: 3px 10px;
                     text-align: center;
                     vertical-align: middle;
                     color: white;
                     text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+                }
+
+                &.selectable {
+                    cursor: pointer;
+                    
+                    canvas {
+                        border: 5px solid $dark;
+                    }
+                    
+                    &.selected {
+                        canvas {
+                            border: 5px solid $light-red;
+                        }
+
+                        .pdf-thumbnail-number {
+                            background: $light-red;
+                        }
+                    }
                 }
             }
         }
@@ -70,33 +71,6 @@ $background: #fff;
             overflow-y: scroll;
             height: 100%;
         }
-
-        /*.pdf-viewer-close {
-            position: fixed;
-            top: 0;
-            right: 0;
-            color: white;
-            font-size: 3em;
-            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
-            width: 60px;
-            height: 60px;
-            background: $dark;
-            border: none;
-
-            .close-icon {
-                display: block;
-                line-height: 0;
-                font-size: 1.3em;
-                margin-top: -6px;
-                margin-right: -1px;
-                text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
-                opacity: .75;
-
-                &:hover {
-                    opacity: 1;
-                }
-            }
-        }*/
 
         .pdf-page-wrapper {
             position: relative;

@@ -34,7 +34,7 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
             pageNumber: 1,
             show: false,
             pdfActualHeight: 0,
-            pdfActualHeight 0
+            pdfActualHeight: 0
         };
         this.completeDocument = this.completeDocument.bind(this);
     }

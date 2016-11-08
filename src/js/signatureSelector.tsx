@@ -1,7 +1,7 @@
 import * as React from "react";
 import { findDOMNode } from "react-dom";
 import SignatureCanvas from 'react-signature-canvas'
-import { Button, Modal, Tabs, Tab } from 'react-bootstrap';
+import { Button, Modal, Tabs, Tab, ControlLabel, FormGroup, FormControl } from 'react-bootstrap';
 import * as Promise from 'bluebird';
 import * as axios from 'axios';
 
@@ -14,6 +14,7 @@ interface SignatureSelectorProps {
 
 const SELECT_SIGNATURE_TAB = 1;
 const DRAW_SIGNATURE_TAB = 2;
+const UPLOAD_SIGNATURE_TAB = 3;
 
 export default class SignatureSelector extends React.Component<SignatureSelectorProps, any> {
     constructor(props) {
@@ -54,25 +55,66 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         if (this.state.currentTab == SELECT_SIGNATURE_TAB) {
             signatureId = this.state.signatureIds[this.state.selectedSignature];
             this.props.onSignatureSelected(signatureId);
-        } else {
+        } else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
             // Get the signature image as a Data URL
             const signature = this.refs['signature-canvas'].getTrimmedCanvas().toDataURL();
             
-            // Upload image and trigger the parents signatureSelected method with the signature ID
-            axios.post('/signatures/upload', {
-                base64Image: signature
-            }).then((response) => {
-                signatureId = response.data.signature_id;
+            this.uploadSignature(signature);
+        } else {
+            const uploadField = this.refs['signature-upload'];
+            
+            var canvas = this.refs['upload-canvas'];
+            var ctx = canvas.getContext('2d');
+            var reader = new FileReader();
+            var LOL_MAGIC_THRESHOLD = 230;
+            var self = this;
 
-                // Add the new signature to the list of selectable signatures
-                let signatureIds = this.state.signatureIds;
-                signatureIds.push(signatureId);
-                this.setState({ signatureIds });
+            reader.readAsDataURL(uploadField.files[0]);
 
-                // Fire the signature selected event
-                this.props.onSignatureSelected(signatureId);
-            });
+            reader.onload = function(event) {
+                var img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    ctx.drawImage(img, 0,0);
+                    var imageData = ctx.getImageData(0,0,canvas.width, canvas.height);
+                    var data = imageData.data;
+                    function bgThreshold(r, g, b) {
+                        if (r > LOL_MAGIC_THRESHOLD || g > LOL_MAGIC_THRESHOLD || b > LOL_MAGIC_THRESHOLD){
+                            return true;
+                        }
+                    }
+
+                    for (var i = 0; i < data.length; i += 4) {
+                        if (bgThreshold(data[i], data[i + 1], data[i + 2])){
+                            data[i + 3] = 0;
+                        }
+                    }
+                    ctx.putImageData(imageData, 0, 0);
+
+                    self.uploadSignature(canvas.toDataURL());
+                }
+            }
         }
+    }
+
+    uploadSignature(base64Image) {
+        // Upload image and trigger the parents signatureSelected method with the signature ID
+        axios.post('/signatures/upload', {
+            base64Image
+        }).then((response) => {
+            let signatureId = response.data.signature_id;
+
+            // Add the new signature to the list of selectable signatures
+            let signatureIds = this.state.signatureIds;
+            signatureIds.push(signatureId);
+            this.setState({ signatureIds });
+
+            // Fire the signature selected event
+            this.props.onSignatureSelected(signatureId);
+        });
     }
 
     render() {
@@ -121,6 +163,12 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                                     <SignatureCanvas canvasProps={signatureCanvasOptions} ref='signature-canvas' />
                                     <a className='pull-right' onClick={this.clearCanvas.bind(this)}>Clear</a>
                                 </div>
+                            </Tab>
+
+                            <Tab eventKey={UPLOAD_SIGNATURE_TAB} title="Upload Signature">
+                                <input id="my-file-selector" type="file" ref='signature-upload' />
+                                <br/>
+                                <canvas width="400" height="300" ref="upload-canvas"/>
                             </Tab>
                         </Tabs>
                     </Modal.Body>

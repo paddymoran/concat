@@ -1,19 +1,33 @@
-nav{
+nav {
     background-color: $deep-red;
     background-image: $header-image;
     background-repeat: no-repeat;
     background-position: center center;
     border: none;
     text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
-    height: 75px;
+    height: $header-height-sml;
+    
     @media (min-width: $screen-sm-min) {
-        height: 150px;
+        height: $header-height;
     }
 }
 
-.explanation{
-    color: $deep-red;
+.logo {
     text-align:center;
-    cursor:pointer;
-        line-height: 200px;
+
+    img {
+        height: $header-height-sml - 15px;
+        margin: 10px 0 5px;
+
+        @media (min-width: $screen-sm-min) {
+            height: $header-height - 15px;
+        }
+    }
+}
+
+.explanation {
+    color: $deep-red;
+    text-align: center;
+    cursor: pointer;
+    line-height: 200px;
 }

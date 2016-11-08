@@ -159,7 +159,6 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
     render() {
         return (
             <div className='pdf-screen'>
-
                 { this.props.document.arrayBuffer && 
                     <PDFViewer 
                         file={this.props.document}
@@ -170,17 +169,6 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
                         }}
                         removeDocument={() => {this.props.removeDocument()}} />
                 }
-
-                <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>
-                    { (this.props.document.status === 'posting')  &&
-
-                        <div className="progress" key="progress">
-                          <div
-                              className="progress-bar progress-bar-striped active"
-                              style={{width: `${this.props.document.progress * 100}%`}} />
-                        </div>
-                    }
-                 </ReactCSSTransitionGroup>
             </div>
         );
     }

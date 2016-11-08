@@ -34,7 +34,8 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
             pageNumber: 1,
             selectSignatureModalIsVisible: false,
             pdfActualHeight: 0,
-            pdfActualHeight: 0
+            pdfActualHeight: 0,
+            signing: false
         };
         this.completeDocument = this.completeDocument.bind(this);
     }
@@ -155,6 +156,9 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                     width={120} />
 
                 <div className='pdf-container'>
+                    { this.state.signing &&
+                        <div className="loading" />
+                    }
                     <div className='pdf-title'>{this.props.file.filename}</div>
                     <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
 

@@ -3,6 +3,8 @@
 // Reset and dependencies
 @import "~catalex_shared/sass/catalex-vars";
 
+$header-height: 90px;
+
 //$btn-default-border: #A6171D;
 //$input-border:    $btn-default-border;
 //$list-group-border: $btn-default-border;
@@ -40,12 +42,12 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 
 
 
-@import 'logo';
 @import "header";
 @import "footer";
 @import "pdf-viewer";
 @import "signature-drawer";
 @import "select-signature";
+@import "loading";
 
 html {
   position: relative;
@@ -60,6 +62,11 @@ html {
 
 a {
     cursor: pointer;
+}
+
+.alert {
+    margin: 2em auto;
+    max-width: 900px;
 }
 
 .title{

@@ -2,3 +2,4 @@
 /dist/
 /catalex_sign.egg-info/
 *.pyc
+/catalex_sign.egg-info/

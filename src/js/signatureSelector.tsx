@@ -63,6 +63,13 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                 base64Image: signature
             }).then((response) => {
                 signatureId = response.data.signature_id;
+
+                // Add the new signature to the list of selectable signatures
+                let signatureIds = this.state.signatureIds;
+                signatureIds.push(signatureId);
+                this.setState({ signatureIds });
+
+                // Fire the signature selected event
                 this.props.onSignatureSelected(signatureId);
             });
         }

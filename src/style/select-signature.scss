@@ -2,7 +2,15 @@
     .selectable {
         border: 5px solid $dark;
         margin: 15px;
-        width: calc(50% - 30px);
+        height: 120px;
+
+        img {
+            max-height: 110px;
+        }
+
+        @media(min-width: $screen-sm) {
+            width: calc(50% - 30px);
+        }
 
         &.selected {
             border-color: $light-red;

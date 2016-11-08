@@ -20,7 +20,7 @@ except ImportError:
 logging.basicConfig()
 
 app = Flask(__name__, static_url_path='', static_folder='public')
-app.config.from_pyfile('./config_dev.py')
+app.config.from_pyfile(os.environ.get('CONFIG_FILE') or sys.argv[1])
 
 PORT = app.config.get('PORT')
 

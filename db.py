@@ -33,12 +33,13 @@ def get_signatures_for_user(user_id):
     with db.cursor() as cursor:
         cursor.execute("SELECT id FROM signatures WHERE user_id = %(user_id)s AND deleted IS FALSE", {'user_id': user_id})
         signatures = cursor.fetchall()
+	print signatures
         return_data = []
 
         for signature in signatures:
             return_item = { 'id': signature[0] }
             return_data.append(return_item)
-
+	print return_data
         return return_data
 
 def get_signature(signature_id, user_id):

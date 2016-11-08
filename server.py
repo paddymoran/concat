@@ -47,7 +47,7 @@ def sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, 
 
     signature_filepath = save_temp_signature(signature_id, user_id)
     
-    Popen(['sh', './sign.sh', pdf_filepath, str(page_number), signature_filepath, str(x_offset), str(y_offset), str(x_scale), str(y_scale), os.path.join(TMP_DIR, signed_filename)],
+    Popen(['bash', './sign.sh', pdf_filepath, str(page_number), signature_filepath, str(x_offset), str(y_offset), str(x_scale), str(y_scale), os.path.join(TMP_DIR, signed_filename)],
         stdout=DEVNULL,
         stderr=STDOUT).wait()
 

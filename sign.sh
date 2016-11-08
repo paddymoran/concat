@@ -2,7 +2,7 @@
 
 
 # the temp directory used, within $DIR
-TMP=`mktemp -d -t sign`;
+TMP=`mktemp -d `;
 
 # deletes the temp directory
 function cleanup {

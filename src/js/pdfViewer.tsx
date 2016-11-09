@@ -134,12 +134,12 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
             data.append('height_ratio', position.height);
 
             axios.post('/sign', data).then((response) => {
-                const signedPDFLink = window.location.origin + '/signed-documents/' + response.data.file_id + '?filename=test.pdf';
-                window.open(signedPDFLink, '_blank');
-
                 this.setState({
                     signing: false
                 });
+
+                const signedPDFLink = window.location.origin + '/signed-documents/' + response.data.file_id + '?filename=test.pdf';
+                window.open(signedPDFLink, '_blank');
             });
         }
     }

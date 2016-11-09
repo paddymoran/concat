@@ -68,9 +68,17 @@ export default class SignatureUpload extends React.Component<{}, any> {
 
     render() {
         return (
-            <div>
-                <input type='file' ref='signature-upload' onChange={() => this.uploadImage()} accept='image/*' />
-                <canvas width='400' height='300' ref='upload-canvas' />
+            <div className='signature-display'>
+                <canvas width='500' height='200' ref='upload-canvas' />
+                <label className='btn btn-default btn-block'>
+                    Upload signature
+                    <input
+                        type='file'
+                        ref='signature-upload'
+                        onChange={() => this.uploadImage()}
+                        accept='image/*'
+                        style={{ display: 'none' }} />
+                </label>
             </div>
         )
     }

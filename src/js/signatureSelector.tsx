@@ -97,8 +97,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
     render() {
         const signatureCanvasOptions = {
             width: 500,
-            height: 200,
-            className: 'signature-drawer'
+            height: 200
         };
 
         return (
@@ -141,9 +140,9 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                                         <div className='loading' />
                                     }
                                     { !this.state.uploading &&
-                                        <div>
+                                        <div className='signature-display'>
                                             <SignatureCanvas canvasProps={signatureCanvasOptions} ref='signature-canvas' />
-                                            <a className='pull-right' onClick={this.clearCanvas.bind(this)}>Clear</a>
+                                            <a className='btn btn-default btn-block' onClick={this.clearCanvas.bind(this)}>Clear</a>
                                         </div>
                                     }
                                 </div>

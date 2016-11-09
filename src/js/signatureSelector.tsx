@@ -1,9 +1,10 @@
 import * as React from "react";
 import { findDOMNode } from "react-dom";
-import SignatureCanvas from 'react-signature-canvas'
-import { Button, Modal, Tabs, Tab, ControlLabel, FormGroup, FormControl } from 'react-bootstrap';
+import SignatureCanvas from 'react-signature-canvas';
+import { Alert, Button, ControlLabel, FormGroup, FormControl, Modal, Tab, Tabs } from 'react-bootstrap';
 import * as Promise from 'bluebird';
 import * as axios from 'axios';
+import SignatureUpload from './signatureUpload.tsx';
 
 interface SignatureSelectorProps {
     isVisible: boolean;
@@ -56,46 +57,17 @@ export default class SignatureSelector extends React.Component<SignatureSelector
             signatureId = this.state.signatureIds[this.state.selectedSignature];
             this.props.onSignatureSelected(signatureId);
         } else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
-            // Get the signature image as a Data URL
             const signature = this.refs['signature-canvas'].getTrimmedCanvas().toDataURL();
-            
             this.uploadSignature(signature);
         } else {
-            const uploadField = this.refs['signature-upload'];
-            
-            var canvas = this.refs['upload-canvas'];
-            var ctx = canvas.getContext('2d');
-            var reader = new FileReader();
-            var LOL_MAGIC_THRESHOLD = 230;
-            var self = this;
+            const signature = this.refs['signature-uploader'].toDataURL();
 
-            reader.readAsDataURL(uploadField.files[0]);
-
-            reader.onload = function(event) {
-                var img = new Image();
-                img.src = event.target.result;
-                img.onload = function() {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-
-                    ctx.drawImage(img, 0,0);
-                    var imageData = ctx.getImageData(0,0,canvas.width, canvas.height);
-                    var data = imageData.data;
-                    function bgThreshold(r, g, b) {
-                        if (r > LOL_MAGIC_THRESHOLD || g > LOL_MAGIC_THRESHOLD || b > LOL_MAGIC_THRESHOLD){
-                            return true;
-                        }
-                    }
-
-                    for (var i = 0; i < data.length; i += 4) {
-                        if (bgThreshold(data[i], data[i + 1], data[i + 2])){
-                            data[i + 3] = 0;
-                        }
-                    }
-                    ctx.putImageData(imageData, 0, 0);
-
-                    self.uploadSignature(canvas.toDataURL());
-                }
+            if (signature == null) {
+                this.setState({
+                    signatureUploaderErrors: 'Please upload a signature'
+                });
+            } else {
+                this.uploadSignature(signature);
             }
         }
     }
@@ -166,9 +138,12 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                             </Tab>
 
                             <Tab eventKey={UPLOAD_SIGNATURE_TAB} title="Upload Signature">
-                                <input id="my-file-selector" type="file" ref='signature-upload' />
-                                <br/>
-                                <canvas width="400" height="300" ref="upload-canvas"/>
+                                { this.state.signatureUploaderErrors &&
+                                    <Alert bsStyle='danger'>
+                                        { this.state.signatureUploaderErrors }
+                                    </Alert>
+                                }
+                                <SignatureUpload ref='signature-uploader' />
                             </Tab>
                         </Tabs>
                     </Modal.Body>

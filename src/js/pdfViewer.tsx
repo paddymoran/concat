@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import * as Promise from 'bluebird';
-import { Alert, Button } from 'react-bootstrap';
+import { Alert, Button, Modal } from 'react-bootstrap';
 import { PDFPreview } from './pdfPreview.tsx';
 import { PDFPage } from './pdfPage.tsx';
 import SignatureSelector from './signatureSelector.tsx';
@@ -117,6 +117,10 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         if (!this.state.signatureId) {
             this.setState({ signingError: 'Please select add a signature' })
         } else {
+            this.setState({
+                signing: true
+            });
+
             const signatureContainer = this.refs['signature-container'];
             const position = signatureContainer.relativeSignaturePosition();
 
@@ -132,6 +136,10 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
             axios.post('/sign', data).then((response) => {
                 const signedPDFLink = window.location.origin + '/signed-documents/' + response.data.file_id + '?filename=test.pdf';
                 window.open(signedPDFLink, '_blank');
+
+                this.setState({
+                    signing: false
+                });
             });
         }
     }
@@ -142,13 +150,21 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         }
 
         if (!this.state.pdf || !this.state.pages) {
-            return <div>Loading...</div>
+            return <div className='loading' />;
         }
 
         const page = this.state.pages[this.state.pageNumber - 1];
 
         return (
             <div className='pdf-viewer'>
+                { this.state.signing && 
+                    <Modal show={true}>
+                        <Modal.Body>
+                            <div className='loading' />
+                            <div className='text-center'>Signing document, please wait.</div>
+                        </Modal.body>
+                    </Modal>
+                }
                 <PDFPreview
                     pages={this.state.pages}
                     changePage={this.changePage.bind(this)}
@@ -156,9 +172,6 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                     width={120} />
 
                 <div className='pdf-container'>
-                    { this.state.signing &&
-                        <div className="loading" />
-                    }
                     <div className='pdf-title'>{this.props.file.filename}</div>
                     <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.state.pdf.numPages}</div>
 

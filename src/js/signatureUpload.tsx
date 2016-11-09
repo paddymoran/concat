@@ -4,7 +4,7 @@ import { Button, Modal, Tabs, Tab, ControlLabel, FormGroup, FormControl } from '
 interface SignatureUploadProps {
 }
 
-export default class SignatureUpload extends React.Component<SignatureUploadProps, any> {
+export default class SignatureUpload extends React.Component<{}, any> {
     constructor(props) {
         super(props);
         this.state = {
@@ -65,8 +65,8 @@ export default class SignatureUpload extends React.Component<SignatureUploadProp
     render() {
         return (
             <div>
-                <input type='file' ref='signature-upload' onChange={() => this.uploadImage()} accept='image/png, image/jpg, image/jpeg' />
-                <canvas width='400' height='300' ref='upload-canvas'/>
+                <input type='file' ref='signature-upload' onChange={() => this.uploadImage()} accept='image/*' />
+                <canvas width='400' height='300' ref='upload-canvas' />
             </div>
         )
     }

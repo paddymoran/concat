@@ -164,9 +164,6 @@ class DocumentView extends React.Component<DocumentViewProps, {}>  {
                         file={this.props.document}
                         data={this.props.document.arrayBuffer}  
                         worker={false}
-                        save={(data) => {
-                            
-                        }}
                         removeDocument={() => {this.props.removeDocument()}} />
                 }
             </div>
@@ -319,16 +316,16 @@ class App extends React.Component<{}, {}> {
         if (doc) {
             return (
                 <div>
-                <Header />
-                <div className="body">
-                <DocumentView
-                    document={doc}
-                    key={doc.id}
-                    index={doc.id}
-                    updateDocument={this.props.updateDocument}
-                    removeDocument={() => this.props.removeDocument({id: doc.id})} />
-                </div>
-                <Footer />
+                    <Header />
+                    <div className="body">
+                        <DocumentView
+                            document={doc}
+                            key={doc.id}
+                            index={doc.id}
+                            updateDocument={this.props.updateDocument}
+                            removeDocument={() => this.props.removeDocument({id: doc.id})} />
+                    </div>
+                    <Footer />
                 </div>
             );
         } else {

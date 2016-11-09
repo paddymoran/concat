@@ -23,7 +23,8 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         this.state = {
             selectedSignature: 0,
             currentTab: SELECT_SIGNATURE_TAB,
-            signatureIds: []
+            signatureIds: [],
+            uploading: false
         };
     }
 
@@ -73,6 +74,8 @@ export default class SignatureSelector extends React.Component<SignatureSelector
     }
 
     uploadSignature(base64Image) {
+        this.setState({ uploading: true });
+
         // Upload image and trigger the parents signatureSelected method with the signature ID
         axios.post('/signatures/upload', {
             base64Image
@@ -86,6 +89,8 @@ export default class SignatureSelector extends React.Component<SignatureSelector
 
             // Fire the signature selected event
             this.props.onSignatureSelected(signatureId);
+
+            this.setState({ uploading: false });
         });
     }
 
@@ -132,8 +137,15 @@ export default class SignatureSelector extends React.Component<SignatureSelector
 
                             <Tab eventKey={DRAW_SIGNATURE_TAB} title="Draw Signature">
                                 <div className='signature-canvas-conatiner clearfix'>
-                                    <SignatureCanvas canvasProps={signatureCanvasOptions} ref='signature-canvas' />
-                                    <a className='pull-right' onClick={this.clearCanvas.bind(this)}>Clear</a>
+                                    { this.state.uploading && 
+                                        <div className='loading' />
+                                    }
+                                    { !this.state.uploading &&
+                                        <div>
+                                            <SignatureCanvas canvasProps={signatureCanvasOptions} ref='signature-canvas' />
+                                            <a className='pull-right' onClick={this.clearCanvas.bind(this)}>Clear</a>
+                                        </div>
+                                    }
                                 </div>
                             </Tab>
 
@@ -143,7 +155,12 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                                         { this.state.signatureUploaderErrors }
                                     </Alert>
                                 }
-                                <SignatureUpload ref='signature-uploader' />
+                                { this.state.uploading && 
+                                    <div className='loading' />
+                                }
+                                { !this.state.uploading &&
+                                    <SignatureUpload ref='signature-uploader' />
+                                }
                             </Tab>
                         </Tabs>
                     </Modal.Body>

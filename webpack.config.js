@@ -4,8 +4,10 @@ var DEV = process.env.NODE_ENV !== 'production';
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var CleanWebpackPlugin = require('clean-webpack-plugin')
-var  HtmlWebpackPlugin = require('html-webpack-plugin')
+var HtmlWebpackPlugin = require('html-webpack-plugin')
 var autoprefixer = require('autoprefixer');
+var WebpackNotifierPlugin = require('webpack-notifier');
+
 
 module.exports = {
     entry: {
@@ -44,8 +46,14 @@ module.exports = {
             { test: /\.js$/, loader: "source-map-loader" }
         ]
     },
+    resolve: {
+        extensions: ['', '.ts', '.tsx', '.js']
+    },
     postcss: [autoprefixer({browsers: ['> 0.01%', 'ie 6-10']})],
     plugins: [
+        new WebpackNotifierPlugin({
+            title: 'CataLex Sign'
+        }),
         new webpack.DefinePlugin({
             'process.env': {
                 NODE_ENV: JSON.stringify(DEV ? 'development' : 'production')

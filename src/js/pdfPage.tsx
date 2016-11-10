@@ -7,6 +7,7 @@ interface PDFPageProps {
     pageNumber: number;
     drawWidth: number;
     onResize: Function;
+    scale?: number;
 }
 
 export class PDFPage extends React.Component<PDFPageProps, any> {

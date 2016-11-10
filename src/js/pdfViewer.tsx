@@ -16,7 +16,7 @@ Promise.config({
 interface PDFViewerProps {
     data: ArrayBuffer;
     filename: string;
-    file: Any;
+    file: any;
     worker?: boolean;
     url?: string;
     removeDocument: Function;

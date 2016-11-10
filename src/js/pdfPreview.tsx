@@ -7,6 +7,7 @@ interface PDFPreviewProps {
     activePageNumber: number;
     width: number;
     changePage: Function;
+    scale?: number;
 }
 
 export class PDFPreview extends React.Component<PDFPreviewProps, any> {

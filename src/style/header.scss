@@ -11,16 +11,26 @@ nav {
         height: $header-height;
     }
 }
+.header {
+    .navbar-header {
+        display: inline-block;
+        
+        img {
+            height: $header-height-sml - 15px;
+            margin: 10px 0 5px;
 
-.logo {
-    text-align:center;
+            @media (min-width: $screen-sm-min) {
+                height: $header-height - 15px;
+            }
+        }
+    }
 
-    img {
-        height: $header-height-sml - 15px;
-        margin: 10px 0 5px;
+    .account-nav li {
+        display: inline-block;
+        padding: 8px;
 
-        @media (min-width: $screen-sm-min) {
-            height: $header-height - 15px;
+        a {
+            color: white;
         }
     }
 }
@@ -30,4 +40,13 @@ nav {
     text-align: center;
     cursor: pointer;
     line-height: 200px;
+}
+
+.account-nav {
+    float: right;
+
+    li {
+        display: inline-block;
+        padding: 8px 15px;
+    }
 }

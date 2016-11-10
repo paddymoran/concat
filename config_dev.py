@@ -5,6 +5,8 @@ LOGIN_URL = 'http://localhost:5669/login'
 AUTH_SERVER = 'http://catalexusers.dev'
 OAUTH_URL = 'http://catalexusers.dev/sign-login'
 
+USER_LOGOUT_URL = 'catalex_users.dev/auth/logout'
+
 OAUTH_CLIENT_ID = 'sign'
 OAUTH_CLIENT_SECRET = 'test'
 

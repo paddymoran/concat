@@ -182,6 +182,12 @@ def login():
     return redirect(url_for('index'))
 
 
+@app.route('/logout', methods=['GET'])
+def logout():
+    session.clear()
+    return redirect(app.config.get('USER_LOGOUT_URL'))
+
+
 @app.route('/', methods=['GET'])
 def index():
     return app.send_static_file('index.html')

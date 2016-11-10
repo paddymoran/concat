@@ -7,6 +7,7 @@ interface PDFPreviewProps {
     activePageNumber: number;
     width: number;
     changePage: Function;
+    scale?: number;
 }
 
 export class PDFPreview extends React.Component<PDFPreviewProps, any> {
@@ -21,11 +22,12 @@ export class PDFPreview extends React.Component<PDFPreviewProps, any> {
 
     showThumbnails() {
         const scale = this.props.scale || 1;
-        let page, canvas, context, viewport;
+        let canvas : HTMLCanvasElement;
+        let page, context, viewport;
 
         this.props.pages.map((page, i) => {
             page = this.props.pages[i];
-            canvas = findDOMNode(this.refs['preview-canvas-' + i]);
+            canvas = findDOMNode(this.refs['preview-canvas-' + i]) as HTMLCanvasElement;
             context = canvas.getContext('2d');
             viewport = page.getViewport(canvas.width / page.getViewport(scale).width);
 

@@ -2,10 +2,10 @@ import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import * as Promise from 'bluebird';
 import { Alert, Button, Modal } from 'react-bootstrap';
-import { PDFPreview } from './pdfPreview.tsx';
-import { PDFPage } from './pdfPage.tsx';
-import SignatureSelector from './signatureSelector.tsx';
-import SignatureDragContainer from './signatureDragContainer.tsx';
+import { PDFPreview } from './pdfPreview';
+import { PDFPage } from './pdfPage';
+import SignatureSelector from './signatureSelector';
+import SignatureDragContainer from './signatureDragContainer';
 import * as axios from 'axios';
 const PDFJS = require('pdfjs-dist');
 
@@ -15,12 +15,13 @@ Promise.config({
 
 interface PDFViewerProps {
     data: ArrayBuffer;
-    filename: string;
-    file: Any;
+    file: any;
     worker?: boolean;
     url?: string;
     removeDocument: Function;
 }
+
+interface PostSignResponse extends Axios.AxiosXHR<{ file_id: string }> {}
 
 export class PDFViewer extends React.Component<PDFViewerProps, any> {
     _pdfPromise;
@@ -33,8 +34,6 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         this.state = {
             pageNumber: 1,
             selectSignatureModalIsVisible: false,
-            pdfActualHeight: 0,
-            pdfActualHeight: 0,
             signing: false
         };
         this.completeDocument = this.completeDocument.bind(this);
@@ -85,12 +84,6 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
         this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.pageNumber != prevProps.pageNumber) {
-            this.loadPage(this.props.pageNumber);
-        }
-    }
-
     changePage(newPageNumber) {
         if (newPageNumber != this.state.pageNumber) {
             this.setState({ pageNumber: newPageNumber });
@@ -133,7 +126,9 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
             data.append('width_ratio', position.width);
             data.append('height_ratio', position.height);
 
-            axios.post('/sign', data).then((response) => {
+            axios.post('/sign', data).then((uncastResponse) => {
+                const response = uncastResponse as PostSignResponse;
+
                 this.setState({
                     signing: false
                 });
@@ -157,14 +152,12 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
 
         return (
             <div className='pdf-viewer'>
-                { this.state.signing && 
-                    <Modal show={true}>
-                        <Modal.Body>
-                            <div className='loading' />
-                            <div className='text-center'>Signing document, please wait.</div>
-                        </Modal.body>
-                    </Modal>
-                }
+                <Modal show={this.state.signing} onHide={() => {}}>
+                    <Modal.Body>
+                        <div className='loading' />
+                        <div className='text-center'>Signing document, please wait.</div>
+                    </Modal.Body>
+                </Modal>
                 <PDFPreview
                     pages={this.state.pages}
                     changePage={this.changePage.bind(this)}
@@ -200,9 +193,7 @@ export class PDFViewer extends React.Component<PDFViewerProps, any> {
                         className='pdf-page-wrapper'
                         ref='signature-container'
                     >
-                        <PDFPage
-                            page={page}
-                            drawWidth={1000} />
+                        <PDFPage page={page} drawWidth={1000} />
                     </SignatureDragContainer>
                 </div>
             </div>

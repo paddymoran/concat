@@ -38,7 +38,7 @@ export default class Signature extends React.Component<SignatureProps, any> {
             throw new Error('Signature does not exist');
         }
 
-        const signatureNode = findDOMNode(signature);
+        const signatureNode = findDOMNode(signature) as HTMLElement;
 
         return {
             x: signature.state.x,
@@ -65,7 +65,7 @@ export default class Signature extends React.Component<SignatureProps, any> {
                 resizerHandleStyle={handleStyles}
                 lockAspectRatio={true}
             >
-                <img src={'signatures/' + this.props.signatureId} style={{width: '100%'}} draggable="false" />
+                <img src={'signatures/' + this.props.signatureId} style={{width: '100%'}} draggable={false} />
             </ReactRnd>
         );
     }

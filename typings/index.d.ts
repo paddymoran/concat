@@ -4,6 +4,7 @@
 /// <reference path="globals/react-addons-css-transition-group/index.d.ts" />
 /// <reference path="globals/react-addons-shallow-compare/index.d.ts" />
 /// <reference path="globals/react-addons-transition-group/index.d.ts" />
+/// <reference path="globals/react-bootstrap/index.d.ts" />
 /// <reference path="globals/react-dnd-html5-backend/index.d.ts" />
 /// <reference path="globals/react-dnd/index.d.ts" />
 /// <reference path="globals/react-dom/index.d.ts" />

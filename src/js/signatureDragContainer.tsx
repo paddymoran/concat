@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { DropTarget, DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import Signature from './signature.tsx';
+import Signature from './signature';
 
 interface SignatureDragContainerProps {
     signatureId?: string;
@@ -16,7 +16,8 @@ export default class SignatureDragContainer extends React.Component<SignatureDra
     }
 
     relativeSignaturePosition() {
-        const { signature, container } = this.refs;
+        const signature = this.refs.signature;
+        const container = this.refs.container as HTMLElement;
         
         if (!signature) {
             throw new Error('Signature does not exist');

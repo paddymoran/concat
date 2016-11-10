@@ -3,15 +3,15 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Provider, connect } from 'react-redux';
 import { Store, createStore } from 'redux';
-import configureStore from './configureStore.ts';
+import configureStore from './configureStore';
 import '../style/style.scss';
-import { addDocuments, updateDocument, submitDocuments, removeDocument, updateForm } from './actions.ts';
-import Header from './header.tsx';
-import Footer from './footer.tsx';
+import { addDocuments, updateDocument, submitDocuments, removeDocument, updateForm } from './actions';
+import Header from './header';
+import Footer from './footer';
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { DragSource, DropTarget, DragDropContext } from 'react-dnd';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
-import { PDFViewer } from './pdfViewer.tsx'
+import { PDFViewer } from './pdfViewer'
 
 
 const serialize = function(obj, prefix?) {
@@ -57,11 +57,13 @@ interface DocumentHandlerProps {
     form: any;
 };
 
-interface DocumentListProps {
-    removeDocument(options: Object);
-    updateDocument(options: Object);
+
+interface AppProps {
     documents: any;
-};
+    form: any;
+    updateDocument: Function;
+    removeDocument: Function;
+}
 
 
 interface DocumentViewProps {
@@ -71,18 +73,22 @@ interface DocumentViewProps {
     index: number;
 }
 
+
 interface IDocumentHandler {
     onDrop(files: any);
 };
+
 
 interface FileReaderEventTarget extends EventTarget {
     result:string
 }
 
+
 interface FileReaderEvent extends Event {
     target: FileReaderEventTarget;
     getMessage():string;
 }
+
 
 const documentDragSource = {
     beginDrag(props) {
@@ -180,54 +186,6 @@ const DraggableDroppableDocumentView = DropTarget('DOCUMENTS', documentDragTarge
     connectDropTarget: connect.dropTarget()
 }))(DraggableDocumentView);
 
-
-class DocumentList extends React.Component<DocumentListProps, {}> {
-
-    constructor(props) {
-        super(props);
-    }
-
-    componentWillReceiveProps(props) {
-        this.uploadData(props);
-    }
-
-    componentWillMount() {
-        this.uploadData(this.props);
-    }
-
-    uploadData(props) {
-        const unUploaded = props.documents.filelist.filter(doc => !doc.status);
-
-        const document = props.documents.filelist[0];
-
-        // Update file upload progress
-        props.updateDocument({id: document.id, status: 'posting', progress: 0});
-
-        // Create file reader, read file to BLOB, then call the updateDocument action
-        const fileReader = new FileReader();
-        fileReader.readAsArrayBuffer(document.file);
-        fileReader.onload = () => {
-            props.updateDocument({
-                id: document.id,
-                arrayBuffer: fileReader.result,
-                status: 'complete'
-            });
-        };
-    }
-
-    render() {
-         return <div className="document-list">
-            { this.props.documents.filelist.map((f, i) => {
-                return <DocumentView
-                    document={f}
-                    key={f.id}
-                    index={i}
-                    removeDocument={() => this.props.removeDocument({id: f.id})} />
-                })}
-            </div>
-    }
-}
-
 class FileDropZone extends React.Component<{connectDropTarget: Function, isOver: boolean, canDrop: boolean}, {}> {
     render() {
         const { connectDropTarget, isOver, canDrop } = this.props;
@@ -246,9 +204,9 @@ const fileTarget = {
 };
 
 const ConnectedFileDropZone = DropTarget("__NATIVE_FILE__", fileTarget, (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-  isOver: monitor.isOver(),
-  canDrop: monitor.canDrop()
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver(),
+    canDrop: monitor.canDrop()
 }))(FileDropZone);
 
 
@@ -309,7 +267,7 @@ const DragContextDocumentHandlerConnected  = connect(state => ({documents: state
 
 
 
-class App extends React.Component<{}, {}> {
+class App extends React.Component<AppProps, {}> {
     render() {
         const doc = this.props.documents.filelist[0];
 

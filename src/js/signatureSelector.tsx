@@ -4,7 +4,7 @@ import SignatureCanvas from 'react-signature-canvas';
 import { Alert, Button, ControlLabel, FormGroup, FormControl, Modal, Tab, Tabs } from 'react-bootstrap';
 import * as Promise from 'bluebird';
 import * as axios from 'axios';
-import SignatureUpload from './signatureUpload.tsx';
+import SignatureUpload from './signatureUpload';
 
 interface SignatureSelectorProps {
     isVisible: boolean;
@@ -12,6 +12,14 @@ interface SignatureSelectorProps {
     showModal: Function;
     hideModal: Function;
 }
+
+interface ReactSignatureCanvas {
+    clear(): null;
+    getTrimmedCanvas(): HTMLCanvasElement;
+}
+
+interface SignaturesResponse extends Axios.AxiosXHR<Array<{ id: number }>> {}
+interface SignaturesUploadResponse extends Axios.AxiosXHR<{ signature_id: number }> {}
 
 const SELECT_SIGNATURE_TAB = 1;
 const DRAW_SIGNATURE_TAB = 2;
@@ -31,7 +39,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
     componentDidMount() {
         axios.get('/signatures') .then((response) => {
             let signatureIds = [];
-            response.data.map((signature) => signatureIds.push(signature.id));
+            (response as SignaturesResponse).data.map((signature) => signatureIds.push(signature.id));
 
             this.setState({ signatureIds });
         });
@@ -51,17 +59,14 @@ export default class SignatureSelector extends React.Component<SignatureSelector
     }
 
     select() {
-        let signatureId = -1;
-
-        // If the user selected an existing signature, trigger the parents signatureSelected method with the signature ID
         if (this.state.currentTab == SELECT_SIGNATURE_TAB) {
-            signatureId = this.state.signatureIds[this.state.selectedSignature];
+            const signatureId = this.state.signatureIds[this.state.selectedSignature];
             this.props.onSignatureSelected(signatureId);
         } else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
             const signature = this.refs['signature-canvas'].getTrimmedCanvas().toDataURL();
             this.uploadSignature(signature);
         } else {
-            const signature = this.refs['signature-uploader'].toDataURL();
+            const signature = (this.refs['signature-uploader'] as HTMLCanvasElement).toDataURL();
 
             if (signature == null) {
                 this.setState({
@@ -80,7 +85,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         axios.post('/signatures/upload', {
             base64Image
         }).then((response) => {
-            let signatureId = response.data.signature_id;
+            let signatureId = (response as SignaturesUploadResponse).data.signature_id;
 
             // Add the new signature to the list of selectable signatures
             let signatureIds = this.state.signatureIds;

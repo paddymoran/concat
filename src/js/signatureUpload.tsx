@@ -51,8 +51,8 @@ export default class SignatureUpload extends React.Component<{}, any> {
     }
 
     uploadImage() {
-        const canvas = this.refs['upload-canvas'];
-        const image = this.refs['signature-upload'].files[0];
+        const canvas : HTMLCanvasElement = this.refs['upload-canvas'] as HTMLCanvasElement;
+        const image = (this.refs['signature-upload'] as HTMLInputElement).files[0];
 
         removeImageBackground(canvas, image, (imageData) => {
             // Draw the image

@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { Action } from './actions.ts'
+import { Action } from './actions'
 
 
 let index = 0;

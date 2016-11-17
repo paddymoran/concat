@@ -19,7 +19,7 @@ except ImportError:
 
 logging.basicConfig()
 
-app = Flask(__name__, static_url_path='', static_folder='public')
+app = Flask(__name__, static_folder='public')
 app.config.from_pyfile(os.environ.get('CONFIG_FILE') or sys.argv[1])
 
 PORT = app.config.get('PORT')
@@ -191,11 +191,6 @@ def login():
 def logout():
     session.clear()
     return redirect(app.config.get('USER_LOGOUT_URL'))
-
-
-# @app.route('/')
-# def index():
-#     return app.send_static_file('index.html')
 
 
 @app.route('/', defaults={'path': ''})

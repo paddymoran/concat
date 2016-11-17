@@ -23,7 +23,7 @@ interface PDFViewerProps {
 
 interface PostSignResponse extends Axios.AxiosXHR<{ file_id: string }> {}
 
-export class PDFViewer extends React.Component<PDFViewerProps, any> {
+export default class PDFViewer extends React.Component<PDFViewerProps, any> {
     _pdfPromise;
     _pagePromises;
 

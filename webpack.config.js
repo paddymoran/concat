@@ -11,7 +11,7 @@ var WebpackNotifierPlugin = require('webpack-notifier');
 
 module.exports = {
     entry: {
-        app: "./src/js/app.tsx",
+        app: "./src/js/main.tsx",
     },
     cache: true,
     output: {

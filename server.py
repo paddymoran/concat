@@ -3,7 +3,7 @@ import errno
 import logging
 import json
 import sys
-from flask import Flask, request, redirect, send_file, jsonify, session, abort, url_for
+from flask import Flask, request, redirect, send_file, jsonify, session, abort, url_for, send_from_directory
 import db
 import requests
 import os
@@ -86,6 +86,7 @@ class InvalidUsage(Exception):
         return rv
 
 
+
 @app.route('/documents/upload', methods=['POST'])
 def document_upload():
     try:
@@ -105,7 +106,7 @@ def signature_upload():
 
 
 @app.route('/signatures', methods=['GET'])
-def signatures():
+def signatures_list():
     try:
         signatures = db.get_signatures_for_user(session['user_id'])
         return jsonify(signatures)
@@ -142,6 +143,10 @@ def sign():
     file_id = sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale)
 
     return jsonify({ 'file_id': file_id })
+
+@app.route('/api/documents', methods=['GET'])
+def get_documents_list(uuid):
+    return jsonify('test_one')
 
 
 @app.route('/signed-documents/<uuid>', methods=['GET'])
@@ -188,9 +193,15 @@ def logout():
     return redirect(app.config.get('USER_LOGOUT_URL'))
 
 
-@app.route('/', methods=['GET'])
-def index():
-    return app.send_static_file('index.html')
+# @app.route('/')
+# def index():
+#     return app.send_static_file('index.html')
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    return send_from_directory(app.static_folder, 'index.html')
 
 
 @app.errorhandler(InvalidUsage)
@@ -214,4 +225,4 @@ except OSError as exception:
         raise
 if __name__ == '__main__':
     print('Running on %d' % PORT)
-    app.run(port=PORT, debug=True, host='0.0.0.0')
+    app.run(port=PORT, debug=True, host='0.0.0.0', threaded=True)

@@ -54,7 +54,7 @@ html {
   min-height: 100%;
 }
 
-.body {
+body {
   /* Margin bottom by footer height */
   margin-bottom: 60px;
   -webkit-font-smoothing: antialiased;
@@ -163,13 +163,24 @@ a {
 
 
 .dropzone{
+    margin: 30px 0 60px;
+    border: 3px dashed $dark;
+    cursor: pointer;
+
     .push-catch{
-    height: 100%;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    z-index: -1;
+        height: 100%;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        z-index: -1;
     }
+}
+
+.explanation {
+    color: $deep-red;
+    text-align: center;
+    cursor: pointer;
+    margin: 80px 15px;
 }
 
 

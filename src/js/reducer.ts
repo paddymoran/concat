@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
+import { routerReducer } from 'react-router-redux';
 import { Action } from './actions'
-
 
 let index = 0;
 
@@ -31,18 +31,9 @@ const documents = (state = {filelist: []}, action) => {
     return state;
 }
 
-const form = (state = {}, action) => {
-    switch(action.type){
-        case "UPDATE_FORM":
-            return Object.assign({}, state, {[action.payload.key]: action.payload.value})
-    }
-    return state;
-}
-
-
 const rootReducer = combineReducers({
-    documents,
-    form
+    routing: routerReducer,
+    documents
 });
 
 export default rootReducer;

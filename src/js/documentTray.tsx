@@ -21,17 +21,6 @@ class DocumentTray extends React.Component<DocumentTrayProps, {}> {
                 <DragContextDocumentHandlerConnected  />
 
                 <h2>Documents</h2>
-                <div className="list-group">
-                    <Link to='' className="list-group-item">
-                        <h3>Testing</h3>
-                    </Link>
-                    <Link to='' className="list-group-item">
-                        <h3>Testing</h3>
-                    </Link>
-                    <Link to='' className="list-group-item">
-                        <h3>Testing</h3>
-                    </Link>
-                </div>
             </div>
         );
     }

@@ -6,6 +6,7 @@ import { PDFPreview } from './pdfPreview';
 import { PDFPage } from './pdfPage';
 import SignatureSelector from './signatureSelector';
 import SignatureDragContainer from './signatureDragContainer';
+import * as Axios from 'axios';
 import axios from 'axios';
 import PDFJS from 'pdfjs-dist';
 
@@ -19,7 +20,9 @@ interface PDFViewerProps {
     removeDocument: Function;
 }
 
-interface PostSignResponse extends Axios.AxiosXHR<{ file_id: string }> {}
+interface PostSignResponse extends Axios.AxiosResponse {
+    data: {file_id: string };
+}
 
 export default class PDFViewer extends React.Component<PDFViewerProps, any> {
     _pdfPromise;

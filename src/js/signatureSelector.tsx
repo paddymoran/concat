@@ -3,6 +3,7 @@ import { findDOMNode } from "react-dom";
 import SignatureCanvas from 'react-signature-canvas';
 import { Alert, Button, ControlLabel, FormGroup, FormControl, Modal, Tab, Tabs } from 'react-bootstrap';
 import * as Promise from 'bluebird';
+import * as Axios from 'axios';
 import axios from 'axios';
 import SignatureUpload from './signatureUpload';
 
@@ -18,15 +19,20 @@ interface ReactSignatureCanvas {
     getTrimmedCanvas(): HTMLCanvasElement;
 }
 
-interface SignaturesResponse extends Axios.AxiosXHR<{data: Array<{ id: number }>}> {}
-interface SignaturesUploadResponse extends Axios.AxiosXHR<{ signature_id: number }> {}
+interface SignaturesResponse extends Axios.AxiosResponse {
+    data: Array<{ id: number }>
+}
+
+interface SignaturesUploadResponse extends Axios.AxiosResponse {
+    data: {signature_id: number }
+}
 
 const SELECT_SIGNATURE_TAB = 1;
 const DRAW_SIGNATURE_TAB = 2;
 const UPLOAD_SIGNATURE_TAB = 3;
 
 export default class SignatureSelector extends React.Component<SignatureSelectorProps, any> {
-    constructor(props) {
+    constructor(props: SignatureSelectorProps) {
         super(props);
         this.state = {
             selectedSignature: 0,

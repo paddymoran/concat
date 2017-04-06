@@ -10,7 +10,7 @@ var WebpackNotifierPlugin = require('webpack-notifier');
 
 
 module.exports = {
-    entry: './src/js/test.tsx',
+    entry: './src/js/main.tsx',
     output: {
         filename: 'app.js',
         path:  path.resolve(__dirname, 'public')

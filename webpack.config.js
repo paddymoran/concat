@@ -10,50 +10,70 @@ var WebpackNotifierPlugin = require('webpack-notifier');
 
 
 module.exports = {
-    entry: {
-        app: "./src/js/main.tsx",
-    },
-    cache: true,
+    entry: './src/js/test.tsx',
     output: {
-        path:  path.resolve(__dirname, 'public'),
-        //filename: DEV ? "[name].js" : "[name].[hash].js"
-        filename: DEV ? "[name].js" : "[name].js"
+        filename: 'app.js',
+        path:  path.resolve(__dirname, 'public')
+
     },
-    debug: DEV,
     devtool: DEV ? "source-map" : null,
     module: {
-        loaders: [
-            { test: /\.tsx?$/, loader: "babel!ts-loader" },
-             {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                loader: 'awesome-typescript-loader'
+            },
+            {
+                test: /\.js$/,
+                enforce: "pre",
+                loader: "source-map-loader"
+            },
+            {
                 test: /\.(scss|css)$/,
-                loader: ExtractTextPlugin.extract(
-                    // activate source maps via loader query
-                    'css?-autoprefixer&sourceMap' +
-                    '!postcss-loader?sourceMap' +
-                    '!sass?sourceMap'
-            )
-            }, {
+                use: [
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            importLoaders: true,
+                            sourceMap: true,
+                            modules: true
+                        }
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            plugins: [
+                                autoprefixer
+                            ]
+                        }
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            sourceMap: true
+                        }
+                    }
+                ]
+            },
+            {
                 test: /\.(png|jpg)$/,
                 loader: 'url-loader?limit=28192&name=/images/[name].[ext]'
-            }, {
-                test: /\.json$/, loader: "json-loader"
-            }, , {
-                test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,    loader: "file?name=[name].[ext]"
             },
-        ],
-        preLoaders: [
-            // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-            { test: /\.js$/, loader: "source-map-loader" }
+            {
+                test: /\.json$/,
+                loader: "json-loader"
+            },
+            {
+                test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+                loader: "file?name=[name].[ext]"
+            }
         ]
     },
     resolve: {
-        extensions: ['', '.ts', '.tsx', '.js']
+        extensions: ['.ts', '.tsx', '.js', '.json']
     },
-    postcss: [autoprefixer({browsers: ['> 0.01%', 'ie 6-10']})],
     plugins: [
-        new WebpackNotifierPlugin({
-            title: 'CataLex Sign'
-        }),
+        new WebpackNotifierPlugin({ title: 'CataLex Sign' }),
         new webpack.DefinePlugin({
             'process.env': {
                 NODE_ENV: JSON.stringify(DEV ? 'development' : 'production')
@@ -61,14 +81,15 @@ module.exports = {
             DEV: DEV
         }),
         new CopyWebpackPlugin([
-         { from: 'src/static', to: './' },
-         ]),
-        //new ExtractTextPlugin(DEV ? '[name].css' : '[name].[hash].css'),
-        new ExtractTextPlugin(DEV ? '[name].css' : '[name].css'),
+            {
+                from: 'src/static',
+                to: './'
+            }
+        ]),
+        new ExtractTextPlugin('[name].css'),
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
-        new webpack.optimize.DedupePlugin(),
         function() {
-            if(!DEV){
+            if (!DEV) {
                 this.plugin("done", function(stats) {
                   require("fs").writeFileSync(
                     path.join(__dirname, "stats.json"),
@@ -87,8 +108,6 @@ module.exports = {
             //hash: true,
             template: 'src/static/index.ejs',
             inject: 'body'
-          })
-
-
+        })
     ]
-}
+};

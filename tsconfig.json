@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "jsx": "react",
+    "outDir": "./public/",
     "sourceMap": true,
-    "outDir": "public",
-    "moduleResolution": "node",
-    "experimentalDecorators": true
-  }
+    "noImplicitAny": true,
+    "module": "commonjs",
+    "target": "es5",
+    "jsx": "react",
+    "lib": ["es2015", "dom"]
+  },
+  "include": ["./src/js/**/*"]
 }

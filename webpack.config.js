@@ -36,7 +36,7 @@ module.exports = {
                         options: {
                             importLoaders: true,
                             sourceMap: true,
-                            modules: true
+                           // modules: true
                         }
                     },
                     {
@@ -50,7 +50,7 @@ module.exports = {
                     {
                         loader: 'sass-loader',
                         options: {
-                            sourceMap: true
+                            sourceMap: true,
                         }
                     }
                 ]
@@ -65,7 +65,7 @@ module.exports = {
             },
             {
                 test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-                loader: "file?name=[name].[ext]"
+                loader: "file-loader?name=[name].[ext]"
             }
         ]
     },

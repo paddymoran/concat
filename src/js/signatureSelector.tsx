@@ -22,9 +22,10 @@ interface SignatureSelectorState {
     signatureUploaderErrors?: string
 }
 
-interface ReactSignatureCanvas {
-    clear(): null;
-    getTrimmedCanvas(): HTMLCanvasElement;
+interface ReactSignatureCanvas extends React.Component<any, any> {
+    clear(): null,
+    getTrimmedCanvas(): HTMLCanvasElement,
+    toDataURL(): string,
 }
 
 interface SignaturesResponse extends Axios.AxiosResponse {
@@ -40,6 +41,8 @@ const DRAW_SIGNATURE_TAB = 2;
 const UPLOAD_SIGNATURE_TAB = 3;
 
 export default class SignatureSelector extends React.Component<SignatureSelectorProps, SignatureSelectorState> {
+    private signatureCanvas: ReactSignatureCanvas;
+
     constructor(props: SignatureSelectorProps) {
         super(props);
         
@@ -70,8 +73,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
     }
 
     clearCanvas() {
-        const signatureCanvas = this.refs['signature-canvas'];
-        signatureCanvas.clear();
+        this.signatureCanvas.clear();
     }
 
     select() {
@@ -79,10 +81,10 @@ export default class SignatureSelector extends React.Component<SignatureSelector
             const signatureId = this.state.signatureIds[this.state.selectedSignature];
             this.props.onSignatureSelected(signatureId);
         } else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
-            const signature = this.refs['signature-canvas'].getTrimmedCanvas().toDataURL();
+            const signature = this.signatureCanvas.getTrimmedCanvas().toDataURL();
             this.uploadSignature(signature);
         } else {
-            const signature = (this.refs['signature-uploader'] as HTMLCanvasElement).toDataURL();
+            const signature = this.signatureCanvas.toDataURL();
 
             if (signature === null) {
                 this.setState({ signatureUploaderErrors: 'Please upload a signature' });
@@ -160,7 +162,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                                     }
                                     { !this.state.uploading &&
                                         <div className='signature-display'>
-                                            <SignatureCanvas canvasProps={signatureCanvasOptions} ref='signature-canvas' />
+                                            <SignatureCanvas canvasProps={signatureCanvasOptions} ref={(ref: ReactSignatureCanvas) => this.signatureCanvas = ref} />
                                             <a className='btn btn-default btn-block' onClick={this.clearCanvas.bind(this)}>Clear</a>
                                         </div>
                                     }

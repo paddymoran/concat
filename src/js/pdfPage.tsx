@@ -1,6 +1,6 @@
 import * as React from "react";
 import { findDOMNode } from "react-dom";
-const PDFJS = require('pdfjs-dist');
+import PDFJS from 'pdfjs-dist';
 
 interface PDFPageProps {
     page: PDFPageProxy;
@@ -8,12 +8,16 @@ interface PDFPageProps {
     scale?: number;
 }
 
-export class PDFPage extends React.Component<PDFPageProps, any> {
+interface PDFPageState {}
+
+export class PDFPage extends React.Component<PDFPageProps, PDFPageState> {
+    private pdfPage: HTMLCanvasElement;
+
     constructor(props: PDFPageProps) {
         super(props);
     }
 
-    componentDidUpdate(prevProps: PDFPageProps, prevState: any) {
+    componentDidUpdate(prevProps: PDFPageProps, prevState: PDFPageState) {
         this.displayPage();
     }
 
@@ -38,7 +42,7 @@ export class PDFPage extends React.Component<PDFPageProps, any> {
 
     render() {
         return (
-            <canvas ref='pdfPage' className='pdf-page' />
+            <canvas ref={(ref: HTMLCanvasElement) => this.pdfPage = ref} className='pdf-page' />
         )
     }
 }

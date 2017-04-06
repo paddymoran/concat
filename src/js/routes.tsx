@@ -4,7 +4,7 @@ import App from './app';
 import DocumentTray from './documentTray';
 import DocumentView from './documentView';
 
-export default (store, component) => {
+export default (component) => {
     return (
         <Route path='/' component={ component }>
             <IndexRoute component={ DocumentTray } />

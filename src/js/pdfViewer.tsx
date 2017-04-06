@@ -25,8 +25,8 @@ interface PostSignResponse extends Axios.AxiosResponse {
 }
 
 export default class PDFViewer extends React.Component<PDFViewerProps, any> {
-    _pdfPromise;
-    _pagePromises;
+    _pdfPromise: Promise<PDFPageProxy[]>;
+    _pagePromises: Promise<PDFPageProxy[]>;
 
     constructor(props: PDFViewerProps) {
         super(props);
@@ -63,12 +63,12 @@ export default class PDFViewer extends React.Component<PDFViewerProps, any> {
         }
     }
 
-    completeDocument(pdf) {
+    completeDocument(pdf: PDFDocumentProxy) {
         this.setState({ pdf, error: null });
         this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
 
         return this._pagePromises = Promise.map(
-                Array(this.state.pdf.numPages).fill(),
+                Array(this.state.pdf.numPages).fill(null),
                 (p, i: number) => pdf.getPage(i + 1)
             )
             .then((pages) => {

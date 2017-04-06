@@ -21,8 +21,8 @@ const ConnectedApp = connect(state => ({documents: state.documents, form: state.
 })(App);
 
 interface RootProps {
-    history: any;
-    store: any;
+    history: any,
+    store: any
 }
 
 export default class Root extends React.Component<RootProps, {}> {
@@ -30,7 +30,7 @@ export default class Root extends React.Component<RootProps, {}> {
         return (
             <Provider store={this.props.store}>
                 <Router history={this.props.history}>
-                    { routes(this.props.store, ConnectedApp) }
+                    { routes(ConnectedApp) }
                     { this.props.children }
                 </Router>
             </Provider>

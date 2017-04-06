@@ -1,6 +1,6 @@
 import * as React from "react";
 import { findDOMNode } from "react-dom";
-const PDFJS = require('pdfjs-dist');
+import PDFJS from 'pdfjs-dist';
 
 interface PDFPreviewProps {
     pages: Array<PDFPageProxy>;
@@ -10,10 +10,9 @@ interface PDFPreviewProps {
     scale?: number;
 }
 
-export class PDFPreview extends React.Component<PDFPreviewProps, any> {
+export class PDFPreview extends React.Component<PDFPreviewProps, {}> {
     constructor(props: PDFPreviewProps) {
         super(props);
-        this.state = {};
     }
 
     componentDidMount() {
@@ -22,22 +21,19 @@ export class PDFPreview extends React.Component<PDFPreviewProps, any> {
 
     showThumbnails() {
         const scale = this.props.scale || 1;
-        let canvas : HTMLCanvasElement;
-        let page, context, viewport;
+        let canvas: HTMLCanvasElement;
+        let page, canvasContext, viewport;
 
         this.props.pages.map((page, i) => {
             page = this.props.pages[i];
             canvas = findDOMNode(this.refs['preview-canvas-' + i]) as HTMLCanvasElement;
-            context = canvas.getContext('2d');
+            canvasContext = canvas.getContext('2d');
             viewport = page.getViewport(canvas.width / page.getViewport(scale).width);
 
             canvas.height = viewport.height;
             canvas.width = viewport.width;
 
-            page.render({
-                canvasContext: context,
-                viewport: viewport
-            });
+            page.render({ canvasContext, viewport });
         });
     }
 

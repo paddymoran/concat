@@ -35,8 +35,7 @@ module.exports = {
                         loader: 'css-loader',
                         options: {
                             importLoaders: true,
-                            sourceMap: true,
-                           // modules: true
+                            sourceMap: true
                         }
                     },
                     {
@@ -50,7 +49,7 @@ module.exports = {
                     {
                         loader: 'sass-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: true
                         }
                     }
                 ]
@@ -105,7 +104,6 @@ module.exports = {
         !DEV ? new webpack.optimize.UglifyJsPlugin() : function(){},
 
         new HtmlWebpackPlugin({
-            //hash: true,
             template: 'src/static/index.ejs',
             inject: 'body'
         })

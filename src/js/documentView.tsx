@@ -5,13 +5,15 @@ import PDFViewer from './pdfViewer';
 import { Document } from './definitions';
 
 interface DocumentViewProps {
-    params: Params;
-    updateDocument: Function;
+    params: {
+        documentId: number
+    },
+    removeDocument: Function;
 }
 
 interface DocumentViewState {
-    documents: Array<Document>;
-    updateDocument: Function;
+    documents: Array<Document>,
+    updateDocument: Function
 }
 
 class DocumentView extends React.Component<DocumentViewProps, DocumentViewState>  {

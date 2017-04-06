@@ -10,13 +10,13 @@ interface IDocumentHandler {
 };
 
 interface DocumentHandlerProps {
-    addDocuments(files: any);
-    documents: any;
-    form: any;
+    addDocuments:(files: any) => void,
+    documents: any,
+    form: any,
 };
 
 class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implements IDocumentHandler {
-    _fileInput;
+    _fileInput: HTMLInputElement;
 
     constructor(props: DocumentHandlerProps) {
         super(props);
@@ -25,14 +25,14 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
         this.onClick = this.onClick.bind(this);
     }
 
-    onDrop(files) {
+    onDrop(files: File[]) {
         this.props.addDocuments(
-            files.map(file => ({ filename: file.name, file }))
+            files.map((file) => ({ filename: file.name, file }))
         );
     }
 
     collectFiles(event) {
-       this.onDrop([].filter.call(event.target.files, f => f.type === 'application/pdf'));
+       this.onDrop([].filter.call(event.target.files, (f: File) => f.type === 'application/pdf'));
     }
 
     onClick() {

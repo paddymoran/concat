@@ -8,13 +8,13 @@ interface SignatureDragContainerProps {
     className?: string;
 }
 
-export default class SignatureDragContainer extends React.Component<SignatureDragContainerProps, any> {
+export default class SignatureDragContainer extends React.Component<SignatureDragContainerProps, {}> {
     constructor(props: SignatureDragContainerProps) {
         super(props);
     }
 
     relativeSignaturePosition() {
-        const signature = this.refs.signature;
+        const signature = this.refs.signature as Signature;
         const container = this.refs.container as HTMLElement;
         
         if (!signature) {

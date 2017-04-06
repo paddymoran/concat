@@ -1,4 +1,4 @@
-import * as React from "react";
+import  * as React from "react";
 import { findDOMNode } from "react-dom";
 import SignatureCanvas from 'react-signature-canvas';
 import { Alert, Button, ControlLabel, FormGroup, FormControl, Modal, Tab, Tabs } from 'react-bootstrap';
@@ -12,6 +12,14 @@ interface SignatureSelectorProps {
     onSignatureSelected: Function;
     showModal: Function;
     hideModal: Function;
+}
+
+interface SignatureSelectorState {
+    selectedSignature: number;
+    currentTab: number;
+    signatureIds: number[];
+    uploading: boolean;
+    signatureUploaderErrors?: string
 }
 
 interface ReactSignatureCanvas {
@@ -31,9 +39,10 @@ const SELECT_SIGNATURE_TAB = 1;
 const DRAW_SIGNATURE_TAB = 2;
 const UPLOAD_SIGNATURE_TAB = 3;
 
-export default class SignatureSelector extends React.Component<SignatureSelectorProps, any> {
+export default class SignatureSelector extends React.Component<SignatureSelectorProps, SignatureSelectorState> {
     constructor(props: SignatureSelectorProps) {
         super(props);
+        
         this.state = {
             selectedSignature: 0,
             currentTab: SELECT_SIGNATURE_TAB,
@@ -75,11 +84,10 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         } else {
             const signature = (this.refs['signature-uploader'] as HTMLCanvasElement).toDataURL();
 
-            if (signature == null) {
-                this.setState({
-                    signatureUploaderErrors: 'Please upload a signature'
-                });
-            } else {
+            if (signature === null) {
+                this.setState({ signatureUploaderErrors: 'Please upload a signature' });
+            }
+            else {
                 this.uploadSignature(signature);
             }
         }

@@ -55,10 +55,9 @@ export default class PDFViewer extends React.Component<PDFViewerProps, any> {
     loadDocument(newProps: PDFViewerProps) {
         this.cleanup();
 
-        this._pdfPromise = Promise.resolve(PDFJS.getDocument(newProps.data)
+        this._pdfPromise = Promise.resolve(PDFJS.getDocument(newProps.data))
             .then(this.completeDocument)
-            .catch(MissingPDFException, () => this.setState({error: "Can't find PDF"}))
-            .catch((e: Error) => this.setState({error: e.message}))
+            .catch(e => this.setState({error: e.message}));
     }
 
     completeDocument(pdf: PDFDocumentProxy) {

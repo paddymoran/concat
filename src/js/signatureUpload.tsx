@@ -9,10 +9,10 @@ const removeImageBackground = (canvas: HTMLCanvasElement, file: File, finished: 
     // Read the uploaded file
     reader.readAsDataURL(file);
 
-    reader.onload = (event: Event) => {
+    reader.onload = () => {
         // Create an image for the uploaded file
         const signatureImage = new Image();
-        signatureImage.src = event.target.result;
+        signatureImage.src = reader.result;
 
         signatureImage.onload = () => {
             // Make the canvas the same size as the uploaded image

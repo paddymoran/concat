@@ -5,17 +5,13 @@ import { connect } from 'react-redux';
 import { DragDropContext } from 'react-dnd';
 import { addDocuments } from './actions';
 
-interface IDocumentHandler {
-    onDrop(files: any);
-};
-
 interface DocumentHandlerProps {
     addDocuments:(files: any) => void,
-    documents: any,
+    documents: Sign.Documents,
     form: any,
-};
+}
 
-class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implements IDocumentHandler {
+class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implements Sign.DocumentHandler {
     _fileInput: HTMLInputElement;
 
     constructor(props: DocumentHandlerProps) {
@@ -31,7 +27,7 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
         );
     }
 
-    collectFiles(event) {
+    collectFiles(event: React.ChangeEvent<HTMLInputElement>) {
        this.onDrop([].filter.call(event.target.files, (f: File) => f.type === 'application/pdf'));
     }
 
@@ -43,7 +39,7 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
     }
 
     render() {
-        const loaded = !!this.props.documents.filelist.length && this.props.documents.filelist.every(f => f.status === 'complete');
+        const loaded = !!this.props.documents.filelist.length && this.props.documents.filelist.every((f => f.status === 'complete'));
         return  (
             <FileDropZone onDrop={this.onDrop}>
                 <div className="explanation" onClick={this.onClick}>

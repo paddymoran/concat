@@ -27,12 +27,14 @@ const handleStyles = {
 };
 
 export default class Signature extends React.Component<SignatureProps, any> {
+    private signature: ReactRnd;
+
     constructor(props: SignatureProps) {
         super(props);
     }
 
     position() {
-        const signature: ReactRnd = this.refs.signature;
+        const signature: ReactRnd = this.signature;
 
         if (!signature) {
             throw new Error('Signature does not exist');
@@ -51,7 +53,7 @@ export default class Signature extends React.Component<SignatureProps, any> {
     render() {
         return (
             <ReactRnd
-                ref='signature'
+                ref={(ref: ReactRnd) => this.signature = ref as ReactRnd}
                 initial={{
                     x: 0,
                     y: 0,
@@ -61,7 +63,7 @@ export default class Signature extends React.Component<SignatureProps, any> {
                 style={style}
                 minWidth={200}
                 maxWidth={800}
-                bounds={'parent'}
+                bounds={'resizerHandleStyle'}
                 resizerHandleStyle={handleStyles}
                 lockAspectRatio={true}
             >

@@ -44,7 +44,7 @@ export class PDFPreview extends React.Component<PDFPreviewProps, {}> {
     render() {
         return (
             <div className='pdf-preview-panel'>
-                { Array(this.props.pages.length).fill().map((page, i) => {
+                { this.props.pages.map((page: PDFPageProxy, i: number) => {
                     const pageNumber = i + 1;
                     let classes = pageNumber == this.props.activePageNumber ? 'pdf-thumbnail selectable selected' : 'pdf-thumbnail selectable';
 

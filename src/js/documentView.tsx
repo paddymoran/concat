@@ -2,18 +2,15 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { updateDocument } from './actions';
 import PDFViewer from './pdfViewer';
-import { Document } from './definitions';
 
 interface DocumentViewProps {
-    params: {
-        documentId: number
-    },
+    params: { documentId: number };
+    documents: Array<Sign.Document>;
     removeDocument: Function;
 }
 
 interface DocumentViewState {
-    documents: Array<Document>,
-    updateDocument: Function
+    updateDocument: Function;
 }
 
 class DocumentView extends React.Component<DocumentViewProps, DocumentViewState>  {
@@ -26,7 +23,7 @@ class DocumentView extends React.Component<DocumentViewProps, DocumentViewState>
     }
 
     uploadData() {
-        const document = this.state.documents[this.props.params.documentId];
+        const document = this.props.documents[this.props.params.documentId];
 
         if (!document.status) {
             // Update file upload progress
@@ -46,7 +43,7 @@ class DocumentView extends React.Component<DocumentViewProps, DocumentViewState>
     }
 
     render() {
-        const document = this.state.documents[this.props.params.documentId];
+        const document = this.props.documents[this.props.params.documentId];
 
         return (
             <div className='pdf-screen'>

@@ -13,9 +13,14 @@ class FileDropZone extends React.Component<{connectDropTarget: Function, isOver:
     }
 }
 
+interface MonitorItem {
+    files: File[]
+}
+
 const fileTarget = {
-    drop(props, monitor) {
-        props.onDrop(monitor.getItem().files.filter(f => f.type === 'application/pdf'));
+    drop(props: Sign.DocumentHandler, monitor: __ReactDnd.DropTargetMonitor) {
+        const item = monitor.getItem() as MonitorItem;
+        props.onDrop(item.files.filter(f => f.type === 'application/pdf'));
     }
 };
 

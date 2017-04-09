@@ -1,17 +1,15 @@
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware, compose, MiddlewareAPI, Dispatch } from 'redux';
 import rootReducer from './reducer';
 import * as thunk from 'redux-thunk';
 import { routerMiddleware } from 'react-router-redux';
-import createLogger from 'redux-logger';
+import { createLogger } from 'redux-logger';
+import { History } from 'history';
 
 const data = {};
 
-export default function configureStore(history, initialState=data) {
-    let middleware;
-    const loggerMiddleware = createLogger();
-
-    const shouldCall = ({ dispatch, getState }) => {
-        return next => action => {
+export default function configureStore(history: History, initialState=data) {
+    const shouldCall = ({ dispatch, getState }:MiddlewareAPI<Sign.State>) => {
+        return (next: Dispatch<Sign.State>) => (action: Sign.Action<any>) => {
             const shouldCall = action.shouldCall || (() => true);
 
             if (!shouldCall(getState())) {
@@ -22,14 +20,16 @@ export default function configureStore(history, initialState=data) {
         }
     }
 
-    middleware = applyMiddleware(
+    const loggerMiddleware = createLogger();
+
+    const middleware = applyMiddleware(
           <any>thunk,
           loggerMiddleware,
           routerMiddleware(history),
           shouldCall
     );
 
-    const createStoreWithMiddleware = <any>compose(middleware)(createStore);
+    const createStoreWithMiddleware = compose(middleware)(createStore);
 
     return createStoreWithMiddleware(rootReducer, initialState);
 }

@@ -16,7 +16,6 @@ interface PDFViewerProps {
     data: ArrayBuffer;
     file: any;
     worker?: boolean;
-    url?: string;
     removeDocument: Function;
 }
 
@@ -54,13 +53,12 @@ export default class PDFViewer extends React.Component<PDFViewerProps, any> {
     }
 
     loadDocument(newProps: PDFViewerProps) {
-        if (newProps.data || newProps.url) {
-            this.cleanup();
-            this._pdfPromise = Promise.resolve(PDFJS.getDocument(newProps.data ? { data: newProps.data } : newProps.url))
-                .then(this.completeDocument)
-                .catch(PDFJS.MissingPDFException, () => this.setState({error: "Can't find PDF"}))
-                .catch((e: Error) => this.setState({error: e.message}))
-        }
+        this.cleanup();
+
+        this._pdfPromise = Promise.resolve(PDFJS.getDocument(newProps.data)
+            .then(this.completeDocument)
+            .catch(MissingPDFException, () => this.setState({error: "Can't find PDF"}))
+            .catch((e: Error) => this.setState({error: e.message}))
     }
 
     completeDocument(pdf: PDFDocumentProxy) {

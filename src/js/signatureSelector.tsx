@@ -22,12 +22,6 @@ interface SignatureSelectorState {
     signatureUploaderErrors?: string
 }
 
-interface ReactSignatureCanvas extends React.Component<any, any> {
-    clear(): null,
-    getTrimmedCanvas(): HTMLCanvasElement,
-    toDataURL(): string,
-}
-
 interface SignaturesResponse extends Axios.AxiosResponse {
     data: Array<{ id: number }>
 }
@@ -41,7 +35,7 @@ const DRAW_SIGNATURE_TAB = 2;
 const UPLOAD_SIGNATURE_TAB = 3;
 
 export default class SignatureSelector extends React.Component<SignatureSelectorProps, SignatureSelectorState> {
-    private signatureCanvas: ReactSignatureCanvas;
+    private signatureCanvas: SignatureCanvas;
 
     constructor(props: SignatureSelectorProps) {
         super(props);
@@ -162,7 +156,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                                     }
                                     { !this.state.uploading &&
                                         <div className='signature-display'>
-                                            <SignatureCanvas canvasProps={signatureCanvasOptions} ref={(ref: ReactSignatureCanvas) => this.signatureCanvas = ref} />
+                                            <SignatureCanvas canvasProps={signatureCanvasOptions} ref={(ref: SignatureCanvas) => this.signatureCanvas = ref} />
                                             <a className='btn btn-default btn-block' onClick={this.clearCanvas.bind(this)}>Clear</a>
                                         </div>
                                     }

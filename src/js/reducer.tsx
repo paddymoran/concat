@@ -1,19 +1,18 @@
-import { combineReducers } from 'redux';
+import { combineReducers, Reducer } from 'redux';
 import { routerReducer } from 'react-router-redux';
-import { Action } from './actions'
 
 let index = 0;
 
-const documents = (state = {filelist: []}, action) => {
+const documents = (state: Sign.Documents = {filelist: []}, action: Sign.DocumentAction) => {
     let filelist, i;
-    switch(action.type){
+    switch(action.type) {
         case "ADD_DOCUMENTS":
-            return Object.assign({}, state, {filelist: state.filelist.concat(action.payload.map(f => {
+            return Object.assign({}, state, {filelist: state.filelist.concat(action.payload.map((f: Sign.Document) => {
                 f.id = index++;
                 return f;
             }))});
         case "REMOVE_DOCUMENTS":
-            return Object.assign({}, state, {filelist: state.filelist.concat(action.payload.map(f => {
+            return Object.assign({}, state, {filelist: state.filelist.concat(action.payload.map((f: Sign.Document) => {
                 f.id = index++;
                 return f;
             }))});
@@ -31,7 +30,7 @@ const documents = (state = {filelist: []}, action) => {
     return state;
 }
 
-const rootReducer = combineReducers({
+const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     routing: routerReducer,
     documents
 });

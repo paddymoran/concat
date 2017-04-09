@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button, Modal, Tabs, Tab, ControlLabel, FormGroup, FormControl } from 'react-bootstrap';
 
-const removeImageBackground = (canvas: HTMLCanvasElement, file, finished: (imageData: ImageData) => void) => {
+const removeImageBackground = (canvas: HTMLCanvasElement, file: File, finished: (imageData: ImageData) => void) => {
     const context = canvas.getContext('2d');
     const reader = new FileReader();
     const WHITE_THRESHOLD = 230;
@@ -9,7 +9,7 @@ const removeImageBackground = (canvas: HTMLCanvasElement, file, finished: (image
     // Read the uploaded file
     reader.readAsDataURL(file);
 
-    reader.onload = (event) => {
+    reader.onload = (event: Event) => {
         // Create an image for the uploaded file
         const signatureImage = new Image();
         signatureImage.src = event.target.result;

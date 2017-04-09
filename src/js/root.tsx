@@ -8,7 +8,7 @@ import { addDocuments, updateDocument, submitDocuments, removeDocument, updateFo
 import App from './app';
 import routes from './routes';
 import { Router } from 'react-router';
-import { Document } from './definitions';
+import { History } from 'history';
 
 import '../style/style.scss';
 
@@ -21,7 +21,7 @@ const ConnectedApp = connect(state => ({documents: state.documents, form: state.
 })(App);
 
 interface RootProps {
-    history: any,
+    history: History,
     store: any
 }
 

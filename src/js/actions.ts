@@ -1,28 +1,12 @@
-export interface Action<T> {
-  type: string
-  payload: T
-}
-
 interface ActionCreator<T> {
   type: string
-  (payload: T): Action<T>
+  (payload: T): Sign.Action<T>
 }
 
-const actionCreator = <T>(type: string): ActionCreator<T> =>
-  Object.assign((payload: T):any => ({type, payload}), {type})
+const actionCreator = <T>(type: string): ActionCreator<T> => Object.assign((payload: T):any => ({type, payload}), {type})
 
-export const isType = <T>(action: Action<any>, actionCreator: ActionCreator<T>):
-  action is Action<T> => action.type === actionCreator.type
-
-
-//Example action creator:
-/*
-export interface Response {
-  status: boolean
-  response: Object
-}
-
-*/
+export const isType = <T>(action: Sign.Action<any>, actionCreator: ActionCreator<T>):
+  action is Sign.Action<T> => action.type === actionCreator.type
 
 export const addDocuments = actionCreator<string>('ADD_DOCUMENTS');
 export const updateDocument = actionCreator<string>('UPDATE_DOCUMENT');

@@ -30,6 +30,12 @@ declare namespace Sign {
     export interface DocumentHandler {
         onDrop(files: any): void;
     }
+
+    export interface FileDropZoneProps {
+        connectDropTarget: Function;
+        onDrop: Function;
+        canDrop: Function;
+    }
 }
 
 declare module 'pdfjs-dist' {

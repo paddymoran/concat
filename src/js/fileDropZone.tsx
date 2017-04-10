@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { DragSource, DropTarget, DragDropContext } from 'react-dnd';
 
-class FileDropZone extends React.Component<{connectDropTarget: Function, isOver: boolean, canDrop: boolean}, {}> {
+class FileDropZone extends React.Component<Sign.FileDropZoneProps, {}> {
     render() {
-        const { connectDropTarget, isOver, canDrop } = this.props;
+        const { connectDropTarget} = this.props;
         return connectDropTarget(
             <div className="dropzone">
                 { this.props.children }
@@ -18,7 +18,7 @@ interface MonitorItem {
 }
 
 const fileTarget = {
-    drop(props: Sign.DocumentHandler, monitor: __ReactDnd.DropTargetMonitor) {
+    drop(props: any, monitor: any) {
         const item = monitor.getItem() as MonitorItem;
         props.onDrop(item.files.filter(f => f.type === 'application/pdf'));
     }

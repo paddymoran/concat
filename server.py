@@ -19,7 +19,7 @@ except ImportError:
 
 logging.basicConfig()
 
-app = Flask(__name__, static_url_path='/', static_folder='public')
+app = Flask(__name__, static_url_path='', static_folder='public')
 app.config.from_pyfile(os.environ.get('CONFIG_FILE') or sys.argv[1])
 
 PORT = app.config.get('PORT')
@@ -46,7 +46,7 @@ def sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, 
     signed_filename = generate_signed_filename(signed_file_id)
 
     signature_filepath = save_temp_signature(signature_id, user_id)
-    
+
     Popen(['bash', './sign.sh', pdf_filepath, str(page_number), signature_filepath, str(x_offset), str(y_offset), str(x_scale), str(y_scale), os.path.join(TMP_DIR, signed_filename)],
         stdout=DEVNULL,
         stderr=STDOUT).wait()
@@ -55,7 +55,7 @@ def sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, 
 
 def save_temp_signature(signature_id, user_id):
     signature_binary = db.get_signature(signature_id, user_id)
-    
+
     signature_filename = SIGNATURE_FILE_PREFIX + str(uuid.uuid4()) + '.png'
     signature_filepath = os.path.join(TMP_DIR, signature_filename)
 
@@ -184,13 +184,14 @@ def login():
     session['user_id'] = user_data['id']
     session['user_name'] = user_data['email']
 
-    return redirect(url_for('catch_all'))
+    return redirect(url_for('index'))
 
 
 @app.route('/logout', methods=['GET'])
 def logout():
     session.clear()
     return redirect(app.config.get('USER_LOGOUT_URL'))
+
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')

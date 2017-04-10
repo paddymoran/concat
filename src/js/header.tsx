@@ -7,7 +7,7 @@ export default class Header extends React.Component<{}, {}> {
                 <nav className="navbar navbar-default">
                     <div className='container'>
                         <div className='navbar-header'>
-                            <img src="/static/images/catalex-sign.png" alt="CataLex Sign"/>
+                            <img src="/images/catalex-sign.png" alt="CataLex Sign"/>
                         </div>
 
                         <ul className='account-nav'>

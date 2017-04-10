@@ -30,7 +30,7 @@ module.exports = {
             },
             {
                 test: /\.(scss|css)$/,
-                use: [
+                use: ExtractTextPlugin.extract({use: [
                     {
                         loader: 'css-loader',
                         options: {
@@ -52,7 +52,7 @@ module.exports = {
                             sourceMap: true
                         }
                     }
-                ]
+                ]})
             },
             {
                 test: /\.(png|jpg)$/,

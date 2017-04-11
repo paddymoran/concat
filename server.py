@@ -184,7 +184,7 @@ def login():
     session['user_id'] = user_data['id']
     session['user_name'] = user_data['email']
 
-    return redirect(url_for('index'))
+    return redirect(url_for('catch_all'))
 
 
 @app.route('/logout', methods=['GET'])

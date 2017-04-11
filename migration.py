@@ -51,6 +51,12 @@ def run_migration(db, filename, config):
             'filename': filename
         })
 
+def load_functions(db):
+    for filename in ['funcs.sql']:
+        with open(os.path.join('db_functions', filename)) as f, db.cursor() as cur:
+            cur.execute(f.read())
+
+
 def run():
     if not len(sys.argv) > 1:
         raise Exception('Missing configuration file')
@@ -62,6 +68,9 @@ def run():
     else:
         migrations = get_migrations(db)
     map(lambda m: run_migration(db, m, config), migrations)
+
+    load_functions(db)
+
     db.commit()
     print('Migrations Complete')
 

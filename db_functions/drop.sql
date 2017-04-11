@@ -8,6 +8,8 @@ DROP TABLE IF EXISTS public.sign_requests;
 
 DROP TABLE IF EXISTS  public.access_tokens;
 
+DROP TABLE IF EXISTS public.document_set_mapper;
+
 DROP TABLE IF EXISTS public.documents;
 
 DROP TABLE IF EXISTS  public.document_sets;

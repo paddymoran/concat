@@ -4,3 +4,4 @@
 *.pyc
 /catalex_sign.egg-info/
 /public/
+.idea

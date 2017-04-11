@@ -51,10 +51,13 @@ def run_migration(db, filename, config):
             'filename': filename
         })
 
-def load_functions(db):
-    for filename in ['funcs.sql']:
+def load_functions(db, files = []):
+    for filename in files + ['funcs.sql']:
         with open(os.path.join('db_functions', filename)) as f, db.cursor() as cur:
-            cur.execute(f.read())
+            print('Running', filename)
+            sql = f.read()
+            cur.execute(sql)
+    db.commit()
 
 
 def run():

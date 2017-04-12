@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link } from 'react-router/'
 
 export default class Header extends React.Component<{}, {}> {
     render() {
@@ -6,9 +7,9 @@ export default class Header extends React.Component<{}, {}> {
             <div className="header">
                 <nav className="navbar navbar-default">
                     <div className='container'>
-                        <div className='navbar-header'>
+                        <Link to="/" className='navbar-header'>
                             <img src="/images/catalex-sign.png" alt="CataLex Sign"/>
-                        </div>
+                        </Link>
 
                         <ul className='account-nav'>
                             <li><a href="https://users.catalex.nz/user/profile">My Profile</a></li>

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import DragContextDocumentHandler from './dragContextDocumentHandler';
 import { Glyphicon } from 'react-bootstrap';
 import { removeDocument } from './actions';
+import DocumentList from './documentList';
 
 interface DocumentTrayProps {
     documents: Sign.Documents;
@@ -22,17 +23,7 @@ class DocumentTray extends React.Component<DocumentTrayProps, {}> {
 
                 <h2>Documents</h2>
 
-                {this.props.documents.filelist.length === 0 && <p>No documents uploaded yet.</p>}
-                {this.props.documents.filelist.length > 0 &&
-                    <ul className="list-group">
-                        {this.props.documents.filelist.map((file, index) => 
-                            <li key={index} className="list-group-item">
-                                {file.filename}
-                                <button className="list-group-button" onClick={() => this.props.removeDocument({id: file.id})}><Glyphicon glyph="trash" /></button>
-                            </li>
-                        )}
-                    </ul>
-                }
+                <DocumentList documents={this.props.documents} removeDocument={removeDocument} />
 
                 <div className="text-center">
                     <button className={'btn btn-primary btn-lg' + (this.props.documents.filelist.length === 0 ? ' disabled' : '')}>Sign Documents</button>
@@ -44,6 +35,6 @@ class DocumentTray extends React.Component<DocumentTrayProps, {}> {
 
 export default connect(state => ({
     documents: state.documents
-}), ({
+}), {
     removeDocument: (fileId: number) => removeDocument({ id: fileId })
-}))(DocumentTray);
+})(DocumentTray);

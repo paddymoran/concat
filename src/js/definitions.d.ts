@@ -1,12 +1,17 @@
 declare namespace Sign {
+    const enum DocumentUploadStatus {
+        InProgress,
+        Complete
+    }
+
     export interface Document {
         id: number;
         filename: string;
-        uuid?: string;
         file: File;
         arrayBuffer: ArrayBuffer;
-        status: string;
         data: ArrayBuffer;
+        uuid?: string;
+        status: DocumentUploadStatus;
         progress?: number;
     }
 

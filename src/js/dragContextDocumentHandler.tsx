@@ -22,9 +22,7 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
     }
 
     onDrop(files: File[]) {
-        this.props.addDocuments(
-            files.map((file) => ({ filename: file.name, file }))
-        );
+        this.props.addDocuments(files);
     }
 
     collectFiles(event: React.ChangeEvent<HTMLInputElement>) {
@@ -53,4 +51,9 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
 
 const DragContext = DragDropContext(HTML5Backend)(DocumentHandler)
 
-export default connect(state => ({ documents: state.documents, form: state.form }), { addDocuments: addDocuments })(DragContext);
+export default connect(state => ({
+    documents: state.documents,
+    form: state.form
+}), {
+    addDocuments: (files: File[]) => addDocuments(files.map((file) => ({ filename: file.name, file })))
+})(DragContext);

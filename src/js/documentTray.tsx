@@ -10,10 +10,6 @@ interface DocumentTrayProps {
 }
 
 class DocumentTray extends React.Component<DocumentTrayProps, {}> {
-    componentWillMount() {
-        // Call action to load documents
-    }
-
     render() {
         return (
             <div className='container'>
@@ -27,6 +23,10 @@ class DocumentTray extends React.Component<DocumentTrayProps, {}> {
                         {this.props.documents.filelist.map((file, index) => <li key={index} className='list-group-item'>{file.filename}</li>)}
                     </ul>
                 }
+
+                <div className="text-center">
+                    <button className={'btn btn-primary btn-lg' + (this.props.documents.filelist.length === 0 ? ' disabled' : '')}>Sign Documents</button>
+                </div>
             </div>
         );
     }

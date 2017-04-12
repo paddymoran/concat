@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { IndexRoute, Route, Router, RouteComponent } from 'react-router';
 import App from './app';
+import SelectWorkflow from './SelectWorkflow';
 import DocumentTray from './documentTray';
 import DocumentView from './documentView';
 
 export default (component: RouteComponent) => {
     return (
         <Route path='/' component={ component }>
-            <IndexRoute component={ DocumentTray } />
-            <Route path='test' component={ DocumentTray } />
+            <IndexRoute component={ SelectWorkflow } />
+            <Route path='selfsign' component={ DocumentTray } />
             <Route path='documents/:documentId' component={ DocumentView } />
         </Route>
     );

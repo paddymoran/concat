@@ -87,7 +87,7 @@ class InvalidUsage(Exception):
 
 
 
-@app.route('/documents/upload', methods=['POST'])
+@app.route('/api/documents/upload', methods=['POST'])
 def document_upload():
     try:
         return jsonify(upload_document(request.files.getlist("file[]")))
@@ -95,7 +95,7 @@ def document_upload():
         print(e)
         raise InvalidUsage(e.message, status_code=500)
 
-@app.route('/signatures/upload', methods=['POST'])
+@app.route('/api/signatures/upload', methods=['POST'])
 def signature_upload():
     try:
         base64Image = json.loads(request.data)['base64Image']
@@ -105,7 +105,7 @@ def signature_upload():
         raise InvalidUsage(e.message, status_code=500)
 
 
-@app.route('/signatures', methods=['GET'])
+@app.route('/api/signatures', methods=['GET'])
 def signatures_list():
     try:
         signatures = db.get_signatures_for_user(session['user_id'])
@@ -114,7 +114,7 @@ def signatures_list():
         print(e)
         raise InvalidUsage(e.message, status_code=500)
 
-@app.route('/signatures/<id>', methods=['GET'])
+@app.route('/api/signatures/<id>', methods=['GET'])
 def signature(id):
     try:
         signature = db.get_signature(id, session['user_id'])
@@ -129,7 +129,7 @@ def signature(id):
         raise InvalidUsage(e.message, status_code=500)
 
 
-@app.route('/sign', methods=['POST'])
+@app.route('/api/sign', methods=['POST'])
 def sign():
     file = request.files['file']
     signature_id = request.form['signature_id']
@@ -149,7 +149,7 @@ def get_documents_list(uuid):
     return jsonify('test_one')
 
 
-@app.route('/signed-documents/<uuid>', methods=['GET'])
+@app.route('/api/signed-documents/<uuid>', methods=['GET'])
 def get_signed_pdf(uuid):
     filepath = os.path.join(TMP_DIR, generate_signed_filename(uuid))
 
@@ -159,7 +159,7 @@ def get_signed_pdf(uuid):
              mimetype='application/pdf')
 
 
-@app.route('/login', methods=['GET'])
+@app.route('/api/login', methods=['GET'])
 def login():
     args = request.args
     provided_code = args.get('code')
@@ -187,7 +187,7 @@ def login():
     return redirect(url_for('catch_all'))
 
 
-@app.route('/logout', methods=['GET'])
+@app.route('/api/logout', methods=['GET'])
 def logout():
     session.clear()
     return redirect(app.config.get('USER_LOGOUT_URL'))
@@ -196,6 +196,10 @@ def logout():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.errorhandler(404)
+def send_index(path):
     return send_from_directory(app.static_folder, 'index.html')
 
 
@@ -209,7 +213,7 @@ def handle_invalid_usage(error):
 
 @app.before_request
 def before_request():
-    if not 'user_id' in session and request.endpoint is not 'login':
+    if not 'user_id' in session and request.endpoint is not 'api/login':
         return redirect(url_for('login'))
 
 

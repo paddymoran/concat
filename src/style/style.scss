@@ -42,7 +42,6 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities";
 
 
-
 @import "header";
 @import "footer";
 @import "pdf-viewer";
@@ -192,6 +191,27 @@ a {
         color:$light-red;
         label{
             font-weight:bold;
+        }
+    }
+}
+
+.workflow-option-wrapper {
+    margin-top: 60px;
+    color: $gray-dark;
+
+    &:hover {
+        color: $gray-dark;
+    }
+
+    .workflow-option {
+        text-align: center;
+        background: $gray-lighter;
+        border-radius: 4px;
+        border: 1px solid $gray;
+        padding: 60px 25px;
+
+        .glyphicon {
+            font-size: 4em;
         }
     }
 }

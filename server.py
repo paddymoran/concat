@@ -161,28 +161,32 @@ def get_signed_pdf(uuid):
 
 @app.route('/api/login', methods=['GET'])
 def login():
-    args = request.args
-    provided_code = args.get('code')
+    if app.config.get('DEV_USER_ID'):
+        session['user_id'] = app.config.get('DEV_USER_ID')
+        session['user_name'] = 'Dev User'
+    else:
+        args = request.args
+        provided_code = args.get('code')
 
-    if not all([provided_code]):
-        return redirect(app.config.get('OAUTH_URL'))
+        if not all([provided_code]):
+            return redirect(app.config.get('OAUTH_URL'))
 
-    params = {
-        'code': provided_code,
-        'grant_type': 'authorization_code',
-        'client_id': app.config.get('OAUTH_CLIENT_ID'),
-        'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
-        'redirect_uri': app.config.get('LOGIN_URL')
-    }
+        params = {
+            'code': provided_code,
+            'grant_type': 'authorization_code',
+            'client_id': app.config.get('OAUTH_CLIENT_ID'),
+            'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
+            'redirect_uri': app.config.get('LOGIN_URL')
+        }
 
-    response = requests.post(app.config.get('AUTH_SERVER') + '/oauth/access_token', data=params)
-    access_data = response.json()
+        response = requests.post(app.config.get('AUTH_SERVER') + '/oauth/access_token', data=params)
+        access_data = response.json()
 
-    response = requests.get(app.config.get('AUTH_SERVER') + '/api/user', params={'access_token': access_data['access_token']})
-    user_data = response.json()
+        response = requests.get(app.config.get('AUTH_SERVER') + '/api/user', params={'access_token': access_data['access_token']})
+        user_data = response.json()
 
-    session['user_id'] = user_data['id']
-    session['user_name'] = user_data['email']
+        session['user_id'] = user_data['id']
+        session['user_name'] = user_data['email']
 
     return redirect(url_for('catch_all'))
 
@@ -213,7 +217,7 @@ def handle_invalid_usage(error):
 
 @app.before_request
 def before_request():
-    if not 'user_id' in session and request.endpoint is not 'api/login':
+    if not 'user_id' in session and request.endpoint is not 'login':
         return redirect(url_for('login'))
 
 

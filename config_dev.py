@@ -16,3 +16,5 @@ DB_NAME = 'catalex_sign'
 DB_USER = 'Josh'
 DB_PASS = ''
 DB_HOST = '127.0.0.1'
+
+DEV_USER_ID = 1

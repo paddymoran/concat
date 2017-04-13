@@ -48,7 +48,7 @@ def get_signatures_for_user(user_id):
 def get_signature(signature_id, user_id):
     db = get_db()
     with db.cursor() as cursor:
-        cursor.execute("SELECT signature FROM signatures WHERE id = %(signature_id)s AND user_id = %(user_id)s AND deleted IS FALSE", {
+        cursor.execute("SELECT signature FROM signatures WHERE signature_id = %(signature_id)s AND user_id = %(user_id)s AND deleted IS FALSE", {
             'signature_id': signature_id,
             'user_id': user_id,
         })
@@ -84,8 +84,8 @@ def get_user_document_sets(user_id):
     db = get_db()
     query = """
         SELECT * FROM document_sets
-        JOIN document_set_mapper ON document_sets.set_id = document_set_mapper.document_id
-        JOIN documents ON document_set_mapper.set_id = documents.document_id
+        JOIN document_set_mapper ON document_sets.document_set_id = document_set_mapper.document_id
+        JOIN documents ON document_set_mapper.document_set_id = documents.document_id
         WHERE document_sets.user_id = %(user_id)s
     """
     with db.cursor() as cursor:
@@ -122,9 +122,9 @@ def get_set(user_id, set_id):
     db = get_db()
     query = """
         SELECT * FROM document_sets
-        JOIN document_set_mapper ON document_sets.set_id = document_set_mapper.document_id
-        JOIN documents ON document_set_mapper.set_id = documents.document_id
-        WHERE document_sets.user_id = %(user_id)s AND document_sets.set_id = %(set_id)s
+        JOIN document_set_mapper ON document_sets.document_set_id = document_set_mapper.document_id
+        JOIN documents ON document_set_mapper.document_set_id = documents.document_id
+        WHERE document_sets.user_id = %(user_id)s AND document_sets.document_set_id = %(set_id)s
     """
     with db.cursor() as cursor:
         cursor.execute(query, {

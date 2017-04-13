@@ -81,11 +81,37 @@ def get_user_info(user_id):
 
 
 def get_user_document_sets(user_id):
-    pass
+    db = get_db()
+    query = """
+        SELECT * FROM document_sets
+        JOIN document_set_mapper ON document_sets.set_id = document_set_mapper.document_id
+        JOIN documents ON document_set_mapper.set_id = documents.document_id
+        WHERE document_sets.user_id = %(user_id)s
+    """
+    with db.cursor() as cursor:
+        cursor.execute(query, user_id)
+        data = cursor.fetchall()
+
+        return data
 
 
 def get_document(user_id, document_id):
-    pass
+    db = get_db()
+    query = """
+        SELECT * FROM documents
+        WHERE documents.user_id = %(user_id)s AND documents.document_id = %(document_id)s
+    """
+    with db.cursor() as cursor:
+        cursor.execute(query, {
+            'user_id': user_id,
+            'document_id': document_id
+        })
+        first_row = cursor.fetchone()
+
+        if first_row is None:
+            return None
+        
+        return first_row
 
 
 def sign_document(user_id, sign_request_id, data):
@@ -93,7 +119,20 @@ def sign_document(user_id, sign_request_id, data):
 
 
 def get_set(user_id, set_id):
-    pass
+    db = get_db()
+    query = """
+        SELECT * FROM document_sets
+        JOIN document_set_mapper ON document_sets.set_id = document_set_mapper.document_id
+        JOIN documents ON document_set_mapper.set_id = documents.document_id
+        WHERE document_sets.user_id = %(user_id)s AND document_sets.set_id = %(set_id)s
+    """
+    with db.cursor() as cursor:
+        cursor.execute(query, {
+            'user_id': user_id,
+            'set_id': set_id
+        })
+        data = cursor.fetchall()
+        return data
 
 
 def create_set(user_id, data):

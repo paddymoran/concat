@@ -36,7 +36,7 @@ def add_signature(user_id, binary_file_data):
 def get_signatures_for_user(user_id):
     db = get_db()
     with db.cursor() as cursor:
-        cursor.execute("SELECT id FROM signatures WHERE user_id = %(user_id)s AND deleted IS FALSE", {'user_id': user_id})
+        cursor.execute("SELECT signature_id FROM signatures WHERE user_id = %(user_id)s AND deleted IS FALSE", {'user_id': user_id})
         signatures = cursor.fetchall()
         return_data = []
 

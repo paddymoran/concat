@@ -11,6 +11,7 @@ import os.path
 from io import BytesIO
 from subprocess import Popen, STDOUT
 import uuid
+import tempfile
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -28,12 +29,20 @@ TMP_DIR = '/tmp/.catalex_sign/'
 SIGNATURE_FILE_PREFIX = 'signature_'
 SIGNED_FILE_PREFIX = 'signed_'
 
+thumb_cmds = ['convert', '-thumbnail', '150x', '-background', 'white', '-alpha', 'remove']
 
-def upload_document(file):
-    path = os.path.join(TMP_DIR, str(uuid.uuid4()) + '.pdf')
-    file.save(path)
 
-    return path
+def upload_document(files):
+    uuids = {}
+
+    for file in files:
+        file_id = str(uuid.uuid4())
+        uuids[file.filename] = file_id
+
+        path = os.path.join(TMP_DIR, file_id + '.pdf')
+        file.save(path)
+
+    return uuids
 
 
 def generate_signed_filename(file_id):
@@ -69,6 +78,18 @@ def upload_signature(base64Image):
     signature_id = db.add_signature(session['user_id'], str(base64Image.split(",")[1].decode('base64')))
     return { 'signature_id': signature_id }
 
+def thumb(file_id):
+    output = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+
+    try:
+        args = thumb_cmds[:] + [os.path.join(TMP_DIR, file_id + '.pdf[0]'), output.name]
+        Popen(args, stdout=DEVNULL, stderr=STDOUT).wait()
+        return output.read()
+    except Exception, e:
+        raise e
+    finally:
+        output.close()
+
 
 class InvalidUsage(Exception):
     status_code = 400
@@ -85,7 +106,13 @@ class InvalidUsage(Exception):
         rv['message'] = self.message
         return rv
 
+'''
+Documents
+'''
 
+@app.route('/api/documents', methods=['GET'])
+def get_documents_list(uuid):
+    return jsonify('test_one')
 
 @app.route('/api/documents/upload', methods=['POST'])
 def document_upload():
@@ -95,6 +122,19 @@ def document_upload():
         print(e)
         raise InvalidUsage(e.message, status_code=500)
 
+@app.route('/api/documents/thumb/<uuid>', methods=['GET'])
+def thumbview(uuid):
+    try:
+        result = thumb(uuid)
+        return send_file(BytesIO(result),
+                         mimetype='image/png')
+    except Exception as e:
+        print(e)
+        raise InvalidUsage(e.message, status_code=500)
+
+'''
+Signatures
+'''
 @app.route('/api/signatures/upload', methods=['POST'])
 def signature_upload():
     try:
@@ -128,7 +168,9 @@ def signature(id):
         print(e)
         raise InvalidUsage(e.message, status_code=500)
 
-
+'''
+Sign
+'''
 @app.route('/api/sign', methods=['POST'])
 def sign():
     file = request.files['file']
@@ -143,10 +185,6 @@ def sign():
     file_id = sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale)
 
     return jsonify({ 'file_id': file_id })
-
-@app.route('/api/documents', methods=['GET'])
-def get_documents_list(uuid):
-    return jsonify('test_one')
 
 
 @app.route('/api/signed-documents/<uuid>', methods=['GET'])

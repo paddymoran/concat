@@ -4,22 +4,22 @@ import DragContextDocumentHandler from './dragContextDocumentHandler';
 import { Glyphicon } from 'react-bootstrap';
 import { removeDocument } from './actions';
 import DocumentList from './documentList';
+import axios from 'axios';
 
 interface DocumentTrayProps {
     documents: Sign.Documents;
     form: any;
-    updateDocument: Function;
     removeDocument: Function;
 }
-
 class DocumentTray extends React.Component<DocumentTrayProps, {}> {
+
     render() {
         return (
             <div className='container'>
                 <h1 className="title">Upload Documents</h1>
                 <div className="sub-title">Step 2</div>
 
-                <DragContextDocumentHandler  />
+                <DragContextDocumentHandler />
 
                 <h2>Documents</h2>
 

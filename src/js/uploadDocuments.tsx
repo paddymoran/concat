@@ -81,22 +81,20 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
 
     render() {
         return (
-            <div className="container">
-                <FileDropZone onDrop={this.fileDrop}>
-                    <div className="explanation" onClick={this.onClick}>
-                        Drag PDFs here to sign them
-                        <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
-                    </div>
+            <FileDropZone onDrop={this.fileDrop}>
+                <div className="explanation" onClick={this.onClick}>
+                    Drag PDFs here to sign them
+                    <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
+                </div>
+                
+                <div className="container">
+                    <DocumentList documents={this.props.documents} removeDocument={this.props.removeDocument} />
                     
-                    <div className="container">
-                        <DocumentList documents={this.props.documents} removeDocument={this.props.removeDocument} />
-                        
-                        <div className="button-bar">
-                            <a href={''} className="btn btn-primary">Sign</a>
-                        </div>
+                    <div className="button-bar">
+                        <a href={''} className={'btn btn-primary ' + (this.props.documents.filelist.length === 0 ? 'disabled' : '')}>Sign</a>
                     </div>
-                </FileDropZone>
-            </div>
+                </div>
+            </FileDropZone>
         );
     }
 }

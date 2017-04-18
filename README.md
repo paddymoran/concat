@@ -4,6 +4,10 @@ webpack --watch
 python server.py
 
 
+# Dev setup
+
+install imagemagick and ghostscript
+
 # Backend tests
 
 CONFIG_FILE=config_test.py python -m unittest discover

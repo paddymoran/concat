@@ -26,12 +26,53 @@ def connect_db_config(config):
 def add_signature(user_id, binary_file_data):
     db = get_db()
     with db.cursor() as cursor:
-        cursor.execute("INSERT INTO signatures (user_id, signature) VALUES (%(user_id)s, %(blob)s) RETURNING id", {
+        cursor.execute("INSERT INTO signatures (user_id, signature) VALUES (%(user_id)s, %(blob)s) RETURNING signture_id", {
             'user_id': user_id,
             'blob': psycopg2.Binary(binary_file_data)
         })
         db.commit()
         return cursor.fetchone()[0]
+
+def find_or_create_and_validate_document_set(set_id, user_id):
+    db = get_db()
+    with db.cursor() as cursor:
+        cursor.execute("SELECT user_id FROM document_sets WHERE document_set_id = %(set_id)s", {
+            'set_id': set_id,
+        })
+        result = cursor.fetchone()
+
+        if not result:
+            cursor.execute("INSERT INTO document_sets (document_set_id, user_id) VALUES (%(set_id)s, %(user_id)s)", {
+                'set_id': set_id,
+                'user_id': user_id
+            })
+
+            db.commit()
+        elif result[0] != user_id:
+            raise Exception
+
+def add_document(set_id, filename, binary_file_data):
+    db = get_db()
+    with db.cursor() as cursor:
+        cursor.execute("INSERT INTO document_data (data) VALUES (%(blob)s) RETURNING document_data_id", {
+            'blob': psycopg2.Binary(binary_file_data)
+        })
+        data_id = cursor.fetchone()[0]
+
+        cursor.execute("INSERT INTO documents (document_set_id, filename, document_data_id) VALUES (%(set_id)s, %(filename)s, %(document_data_id)s) RETURNING document_id", {
+            'set_id': set_id,
+            'filename': filename,
+            'document_data_id': data_id
+        })
+        document_id = cursor.fetchone()[0]
+
+        db.commit()
+
+        return {
+            'document_id': document_id,
+            'filename': filename
+        }
+
 
 def get_signatures_for_user(user_id):
     db = get_db()
@@ -61,12 +102,16 @@ def get_signature(signature_id, user_id):
 
 
 def upsert_user(user):
+    print(user)
     db = get_db()
     query = """INSERT INTO users (user_id, name, email)
         VALUES (%(user_id)s, %(name)s, %(email)s)
         ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s; """
     with db.cursor() as cursor:
         cursor.execute(query, user)
+    
+    db.commit()
+    
     return
 
 

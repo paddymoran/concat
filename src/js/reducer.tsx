@@ -9,7 +9,7 @@ const documents = (state: Sign.Documents = {filelist: []}, action: Sign.Document
         case "ADD_DOCUMENTS":
             return Object.assign({}, state, {filelist: state.filelist.concat(action.payload.map((f: Sign.Document) => {
                 f.id = index++;
-                f.status = Sign.DocumentUploadStatus.InProgress;
+                f.status = Sign.DocumentUploadStatus.NotStarted;
                 return f;
             }))});
         case "REMOVE_DOCUMENTS":

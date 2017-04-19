@@ -1,5 +1,6 @@
 declare namespace Sign {
     const enum DocumentUploadStatus {
+        NotStarted,
         InProgress,
         Complete
     }

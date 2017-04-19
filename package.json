@@ -33,7 +33,8 @@
     "redux-logger": "^3.0.1",
     "redux-thunk": "^2.2.0",
     "typescript": "^2.2.2",
-    "url-loader": "^0.5.7"
+    "url-loader": "^0.5.7",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.2",

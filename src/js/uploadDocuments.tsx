@@ -6,6 +6,7 @@ import { addDocuments, removeDocument, updateDocument } from './actions';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import axios from 'axios';
+// import uuidv4 from 'uuid/v4';
 
 interface UploadDocumentsProps {
     documents: Sign.Documents;
@@ -14,13 +15,10 @@ interface UploadDocumentsProps {
     updateDocument: Function;
 }
 
-function eachSeries(arr: Array<any>, iteratorFn: Function) {
-    return arr.reduce(function (p, item) {
-        return p.then(function () {
-            return iteratorFn(item);
-        });
-    }, Promise.resolve());
-}
+const eachSeries = (arr: Array<any>, iteratorFn: Function) => arr.reduce(
+    (p, item) => p.then(() => iteratorFn(item)),
+    Promise.resolve()
+);
 
 
 class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
@@ -42,12 +40,19 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
     }
 
     uploadDocuments(props: UploadDocumentsProps) {
-        const unUploaded = props.documents.filelist.filter(d => !d.status);
-        unUploaded.map(doc => {
-            props.updateDocument({ id: doc.id, status: 'posting', progress: 0 });
-        });
+        const unUploaded = props.documents.filelist.filter(doc => doc.status === Sign.DocumentUploadStatus.NotStarted);
+
+        // Set each of the un-uploaded docs status to 'in progress' and the progress to 0
+        unUploaded.map(doc => props.updateDocument({
+            id: doc.id,
+            status: Sign.DocumentUploadStatus.InProgress,
+            progress: 0
+        }));
+
+
         eachSeries(unUploaded, (doc: Sign.Document) => {
             const data = new FormData();
+            data.append('document_set_id', '3953b86f-896e-4884-86cc-985673700c27');
             data.append('file[]', doc.file);
 
             const onUploadProgress = (progressEvent: any) => {
@@ -56,10 +61,14 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                 props.updateDocument({ id: doc.id, progress: percentCompleted });
             }
 
-            return axios.post('/api/documents/upload', data, { onUploadProgress: onUploadProgress })
+            return axios.post('/api/documents/upload', data, { onUploadProgress })
                 .then((response) => {
-                    console.log(response);
-                    props.updateDocument({ id: doc.id, status: 'complete', uuid: response.data[doc.filename] });
+                    // Complete the document upload and save the UUID
+                    props.updateDocument({
+                        id: doc.id,
+                        status: Sign.DocumentUploadStatus.Complete,
+                        uuid: response.data[doc.filename]
+                    });
                 })
         });
     }
@@ -82,6 +91,9 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
     render() {
         return (
             <FileDropZone onDrop={this.fileDrop}>
+                <h1 className="title">Upload Documents</h1>
+                <div className="sub-title">Step 2</div>
+
                 <div className="explanation" onClick={this.onClick}>
                     Drag PDFs here to sign them
                     <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>

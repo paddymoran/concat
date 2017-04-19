@@ -29,20 +29,20 @@ TMP_DIR = '/tmp/.catalex_sign/'
 SIGNATURE_FILE_PREFIX = 'signature_'
 SIGNED_FILE_PREFIX = 'signed_'
 
+ALLOWED_PDF_MIME_TYPES = ['application/pdf', 'application/x-pdf', 'application/acrobat', 'applications/vnd.pdf', 'text/pdf', 'text/x-pd']
+
 thumb_cmds = ['convert', '-thumbnail', '150x', '-background', 'white', '-alpha', 'remove']
 
 
-def upload_document(files):
-    uuids = {}
+def upload_document(files, set_id, user_id):
+    document_info = []
 
+    db.find_or_create_and_validate_document_set(set_id, user_id)
     for file in files:
-        file_id = str(uuid.uuid4())
-        uuids[file.filename] = file_id
+        if not file.content_type or file.content_type in ALLOWED_PDF_MIME_TYPES:
+            document_info.append(db.add_document(set_id, file.filename, file.read()))
 
-        path = os.path.join(TMP_DIR, file_id + '.pdf')
-        file.save(path)
-
-    return uuids
+    return document_info
 
 
 def generate_signed_filename(file_id):
@@ -117,7 +117,10 @@ def get_documents_list(uuid):
 @app.route('/api/documents/upload', methods=['POST'])
 def document_upload():
     try:
-        return jsonify(upload_document(request.files.getlist("file[]")))
+        files = request.files.getlist('file[]')
+        set_id = request.form.get('document_set_id')
+        user_id = session['user_id']
+        return jsonify(upload_document(files, set_id, user_id))
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)
@@ -199,9 +202,14 @@ def get_signed_pdf(uuid):
 
 @app.route('/api/login', methods=['GET'])
 def login():
+    user_data = {}
+
     if app.config.get('DEV_USER_ID'):
-        session['user_id'] = app.config.get('DEV_USER_ID')
-        session['user_name'] = 'Dev User'
+        user_data = {
+            'user_id': app.config.get('DEV_USER_ID'),
+            'name': 'Dev User',
+            'email': 'dev@user.com'
+        }
     else:
         args = request.args
         provided_code = args.get('code')
@@ -222,9 +230,11 @@ def login():
 
         response = requests.get(app.config.get('AUTH_SERVER') + '/api/user', params={'access_token': access_data['access_token']})
         user_data = response.json()
+        user_data['user_id'] = user_data['id']
 
-        session['user_id'] = user_data['id']
-        session['user_name'] = user_data['email']
+    db.upsert_user(user_data)
+    
+    session['user_id'] = user_data['user_id']
 
     return redirect(url_for('catch_all'))
 

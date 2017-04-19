@@ -1,4 +1,4 @@
-from db import  upsert_user, add_document, find_or_create_and_validate_document_set, get_document
+from db import  upsert_user, add_document, find_or_create_and_validate_document_set, get_document, get_set_info
 from tests import DBTestCase
 import uuid
 import server
@@ -23,3 +23,8 @@ class TestDocumentUpload(DBTestCase):
             document_info = get_document(USER_ID, result['document_id'])
             self.assertEqual('dbe5c4a1c0f4d8bd595b4465a81dd4b4adbf16685fd46c5668761b73ecb18de0', document_info['hash'])
             self.assertEqual(binary_data, str(document_info['data']))
+
+            set_info = get_set_info(USER_ID, set_id)
+
+            self.assertEqual(len(set_info['documents']), 1)
+            self.assertEqual(set_info['documents'][0]['filename'], 'filename')

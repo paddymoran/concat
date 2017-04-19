@@ -7,7 +7,7 @@ interface DocumentViewProps {
 }
 
 interface DocumentListProps {
-    documents: Sign.Documents;
+    documents: Sign.Document[];
     removeDocument: Function;
 };
 
@@ -19,9 +19,6 @@ const DocumentView = (props: DocumentViewProps) => (
         <div className="filename">{ props.document.filename }</div>
         
         <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>
-            <div className="progress" key="progress">
-                    <div className="progress-bar progress-bar-striped active" style={{width: `${props.document.progress*100}%`}}></div>
-                </div>
             { props.document.status === Sign.DocumentUploadStatus.InProgress &&
                 <div className="progress" key="progress">
                     <div className="progress-bar progress-bar-striped active" style={{width: `${props.document.progress*100}%`}}></div>
@@ -33,7 +30,7 @@ const DocumentView = (props: DocumentViewProps) => (
 
 const DocumentList = (props: DocumentListProps) => (
     <div className="document-list clearfix">
-        { props.documents.filelist.map((document: Sign.Document) => 
+        { props.documents.map((document: Sign.Document) => 
             <DocumentView
                 document={document}
                 key={document.id}

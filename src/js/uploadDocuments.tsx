@@ -2,16 +2,17 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocuments, removeDocument, updateDocument } from './actions';
+import { addDocuments, removeDocument, updateDocument, setDocumentSetId } from './actions';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import axios from 'axios';
-// import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 
 interface UploadDocumentsProps {
-    documents: Sign.Documents;
+    documentSet: Sign.DocumentSet;
     addDocuments: (files: File[]) => void;
     removeDocument: (id: number) => void;
+    setDocumentSetId: () => void;
     updateDocument: Function;
 }
 
@@ -36,11 +37,15 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
     }
 
     componentWillMount() {
+        if (!this.props.documentSet.id) {
+            this.props.setDocumentSetId();
+        }
+
         this.uploadDocuments(this.props);
     }
 
     uploadDocuments(props: UploadDocumentsProps) {
-        const unUploaded = props.documents.filelist.filter(doc => doc.status === Sign.DocumentUploadStatus.NotStarted);
+        const unUploaded = props.documentSet.documents.filter(doc => doc.status === Sign.DocumentUploadStatus.NotStarted);
 
         // Set each of the un-uploaded docs status to 'in progress' and the progress to 0
         unUploaded.map(doc => props.updateDocument({
@@ -52,7 +57,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
 
         eachSeries(unUploaded, (doc: Sign.Document) => {
             const data = new FormData();
-            data.append('document_set_id', '3953b86f-896e-4884-86cc-985673700c27');
+            data.append('document_set_id', this.props.documentSet.id);
             data.append('file[]', doc.file);
 
             const onUploadProgress = (progressEvent: any) => {
@@ -100,10 +105,10 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                 </div>
                 
                 <div className="container">
-                    <DocumentList documents={this.props.documents} removeDocument={this.props.removeDocument} />
+                    <DocumentList documents={this.props.documentSet.documents} removeDocument={this.props.removeDocument} />
                     
                     <div className="button-bar">
-                        <a href={''} className={'btn btn-primary ' + (this.props.documents.filelist.length === 0 ? 'disabled' : '')}>Sign</a>
+                        <a href={''} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>Sign</a>
                     </div>
                 </div>
             </FileDropZone>
@@ -114,9 +119,10 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
 const DNDUploadDocuments = DragDropContext(HTML5Backend)(UploadDocuments)
 
 export default connect(state => ({
-    documents: state.documents
+    documentSet: state.documentSet
 }), {
     addDocuments: (files: File[]) => addDocuments(files.map((file) => ({ filename: file.name, file }))),
     removeDocument: removeDocument,
-    updateDocument: updateDocument
+    updateDocument: updateDocument,
+    setDocumentSetId: () => setDocumentSetId(uuidv4())
 })(DNDUploadDocuments);

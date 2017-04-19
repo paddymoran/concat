@@ -7,7 +7,7 @@ import { addDocuments } from './actions';
 
 interface DocumentHandlerProps {
     addDocuments:(files: any) => void,
-    documents: Sign.Documents,
+    documentSet: Sign.DocumentSet,
     form: any,
 }
 
@@ -37,7 +37,7 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
     }
 
     render() {
-        const loaded = !!this.props.documents.filelist.length && this.props.documents.filelist.every((f => f.status === Sign.DocumentUploadStatus.Complete));
+        const loaded = !!this.props.documentSet.documents.length && this.props.documentSet.documents.every((f => f.status === Sign.DocumentUploadStatus.Complete));
         return  (
             <FileDropZone onDrop={this.onDrop}>
                 <div className="explanation" onClick={this.onClick}>
@@ -52,7 +52,7 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
 const DragContext = DragDropContext(HTML5Backend)(DocumentHandler)
 
 export default connect(state => ({
-    documents: state.documents,
+    documentSet: state.documentSet,
     form: state.form
 }), {
     addDocuments: (files: File[]) => addDocuments(files.map((file) => ({ filename: file.name, file })))

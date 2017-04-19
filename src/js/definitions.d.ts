@@ -16,13 +16,14 @@ declare namespace Sign {
         progress?: number;
     }
 
-    export interface Documents {
-        filelist: Document[];
+    export interface DocumentSet {
+        id?: string;
+        documents: Document[];
     }
 
     export interface State {
         routing: any;
-        documents: Documents;
+        documentSet: DocumentSet;
     }
 
     export interface Action<T> {

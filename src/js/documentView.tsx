@@ -60,4 +60,4 @@ class DocumentView extends React.Component<DocumentViewProps, DocumentViewState>
     }
 }
 
-export default connect(state => ({ documents: state.documents }), { updateDocument: updateDocument })(DocumentView);
+export default connect(state => ({ documents: state.documentSet }), { updateDocument: updateDocument })(DocumentView);

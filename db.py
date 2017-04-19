@@ -164,22 +164,22 @@ def sign_document(user_id, sign_request_id, data):
     pass
 
 
-def get_set(user_id, set_id):
+def get_set_info(user_id, set_id):
     db = get_db()
     query = """
-        SELECT * FROM document_sets
-        JOIN document_set_mapper ON document_sets.document_set_id = document_set_mapper.document_id
-        JOIN documents ON document_set_mapper.document_set_id = documents.document_id
-        WHERE document_sets.user_id = %(user_id)s AND document_sets.document_set_id = %(set_id)s
+    SELECT row_to_json(qq) FROM (
+        SELECT %(set_id)s as document_set_id, array_to_json(array_agg(row_to_json(q))) as documents  FROM (
+            SELECT d.* FROM document_sets ds
+            JOIN documents d ON ds.document_set_id = d.document_set_id
+            WHERE ds.user_id = %(user_id)s  AND ds.document_set_id = %(set_id)s
+            ) q
+        ) qq
     """
     with db.cursor() as cursor:
         cursor.execute(query, {
             'user_id': user_id,
             'set_id': set_id
         })
-        data = cursor.fetchall()
+        data = cursor.fetchone()[0]
         return data
 
-
-def create_set(user_id, data):
-    pass

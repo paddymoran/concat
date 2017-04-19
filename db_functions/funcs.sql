@@ -1,1 +1,12 @@
-select 1;
+CREATE OR REPLACE FUNCTION document_hash()
+RETURNS trigger AS $$
+BEGIN
+    NEW.hash = encode(digest(data, 'sha256'), 'hex') FROM document_data WHERE document_data_id = NEW.document_data_id;
+    RETURN NEW;
+END $$ LANGUAGE 'plpgsql';
+
+
+CREATE TRIGGER document_hash_trigger
+    BEFORE INSERT ON documents
+    FOR EACH ROW
+    EXECUTE PROCEDURE document_hash();

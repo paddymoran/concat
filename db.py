@@ -142,10 +142,12 @@ def get_user_document_sets(user_id):
 def get_document(user_id, document_id):
     db = get_db()
     query = """
-        SELECT * FROM documents
-        WHERE documents.user_id = %(user_id)s AND documents.document_id = %(document_id)s
+        SELECT document_id, d.document_set_id, hash, filename, data FROM documents d
+        JOIN document_sets ds on ds.document_set_id = d.document_set_id
+        JOIN document_data dd on d.document_data_id = dd.document_data_id
+        WHERE user_id = %(user_id)s AND d.document_id = %(document_id)s
     """
-    with db.cursor() as cursor:
+    with db.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {
             'user_id': user_id,
             'document_id': document_id

@@ -1,3 +1,4 @@
+DROP TRIGGER IF EXISTS document_hash_trigger ON public.documents;
 DROP TABLE IF EXISTS public.signatures;
 
 

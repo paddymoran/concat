@@ -26,7 +26,7 @@ def connect_db_config(config):
 def add_signature(user_id, binary_file_data):
     db = get_db()
     with db.cursor() as cursor:
-        cursor.execute("INSERT INTO signatures (user_id, signature) VALUES (%(user_id)s, %(blob)s) RETURNING signture_id", {
+        cursor.execute("INSERT INTO signatures (user_id, signature) VALUES (%(user_id)s, %(blob)s) RETURNING signature_id", {
             'user_id': user_id,
             'blob': psycopg2.Binary(binary_file_data)
         })
@@ -102,16 +102,15 @@ def get_signature(signature_id, user_id):
 
 
 def upsert_user(user):
-    print(user)
     db = get_db()
     query = """INSERT INTO users (user_id, name, email)
         VALUES (%(user_id)s, %(name)s, %(email)s)
         ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s; """
     with db.cursor() as cursor:
         cursor.execute(query, user)
-    
+
     db.commit()
-    
+
     return
 
 
@@ -155,7 +154,7 @@ def get_document(user_id, document_id):
 
         if first_row is None:
             return None
-        
+
         return first_row
 
 

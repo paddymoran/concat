@@ -21,5 +21,3 @@ class TestPopulateSignatures(DBTestCase):
             add_signature(1, 'abcd')
             signatures = get_signatures_for_user(1)
             self.assertEqual(len(signatures), 2)
-
-

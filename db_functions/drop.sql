@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS public.signatures;
 
-DROP TABLE IF EXISTS public.document_data;
+
 
 DROP TABLE IF EXISTS public.sign_results;
 
@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS public.document_set_mapper;
 DROP TABLE IF EXISTS public.documents;
 
 DROP TABLE IF EXISTS  public.document_sets;
-
+DROP TABLE IF EXISTS public.document_data;
 DROP SEQUENCE IF EXISTS public.signatures_id_seq;
 
 DROP TABLE IF EXISTS public.users;

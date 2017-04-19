@@ -10,7 +10,7 @@ class DBTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         with server.app.app_context():
-            load_functions(get_db(), ['drop.sql', 'seed.sql'])
+            load_functions(get_db(), ['drop.sql', 'seed.sql', 'funcs.sql'])
 
     @classmethod
     def tearDownClass(cls):

@@ -1,6 +1,6 @@
 import unittest
 from db import get_db, close_db
-from migration import load_functions
+from migrate import load_functions
 import server
 from flask import current_app
 

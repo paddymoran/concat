@@ -3,7 +3,10 @@ import errno
 import logging
 import json
 import sys
-from flask import Flask, request, redirect, send_file, jsonify, session, abort, url_for, send_from_directory
+from flask import (
+    Flask, request, redirect, send_file, jsonify, session, abort, url_for,
+    send_from_directory
+)
 import db
 import requests
 import os
@@ -21,7 +24,8 @@ except ImportError:
 logging.basicConfig()
 
 app = Flask(__name__, static_url_path='', static_folder='public')
-app.config.from_pyfile(os.path.join(os.getcwd(), os.environ.get('CONFIG_FILE') or sys.argv[1]))
+config_file_path = os.environ.get('CONFIG_FILE') or sys.argv[1]
+app.config.from_pyfile(os.path.join(os.getcwd(), config_file_path))
 
 PORT = app.config.get('PORT')
 
@@ -29,9 +33,14 @@ TMP_DIR = '/tmp/.catalex_sign/'
 SIGNATURE_FILE_PREFIX = 'signature_'
 SIGNED_FILE_PREFIX = 'signed_'
 
-ALLOWED_PDF_MIME_TYPES = ['application/pdf', 'application/x-pdf', 'application/acrobat', 'applications/vnd.pdf', 'text/pdf', 'text/x-pd']
+ALLOWED_PDF_MIME_TYPES = [
+    'application/pdf', 'application/x-pdf', 'application/acrobat',
+    'applications/vnd.pdf', 'text/pdf', 'text/x-pd'
+]
 
-thumb_cmds = ['convert', '-thumbnail', '150x', '-background', 'white', '-alpha', 'remove']
+thumb_cmds = [
+    'convert', '-thumbnail', '150x', '-background', 'white', '-alpha', 'remove'
+]
 
 
 def upload_document(files, set_id, user_id):
@@ -39,8 +48,11 @@ def upload_document(files, set_id, user_id):
 
     db.find_or_create_and_validate_document_set(set_id, user_id)
     for file in files:
-        if not file.content_type or file.content_type in ALLOWED_PDF_MIME_TYPES:
-            document_info.append(db.add_document(set_id, file.filename, file.read()))
+        if (not file.content_type or
+                file.content_type in ALLOWED_PDF_MIME_TYPES):
+            document_info.append(db.add_document(
+                set_id, file.filename, file.read()
+            ))
 
     return document_info
 
@@ -49,18 +61,25 @@ def generate_signed_filename(file_id):
     return SIGNED_FILE_PREFIX + file_id + '.pdf'
 
 
-def sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale):
+def sign_document(
+        file, signature_id, user_id, page_number, x_offset, y_offset,
+        x_scale, y_scale):
     pdf_filepath = upload_document(file)
     signed_file_id = str(uuid.uuid4())
     signed_filename = generate_signed_filename(signed_file_id)
 
     signature_filepath = save_temp_signature(signature_id, user_id)
 
-    Popen(['bash', './sign.sh', pdf_filepath, str(page_number), signature_filepath, str(x_offset), str(y_offset), str(x_scale), str(y_scale), os.path.join(TMP_DIR, signed_filename)],
-        stdout=DEVNULL,
-        stderr=STDOUT).wait()
+    sign_command = [
+        'bash', './sign.sh', pdf_filepath, str(page_number),
+        signature_filepath, str(x_offset), str(y_offset), str(x_scale),
+        str(y_scale), os.path.join(TMP_DIR, signed_filename)
+    ]
+
+    Popen(sign_command, stdout=DEVNULL, stderr=STDOUT).wait()
 
     return signed_file_id
+
 
 def save_temp_signature(signature_id, user_id):
     signature_binary = db.get_signature(signature_id, user_id)
@@ -74,15 +93,21 @@ def save_temp_signature(signature_id, user_id):
 
     return signature_filepath
 
+
 def upload_signature(base64Image):
-    signature_id = db.add_signature(session['user_id'], str(base64Image.split(",")[1].decode('base64')))
-    return { 'signature_id': signature_id }
+    signature_id = db.add_signature(
+        session['user_id'],
+        str(base64Image.split(",")[1].decode('base64'))
+    )
+    return {'signature_id': signature_id}
+
 
 def thumb(file_id):
     output = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
 
     try:
-        args = thumb_cmds[:] + [os.path.join(TMP_DIR, file_id + '.pdf[0]'), output.name]
+        pdf_first_page_path = os.path.join(TMP_DIR, file_id + '.pdf[0]')
+        args = thumb_cmds[:] + [pdf_first_page_path, output.name]
         Popen(args, stdout=DEVNULL, stderr=STDOUT).wait()
         return output.read()
     except Exception, e:
@@ -110,11 +135,13 @@ class InvalidUsage(Exception):
 Documents
 '''
 
+
 @app.route('/api/documents', methods=['GET'])
 def get_documents_list(uuid):
     return jsonify('test_one')
 
-@app.route('/api/documents/upload', methods=['POST'])
+
+@app.route('/api/documents', methods=['POST'])
 def document_upload():
     try:
         files = request.files.getlist('file[]')
@@ -124,6 +151,7 @@ def document_upload():
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)
+
 
 @app.route('/api/documents/thumb/<uuid>', methods=['GET'])
 def thumbview(uuid):
@@ -138,6 +166,8 @@ def thumbview(uuid):
 '''
 Signatures
 '''
+
+
 @app.route('/api/signatures/upload', methods=['POST'])
 def signature_upload():
     try:
@@ -157,6 +187,7 @@ def signatures_list():
         print(e)
         raise InvalidUsage(e.message, status_code=500)
 
+
 @app.route('/api/signatures/<id>', methods=['GET'])
 def signature(id):
     try:
@@ -174,6 +205,8 @@ def signature(id):
 '''
 Sign
 '''
+
+
 @app.route('/api/sign', methods=['POST'])
 def sign():
     file = request.files['file']
@@ -185,19 +218,25 @@ def sign():
     x_scale = request.form['width_ratio']
     y_scale = request.form['height_ratio']
 
-    file_id = sign_document(file, signature_id, user_id, page_number, x_offset, y_offset, x_scale, y_scale)
+    file_id = sign_document(
+        file, signature_id, user_id, page_number, x_offset, y_offset, x_scale,
+        y_scale
+    )
 
-    return jsonify({ 'file_id': file_id })
+    return jsonify({'file_id': file_id})
 
 
 @app.route('/api/signed-documents/<uuid>', methods=['GET'])
 def get_signed_pdf(uuid):
     filepath = os.path.join(TMP_DIR, generate_signed_filename(uuid))
+    filename = request.args.get('filename', 'signed-document.pdf')
 
-    return send_file(filepath,
-             attachment_filename=request.args.get('filename', 'signed-document.pdf'),
-             as_attachment=True,
-             mimetype='application/pdf')
+    return send_file(
+        filepath,
+        attachment_filename=filename,
+        as_attachment=True,
+        mimetype='application/pdf'
+    )
 
 
 @app.route('/api/login', methods=['GET'])
@@ -225,15 +264,21 @@ def login():
             'redirect_uri': app.config.get('LOGIN_URL')
         }
 
-        response = requests.post(app.config.get('AUTH_SERVER') + '/oauth/access_token', data=params)
+        response = requests.post(
+            app.config.get('AUTH_SERVER') + '/oauth/access_token',
+            data=params
+        )
         access_data = response.json()
 
-        response = requests.get(app.config.get('AUTH_SERVER') + '/api/user', params={'access_token': access_data['access_token']})
+        response = requests.get(
+            app.config.get('AUTH_SERVER') + '/api/user',
+            params={'access_token': access_data['access_token']}
+        )
+
         user_data = response.json()
         user_data['user_id'] = user_data['id']
 
     db.upsert_user(user_data)
-    
     session['user_id'] = user_data['user_id']
 
     return redirect(url_for('catch_all'))
@@ -250,6 +295,7 @@ def logout():
 def catch_all(path):
     return send_from_directory(app.static_folder, 'index.html')
 
+
 @app.errorhandler(404)
 def send_index(path):
     return send_from_directory(app.static_folder, 'index.html')
@@ -262,10 +308,9 @@ def handle_invalid_usage(error):
     return response
 
 
-
 @app.before_request
 def before_request():
-    if not 'user_id' in session and request.endpoint is not 'login':
+    if 'user_id' not in session and request.endpoint is not 'login':
         return redirect(url_for('login'))
 
 

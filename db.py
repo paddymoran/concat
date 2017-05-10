@@ -2,10 +2,12 @@ import psycopg2
 import psycopg2.extras
 from flask import g, current_app
 
+
 def get_db():
     if not hasattr(g, 'db') or g.db.closed:
         g.db = connect_db()
     return g.db
+
 
 def close_db():
     if hasattr(g, 'db') and not g.db.closed:
@@ -15,6 +17,7 @@ def close_db():
 def connect_db():
     return connect_db_config(current_app.config)
 
+
 def connect_db_config(config):
     connection = psycopg2.connect(
         database=config['DB_NAME'],
@@ -23,26 +26,44 @@ def connect_db_config(config):
         host=config['DB_HOST'])
     return connection
 
+
 def add_signature(user_id, binary_file_data):
     db = get_db()
     with db.cursor() as cursor:
-        cursor.execute("INSERT INTO signatures (user_id, signature) VALUES (%(user_id)s, %(blob)s) RETURNING signature_id", {
+        query = """
+            INSERT INTO signatures (user_id, signature)
+            VALUES (%(user_id)s, %(blob)s)
+            RETURNING signature_id
+        """
+
+        cursor.execute(query, {
             'user_id': user_id,
             'blob': psycopg2.Binary(binary_file_data)
         })
         db.commit()
         return cursor.fetchone()[0]
 
+
 def find_or_create_and_validate_document_set(set_id, user_id):
     db = get_db()
     with db.cursor() as cursor:
-        cursor.execute("SELECT user_id FROM document_sets WHERE document_set_id = %(set_id)s", {
+        find_doc_set_query = """
+            SELECT user_id
+            FROM document_sets
+            WHERE document_set_id = %(set_id)s
+        """
+        cursor.execute(find_doc_set_query, {
             'set_id': set_id,
         })
         result = cursor.fetchone()
 
         if not result:
-            cursor.execute("INSERT INTO document_sets (document_set_id, user_id) VALUES (%(set_id)s, %(user_id)s)", {
+            create_doc_set_query = """
+                INSERT INTO document_sets (document_set_id, user_id)
+                VALUES (%(set_id)s, %(user_id)s)
+            """
+
+            cursor.execute(create_doc_set_query, {
                 'set_id': set_id,
                 'user_id': user_id
             })
@@ -51,15 +72,28 @@ def find_or_create_and_validate_document_set(set_id, user_id):
         elif result[0] != user_id:
             raise Exception
 
+
 def add_document(set_id, filename, binary_file_data):
     db = get_db()
     with db.cursor() as cursor:
-        cursor.execute("INSERT INTO document_data (data) VALUES (%(blob)s) RETURNING document_data_id", {
+        create_doc_data_query = """
+            INSERT INTO document_data (data)
+            VALUES (%(blob)s)
+            RETURNING document_data_id
+        """
+
+        cursor.execute(create_doc_data_query, {
             'blob': psycopg2.Binary(binary_file_data)
         })
         data_id = cursor.fetchone()[0]
 
-        cursor.execute("INSERT INTO documents (document_set_id, filename, document_data_id) VALUES (%(set_id)s, %(filename)s, %(document_data_id)s) RETURNING document_id", {
+        create_doc_data_query = """
+            INSERT INTO documents (document_set_id, filename, document_data_id)
+            VALUES (%(set_id)s, %(filename)s, %(document_data_id)s)
+            RETURNING document_id
+        """
+
+        cursor.execute(create_doc_data_query, {
             'set_id': set_id,
             'filename': filename,
             'document_data_id': data_id
@@ -77,19 +111,33 @@ def add_document(set_id, filename, binary_file_data):
 def get_signatures_for_user(user_id):
     db = get_db()
     with db.cursor() as cursor:
-        cursor.execute("SELECT signature_id FROM signatures WHERE user_id = %(user_id)s AND deleted IS FALSE", {'user_id': user_id})
+        query = """
+            SELECT signature_id
+            FROM signatures
+            WHERE user_id = %(user_id)s
+                AND deleted IS FALSE
+        """
+        cursor.execute(query, {'user_id': user_id})
         signatures = cursor.fetchall()
         return_data = []
 
         for signature in signatures:
-            return_item = { 'id': signature[0] }
+            return_item = {'id': signature[0]}
             return_data.append(return_item)
         return return_data
+
 
 def get_signature(signature_id, user_id):
     db = get_db()
     with db.cursor() as cursor:
-        cursor.execute("SELECT signature FROM signatures WHERE signature_id = %(signature_id)s AND user_id = %(user_id)s AND deleted IS FALSE", {
+        query = """
+            SELECT signature
+            FROM signatures
+            WHERE signature_id = %(signature_id)s
+                AND user_id = %(user_id)s
+                AND deleted IS FALSE
+        """
+        cursor.execute(query, {
             'signature_id': signature_id,
             'user_id': user_id,
         })
@@ -103,9 +151,11 @@ def get_signature(signature_id, user_id):
 
 def upsert_user(user):
     db = get_db()
-    query = """INSERT INTO users (user_id, name, email)
+    query = """
+        INSERT INTO users (user_id, name, email)
         VALUES (%(user_id)s, %(name)s, %(email)s)
-        ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s; """
+        ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s;
+    """
     with db.cursor() as cursor:
         cursor.execute(query, user)
 
@@ -117,20 +167,22 @@ def upsert_user(user):
 def get_user_info(user_id):
     db = get_db()
     with db.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
-        cursor.execute("SELECT user_id, name, email from users where user_id = %(user_id)s", {
-            'user_id': user_id,
-        })
+        query = """
+            SELECT user_id, name, email from users where user_id = %(user_id)s
+        """
+        cursor.execute(query, {'user_id': user_id})
         return cursor.fetchone()
-
 
 
 def get_user_document_sets(user_id):
     db = get_db()
     query = """
-        SELECT * FROM document_sets
-        JOIN document_set_mapper ON document_sets.document_set_id = document_set_mapper.document_id
-        JOIN documents ON document_set_mapper.document_set_id = documents.document_id
-        WHERE document_sets.user_id = %(user_id)s
+        SELECT * FROM document_sets sets
+        JOIN document_set_mapper set_mapper ON
+            sets.document_set_id = set_mapper.document_id
+        JOIN documents ON
+            set_mapper.document_set_id = documents.document_id
+        WHERE sets.user_id = %(user_id)s
     """
     with db.cursor() as cursor:
         cursor.execute(query, user_id)
@@ -142,7 +194,8 @@ def get_user_document_sets(user_id):
 def get_document(user_id, document_id):
     db = get_db()
     query = """
-        SELECT document_id, d.document_set_id, hash, filename, data FROM documents d
+        SELECT document_id, d.document_set_id, hash, filename, data
+        FROM documents d
         JOIN document_sets ds on ds.document_set_id = d.document_set_id
         JOIN document_data dd on d.document_data_id = dd.document_data_id
         WHERE user_id = %(user_id)s AND d.document_id = %(document_id)s
@@ -168,7 +221,10 @@ def get_set_info(user_id, set_id):
     db = get_db()
     query = """
     SELECT row_to_json(qq) FROM (
-        SELECT %(set_id)s as document_set_id, array_to_json(array_agg(row_to_json(q))) as documents  FROM (
+        SELECT
+            %(set_id)s as document_set_id,
+            array_to_json(array_agg(row_to_json(q))) as documents
+        FROM (
             SELECT d.* FROM document_sets ds
             JOIN documents d ON ds.document_set_id = d.document_set_id
             WHERE ds.user_id = %(user_id)s  AND ds.document_set_id = %(set_id)s
@@ -182,4 +238,3 @@ def get_set_info(user_id, set_id):
         })
         data = cursor.fetchone()[0]
         return data
-

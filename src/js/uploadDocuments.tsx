@@ -68,7 +68,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                 // Upload the document
                 const data = new FormData();
                 data.append('document_set_id', this.props.documentSet.id);
-                data.append('id', doc.id);
+                data.append('document_id', doc.id);
                 data.append('file[]', doc.file);
 
                 const onUploadProgress = (progressEvent: any) => {

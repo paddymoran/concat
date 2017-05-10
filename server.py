@@ -43,7 +43,7 @@ thumb_cmds = [
 ]
 
 
-def upload_document(files, set_id, user_id):
+def upload_document(files, set_id, document_id, user_id):
     document_info = []
 
     db.find_or_create_and_validate_document_set(set_id, user_id)
@@ -51,7 +51,7 @@ def upload_document(files, set_id, user_id):
         if (not file.content_type or
                 file.content_type in ALLOWED_PDF_MIME_TYPES):
             document_info.append(db.add_document(
-                set_id, file.filename, file.read()
+                set_id, document_id, file.filename, file.read(),
             ))
 
     return document_info
@@ -146,6 +146,7 @@ def document_upload():
     try:
         files = request.files.getlist('file[]')
         set_id = request.form.get('document_set_id')
+        document_id = request.form.get('document_id')
         user_id = session['user_id']
         return jsonify(upload_document(files, set_id, user_id))
     except Exception as e:

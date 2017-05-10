@@ -6,12 +6,11 @@ declare namespace Sign {
     }
 
     export interface Document {
-        id: number;
+        id: string;
         filename: string;
         file: File;
-        arrayBuffer: ArrayBuffer;
         data: ArrayBuffer;
-        uuid?: string;
+        pdfDocumentProxy: PDFDocumentProxy;
         status: DocumentUploadStatus;
         progress?: number;
     }

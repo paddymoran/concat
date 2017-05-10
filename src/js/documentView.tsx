@@ -47,11 +47,11 @@ class DocumentView extends React.Component<DocumentViewProps, DocumentViewState>
 
         return (
             <div className='pdf-screen'>
-                { document.arrayBuffer && <div className='loading' /> }
-                { document.arrayBuffer && 
+                { document.data && <div className='loading' /> }
+                { document.data && 
                     <PDFViewer
                         file={ document }
-                        data={ document.arrayBuffer }  
+                        data={ document.data }  
                         worker={ false }
                         removeDocument={ () => console.log('return to doc tray') } />
                 }

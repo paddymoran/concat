@@ -4,7 +4,7 @@ import * as ReactDOM from "react-dom";
 import { Provider, connect } from 'react-redux';
 import { Store, createStore } from 'redux';
 import configureStore from './configureStore';
-import { addDocuments, updateDocument, submitDocuments, removeDocument, updateForm } from './actions';
+import { addDocument, updateDocument, submitDocuments, removeDocument, updateForm } from './actions';
 import App from './app';
 import routes from './routes';
 import { Router } from 'react-router';
@@ -13,7 +13,7 @@ import { History } from 'history';
 import '../style/style.scss';
 
 const ConnectedApp = connect(state => ({documents: state.documents, form: state.form}), {
-    addDocuments: addDocuments,
+    addDocument: addDocument,
     updateDocument: updateDocument,
     submitDocuments: submitDocuments,
     removeDocument: removeDocument,

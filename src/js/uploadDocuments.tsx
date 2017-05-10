@@ -2,11 +2,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocuments, removeDocument, updateDocument, setDocumentSetId } from './actions';
+import { addDocument, removeDocument, updateDocument, setDocumentSetId } from './actions';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
+import { generateUUID } from './uuid';
 
 interface UploadDocumentsProps {
     documentSet: Sign.DocumentSet;
@@ -14,6 +14,7 @@ interface UploadDocumentsProps {
     removeDocument: (id: number) => void;
     setDocumentSetId: () => void;
     updateDocument: Function;
+    getPDF: Function;
 }
 
 const eachSeries = (arr: Array<any>, iteratorFn: Function) => arr.reduce(
@@ -38,7 +39,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
 
     componentWillMount() {
         if (!this.props.documentSet.id) {
-            this.props.setDocumentSetId();
+            this.props.setDocumentSetId(); // This returns a promise. For now, we'll fire and forget
         }
 
         this.uploadDocuments(this.props);
@@ -54,27 +55,37 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
             progress: 0
         }));
 
-
         eachSeries(unUploaded, (doc: Sign.Document) => {
-            const data = new FormData();
-            data.append('document_set_id', this.props.documentSet.id);
-            data.append('file[]', doc.file);
+            // Read the document
+            const fileReader = new FileReader();
+            fileReader.readAsArrayBuffer(doc.file);
+            fileReader.onload = () => {
+                props.updateDocument({
+                    id: doc.id,
+                    data: fileReader.result,
+                });
 
-            const onUploadProgress = (progressEvent: any) => {
-                // upload loading percentage
-                const percentCompleted = progressEvent.loaded / progressEvent.total;
-                props.updateDocument({ id: doc.id, progress: percentCompleted });
-            }
+                // Upload the document
+                const data = new FormData();
+                data.append('document_set_id', this.props.documentSet.id);
+                data.append('id', doc.id);
+                data.append('file[]', doc.file);
 
-            return axios.post('/api/documents/upload', data, { onUploadProgress })
-                .then((response) => {
-                    // Complete the document upload and save the UUID
-                    props.updateDocument({
-                        id: doc.id,
-                        status: Sign.DocumentUploadStatus.Complete,
-                        uuid: response.data[doc.filename]
+                const onUploadProgress = (progressEvent: any) => {
+                    // upload loading percentage
+                    const percentCompleted = progressEvent.loaded / progressEvent.total;
+                    props.updateDocument({ id: doc.id, progress: percentCompleted });
+                }
+
+                return axios.post('/api/documents', data, { onUploadProgress })
+                    .then((response) => {
+                        // Complete the document upload and save the UUID
+                        return props.updateDocument({
+                            id: doc.id,
+                            status: Sign.DocumentUploadStatus.Complete
+                        });
                     });
-                })
+            };
         });
     }
 
@@ -105,7 +116,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                 </div>
                 
                 <div className="container">
-                    <DocumentList documents={this.props.documentSet.documents} removeDocument={this.props.removeDocument} />
+                    <DocumentList documents={this.props.documentSet.documents} removeDocument={this.props.removeDocument} getPDF={this.props.getPDF} />
                     
                     <div className="button-bar">
                         <a href={''} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>Sign</a>
@@ -121,8 +132,13 @@ const DNDUploadDocuments = DragDropContext(HTML5Backend)(UploadDocuments)
 export default connect(state => ({
     documentSet: state.documentSet
 }), {
-    addDocuments: (files: File[]) => addDocuments(files.map((file) => ({ filename: file.name, file }))),
+    addDocuments: (files: File[]) => {
+        files.map(file => {
+            return generateUUID()
+                .then(uuid => addDocument({ filename: file.name, uuid, file }));
+        });
+    },
     removeDocument: removeDocument,
     updateDocument: updateDocument,
-    setDocumentSetId: () => setDocumentSetId(uuidv4())
+    setDocumentSetId: () => generateUUID().then(setDocumentSetId)
 })(DNDUploadDocuments);

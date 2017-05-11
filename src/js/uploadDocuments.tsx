@@ -10,7 +10,7 @@ import { generateUUID } from './uuid';
 
 interface UploadDocumentsProps {
     documentSet: Sign.DocumentSet;
-    addDocuments: (files: File[]) => void;
+    addDocument: Function;
     removeDocument: (id: number) => void;
     setDocumentSetId: () => void;
     updateDocument: Function;
@@ -34,22 +34,22 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
     }
 
     componentWillReceiveProps(props: UploadDocumentsProps) {
-        this.uploadDocuments(props);
+        this.uploadDocuments(props.documentSet);
     }
 
     componentWillMount() {
         if (!this.props.documentSet.id) {
-            this.props.setDocumentSetId(); // This returns a promise. For now, we'll fire and forget
+            generateUUID().then(this.props.setDocumentSetId)
         }
 
-        this.uploadDocuments(this.props);
+        this.uploadDocuments(this.props.documentSet);
     }
 
-    uploadDocuments(props: UploadDocumentsProps) {
-        const unUploaded = props.documentSet.documents.filter(doc => doc.status === Sign.DocumentUploadStatus.NotStarted);
+    uploadDocuments(documentSet: Sign.DocumentSet) {
+        const unUploaded = documentSet.documents.filter(doc => doc.status === Sign.DocumentUploadStatus.NotStarted);
 
         // Set each of the un-uploaded docs status to 'in progress' and the progress to 0
-        unUploaded.map(doc => props.updateDocument({
+        unUploaded.map(doc => this.props.updateDocument({
             id: doc.id,
             status: Sign.DocumentUploadStatus.InProgress,
             progress: 0
@@ -60,7 +60,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
             const fileReader = new FileReader();
             fileReader.readAsArrayBuffer(doc.file);
             fileReader.onload = () => {
-                props.updateDocument({
+                this.props.updateDocument({
                     id: doc.id,
                     data: fileReader.result,
                 });
@@ -72,25 +72,23 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                 data.append('file[]', doc.file);
 
                 const onUploadProgress = (progressEvent: any) => {
-                    // upload loading percentage
+                    // Update uploading percentage
                     const percentCompleted = progressEvent.loaded / progressEvent.total;
-                    props.updateDocument({ id: doc.id, progress: percentCompleted });
+                    this.props.updateDocument({ id: doc.id, progress: percentCompleted });
                 }
 
+                // Upload the document
                 return axios.post('/api/documents', data, { onUploadProgress })
-                    .then((response) => {
-                        // Complete the document upload and save the UUID
-                        return props.updateDocument({
-                            id: doc.id,
-                            status: Sign.DocumentUploadStatus.Complete
-                        });
-                    });
+                    .then((response) => this.props.updateDocument({ status: Sign.DocumentUploadStatus.Complete }));
             };
         });
     }
 
     fileDrop(files: File[]) {
-        this.props.addDocuments(files);
+        files.map(file => {
+            return generateUUID()
+                .then(uuid => this.props.addDocument({ filename: file.name, id: uuid, file }));
+        });
     }
 
     collectFiles(event: React.ChangeEvent<HTMLInputElement>) {
@@ -132,13 +130,8 @@ const DNDUploadDocuments = DragDropContext(HTML5Backend)(UploadDocuments)
 export default connect(state => ({
     documentSet: state.documentSet
 }), {
-    addDocuments: (files: File[]) => {
-        files.map(file => {
-            return generateUUID()
-                .then(uuid => addDocument({ filename: file.name, uuid, file }));
-        });
-    },
+    addDocument: addDocument,
     removeDocument: removeDocument,
     updateDocument: updateDocument,
-    setDocumentSetId: () => generateUUID().then(setDocumentSetId)
+    setDocumentSetId: setDocumentSetId
 })(DNDUploadDocuments);

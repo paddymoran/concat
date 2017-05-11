@@ -148,7 +148,7 @@ def document_upload():
         set_id = request.form.get('document_set_id')
         document_id = request.form.get('document_id')
         user_id = session['user_id']
-        return jsonify(upload_document(files, set_id, user_id))
+        return jsonify(upload_document(files, set_id, document_id, user_id))
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)

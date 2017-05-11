@@ -7,10 +7,8 @@ const documentSet = (state: Sign.DocumentSet = {documents: []}, action: Sign.Doc
         case "SET_DOCUMENT_SET_ID":
             return Object.assign({}, state, {id: action.payload});
         case "ADD_DOCUMENT":
-            return Object.assign({}, state, {documents: state.documents.concat(action.payload.map((f: Sign.Document) => {
-                f.status = Sign.DocumentUploadStatus.NotStarted;
-                return f;
-            }))});
+            const newDoc = {...action.payload, status: Sign.DocumentUploadStatus.NotStarted };
+            return Object.assign({}, state, {documents: state.documents.concat(newDoc) });
         case "UPDATE_DOCUMENT":
             i = state.documents.findIndex(doc => doc.id === action.payload.id);
             documents = [...state.documents];

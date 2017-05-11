@@ -11,5 +11,5 @@ addons:
 before_install:
   - psql -c 'create database catalex_sign_test;' -U postgres
 
-install: python setup.py
+install: python setup.py install
 script: CONFIG_FILE=config_test.py python -m unittest discover

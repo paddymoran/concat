@@ -26,7 +26,7 @@ export default class PDFThumbnail extends React.Component<PDFThumbnailProps, {}>
         let canvas: HTMLCanvasElement;
         let page, canvasContext, viewport;
 
-        pdf.getPage(0)
+        pdf.getPage(1)
             .then(page => {
                 canvas = findDOMNode(this.canvas) as HTMLCanvasElement;
                 canvasContext = canvas.getContext('2d');

@@ -38,7 +38,7 @@ class DocumentRenderer extends React.Component<DocumentRendererProps, DocumentRe
             const doc = this.props.documentSet.documents.find(doc => doc.id === id);
             
             // Check the document has finished uploading
-            if (doc.uploadStatus === Sign.DocumentUploadStatus.Complete) {
+            if (doc.readStatus === Sign.DocumentReadStatus.Complete) {
                 console.log('Upload completed, data below.');
                 console.log(doc.data);
                 

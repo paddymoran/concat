@@ -23,7 +23,7 @@ const DocumentView = (props: DocumentViewProps) => (
         <div className="filename">{ props.document.filename }</div>
         
         <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>
-            { props.document.status === Sign.DocumentUploadStatus.InProgress &&
+            { props.document.uploadStatus === Sign.DocumentUploadStatus.InProgress &&
                 <div className="progress" key="progress">
                     <div className="progress-bar progress-bar-striped active" style={{width: `${props.document.progress*100}%`}}></div>
                 </div>
@@ -37,7 +37,11 @@ interface PDFDocumentDictionary {
     [key: string]: PDFDocumentProxy;
 }
 
-export default class DocumentList extends React.Component<DocumentListProps, {pdfs: PDFDocumentDictionary}> {
+interface DocumentListState {
+    pdfs: PDFDocumentDictionary;
+}
+
+export default class DocumentList extends React.Component<DocumentListProps, DocumentListState> {
     constructor(props: DocumentListProps) {
         super(props);
 
@@ -50,13 +54,16 @@ export default class DocumentList extends React.Component<DocumentListProps, {pd
         this.readPdfsToState(this.props.documents);
     }
     
-    componentWillReceiveProps(props: DocumentListProps) {
-        this.readPdfsToState(props.documents);
+    componentWillUpdate(nextProps: DocumentListProps, netState: DocumentListState) {
+        this.readPdfsToState(nextProps.documents);
     }
 
     readPdfsToState(documents: Sign.Document[]) {
+        console.log('wanting to read pdf');
         documents.map(doc => {
-            if (doc.id && !this.state.pdfs[doc.id] && doc.status === Sign.DocumentUploadStatus.Complete) {
+            console.log('working on doc: ' + doc.id);
+            console.log(`in state: ${!!this.state.pdfs[doc.id]} | status: ${doc.readStatus}`);
+            if (doc.id && !this.state.pdfs[doc.id] && doc.readStatus === Sign.DocumentReadStatus.Complete) {
                 this.props.getPDF(doc.id)
                     .then((pdf: PDFDocumentProxy) => {
                         const pdfs = { ...this.state.pdfs, [doc.id]: pdf };

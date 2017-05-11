@@ -40,8 +40,6 @@ export default class PDFThumbnail extends React.Component<PDFThumbnailProps, {}>
     }
 
     render() {
-        return (
-            <canvas ref={(canvas) => this.canvas = canvas} width={this.props.width} />
-        );
+        return <canvas ref={(canvas) => this.canvas = canvas} width={this.props.width} />;
     }
 }

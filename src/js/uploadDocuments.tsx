@@ -46,12 +46,13 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
     }
 
     uploadDocuments(documentSet: Sign.DocumentSet) {
-        const unUploaded = documentSet.documents.filter(doc => doc.status === Sign.DocumentUploadStatus.NotStarted);
+        const unUploaded = documentSet.documents.filter(doc => doc.uploadStatus === Sign.DocumentUploadStatus.NotStarted);
 
-        // Set each of the un-uploaded docs status to 'in progress' and the progress to 0
+        // Set each of the un-uploaded docs upload status to 'in progress' and the progress to 0
         unUploaded.map(doc => this.props.updateDocument({
             id: doc.id,
-            status: Sign.DocumentUploadStatus.InProgress,
+            uploadStatus: Sign.DocumentUploadStatus.InProgress,
+            readStatus: Sign.DocumentReadStatus.InProgress,
             progress: 0
         }));
 
@@ -63,6 +64,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                 this.props.updateDocument({
                     id: doc.id,
                     data: fileReader.result,
+                    readStatus: Sign.DocumentReadStatus.Complete
                 });
 
                 // Upload the document
@@ -79,7 +81,8 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
 
                 // Upload the document
                 return axios.post('/api/documents', data, { onUploadProgress })
-                    .then((response) => this.props.updateDocument({ status: Sign.DocumentUploadStatus.Complete }));
+                    .then((response) => this.props.updateDocument({ uploadStatus: Sign.DocumentUploadStatus.Complete }))
+                    .then(console.log);
             };
         });
     }

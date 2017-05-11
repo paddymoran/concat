@@ -5,13 +5,20 @@ declare namespace Sign {
         Complete
     }
 
+    const enum DocumentReadStatus {
+        NotStarted,
+        InProgress,
+        Complete
+    }
+
     export interface Document {
         id: string;
         filename: string;
         file: File;
         data: ArrayBuffer;
         pdfDocumentProxy: PDFDocumentProxy;
-        status: DocumentUploadStatus;
+        uploadStatus: DocumentUploadStatus;
+        readStatus: DocumentReadStatus;
         progress?: number;
     }
 

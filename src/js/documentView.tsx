@@ -25,7 +25,7 @@ class DocumentView extends React.Component<DocumentViewProps, DocumentViewState>
     uploadData() {
         const document = this.props.documents[this.props.params.documentId];
 
-        if (!document.status) {
+        if (!document.uploadStatus) {
             // Update file upload progress
             this.state.updateDocument({id: document.id, status: 'posting', progress: 0});
 

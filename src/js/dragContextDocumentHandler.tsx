@@ -38,7 +38,7 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
     }
 
     render() {
-        const loaded = !!this.props.documentSet.documents.length && this.props.documentSet.documents.every((f => f.status === Sign.DocumentUploadStatus.Complete));
+        const loaded = !!this.props.documentSet.documents.length && this.props.documentSet.documents.every((f => f.uploadStatus === Sign.DocumentUploadStatus.Complete));
         return  (
             <FileDropZone onDrop={this.onDrop}>
                 <div className="explanation" onClick={this.onClick}>

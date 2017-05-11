@@ -7,7 +7,7 @@ addons:
   postgresql: "9.5"
 
 before_install:
-  - psql -c 'create database test;' -U postgres
+  - psql -c 'create database catalex_sign_test;' -U postgres
 
 install: python setup.py
 script: CONFIG_FILE=config_test.py python -m unittest discover

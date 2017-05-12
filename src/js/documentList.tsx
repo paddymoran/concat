@@ -19,7 +19,7 @@ const DocumentView = (props: DocumentViewProps) => (
         <button className="remove" onClick={() => props.removeDocument()}>✖</button>
 
         <PDFThumbnail pdf={props.pdf} width={150} />
-        <div className="filename">{ props.document.filename } | { props.document.id }</div>
+        <div className="filename">{ props.document.filename }</div>
         
         <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>
             { props.document.uploadStatus === Sign.DocumentUploadStatus.InProgress &&
@@ -74,10 +74,11 @@ export default class DocumentList extends React.Component<DocumentListProps, Doc
     render() {
         return (
             <div className="document-list clearfix">
-                { this.props.documents.map(doc => {
-                    console.log(`Rending PDF: ${doc.id}`);
-                    return <DocumentView key={doc.id} document={doc} pdf={this.state.pdfs[doc.id]} removeDocument={() => {console.log(`Removing doc: ${doc.id}`); this.props.removeDocument(doc.id)}} />
-                    })
+                { this.props.documents.map(doc =>
+                    <DocumentView key={doc.id}
+                        document={doc}
+                        pdf={this.state.pdfs[doc.id]}
+                        removeDocument={() => {this.props.removeDocument(doc.id)}} />)
                 }
             </div>
         );

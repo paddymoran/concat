@@ -14,11 +14,16 @@ interface DocumentListProps {
     getPDF: Function;
 };
 
+const A4_RATIO = 1.414;
+
+const THUMBNAIL_WIDTH = 150;
+const THUMBNAIL_HEIGHT = THUMBNAIL_WIDTH * A4_RATIO;
+
 const DocumentView = (props: DocumentViewProps) => (
     <div className="document">
         <button className="remove" onClick={() => props.removeDocument()}>✖</button>
 
-        <PDFThumbnail pdf={props.pdf} width={150} />
+        <PDFThumbnail pdf={props.pdf} width={THUMBNAIL_WIDTH} height={THUMBNAIL_HEIGHT} />
         <div className="filename">{ props.document.filename }</div>
         
         <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>

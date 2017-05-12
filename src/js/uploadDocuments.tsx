@@ -33,8 +33,8 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
         this.onClick = this.onClick.bind(this);
     }
 
-    componentWillReceiveProps(props: UploadDocumentsProps) {
-        this.uploadDocuments(props.documentSet);
+    componentDidUpdate() {
+        this.uploadDocuments(this.props.documentSet);
     }
 
     componentWillMount() {
@@ -61,13 +61,14 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
             const fileReader = new FileReader();
             fileReader.readAsArrayBuffer(doc.file);
             fileReader.onload = () => {
+                // Add the file reader result to the document, and mark the read process complete
                 this.props.updateDocument({
                     id: doc.id,
                     data: fileReader.result,
                     readStatus: Sign.DocumentReadStatus.Complete
                 });
 
-                // Upload the document
+                // Upload the document to the server
                 const data = new FormData();
                 data.append('document_set_id', this.props.documentSet.id);
                 data.append('document_id', doc.id);
@@ -79,7 +80,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                     this.props.updateDocument({ id: doc.id, progress: percentCompleted });
                 }
 
-                // Upload the document
+                // Upload the document and set the upload status to complete
                 return axios.post('/api/documents', data, { onUploadProgress })
                     .then((response) => this.props.updateDocument({ id: doc.id, uploadStatus: Sign.DocumentUploadStatus.Complete }));
             };

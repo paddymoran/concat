@@ -21,9 +21,17 @@ class TestDocumentUpload(DBTestCase):
             set_id = str(uuid4())
             document_id = str(uuid4())
             find_or_create_and_validate_document_set(set_id, USER_ID)
-            with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fixtures/pdfs/form-pdf.pdf')) as f:
+
+            current_path = os.path.dirname(os.path.realpath(__file__))
+            test_pdf_path = os.path.join(
+                current_path, 'fixtures/pdfs/form-pdf.pdf'
+            )
+
+            with open(test_pdf_path) as f:
                 binary_data = f.read()
-                result = add_document(set_id, document_id, 'filename', binary_data)
+                result = add_document(
+                    set_id, document_id, 'filename', binary_data
+                )
 
             document_info = get_document(USER_ID, result['document_id'])
             expected_hash = "dbe5c4a1c0f4d8bd595b4465a81dd4b4adbf16685fd46c5668761b73ecb18de0"

@@ -17,10 +17,9 @@ interface DocumentListProps {
 const DocumentView = (props: DocumentViewProps) => (
     <div className="document">
         <button className="remove" onClick={() => props.removeDocument()}>✖</button>
-        
-        {/*<div className="image">{ props.document.uuid && <img src={`/api/documents/thumb/${props.document.uuid}`} /> }</div>*/}
+
         <PDFThumbnail pdf={props.pdf} width={150} />
-        <div className="filename">{ props.document.filename }</div>
+        <div className="filename">{ props.document.filename } | { props.document.id }</div>
         
         <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>
             { props.document.uploadStatus === Sign.DocumentUploadStatus.InProgress &&
@@ -59,10 +58,7 @@ export default class DocumentList extends React.Component<DocumentListProps, Doc
     }
 
     readPdfsToState(documents: Sign.Document[]) {
-        console.log('wanting to read pdf');
         documents.map(doc => {
-            console.log('working on doc: ' + doc.id);
-            console.log(`in state: ${!!this.state.pdfs[doc.id]} | status: ${doc.readStatus}`);
             if (doc.id && !this.state.pdfs[doc.id] && doc.readStatus === Sign.DocumentReadStatus.Complete) {
                 this.props.getPDF(doc.id)
                     .then((pdf: PDFDocumentProxy) => {
@@ -78,8 +74,10 @@ export default class DocumentList extends React.Component<DocumentListProps, Doc
     render() {
         return (
             <div className="document-list clearfix">
-                { this.props.documents.map((doc, index) => 
-                    <DocumentView key={index} document={doc} pdf={this.state.pdfs[doc.id]} removeDocument={() => this.props.removeDocument(doc.id)} />)
+                { this.props.documents.map(doc => {
+                    console.log(`Rending PDF: ${doc.id}`);
+                    return <DocumentView key={doc.id} document={doc} pdf={this.state.pdfs[doc.id]} removeDocument={() => {console.log(`Removing doc: ${doc.id}`); this.props.removeDocument(doc.id)}} />
+                    })
                 }
             </div>
         );

@@ -39,9 +39,6 @@ class DocumentRenderer extends React.Component<DocumentRendererProps, DocumentRe
             
             // Check the document has finished uploading
             if (doc.readStatus === Sign.DocumentReadStatus.Complete) {
-                console.log('Upload completed, data below.');
-                console.log(doc.data);
-                
                 // Create the PDF
                 const docData = new Uint8Array(doc.data);
 
@@ -58,10 +55,9 @@ class DocumentRenderer extends React.Component<DocumentRendererProps, DocumentRe
                 });
                 
             }
-            // Document hasn't finished uploading
+            // We haven't finished readin the document yet
             else {
-                console.log('upload not finished');
-                return Promise.reject('PDF upload not complete');
+                return Promise.reject('PDF read not complete');
             }
         }
     }

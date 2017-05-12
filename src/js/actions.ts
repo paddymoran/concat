@@ -11,7 +11,7 @@ export const isType = <T>(action: Sign.Action<any>, actionCreator: ActionCreator
 export const addDocument = actionCreator<{uuid: string, filename: string, file: File}>('ADD_DOCUMENT');
 export const updateDocument = actionCreator<string>('UPDATE_DOCUMENT');
 export const submitDocuments = actionCreator<string>('SUBMIT_DOCUMENTS');
-export const removeDocument = actionCreator<{ id: number }>('REMOVE_DOCUMENT');
+export const removeDocument = actionCreator<string>('REMOVE_DOCUMENT');
 export const updateForm = actionCreator<string>('UPDATE_FORM');
 export const setDocumentSetId = actionCreator<string>('SET_DOCUMENT_SET_ID');
 

@@ -19,7 +19,7 @@ const documentSet = (state: Sign.DocumentSet = {documents: []}, action: Sign.Doc
             documents[i] = Object.assign({}, documents[i], action.payload);
             return Object.assign({}, state, {documents});
          case "REMOVE_DOCUMENT":
-            i = state.documents.findIndex(doc => doc.id === action.payload.id);
+            i = state.documents.findIndex(doc => doc.id === action.payload);
             documents = [...state.documents];
             documents.splice(i, 1);
             return Object.assign({}, state, {documents});

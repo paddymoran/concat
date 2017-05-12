@@ -26,7 +26,7 @@ const DocumentView = (props: DocumentViewProps) => (
         <PDFThumbnail pdf={props.pdf} width={THUMBNAIL_WIDTH} height={THUMBNAIL_HEIGHT} />
         <div className="filename">{ props.document.filename }</div>
         
-        <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>
+        <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
             { props.document.uploadStatus === Sign.DocumentUploadStatus.InProgress &&
                 <div className="progress" key="progress">
                     <div className="progress-bar progress-bar-striped active" style={{width: `${props.document.progress*100}%`}}></div>

@@ -81,7 +81,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
 
                 // Upload the document
                 return axios.post('/api/documents', data, { onUploadProgress })
-                    .then((response) => this.props.updateDocument({ uploadStatus: Sign.DocumentUploadStatus.Complete }))
+                    .then((response) => this.props.updateDocument({ id: doc.id, uploadStatus: Sign.DocumentUploadStatus.Complete }))
                     .then(console.log);
             };
         });

@@ -19,7 +19,7 @@ const DocumentView = (props: DocumentViewProps) => (
         <button className="remove" onClick={() => props.removeDocument()}>✖</button>
         
         {/*<div className="image">{ props.document.uuid && <img src={`/api/documents/thumb/${props.document.uuid}`} /> }</div>*/}
-        <PDFThumbnail pdf={props.pdf} width={200} />
+        <PDFThumbnail pdf={props.pdf} width={150} />
         <div className="filename">{ props.document.filename }</div>
         
         <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={500}>
@@ -68,16 +68,9 @@ export default class DocumentList extends React.Component<DocumentListProps, Doc
                     .then((pdf: PDFDocumentProxy) => {
                         const pdfs = { ...this.state.pdfs, [doc.id]: pdf };
                         this.setState({ pdfs });
-
-                        console.log('done loading PDF: ' + doc.id);
-                        console.log(this.state.pdfs);
-
                         return true;
                     })
-                    .catch(error => { 
-                        console.log('Fuck!');
-                        console.log(error);
-                    });
+                    .catch(console.log);
             }
         });
     }

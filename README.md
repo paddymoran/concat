@@ -6,7 +6,13 @@ python server.py
 
 # Dev setup
 
-install imagemagick and ghostscript
+1. install imagemagick and ghostscript
+2. create `catalex_sign` database
+3. `npm install`
+4. `python setup.py install`
+5. `python migrate.py config_dev.py`
+
+**NOTE:** figure out why seed isn't working
 
 # Backend tests
 

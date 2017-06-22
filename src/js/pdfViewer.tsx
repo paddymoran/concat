@@ -121,10 +121,10 @@ export default class PDFViewer extends React.Component<PDFViewerProps, any> {
             data.append('file', this.props.file.file);
             data.append('signature_id', this.state.signatureId);
             data.append('page_number', this.state.pageNumber);
-            data.append('x_offset', position.x);
-            data.append('y_offset', position.y);
-            data.append('width_ratio', position.width);
-            data.append('height_ratio', position.height);
+            data.append('x_offset', position.x.toString());
+            data.append('y_offset', position.y.toString());
+            data.append('width_ratio', position.width.toString());
+            data.append('height_ratio', position.height.toString());
 
             axios.post('/sign', data)
                 .then((response: PostSignResponse) => {

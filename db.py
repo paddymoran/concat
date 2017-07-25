@@ -1,24 +1,35 @@
+"""
+
+Functions for working with the database
+
+"""
+
 import psycopg2
 import psycopg2.extras
 from flask import g, current_app
 
 
 def get_db():
+    """
+    Return a connected database instance and save it to flask globals for next time
+    """
     if not hasattr(g, 'db') or g.db.closed:
-        g.db = connect_db()
+        g.db = connect_db_config(current_app.config)
     return g.db
 
 
 def close_db():
+    """
+    If we have saved a conencted database instance to flask globals, close the connection
+    """
     if hasattr(g, 'db') and not g.db.closed:
         g.db.close()
 
 
-def connect_db():
-    return connect_db_config(current_app.config)
-
-
 def connect_db_config(config):
+    """
+    Create a psycopg2 connection to the database
+    """
     connection = psycopg2.connect(
         database=config['DB_NAME'],
         user=config['DB_USER'],
@@ -28,8 +39,11 @@ def connect_db_config(config):
 
 
 def add_signature(user_id, binary_file_data):
-    db = get_db()
-    with db.cursor() as cursor:
+    """
+    Add a signature to the database
+    """
+    database = get_db()
+    with database.cursor() as cursor:
         query = """
             INSERT INTO signatures (user_id, signature)
             VALUES (%(user_id)s, %(blob)s)
@@ -40,13 +54,16 @@ def add_signature(user_id, binary_file_data):
             'user_id': user_id,
             'blob': psycopg2.Binary(binary_file_data)
         })
-        db.commit()
+        database.commit()
         return cursor.fetchone()[0]
 
 
 def find_or_create_and_validate_document_set(set_id, user_id):
-    db = get_db()
-    with db.cursor() as cursor:
+    """
+    Find or create a document set, making sure the user has permission to access it
+    """
+    database = get_db()
+    with database.cursor() as cursor:
         find_doc_set_query = """
             SELECT user_id
             FROM document_sets
@@ -68,7 +85,7 @@ def find_or_create_and_validate_document_set(set_id, user_id):
                 'user_id': user_id
             })
 
-            db.commit()
+            database.commit()
         elif result[0] != user_id:
             raise Exception
 
@@ -78,8 +95,8 @@ def add_document(set_id, doc_data_id, filename, binary_file_data):
     Add a document to the database. If no UUID is passed, one will be created
     by the database.
     """
-    db = get_db()
-    with db.cursor() as cursor:
+    database = get_db()
+    with database.cursor() as cursor:
         # Create the document data record
         create_doc_data_query = """
             INSERT INTO document_data (document_data_id, data)
@@ -107,7 +124,7 @@ def add_document(set_id, doc_data_id, filename, binary_file_data):
         })
         document_id = cursor.fetchone()[0]
 
-        db.commit()
+        database.commit()
 
         # Return the document ID and the filename
         return {
@@ -117,8 +134,11 @@ def add_document(set_id, doc_data_id, filename, binary_file_data):
 
 
 def get_signatures_for_user(user_id):
-    db = get_db()
-    with db.cursor() as cursor:
+    """
+    Get all signatures for a user
+    """
+    database = get_db()
+    with database.cursor() as cursor:
         query = """
             SELECT signature_id
             FROM signatures
@@ -136,8 +156,11 @@ def get_signatures_for_user(user_id):
 
 
 def get_signature(signature_id, user_id):
-    db = get_db()
-    with db.cursor() as cursor:
+    """
+    Get a signature, making sure the user has permission to access it
+    """
+    database = get_db()
+    with database.cursor() as cursor:
         query = """
             SELECT signature
             FROM signatures
@@ -158,23 +181,29 @@ def get_signature(signature_id, user_id):
 
 
 def upsert_user(user):
-    db = get_db()
+    """
+    Create or update a user
+    """
+    database = get_db()
     query = """
         INSERT INTO users (user_id, name, email)
         VALUES (%(user_id)s, %(name)s, %(email)s)
         ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s;
     """
-    with db.cursor() as cursor:
+    with database.cursor() as cursor:
         cursor.execute(query, user)
 
-    db.commit()
+    database.commit()
 
     return
 
 
 def get_user_info(user_id):
-    db = get_db()
-    with db.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+    """
+    Get a user's basic info
+    """
+    database = get_db()
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         query = """
             SELECT user_id, name, email from users where user_id = %(user_id)s
         """
@@ -183,7 +212,10 @@ def get_user_info(user_id):
 
 
 def get_user_document_sets(user_id):
-    db = get_db()
+    """
+    Get all document sets for a user
+    """
+    database = get_db()
     query = """
         SELECT * FROM document_sets sets
         JOIN document_set_mapper set_mapper ON
@@ -192,7 +224,7 @@ def get_user_document_sets(user_id):
             set_mapper.document_set_id = documents.document_id
         WHERE sets.user_id = %(user_id)s
     """
-    with db.cursor() as cursor:
+    with database.cursor() as cursor:
         cursor.execute(query, user_id)
         data = cursor.fetchall()
 
@@ -200,7 +232,10 @@ def get_user_document_sets(user_id):
 
 
 def get_document(user_id, document_id):
-    db = get_db()
+    """
+    Get a document, checking the user has permission to access it
+    """
+    database = get_db()
     query = """
         SELECT document_id, d.document_set_id, hash, filename, data
         FROM documents d
@@ -208,7 +243,7 @@ def get_document(user_id, document_id):
         JOIN document_data dd on d.document_data_id = dd.document_data_id
         WHERE user_id = %(user_id)s AND d.document_id = %(document_id)s
     """
-    with db.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {
             'user_id': user_id,
             'document_id': document_id
@@ -222,11 +257,17 @@ def get_document(user_id, document_id):
 
 
 def sign_document(user_id, sign_request_id, data):
+    """
+    Sign a document
+    """
     pass
 
 
 def get_set_info(user_id, set_id):
-    db = get_db()
+    """
+    Get the info about a document set
+    """
+    database = get_db()
     query = """
     SELECT row_to_json(qq) FROM (
         SELECT
@@ -239,7 +280,7 @@ def get_set_info(user_id, set_id):
             ) q
         ) qq
     """
-    with db.cursor() as cursor:
+    with database.cursor() as cursor:
         cursor.execute(query, {
             'user_id': user_id,
             'set_id': set_id

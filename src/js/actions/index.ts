@@ -1,11 +1,41 @@
-const actionCreator = <T>(type: string): Sign.Actions.IActionCreator<T> => Object.assign((payload: T):any => ({type, payload}), {type})
+export function addDocument(payload: {uuid: string, filename: string, file: File}) {
+    return {
+        type: Sign.Actions.Types.ADD_DOCUMENT,
+        payload
+    };
+}
 
-export const isType = <T>(action: Sign.Action<any>, actionCreator: Sign.Actions.IActionCreator<T>):
-  action is Sign.Action<T> => action.type === actionCreator.type
+export function updateDocument(payload: string) {
+    return {
+        type: Sign.Actions.Types.UPDATE_DOCUMENT,
+        payload
+    };
+}
 
-export const addDocument = actionCreator<{uuid: string, filename: string, file: File}>(Sign.Actions.Types.ADD_DOCUMENT);
-export const updateDocument = actionCreator<string>(Sign.Actions.Types.UPDATE_DOCUMENT);
-export const submitDocuments = actionCreator<string>(Sign.Actions.Types.SUBMIT_DOCUMENTS);
-export const removeDocument = actionCreator<string>(Sign.Actions.Types.REMOVE_DOCUMENT);
-export const updateForm = actionCreator<string>(Sign.Actions.Types.UPDATE_FORM);
-export const setDocumentSetId = actionCreator<string>(Sign.Actions.Types.SET_DOCUMENT_SET_ID);
+export function submitDocuments(payload: string) {
+    return {
+        type: Sign.Actions.Types.SUBMIT_DOCUMENTS,
+        payload
+    };
+}
+
+export function removeDocument(payload: string) {
+    return {
+        type: Sign.Actions.Types.REMOVE_DOCUMENT,
+        payload
+    };
+}
+
+export function updateForm(payload: string) {
+    return {
+        type: Sign.Actions.Types.UPDATE_FORM,
+        payload
+    }
+}
+
+export function setDocumentSetId(payload: string) {
+    return {
+        type: Sign.Actions.Types.SET_DOCUMENT_SET_ID,
+        payload
+    }
+}

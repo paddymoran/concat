@@ -13,7 +13,7 @@ interface PDFThumbnailState {
 
 const THUMBNAIL_SCALE = 1;
 
-export default class PDFThumbnail extends React.Component<PDFThumbnailProps, PDFThumbnailState> {
+export default class PDFThumbnail extends React.PureComponent<PDFThumbnailProps, PDFThumbnailState> {
     canvas: HTMLCanvasElement;
 
     constructor(props: PDFThumbnailProps) {

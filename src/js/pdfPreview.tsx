@@ -10,7 +10,7 @@ interface PDFPreviewProps {
     scale?: number;
 }
 
-export class PDFPreview extends React.Component<PDFPreviewProps, {}> {
+export class PDFPreview extends React.PureComponent<PDFPreviewProps, {}> {
     constructor(props: PDFPreviewProps) {
         super(props);
     }
@@ -53,7 +53,7 @@ export class PDFPreview extends React.Component<PDFPreviewProps, {}> {
                             <div className='pdf-thumbnail-number'>
                                 {pageNumber}
                             </div>
-                            
+
                             <canvas
                                 onClick={() => { this.changeActivePage(pageNumber); }}
                                 ref={'preview-canvas-' + i}

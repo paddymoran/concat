@@ -13,7 +13,7 @@ OAUTH_CLIENT_SECRET = 'test'
 SECRET_KEY = 'dfglihdklsjblfkdjhvliakhjdlkjashdfkleah'
 
 DB_NAME = 'catalex_sign'
-DB_USER = 'Josh'
+DB_USER = 'josh'
 DB_PASS = ''
 DB_HOST = '127.0.0.1'
 

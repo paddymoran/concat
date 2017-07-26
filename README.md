@@ -1,12 +1,17 @@
 # Sign
 webpack --watch
 
-python server.py
+
+python server.py config.py
 
 
 # Dev setup
 
 install imagemagick and ghostscript
+
+python setup.py install
+
+python migrate.py config.py
 
 # Backend tests
 
@@ -19,3 +24,5 @@ For testing we use a database schema dump to rebuild the database, rather than r
 To generate the dump, run the following command from project root.
 
 `pg_dump catalex_sign --schema-only --no-owner > db_functions/seed.sql`
+
+

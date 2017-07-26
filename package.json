@@ -8,8 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "webpack": "node_modules/.bin/webpack",
-    "webpack-watch": "node_modules/.bin/webpack --watch"
+    
   },
   "dependencies": {
     "axios": "^0.16.0",
@@ -17,11 +16,11 @@
     "bluebird": "^3.1.1",
     "catalex_shared": "github:joshgagnon/catalex_shared",
     "clean-webpack-plugin": "^0.1.9",
-    "extract-text-webpack-plugin": "^3.0.0",
+    "extract-text-webpack-plugin": "^2.1.0",
     "pdfjs-dist": "^1.5.336",
     "react": "^15.3.2",
     "react-addons-css-transition-group": "^15.5.2",
-    "react-bootstrap": "^0.31.1",
+    "react-bootstrap": "^0.30.6",
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
     "react-dom": "^15.0.0",
@@ -44,7 +43,7 @@
     "@types/pdf": "0.0.31",
     "@types/react": "^15.0.21",
     "@types/react-addons-css-transition-group": "^15.0.1",
-    "@types/react-bootstrap": "0.0.52",
+    "@types/react-bootstrap": "0.0.47",
     "@types/react-dnd": "^2.0.32",
     "@types/react-dnd-html5-backend": "^2.1.7",
     "@types/react-dom": "^0.14.23",
@@ -55,7 +54,7 @@
     "@types/uuid": "^2.0.29",
     "awesome-typescript-loader": "^3.1.2",
     "babel-core": "^6.4.0",
-    "babel-loader": "^7.1.1",
+    "babel-loader": "^6.2.1",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-react": "^6.3.13",
     "babel-preset-stage-0": "^6.3.13",
@@ -68,13 +67,13 @@
     "install": "^0.8.8",
     "node-sass": "^4.5.2",
     "npm": "^4.4.4",
-    "postcss-loader": "^2.0.6",
+    "postcss-loader": "^1.3.3",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "sass-loader": "^6.0.3",
     "source-map-loader": "^0.2.1",
-    "style-loader": "^0.18.2",
-    "webpack": "^3.4.0",
+    "style-loader": "^0.16.1",
+    "webpack": "^2.3.3",
     "webpack-notifier": "^1.4.1"
   }
 }

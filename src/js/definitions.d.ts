@@ -51,6 +51,13 @@ declare namespace Sign {
     }
 }
 
+declare namespace Sign.Actions {
+    interface IActionCreator<T> {
+        type: string
+        (payload: T): Sign.Action<T>
+    }
+}
+
 declare module 'pdfjs-dist' {
     export default PDFJS;
 }

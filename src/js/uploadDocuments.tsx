@@ -120,7 +120,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                     <DocumentList documents={this.props.documentSet.documents} removeDocument={this.props.removeDocument} getPDF={this.props.getPDF} />
                     
                     <div className="button-bar">
-                        <a href={''} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>Sign</a>
+                        <a href={''} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>View</a>
                     </div>
                 </div>
             </FileDropZone>

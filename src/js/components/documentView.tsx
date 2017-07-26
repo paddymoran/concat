@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { updateDocument } from './actions';
-import PDFViewer from './pdfViewer';
+import { updateDocument } from '../actions';
+import PDFViewer from './pdf/viewer';
 
 interface DocumentViewProps {
     params: { documentId: number };

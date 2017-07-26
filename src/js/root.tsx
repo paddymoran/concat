@@ -5,7 +5,7 @@ import { Provider, connect } from 'react-redux';
 import { Store, createStore } from 'redux';
 import configureStore from './configureStore';
 import { addDocument, updateDocument, submitDocuments, removeDocument, updateForm } from './actions';
-import App from './app';
+import App from './components/app';
 import routes from './routes';
 import { Router } from 'react-router';
 import { History } from 'history';

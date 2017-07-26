@@ -3,7 +3,7 @@ import *  as HTML5Backend from 'react-dnd-html5-backend';
 import FileDropZone from './fileDropZone';
 import { connect } from 'react-redux';
 import { DragDropContext } from 'react-dnd';
-import { addDocument } from './actions';
+import { addDocument } from '../actions';
 import { generateUUID } from './uuid';
 
 interface DocumentHandlerProps {

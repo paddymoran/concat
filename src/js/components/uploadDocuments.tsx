@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocument, removeDocument, updateDocument, setDocumentSetId } from './actions';
+import { addDocument, removeDocument, updateDocument, setDocumentSetId } from '../actions';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import axios from 'axios';

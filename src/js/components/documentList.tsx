@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import PDFThumbnail from './pdfThumbnail';
+import PDFThumbnail from './pdf/thumbnail';
 
 interface DocumentViewProps {
     document: Sign.Document;

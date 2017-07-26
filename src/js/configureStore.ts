@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, compose, MiddlewareAPI, Dispatch, Middleware } from 'redux';
-import rootReducer from './reducer';
+import rootReducer from './reducers';
 import * as thunk from 'redux-thunk';
 import { routerMiddleware } from 'react-router-redux';
 import { createLogger } from 'redux-logger';

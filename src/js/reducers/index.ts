@@ -4,21 +4,21 @@ import { routerReducer } from 'react-router-redux';
 const documentSet = (state: Sign.DocumentSet = {documents: []}, action: Sign.DocumentAction) => {
     let setId, documents, i;
     switch(action.type) {
-        case "SET_DOCUMENT_SET_ID":
+        case Sign.Actions.Types.SET_DOCUMENT_SET_ID:
             return Object.assign({}, state, {id: action.payload});
-        case "ADD_DOCUMENT":
+        case Sign.Actions.Types.ADD_DOCUMENT:
             const newDoc = {
                 ...action.payload,
                 uploadStatus: Sign.DocumentUploadStatus.NotStarted,
                 readState: Sign.DocumentReadStatus.NotStarted
             };
             return Object.assign({}, state, { documents: state.documents.concat(newDoc) });
-        case "UPDATE_DOCUMENT":
+        case Sign.Actions.Types.UPDATE_DOCUMENT:
             i = state.documents.findIndex(doc => doc.id === action.payload.id);
             documents = [...state.documents];
             documents[i] = Object.assign({}, documents[i], action.payload);
             return Object.assign({}, state, {documents});
-         case "REMOVE_DOCUMENT":
+         case Sign.Actions.Types.REMOVE_DOCUMENT:
             i = state.documents.findIndex(doc => doc.id === action.payload);
             documents = [...state.documents];
             documents.splice(i, 1);

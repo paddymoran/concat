@@ -29,6 +29,10 @@ module.exports = {
                 loader: "source-map-loader"
             },
             {
+                test: /\.json$/,
+                loader: "json-loader"
+            },
+            {
                 test: /\.(scss|css)$/,
                 use: ExtractTextPlugin.extract({use: [
                     {
@@ -43,7 +47,8 @@ module.exports = {
                         options: {
                             plugins: [
                                 autoprefixer
-                            ]
+                            ],
+                            sourceMap: true
                         }
                     },
                     {
@@ -55,16 +60,19 @@ module.exports = {
                 ]})
             },
             {
-                test: /\.(png|jpg)$/,
-                loader: 'url-loader?limit=28192&name=/images/[name].[ext]'
-            },
-            {
-                test: /\.json$/,
-                loader: "json-loader"
+                test: /\.(png|jpg|gif)$/,
+                loader: 'url-loader',
+                query: {
+                    limit: 28192
+                }
             },
             {
                 test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-                loader: "file-loader?name=[name].[ext]"
+                loader: "file-loader",
+                query: {
+                    name: 'fonts/[name].[ext]',
+                    publicPath: '../'
+                }
             }
         ]
     },

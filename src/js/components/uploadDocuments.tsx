@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocument, removeDocument, updateDocument, setDocumentSetId } from './actions';
+import { addDocument, removeDocument, updateDocument, setDocumentSetId } from '../actions';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import axios from 'axios';
@@ -120,7 +120,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                     <DocumentList documents={this.props.documentSet.documents} removeDocument={this.props.removeDocument} getPDF={this.props.getPDF} />
                     
                     <div className="button-bar">
-                        <a href={''} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>Sign</a>
+                        <a href={''} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>View</a>
                     </div>
                 </div>
             </FileDropZone>

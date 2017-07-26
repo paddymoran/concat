@@ -19,10 +19,10 @@ export function submitDocuments(payload: string) {
     };
 }
 
-export function removeDocument(payload: string) {
+export function removeDocument(id: string) {
     return {
         type: Sign.Actions.Types.REMOVE_DOCUMENT,
-        payload
+        payload: id
     };
 }
 
@@ -30,12 +30,12 @@ export function updateForm(payload: string) {
     return {
         type: Sign.Actions.Types.UPDATE_FORM,
         payload
-    }
+    };
 }
 
-export function setDocumentSetId(payload: string) {
+export function setDocumentSetId(id: string) {
     return {
         type: Sign.Actions.Types.SET_DOCUMENT_SET_ID,
-        payload
-    }
+        payload: id
+    };
 }

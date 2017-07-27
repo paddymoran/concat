@@ -15,6 +15,7 @@
     "catalex_shared": "github:joshgagnon/catalex_shared",
     "clean-webpack-plugin": "^0.1.9",
     "extract-text-webpack-plugin": "^2.1.0",
+    "font-awesome": "^4.7.0",
     "pdfjs-dist": "^1.5.336",
     "react": "^15.3.2",
     "react-addons-css-transition-group": "^15.5.2",

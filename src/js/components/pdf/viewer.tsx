@@ -8,7 +8,7 @@ import SignatureSelector from '../signatureSelector';
 import SignatureDragContainer from '../signatureDragContainer';
 import * as Axios from 'axios';
 import axios from 'axios';
-import PDFJS from 'pdfjs-dist';
+import * as PDFJS from 'pdfjs-dist';
 
 Promise.config({ cancellation: true });
 
@@ -51,10 +51,11 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
         this.signatureSelected = this.signatureSelected.bind(this);
     }
 
-    componentWillMount() {
+    componentDidMount() {
         if (this.props.worker === false) {
             PDFJS.disableWorker = true;
         }
+        
         this.loadDocument(this.props.pdfDocumentProxy);
     }
 
@@ -66,7 +67,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
                 (item: any, index: number) => pdfDocumentProxy.getPage(index + 1)
             )
             .then((pages: PDFPageProxy[]) => {
-                debugger;
                 this.setState({ pages });
                 return pages;
             });
@@ -132,8 +132,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
         if (this.state.error) {
             return <div>{ this.state.error }</div>
         }
-
-        debugger;
 
         if (!this.state.pages) {
             return <div className='loading' />;

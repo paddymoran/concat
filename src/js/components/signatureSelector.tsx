@@ -49,7 +49,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
     }
 
     componentDidMount() {
-        axios.get('/signatures')
+        axios.get('/api/signatures')
             .then((response: SignaturesResponse) => {
                 let signatureIds: number[] = [];
                 response.data.map((signature) => signatureIds.push(signature.id));
@@ -135,7 +135,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
 
                                             return (
                                                 <div className={classes} key={i} onClick={() => this.changeSelectedSignature(i) }>
-                                                    <img className='img-responsive' src={`/signatures/${id}`} />
+                                                    <img className='img-responsive' src={`/api/signatures/${id}`} />
                                                 </div>
                                             )
                                         })

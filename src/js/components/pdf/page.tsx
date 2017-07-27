@@ -10,6 +10,7 @@ interface PDFPageProps {
 
 interface PDFPageState {}
 
+
 export class PDFPage extends React.PureComponent<PDFPageProps, PDFPageState> {
     private pdfPage: HTMLCanvasElement;
 
@@ -26,7 +27,7 @@ export class PDFPage extends React.PureComponent<PDFPageProps, PDFPageState> {
     }
 
     displayPage() {
-        const canvas : HTMLCanvasElement = findDOMNode(this.refs.pdfPage) as HTMLCanvasElement;
+        const canvas : HTMLCanvasElement = findDOMNode(this.refs['pdf-canvas']) as HTMLCanvasElement;
         const context = canvas.getContext('2d');
         const scale = this.props.scale || 1;
         const viewport = this.props.page.getViewport(this.props.drawWidth / this.props.page.getViewport(scale).width);
@@ -42,7 +43,7 @@ export class PDFPage extends React.PureComponent<PDFPageProps, PDFPageState> {
 
     render() {
         return (
-            <canvas ref={(ref: HTMLCanvasElement) => this.pdfPage = ref} className='pdf-page' />
+            <canvas ref="pdf-canvas" className='pdf-page' />
         )
     }
 }

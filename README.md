@@ -1,7 +1,8 @@
 # Sign
 webpack --watch
 
-python server.py
+
+python server.py config.py
 
 
 # Dev setup
@@ -14,6 +15,10 @@ python server.py
 
 **NOTE:** figure out why seed isn't working
 
+python setup.py install
+
+python migrate.py config.py
+
 # Backend tests
 
 CONFIG_FILE=config_test.py python -m unittest discover
@@ -25,3 +30,5 @@ For testing we use a database schema dump to rebuild the database, rather than r
 To generate the dump, run the following command from project root.
 
 `pg_dump catalex_sign --schema-only --no-owner > db_functions/seed.sql`
+
+

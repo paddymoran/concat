@@ -1,3 +1,5 @@
+import getpass
+
 PORT=5669
 
 SERVER_NAME = 'localhost:5669'
@@ -13,7 +15,7 @@ OAUTH_CLIENT_SECRET = 'test'
 SECRET_KEY = 'dfglihdklsjblfkdjhvliakhjdlkjashdfkleah'
 
 DB_NAME = 'catalex_sign'
-DB_USER = 'paddy'
+DB_USER = getpass.getuser()
 DB_PASS = ''
 DB_HOST = '127.0.0.1'
 

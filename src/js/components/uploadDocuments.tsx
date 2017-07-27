@@ -7,6 +7,7 @@ import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import axios from 'axios';
 import { generateUUID } from './uuid';
+import  { Link } from 'react-router';
 
 interface UploadDocumentsProps {
     documentSet: Sign.DocumentSet;
@@ -120,7 +121,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                     <DocumentList documents={this.props.documentSet.documents} removeDocument={this.props.removeDocument} getPDF={this.props.getPDF} />
                     
                     <div className="button-bar">
-                        <a href={''} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>View</a>
+                        <Link to={`/documents/${this.props.documentSet.documents[0] ? this.props.documentSet.documents[0].id: 'no-id'}`} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>View</Link>
                     </div>
                 </div>
             </FileDropZone>

@@ -51,6 +51,22 @@ declare namespace Sign {
     }
 }
 
+declare namespace Sign.Actions {
+    const enum Types {
+        ADD_DOCUMENT = 'ADD_DOCUMENT',
+        UPDATE_DOCUMENT = 'UPDATE_DOCUMENT',
+        SUBMIT_DOCUMENTS = 'SUBMIT_DOCUMENTS',
+        REMOVE_DOCUMENT = 'REMOVE_DOCUMENT',
+        UPDATE_FORM = 'UPDATE_FORM',
+        SET_DOCUMENT_SET_ID = 'SET_DOCUMENT_SET_ID',
+    }
+
+    interface IActionCreator<T> {
+        type: string
+        (payload: T): Sign.Action<T>
+    }
+}
+
 declare module 'pdfjs-dist' {
     export default PDFJS;
 }

@@ -4,57 +4,64 @@ import { updateDocument } from '../actions';
 import PDFViewer from './pdf/viewer';
 
 interface DocumentViewProps {
-    params: { documentId: number };
-    documents: Array<Sign.Document>;
+    params: { documentId: string };
+    documents: Sign.Document[];
     removeDocument: Function;
+    getPDF: (pdfUUID: string) => Promise<any>;
+    updateDocument: Function;
 }
 
 interface DocumentViewState {
-    updateDocument: Function;
+    document?: Sign.Document;
 }
 
 class DocumentView extends React.Component<DocumentViewProps, DocumentViewState>  {
     constructor(props: DocumentViewProps) {
         super(props);
+
+        this.state = {};
     }
 
     componentWillMount() {
-        this.uploadData();
+        this.loadDocument();
+        // this.uploadData();
     }
 
-    uploadData() {
-        const document = this.props.documents[this.props.params.documentId];
-
-        if (!document.uploadStatus) {
-            // Update file upload progress
-            this.state.updateDocument({id: document.id, status: 'posting', progress: 0});
-
-            // Create file reader, read file to BLOB, then call the updateDocument action
-            const fileReader = new FileReader();
-            fileReader.readAsArrayBuffer(document.file);
-            fileReader.onload = () => {
-                this.state.updateDocument({
-                    id: document.id,
-                    arrayBuffer: fileReader.result,
-                    status: 'complete'
-                });
-            };
-        }
+    loadDocument() {
+        this.props.getPDF(this.props.params.documentId)
+            .then(document => this.setState({ document }));
     }
+
+    // uploadData() {
+    //     const document = this.props.getPDF(this.props.params.documentId);
+
+    //     if (!document.uploadStatus) {
+    //         // Update file upload progress
+    //         this.props.updateDocument({id: document.id, status: 'posting', progress: 0});
+
+    //         // Create file reader, read file to BLOB, then call the updateDocument action
+    //         const fileReader = new FileReader();
+    //         fileReader.readAsArrayBuffer(document.file);
+    //         fileReader.onload = () => {
+    //             this.props.updateDocument({
+    //                 id: document.id,
+    //                 arrayBuffer: fileReader.result,
+    //                 status: 'complete'
+    //             });
+    //         };
+    //     }
+    // }
 
     render() {
-        const document = this.props.documents[this.props.params.documentId];
+        if (!this.state.document) {
+            return <h1>Loading</h1>;
+        }
+
+        const document = this.state.document;
 
         return (
             <div className='pdf-screen'>
-                { document.data && <div className='loading' /> }
-                { document.data && 
-                    <PDFViewer
-                        file={ document }
-                        data={ document.data }  
-                        worker={ false }
-                        removeDocument={ () => console.log('return to doc tray') } />
-                }
+                <PDFViewer pdfDocumentProxy={document} worker={false} removeDocument={() => console.log('return to doc tray')} />
             </div>
         );
     }

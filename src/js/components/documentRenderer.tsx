@@ -44,14 +44,14 @@ class DocumentRenderer extends React.Component<DocumentRendererProps, DocumentRe
 
                 return new Promise((resolve, reject) => {
                     PDFJS.getDocument(docData)
-                    .then((pdf: PDFDocumentProxy) => {
-                        // Store the PDF in state
-                        const pdfs = { ...this.state.pdfs, id: pdf };
-                        this.setState({ pdfs });
+                        .then((pdf: PDFDocumentProxy) => {
+                            // Store the PDF in state
+                            const pdfs = { ...this.state.pdfs, id: pdf };
+                            this.setState({ pdfs });
 
-                        // Resolve on the PDF
-                        return resolve(pdf);
-                    });
+                            // Resolve on the PDF
+                            return resolve(pdf);
+                        });
                 });
                 
             }

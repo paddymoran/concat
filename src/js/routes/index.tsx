@@ -8,12 +8,12 @@ import DocumentRenderer from '../components/documentRenderer';
 
 export default (component: RouteComponent) => {
     return (
-        <Route path='/' component={ component }>
-            <IndexRoute component={ SelectWorkflow } />
+        <Route path='/' component={component}>
+            <IndexRoute component={SelectWorkflow} />
 
-            <Route component={ DocumentRenderer }>
-                <Route path='selfsign' component={ UploadDocuments } />
-                <Route path='documents/:documentId' component={ DocumentView } />
+            <Route component={DocumentRenderer}>
+                <Route path='selfsign' component={UploadDocuments} />
+                <Route path='documents/:documentId' component={DocumentView} />
             </Route>
         </Route>
     );

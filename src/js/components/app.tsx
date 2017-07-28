@@ -17,11 +17,11 @@ export default class App extends React.PureComponent<AppProps, {}> {
             <div>
                 <Header />
                   <CSSTransitionGroup style={{position: 'relative', display:'block'}}
-                          transitionName={'fadeIn'}
+                          transitionName={'slideInRight'}
                           transitionEnterTimeout={400}
                           transitionLeaveTimeout={400}
                         >
-                        <div style={{position: 'absolute', width: '100%'}} key={pathname}>
+                        <div  key={pathname}>
                      {children}
                       </div>
                 </CSSTransitionGroup>

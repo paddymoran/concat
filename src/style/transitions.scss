@@ -22,18 +22,21 @@
   right: -100%;
   transition: right .4s ease-in-out;
 }
-
+.slideInRight-enter, .slideInRight-leave{
+    position:absolute;
+    width:100%;
+}
 .slideInRight-enter.slideInRight-enter-active {
   right: 0;
 }
 
 .slideInRight-leave {
-  right: 0;
-  transition: right .4s ease-in-out;
+  left: 0;
+  transition: left .4s ease-in-out;
 }
 
 .slideInRight-leave.slideInRight-leave-active {
-  right: -100%;
+  left: -100%;
 }
 
 .slideInLeft-enter {
@@ -106,4 +109,11 @@
 
 .fadeIn-leave.fadeIn-leave-active {
   opacity: 0;
+}
+
+@keyframes animate-border {
+  50% {
+    outline-color: $deep-red;
+    box-shadow: 0 0 0 4px $gray-lighter;
+  }
 }

@@ -54,9 +54,8 @@ $smooth: cubic-bezier(0.165, 0.84, 0.44, 1);
     }
     &:hover{
         text-decoration:none;
-        color: $gray-dark;
     }
-    &.enabled:hover{
+    &.enabled:hover, &.enabled:focus{
         text-decoration:none;
         .workflow-option {
             color: $deep-red;

@@ -18,7 +18,7 @@ $header-height: 50px;
 $navbar-height: $header-height;
 $header-height-sml: $header-height;
 $navbar-margin-bottom: 0px;
-
+ $btn-font-weight: 300;
 
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/grid";
@@ -65,8 +65,9 @@ html {
 body {
   /* Margin bottom by footer height */
 
-  -webkit-font-smoothing: antialiased;
+
   font-family: -apple-system,Helvetica Neue,Roboto,Segoe UI,Lucida Grande,sans-serif;
+overflow-x:hidden;
 }
 
 a {
@@ -165,13 +166,6 @@ a {
     z-index: -1;
 }
 
-.explanation {
-    color: $deep-red;
-    text-align: center;
-    cursor: pointer;
-    margin: 80px 15px;
-}
-
 
 .button-bar{
     clear:both;
@@ -223,7 +217,45 @@ a {
     .sub-title {
         font-size: 1.2em;
         text-align: center;
-        color: $gray;
+        color: lighten($gray, 20%);
         font-style:italic;
+        font-weight:normal;
+
+        &::before{
+            content: '-';
+                    padding: 0 20px;
+        }
+        &::after{
+            content: '-';
+            padding: 0 20px;
+        }
+    }
+}
+
+
+.fake-drop-zone{
+    text-align: center;
+    cursor: pointer;
+    margin: auto 15px;
+    outline:4px dashed $gray-lighter;
+
+
+    padding: 50px;
+    color: $gray;
+    font-size: 1.2em;
+    .drop-instruction{
+        display:none;
+    }
+}
+.drag-over{
+    .fake-drop-zone{
+        box-shadow: 0 0 0 4px $deep-red;
+        animation: 1.5s animate-border infinite;
+    }
+     .drop-instruction{
+        display:inline-block;
+    }
+    .drag-instruction{
+        display:none;
     }
 }

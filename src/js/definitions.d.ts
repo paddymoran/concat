@@ -56,6 +56,7 @@ declare namespace Sign {
         connectDropTarget: Function;
         onDrop: Function;
         canDrop: Function;
+        isOver: boolean
     }
 }
 
@@ -88,7 +89,7 @@ declare namespace Sign.Actions {
             pages: PDFPageProxy[];
         };
     }
-    
+
     interface IGetPageFromPDFStoreAction extends IAction {
         payload: {
             docId: string;

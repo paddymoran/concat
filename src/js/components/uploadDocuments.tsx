@@ -109,14 +109,15 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
     render() {
         return (
             <FileDropZone onDrop={this.fileDrop}>
-            <div className="container">
+                <div className="container">
                 <div className='page-heading'>
                 <h1 className="title question">Upload Documents</h1>
                 <div className="sub-title step-count">Step 2</div>
                 </div>
 
-                <div className="explanation" onClick={this.onClick}>
-                    Drag PDFs here to sign them
+                <div className="explanation fake-drop-zone" onClick={this.onClick}>
+                <span className="drag-instruction">Drag PDFs here, or click to select</span>
+                <span className="drop-instruction">DROP HERE</span>
                     <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
                 </div>
 
@@ -124,7 +125,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                     <DocumentList documents={this.props.documentSet.documents} removeDocument={this.props.removeDocument} getPDF={this.props.getPDF} />
 
                     { !!this.props.documentSet.documents.length && <div className="button-bar">
-                        <Link to={`/documents/${this.props.documentSet.documents[0] ? this.props.documentSet.documents[0].id: 'no-id'}`} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>Sign These Documents</Link>
+                        <Link to={`/documents/${this.props.documentSet.documents[0] ? this.props.documentSet.documents[0].id: 'no-id'}`} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
                     </div> }
                 </div>
             </FileDropZone>

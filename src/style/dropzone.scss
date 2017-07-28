@@ -1,0 +1,36 @@
+
+.dropzone .push-catch{
+    height: 100%;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    z-index: -1;
+}
+
+
+.fake-drop-zone{
+    text-align: center;
+    cursor: pointer;
+    margin: auto 15px;
+    outline:4px dashed $gray-lighter;
+
+
+    padding: 50px;
+    color: $gray;
+    font-size: 1.2em;
+    .drop-instruction{
+        display:none;
+    }
+}
+.drag-over{
+    .fake-drop-zone{
+        box-shadow: 0 0 0 4px $deep-red;
+        animation: 1.5s animate-border infinite;
+    }
+     .drop-instruction{
+        display:inline-block;
+    }
+    .drag-instruction{
+        display:none;
+    }
+}

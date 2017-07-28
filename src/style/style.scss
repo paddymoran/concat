@@ -55,7 +55,9 @@ $fa-font-path: '~font-awesome/fonts';
 @import "loading";
 @import "workflow";
 @import "transitions";
-
+@import "beta-ribbon";
+@import "documents";
+@import "dropzone";
 
 html {
   position: relative;
@@ -79,92 +81,6 @@ a {
     max-width: 900px;
 }
 
-
-.document-list{
-    margin-top: 20px;
-}
-
-.document{
-    float:left;
-    position: relative;
-    width: 170px;
-    padding: 10px;
-    margin: 10px;
-    min-height:150px;
-    cursor: move;
-    background-color: white;
-    background-color: #f8f8f8;
-    border-radius: 8px;
-
-    $font-size: 12px;
-    $line-height: 1.4;
-    $lines-to-show: 2;
-
-    .filename {
-
-      display: block; /* Fallback for non-webkit */
-      display: -webkit-box;
-      max-width: 400px;
-      height: $font-size*$line-height*$lines-to-show; /* Fallback for non-webkit */
-      margin: 0 auto;
-      font-size: $font-size;
-      line-height: $line-height;
-      -webkit-line-clamp: $lines-to-show;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-        text-align:center;
-        margin-top: 4px;
-    }
-
-    .image{
-        width: 150px;
-        height: 212px;
-        background-color:#efefef;
-    }
-    .progress{
-        position:absolute;
-        top: 120px;
-        left: 10px;
-        right: 10px;
-        margin-bottom: 0;
-        height: 16px;
-    }
-    .progress-leave {
-      opacity: 1;
-    }
-
-    .progress-leave.progress-leave-active {
-      opacity: 0.01;
-      transition: opacity 500ms ease-in;
-    }
-
-    .remove{
-         position: absolute;
-        right: 10px;
-        background-color: #666;
-        top: 10px;
-        border: none;
-        border-radius: 8px;
-        width: 29px;
-        cursor: pointer;
-        color: white;
-        display:none;
-    }
-    &:hover .remove{
-        display:block;
-    }
-
-}
-
-
-.dropzone .push-catch{
-    height: 100%;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    z-index: -1;
-}
 
 
 .button-bar{
@@ -232,30 +148,3 @@ a {
     }
 }
 
-
-.fake-drop-zone{
-    text-align: center;
-    cursor: pointer;
-    margin: auto 15px;
-    outline:4px dashed $gray-lighter;
-
-
-    padding: 50px;
-    color: $gray;
-    font-size: 1.2em;
-    .drop-instruction{
-        display:none;
-    }
-}
-.drag-over{
-    .fake-drop-zone{
-        box-shadow: 0 0 0 4px $deep-red;
-        animation: 1.5s animate-border infinite;
-    }
-     .drop-instruction{
-        display:inline-block;
-    }
-    .drag-instruction{
-        display:none;
-    }
-}

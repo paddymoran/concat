@@ -36,9 +36,9 @@ class DocumentRenderer extends React.Component<DocumentRendererProps, DocumentRe
         else {
             // Find the document
             const doc = this.props.documentSet.documents.find(doc => doc.id === id);
-            
+
             // Check the document has finished uploading
-            if (doc.readStatus === Sign.DocumentReadStatus.Complete) {
+            if (doc && doc.readStatus === Sign.DocumentReadStatus.Complete) {
                 // Create the PDF
                 const docData = new Uint8Array(doc.data);
 
@@ -53,7 +53,7 @@ class DocumentRenderer extends React.Component<DocumentRendererProps, DocumentRe
                             return resolve(pdf);
                         });
                 });
-                
+
             }
             // We haven't finished readin the document yet
             else {

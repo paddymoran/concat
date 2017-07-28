@@ -10,6 +10,11 @@ setup(name='catalex_sign',
       install_requires=[
           'flask',
           'requests',
-          'psycopg2'
+          'psycopg2',
+          'pdfrw',
+          'reportlab'
       ],
+        dependency_links=[
+            "git+https://github.com/pmaupin/pdfrw.git#egg=pdfrw"
+        ],
       zip_safe=False)

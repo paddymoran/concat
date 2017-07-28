@@ -11,7 +11,7 @@ declare namespace Sign {
         Complete
     }
 
-    export interface Document {
+    interface Document {
         id: string;
         filename: string;
         file: File;
@@ -22,29 +22,37 @@ declare namespace Sign {
         progress?: number;
     }
 
-    export interface DocumentSet {
+    interface DocumentSet {
         id?: string;
         documents: Document[];
     }
 
-    export interface State {
-        routing: any;
-        documentSet: DocumentSet;
+    interface IPDFStore {
+        [id: string]: {
+            document: PDFDocumentProxy;
+            pages: PDFPageProxy[];
+        }
     }
 
-    export interface Action<T> {
+    interface State {
+        routing: any;
+        documentSet: DocumentSet;
+        pdfStore: IPDFStore;
+    }
+
+    interface Action<T> {
         type: string;
         payload: T;
         shouldCall: (state: State) => boolean;
     }
 
-    export interface DocumentAction extends Action<any> {}
+    interface DocumentAction extends Action<any> {}
 
-    export interface DocumentHandler {
+    interface DocumentHandler {
         onDrop(files: any): void;
     }
 
-    export interface FileDropZoneProps {
+    interface FileDropZoneProps {
         connectDropTarget: Function;
         onDrop: Function;
         canDrop: Function;
@@ -59,11 +67,33 @@ declare namespace Sign.Actions {
         REMOVE_DOCUMENT = 'REMOVE_DOCUMENT',
         UPDATE_FORM = 'UPDATE_FORM',
         SET_DOCUMENT_SET_ID = 'SET_DOCUMENT_SET_ID',
+
+        ADD_PDF_TO_STORE = 'ADD_PDF_TO_STORE',
+        GET_PAGE_FROM_PDF_STORE = 'GET_PAGE_FROM_PDF_STORE',
     }
 
     interface IActionCreator<T> {
         type: string
         (payload: T): Sign.Action<T>
+    }
+
+    interface IAction {
+        type: Sign.Actions.Types;
+    }
+
+    interface IAddPDFToStoreAction extends IAction {
+        payload: {
+            id: string;
+            document: PDFDocumentProxy;
+            pages: PDFPageProxy[];
+        };
+    }
+    
+    interface IGetPageFromPDFStoreAction extends IAction {
+        payload: {
+            docId: string;
+            pageNumber: number;
+        };
     }
 }
 

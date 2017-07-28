@@ -16,6 +16,7 @@ interface PDFViewerProps {
     pdfDocumentProxy?: PDFDocumentProxy;
     worker?: boolean;
     removeDocument: Function;
+    docId: string;
 }
 
 interface IPDFViewerState {
@@ -45,7 +46,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
             selectSignatureModalIsVisible: false,
             signing: false,
         };
-        this.loadDocument = this.loadDocument.bind(this);
         this.changePage = this.changePage.bind(this)
 
         this.signatureSelected = this.signatureSelected.bind(this);
@@ -55,21 +55,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
         if (this.props.worker === false) {
             PDFJS.disableWorker = true;
         }
-        
-        this.loadDocument(this.props.pdfDocumentProxy);
-    }
-
-    loadDocument(pdfDocumentProxy: PDFDocumentProxy) {
-        this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
-
-        return this._pagePromises = Promise.map(
-                Array(pdfDocumentProxy.numPages).fill(null),
-                (item: any, index: number) => pdfDocumentProxy.getPage(index + 1)
-            )
-            .then((pages: PDFPageProxy[]) => {
-                this.setState({ pages });
-                return pages;
-            });
     }
 
     componentWillUnmount() {
@@ -174,7 +159,7 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
                     {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
 
                     <SignatureDragContainer signatureId={this.state.signatureId} className="pdf-page-wrapper" ref="signature-container">
-                        <PDFPage page={page} drawWidth={1000} />
+                        <PDFPage page={page} drawWidth={1000} docId={this.props.docId} pageNumber={this.state.pageNumber} />
                     </SignatureDragContainer>
                 </div>
             </div>

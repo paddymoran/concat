@@ -89,10 +89,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
     }
 
     fileDrop(files: File[]) {
-        files.map(file => {
-            return generateUUID()
-                .then(uuid => this.props.addDocument({ filename: file.name, id: uuid, file }));
-        });
+        files.map(file => generateUUID().then(uuid => this.props.addDocument(uuid, file.name, file)));
     }
 
     collectFiles(event: React.ChangeEvent<HTMLInputElement>) {

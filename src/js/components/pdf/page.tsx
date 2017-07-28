@@ -3,29 +3,38 @@ import { findDOMNode } from "react-dom";
 import PDFJS from 'pdfjs-dist';
 import { connect } from 'react-redux';
 import { getPage } from '../../actions/pdfStore';
+import Loading from '../loading';
 
-interface PDFPageProps {
-    page: PDFPageProxy;
+interface PDFPageConnectProps {
     drawWidth: number;
     scale?: number;
     docId: string;
-    getPage: (docId: string, pageNumber: number) => void;
     pageNumber: number;
 }
 
-@connect(undefined, { getPage })
-export class PDFPage extends React.PureComponent<PDFPageProps> {
+interface PDFPageProps extends PDFPageConnectProps {
+    page: PDFPageProxy;
+    getPage: (docId: string, pageNumber: number) => void;
+}
+
+@connect(
+    (state: Sign.State, ownProps: PDFPageConnectProps) => ({ page: state.pdfStore[ownProps.docId] ? state.pdfStore[ownProps.docId].pages[ownProps.pageNumber] : null }),
+    { getPage }
+)
+export default class PDFPage extends React.PureComponent<PDFPageProps> {
     constructor(props: PDFPageProps) {
         super(props);
     }
 
     componentDidUpdate(prevProps: PDFPageProps) {
-        this.displayPage();
+        debugger;
+        if (this.props.page) {
+            this.displayPage();
+        }
     }
 
     componentDidMount() {
         this.props.getPage(this.props.docId, this.props.pageNumber);
-        this.displayPage();
     }
 
     displayPage() {
@@ -37,13 +46,14 @@ export class PDFPage extends React.PureComponent<PDFPageProps> {
         canvas.width = viewport.width;
         canvas.height = viewport.height;
 
-        this.props.page.render({
-            canvasContext: context,
-            viewport: viewport
-        });
+        this.props.page.render({ canvasContext: context, viewport: viewport });
     }
 
     render() {
+        if (!this.props.page) {
+            return <Loading />;
+        }
+
         return <canvas ref="pdf-canvas" className='pdf-page' />;
     }
 }

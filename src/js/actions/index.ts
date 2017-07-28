@@ -1,11 +1,11 @@
-export function addDocument(payload: {uuid: string, filename: string, file: File}) {
+export function addDocument(id: string, filename: string, file: File): Sign.Actions.AddDocument {
     return {
         type: Sign.Actions.Types.ADD_DOCUMENT,
-        payload
+        payload: { id, filename, file }
     };
 }
 
-export function updateDocument(payload: string) {
+export function updateDocument(payload: Sign.Actions.UpdateDocumentPayload): Sign.Actions.UpdateDocument {
     return {
         type: Sign.Actions.Types.UPDATE_DOCUMENT,
         payload

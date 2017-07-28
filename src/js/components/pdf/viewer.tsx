@@ -3,7 +3,7 @@ import { findDOMNode } from 'react-dom';
 import * as Promise from 'bluebird';
 import { Alert, Button, Modal } from 'react-bootstrap';
 import { PDFPreview } from './preview';
-import { PDFPage } from './page';
+import PDFPage from './page';
 import SignatureSelector from '../signatureSelector';
 import SignatureDragContainer from '../signatureDragContainer';
 import * as Axios from 'axios';
@@ -55,15 +55,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
         if (this.props.worker === false) {
             PDFJS.disableWorker = true;
         }
-    }
-
-    componentWillUnmount() {
-        this.cleanup();
-    }
-
-    cleanup() {
-        this._pdfPromise && this._pdfPromise.isPending() && this._pdfPromise.cancel();
-        this._pagePromises && this._pagePromises.isPending() && this._pagePromises.cancel();
     }
 
     changePage(newPageNumber: number) {
@@ -118,12 +109,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
             return <div>{ this.state.error }</div>
         }
 
-        if (!this.state.pages) {
-            return <div className='loading' />;
-        }
-
-        const page = this.state.pages[this.state.pageNumber - 1];
-
         return (
             <div className='pdf-viewer'>
                 <Modal show={this.state.signing} onHide={() => {}}>
@@ -132,11 +117,11 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
                         <div className='text-center'>Signing document, please wait.</div>
                     </Modal.Body>
                 </Modal>
-                <PDFPreview
+                {/*<PDFPreview
                     pages={this.state.pages}
                     changePage={this.changePage.bind(this)}
                     activePageNumber={this.state.pageNumber}
-                    width={120} />
+                    width={120} />*/}
 
                 <div className='pdf-container'>
                     {/*<div className='pdf-title'>{this.props.file.filename}</div>*/}
@@ -159,7 +144,7 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
                     {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
 
                     <SignatureDragContainer signatureId={this.state.signatureId} className="pdf-page-wrapper" ref="signature-container">
-                        <PDFPage page={page} drawWidth={1000} docId={this.props.docId} pageNumber={this.state.pageNumber} />
+                        <PDFPage drawWidth={1000} docId={this.props.docId} pageNumber={this.state.pageNumber} />
                     </SignatureDragContainer>
                 </div>
             </div>

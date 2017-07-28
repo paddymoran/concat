@@ -7,7 +7,7 @@ import { addDocument } from '../actions';
 import { generateUUID } from './uuid';
 
 interface DocumentHandlerProps {
-    addDocuments:(files: any) => void,
+    addDocuments: (files: File[]) => void,
     documentSet: Sign.DocumentSet,
     form: any,
 }
@@ -56,12 +56,5 @@ export default connect(state => ({
     documentSet: state.documentSet,
     form: state.form
 }), {
-    addDocuments: (files: File[]) => {
-        files.map(file => {
-            return generateUUID()
-                .then(uuid => {
-                    return addDocument({ filename: file.name, uuid, file })
-                });
-        });
-    },
+    addDocuments: (files: File[]) => files.map(file => generateUUID().then(uuid => addDocument(uuid, file.name, file))),
 })(DragContext);

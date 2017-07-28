@@ -4,7 +4,7 @@ import * as Promise from 'bluebird';
 function *getPDFFromStore() {
     yield takeEvery(Sign.Actions.Types.GET_PAGE_FROM_PDF_STORE, task);
 
-    function *task(action: Sign.Actions.IGetPageFromPDFStoreAction) {
+    function *task(action: Sign.Actions.GetPageFromPDFStoreAction) {
         const { pdf } = yield select((state: Sign.State) => ({ pdf: state.pdfStore[action.payload.docId] }));
         
         if (!pdf) {
@@ -23,7 +23,7 @@ function *getPDFFromStore() {
                 );
 
                 // Add the pdf to the pdf store
-                const addPDFAction: Sign.Actions.IAddPDFToStoreAction = {
+                const addPDFAction: Sign.Actions.AddPDFToStoreAction = {
                     type: Sign.Actions.Types.ADD_PDF_TO_STORE,
                     payload: { id: action.payload.docId, document: pdfDocumentProxy, pages }
                 };

@@ -16,7 +16,6 @@ declare namespace Sign {
         filename: string;
         file: File;
         data: ArrayBuffer;
-        pdfDocumentProxy: PDFDocumentProxy;
         uploadStatus: DocumentUploadStatus;
         readStatus: DocumentReadStatus;
         progress?: number;
@@ -27,7 +26,7 @@ declare namespace Sign {
         documents: Document[];
     }
 
-    interface IPDFStore {
+    interface PDFStore {
         [id: string]: {
             document: PDFDocumentProxy;
             pages: PDFPageProxy[];
@@ -37,7 +36,7 @@ declare namespace Sign {
     interface State {
         routing: any;
         documentSet: DocumentSet;
-        pdfStore: IPDFStore;
+        pdfStore: PDFStore;
     }
 
     interface Action<T> {
@@ -72,29 +71,46 @@ declare namespace Sign.Actions {
         GET_PAGE_FROM_PDF_STORE = 'GET_PAGE_FROM_PDF_STORE',
     }
 
-    interface IActionCreator<T> {
-        type: string
-        (payload: T): Sign.Action<T>
+    interface ActionCreator<T> {
+        type: Sign.Actions.Types;
+        payload: T
     }
 
-    interface IAction {
+    interface Action {
         type: Sign.Actions.Types;
     }
 
-    interface IAddPDFToStoreAction extends IAction {
-        payload: {
-            id: string;
-            document: PDFDocumentProxy;
-            pages: PDFPageProxy[];
-        };
+    interface AddDocumentPayload {
+        id: string;
+        filename: string;
+        file: File;
+    }
+
+    interface UpdateDocumentPayload {
+        id: string;
+        readStatus?: Sign.DocumentReadStatus;
+        uploadStatus?: Sign.DocumentUploadStatus;
+        data?: ArrayBuffer;
+    }
+
+    interface AddPDFToStoreActionPayload {
+        id: string;
+        document: PDFDocumentProxy;
+        pages: PDFPageProxy[];
     }
     
-    interface IGetPageFromPDFStoreAction extends IAction {
-        payload: {
-            docId: string;
-            pageNumber: number;
-        };
+    interface GetPageFromPDFStoreActionPayload extends Action {
+        docId: string;
+        pageNumber: number;
     }
+
+    interface AddDocument extends ActionCreator<AddDocumentPayload> {}
+    interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
+
+    interface AddPDFToStoreAction extends ActionCreator<AddPDFToStoreActionPayload> {}
+    interface GetPageFromPDFStoreAction extends ActionCreator<GetPageFromPDFStoreActionPayload> {}
+    
+    
 }
 
 declare module 'pdfjs-dist' {

@@ -1,0 +1,77 @@
+
+.document-list{
+    margin-top: 20px;
+}
+
+.document{
+    float:left;
+    position: relative;
+    width: 170px;
+    padding: 10px;
+    margin: 10px;
+    min-height:150px;
+    cursor: move;
+    background-color: white;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+
+    $font-size: 12px;
+    $line-height: 1.4;
+    $lines-to-show: 2;
+
+    .filename {
+
+      display: block; /* Fallback for non-webkit */
+      display: -webkit-box;
+      max-width: 400px;
+      height: $font-size*$line-height*$lines-to-show; /* Fallback for non-webkit */
+      margin: 0 auto;
+      font-size: $font-size;
+      line-height: $line-height;
+      -webkit-line-clamp: $lines-to-show;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+        text-align:center;
+        margin-top: 4px;
+    }
+
+    .image{
+        width: 150px;
+        height: 212px;
+        background-color:#efefef;
+    }
+    .progress{
+        position:absolute;
+        top: 120px;
+        left: 10px;
+        right: 10px;
+        margin-bottom: 0;
+        height: 16px;
+    }
+    .progress-leave {
+      opacity: 1;
+    }
+
+    .progress-leave.progress-leave-active {
+      opacity: 0.01;
+      transition: opacity 500ms ease-in;
+    }
+
+    .remove{
+         position: absolute;
+        right: 10px;
+        background-color: #666;
+        top: 10px;
+        border: none;
+        border-radius: 8px;
+        width: 29px;
+        cursor: pointer;
+        color: white;
+        display:none;
+    }
+    &:hover .remove{
+        display:block;
+    }
+
+}

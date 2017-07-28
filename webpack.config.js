@@ -13,7 +13,8 @@ module.exports = {
     entry: './src/js/main.tsx',
     output: {
         filename: 'app.js',
-        path:  path.resolve(__dirname, 'public')
+        path:  path.resolve(__dirname, 'public'),
+        publicPath: '/'
 
     },
     devtool: DEV ? "source-map" : null,

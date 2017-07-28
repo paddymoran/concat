@@ -12,6 +12,7 @@ import { History } from 'history';
 
 import '../style/style.scss';
 
+/*
 const ConnectedApp = connect(state => ({documents: state.documents, form: state.form}), {
     addDocument: addDocument,
     updateDocument: updateDocument,
@@ -19,6 +20,8 @@ const ConnectedApp = connect(state => ({documents: state.documents, form: state.
     removeDocument: removeDocument,
     updateForm: updateForm
 })(App);
+*/
+
 
 interface RootProps {
     history: History,
@@ -30,7 +33,7 @@ export default class Root extends React.Component<RootProps, {}> {
         return (
             <Provider store={this.props.store}>
                 <Router history={this.props.history}>
-                    { routes(ConnectedApp) }
+                    { routes() }
                     { this.props.children }
                 </Router>
             </Provider>

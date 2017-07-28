@@ -55,6 +55,7 @@ declare namespace Sign {
         connectDropTarget: Function;
         onDrop: Function;
         canDrop: Function;
+        isOver: boolean
     }
 }
 

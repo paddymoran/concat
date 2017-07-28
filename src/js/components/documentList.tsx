@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import { CSSTransitionGroup } from 'react-transition-group';
 import PDFThumbnail from './pdf/thumbnail';
 import PDFPage from './pdf/page';
 
@@ -25,14 +25,14 @@ const DocumentView = (props: DocumentViewProps) => (
 
         <PDFPage pageNumber={1} drawWidth={THUMBNAIL_WIDTH} docId={props.document.id} />
         <div className="filename">{ props.document.filename }</div>
-        
-        <ReactCSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+
+        <CSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
             { props.document.uploadStatus === Sign.DocumentUploadStatus.InProgress &&
                 <div className="progress" key="progress">
                     <div className="progress-bar progress-bar-striped active" style={{width: `${props.document.progress*100}%`}}></div>
                 </div>
             }
-        </ReactCSSTransitionGroup>
+        </CSSTransitionGroup>
     </div>
 );
 

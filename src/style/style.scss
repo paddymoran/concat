@@ -3,11 +3,7 @@
 // Reset and dependencies
 @import "~catalex_shared/sass/catalex-vars";
 
-$header-height: 90px;
-
-//$btn-default-border: #A6171D;
-//$input-border:    $btn-default-border;
-//$list-group-border: $btn-default-border;
+$headings-font-family: inherit;
 $header-image:url("~catalex_shared/images/hero-bg.jpg");
 $light-red: rgb(197, 27, 36);
 $label-color: $text-color;
@@ -18,20 +14,24 @@ $btn-primary-color: white;
 $btn-primary-bg: $light-red;
 $btn-primary-border: $light-red;
 $dark: lighten(black, 35%);
-
+$header-height: 50px;
+$navbar-height: $header-height;
+$header-height-sml: $header-height;
+$navbar-margin-bottom: 0px;
+ $btn-font-weight: 300;
 
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/grid";
-$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/glyphicons";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/scaffolding";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/buttons";
-// @import "~bootstrap-sass/assets/stylesheets/bootstrap/forms";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/forms";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/dropdowns";
 // @import "~bootstrap-sass/assets/stylesheets/bootstrap/modals";
 // @import "~bootstrap-sass/assets/stylesheets/bootstrap/close";
-// @import "~bootstrap-sass/assets/stylesheets/bootstrap/navs";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/navs";
 // @import "~bootstrap-sass/assets/stylesheets/bootstrap/input-groups";
 // @import "~bootstrap-sass/assets/stylesheets/bootstrap/list-group";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/navbar";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/progress-bars";
 // @import "~bootstrap-sass/assets/stylesheets/bootstrap/alerts";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/type";
@@ -39,6 +39,13 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 
 // @import "~bootstrap-sass/assets/stylesheets/bootstrap/utilities";
 // @import "~bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities";
+@import "~font-awesome/scss/variables";
+$fa-font-path: '~font-awesome/fonts';
+@import "~font-awesome/scss/mixins";
+@import "~font-awesome/scss/path";
+@import "~font-awesome/scss/core";
+@import "~font-awesome/scss/icons";
+
 
 
 @import "header";
@@ -46,6 +53,11 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 @import "pdf-viewer";
 @import "select-signature";
 @import "loading";
+@import "workflow";
+@import "transitions";
+@import "beta-ribbon";
+@import "documents";
+@import "dropzone";
 
 html {
   position: relative;
@@ -54,8 +66,10 @@ html {
 
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 60px;
-  -webkit-font-smoothing: antialiased;
+
+
+  font-family: -apple-system,Helvetica Neue,Roboto,Segoe UI,Lucida Grande,sans-serif;
+overflow-x:hidden;
 }
 
 a {
@@ -67,113 +81,6 @@ a {
     max-width: 900px;
 }
 
-.title{
-    h1{
-        margin-top: 30px;
-        color: $light-red;
-        text-align:center;
-        span{
-            display:inline-block;
-            vertical-align:middle;
-        }
-        .big{
-            font-size:50px;
-        }
-        margin-bottom:0;
-    }
-}
-.document-list{
-    margin-top: 20px;
-}
-
-.document{
-    float:left;
-    position: relative;
-    width: 170px;
-    padding: 10px;
-    margin: 10px;
-    min-height:150px;
-    cursor: move;
-    background-color: white;
-    background-color: #f8f8f8;
-    border-radius: 8px;
-
-    $font-size: 12px;
-    $line-height: 1.4;
-    $lines-to-show: 2;
-
-    .filename {
-
-      display: block; /* Fallback for non-webkit */
-      display: -webkit-box;
-      max-width: 400px;
-      height: $font-size*$line-height*$lines-to-show; /* Fallback for non-webkit */
-      margin: 0 auto;
-      font-size: $font-size;
-      line-height: $line-height;
-      -webkit-line-clamp: $lines-to-show;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-        text-align:center;
-        margin-top: 4px;
-    }
-
-    .image{
-        width: 150px;
-        height: 212px;
-        background-color:#efefef;
-    }
-    .progress{
-        position:absolute;
-        top: 120px;
-        left: 10px;
-        right: 10px;
-        margin-bottom: 0;
-        height: 16px;
-    }
-    .progress-leave {
-      opacity: 1;
-    }
-
-    .progress-leave.progress-leave-active {
-      opacity: 0.01;
-      transition: opacity 500ms ease-in;
-    }
-
-    .remove{
-         position: absolute;
-        right: 10px;
-        background-color: #666;
-        top: 10px;
-        border: none;
-        border-radius: 8px;
-        width: 29px;
-        cursor: pointer;
-        color: white;
-        display:none;
-    }
-    &:hover .remove{
-        display:block;
-    }
-
-}
-
-
-.dropzone .push-catch{
-    height: 100%;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    z-index: -1;
-}
-
-.explanation {
-    color: $deep-red;
-    text-align: center;
-    cursor: pointer;
-    margin: 80px 15px;
-}
 
 
 .button-bar{
@@ -188,26 +95,7 @@ a {
     }
 }
 
-.workflow-option-wrapper {
-    margin-top: 60px;
-    color: $gray-dark;
 
-    &:hover {
-        color: $gray-dark;
-    }
-
-    .workflow-option {
-        text-align: center;
-        background: $gray-lighter;
-        border-radius: 4px;
-        border: 1px solid $gray;
-        padding: 60px 25px;
-
-        .glyphicon {
-            font-size: 4em;
-        }
-    }
-}
 
 .list-group-item {
     &:hover {
@@ -231,13 +119,32 @@ a {
     }
 }
 
-.title {
-    text-align: center;
-    color: $light-red;
+.title{
+    text-align:center;
 }
 
-.sub-title {
-    text-align: center;
-    color: $gray-dark;
-    font-size: 1.3em;
+.page-heading{
+    margin: 48px 0;
+    .title.question{
+        font-size:2.5em;
+        color: $gray;
+        margin:0;
+    }
+    .sub-title {
+        font-size: 1.2em;
+        text-align: center;
+        color: lighten($gray, 20%);
+        font-style:italic;
+        font-weight:normal;
+
+        &::before{
+            content: '-';
+                    padding: 0 20px;
+        }
+        &::after{
+            content: '-';
+            padding: 0 20px;
+        }
+    }
 }
+

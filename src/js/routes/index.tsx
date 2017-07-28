@@ -5,9 +5,9 @@ import SelectWorkflow from '../components/selectWorkflow';
 import DocumentView from '../components/documentView';
 import UploadDocuments from '../components/uploadDocuments';
 
-export default (component: RouteComponent) => {
+export default () => {
     return (
-        <Route path='/' component={component}>
+        <Route path='/' component={App}>
             <IndexRoute component={SelectWorkflow} />
 
             <Route path='selfsign' component={UploadDocuments} />

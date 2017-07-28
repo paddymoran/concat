@@ -1,3 +1,4 @@
+
 nav {
     background-color: $deep-red;
     background-image: $header-image;
@@ -6,40 +7,14 @@ nav {
     border: none;
     text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
     height: $header-height-sml;
-    
-    @media (min-width: $screen-sm-min) {
-        height: $header-height;
-    }
+    min-height:auto;
 }
-.header {
-    .navbar-header {
-        display: inline-block;
-        
-        img {
-            height: $header-height-sml - 15px;
-            margin: 10px 0 5px;
-
-            @media (min-width: $screen-sm-min) {
-                height: $header-height - 15px;
-            }
-        }
-    }
-
-    .account-nav li {
-        display: inline-block;
-        padding: 8px;
-
-        a {
-            color: white;
-        }
-    }
-}
-
-.account-nav {
-    float: right;
-
-    li {
-        display: inline-block;
-        padding: 8px 15px;
+.navbar{
+    border: none;
+    .dropdown-toggle{
+        font-size:24px;
+        line-height:24px;
+        padding-top: 13px;
+        padding-bottom: 13px;
     }
 }

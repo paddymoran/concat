@@ -5,7 +5,7 @@ class FileDropZone extends React.Component<Sign.FileDropZoneProps, {}> {
     render() {
         const { connectDropTarget} = this.props;
         return connectDropTarget(
-            <div className="dropzone">
+            <div className={"dropzone " + (this.props.isOver ? 'drag-over' : '')}>
                 { this.props.children }
                 <div className="push-catch"></div>
             </div>
@@ -21,6 +21,11 @@ const fileTarget = {
     drop(props: any, monitor: any) {
         const item = monitor.getItem() as MonitorItem;
         props.onDrop(item.files.filter(f => f.type === 'application/pdf'));
+    },
+    hover(props: any, monitor: any, component: any) {
+       if(props.onOver){
+            props.onOver()
+       }
     }
 };
 

@@ -22,12 +22,7 @@ interface PDFPageProps extends PDFPageConnectProps {
     { getPage }
 )
 export default class PDFPage extends React.PureComponent<PDFPageProps> {
-    constructor(props: PDFPageProps) {
-        super(props);
-    }
-
     componentDidUpdate(prevProps: PDFPageProps) {
-        debugger;
         if (this.props.page) {
             this.displayPage();
         }

@@ -6,11 +6,10 @@ import DocumentView from '../components/documentView';
 import UploadDocuments from '../components/uploadDocuments';
 import DocumentRenderer from '../components/documentRenderer';
 
-export default (component: RouteComponent) => {
+export default () => {
     return (
-        <Route path='/' component={component}>
+        <Route path='/' component={App}>
             <IndexRoute component={SelectWorkflow} />
-
             <Route component={DocumentRenderer}>
                 <Route path='selfsign' component={UploadDocuments} />
                 <Route path='documents/:documentId' component={DocumentView} />

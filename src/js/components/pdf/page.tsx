@@ -2,29 +2,29 @@ import * as React from "react";
 import { findDOMNode } from "react-dom";
 import PDFJS from 'pdfjs-dist';
 import { connect } from 'react-redux';
+import { getPage } from '../../actions/pdfStore';
 
 interface PDFPageProps {
     page: PDFPageProxy;
     drawWidth: number;
     scale?: number;
+    docId: string;
+    getPage: (docId: string, pageNumber: number) => void;
+    pageNumber: number;
 }
 
-@connect(
-    undefined,
-    {
-
-    }
-)
+@connect(undefined, { getPage })
 export class PDFPage extends React.PureComponent<PDFPageProps> {
     constructor(props: PDFPageProps) {
         super(props);
     }
 
-    componentDidUpdate(prevProps: PDFPageProps, prevState: PDFPageState) {
+    componentDidUpdate(prevProps: PDFPageProps) {
         this.displayPage();
     }
 
     componentDidMount() {
+        this.props.getPage(this.props.docId, this.props.pageNumber);
         this.displayPage();
     }
 
@@ -44,8 +44,6 @@ export class PDFPage extends React.PureComponent<PDFPageProps> {
     }
 
     render() {
-        return (
-            <canvas ref="pdf-canvas" className='pdf-page' />
-        )
+        return <canvas ref="pdf-canvas" className='pdf-page' />;
     }
 }

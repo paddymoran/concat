@@ -61,7 +61,7 @@ class DocumentView extends React.Component<DocumentViewProps, DocumentViewState>
 
         return (
             <div className='pdf-screen'>
-                <PDFViewer pdfDocumentProxy={document} worker={false} removeDocument={() => console.log('return to doc tray')} />
+                <PDFViewer pdfDocumentProxy={document} docId={this.props.params.documentId} worker={false} removeDocument={() => console.log('return to doc tray')} />
             </div>
         );
     }

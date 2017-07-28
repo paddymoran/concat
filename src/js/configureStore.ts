@@ -8,18 +8,6 @@ import createSagaMiddleware from 'redux-saga';
 import rootSaga from './sagas';
 
 export default function configureStore(history: History, initialState={}) {
-    const shouldCall = ({ dispatch, getState }:MiddlewareAPI<Sign.State>) => {
-        return (next: Dispatch<Sign.State>) => (action: Sign.Action<any>) => {
-            const shouldCall = action.shouldCall || (() => true);
-
-            if (!shouldCall(getState())) {
-                return false;
-            }
-
-            return next(action);
-        }
-    }
-
     const loggerMiddleware = createLogger();
     const sagaMiddleware = createSagaMiddleware();
 
@@ -27,8 +15,7 @@ export default function configureStore(history: History, initialState={}) {
         sagaMiddleware,
         <any>thunk.default,
         loggerMiddleware,
-        routerMiddleware(history),
-        <Middleware>shouldCall
+        routerMiddleware(history)
     );
 
     const createStoreWithMiddleware = compose(middleware)(createStore);

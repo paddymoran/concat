@@ -13,7 +13,7 @@ const documentSet = (state: Sign.DocumentSet = {documents: []}, action: Sign.Doc
             const newDoc = {
                 ...action.payload,
                 uploadStatus: Sign.DocumentUploadStatus.NotStarted,
-                readState: Sign.DocumentReadStatus.NotStarted
+                readStatus: Sign.DocumentReadStatus.NotStarted
             };
             return Object.assign({}, state, { documents: state.documents.concat(newDoc) });
         

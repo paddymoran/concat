@@ -11,7 +11,6 @@ interface DocumentViewProps {
 interface DocumentListProps {
     documents: Sign.Document[];
     removeDocument: Function;
-    getPDF: Function;
 };
 
 const A4_RATIO = 1.414;

@@ -15,7 +15,6 @@ interface UploadDocumentsProps {
     removeDocument: (id: number) => void;
     setDocumentSetId: () => void;
     updateDocument: Function;
-    getPDF: Function;
 }
 
 const eachSeries = (arr: Array<any>, iteratorFn: Function) => arr.reduce(
@@ -113,13 +112,13 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                 </div>
 
                 <div className="explanation fake-drop-zone" onClick={this.onClick}>
-                <span className="drag-instruction">Drag PDFs here, or click to select</span>
-                <span className="drop-instruction">DROP HERE</span>
-                    <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
-                </div>
+                    <span className="drag-instruction">Drag PDFs here, or click to select</span>
+                    <span className="drop-instruction">DROP HERE</span>
+                        <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
+                    </div>
 
 
-                    <DocumentList documents={this.props.documentSet.documents} removeDocument={this.props.removeDocument} getPDF={this.props.getPDF} />
+                    <DocumentList documents={this.props.documentSet.documents} removeDocument={this.props.removeDocument} />
 
                     { !!this.props.documentSet.documents.length && <div className="button-bar">
                         <Link to={`/documents/${this.props.documentSet.documents[0] ? this.props.documentSet.documents[0].id: 'no-id'}`} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
@@ -135,8 +134,8 @@ const DNDUploadDocuments = DragDropContext(HTML5Backend)(UploadDocuments)
 export default connect(state => ({
     documentSet: state.documentSet
 }), {
-    addDocument: addDocument,
-    removeDocument: removeDocument,
-    updateDocument: updateDocument,
-    setDocumentSetId: setDocumentSetId
+    addDocument,
+    removeDocument,
+    updateDocument,
+    setDocumentSetId
 })(DNDUploadDocuments);

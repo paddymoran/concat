@@ -22,6 +22,13 @@ interface PDFPageProps extends PDFPageConnectProps {
     { getPage }
 )
 export default class PDFPage extends React.PureComponent<PDFPageProps> {
+    constructor(props) {
+        super(props);
+        this.state = {
+            pageRendered: false
+        }
+    }
+
     componentDidUpdate(prevProps: PDFPageProps) {
         if (this.props.page) {
             this.displayPage();
@@ -29,7 +36,10 @@ export default class PDFPage extends React.PureComponent<PDFPageProps> {
     }
 
     componentDidMount() {
-        this.props.getPage(this.props.docId, this.props.pageNumber);
+        debugger;
+        if (this.props.page) {
+            this.displayPage();
+        }
     }
 
     displayPage() {

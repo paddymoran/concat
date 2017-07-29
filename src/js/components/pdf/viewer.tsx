@@ -13,7 +13,6 @@ import * as PDFJS from 'pdfjs-dist';
 Promise.config({ cancellation: true });
 
 interface PDFViewerProps {
-    pdfDocumentProxy?: PDFDocumentProxy;
     worker?: boolean;
     removeDocument: Function;
     docId: string;
@@ -124,9 +123,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
                     width={120} />*/}
 
                 <div className='pdf-container'>
-                    {/*<div className='pdf-title'>{this.props.file.filename}</div>*/}
-                    <div className='pdf-page-number'>Page {this.state.pageNumber} of {this.props.pdfDocumentProxy.numPages}</div>
-
                     <div className="button-row">
                         <Button bsStyle='info' onClick={() => this.props.removeDocument()}>
                             Close Document

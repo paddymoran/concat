@@ -2,16 +2,16 @@ import { select, takeEvery, put, call } from 'redux-saga/effects';
 import * as Promise from 'bluebird';
 
 function *getPDFFromStore() {
-    yield takeEvery(Sign.Actions.Types.GET_PAGE_FROM_PDF_STORE, task);
+    yield takeEvery(Sign.Actions.Types.UPDATE_DOCUMENT, task);
 
-    function *task(action: Sign.Actions.GetPageFromPDFStoreAction) {
-        const { pdf } = yield select((state: Sign.State) => ({ pdf: state.pdfStore[action.payload.docId] }));
+    function *task(action: Sign.Actions.UpdateDocument) {
+        const { pdf } = yield select((state: Sign.State) => ({ pdf: state.pdfStore[action.payload.id] }));
         
         if (!pdf) {
-            const { doc } = yield select((state: Sign.State) => ({ doc: state.documentSet.documents.find(doc => doc.id === action.payload.docId) }));
+            const { doc } = yield select((state: Sign.State) => ({ doc: state.documentSet.documents.find(doc => doc.id === action.payload.id) }));
             
             // Check the document has finished uploading
-            if (doc.readStatus === Sign.DocumentReadStatus.Complete) {
+            if (doc && doc.readStatus === Sign.DocumentReadStatus.Complete) {
                 // Create the pdf document proxy
                 const docData = new Uint8Array(doc.data);
                 const pdfDocumentProxy = yield PDFJS.getDocument(docData);
@@ -25,7 +25,7 @@ function *getPDFFromStore() {
                 // Add the pdf to the pdf store
                 const addPDFAction: Sign.Actions.AddPDFToStoreAction = {
                     type: Sign.Actions.Types.ADD_PDF_TO_STORE,
-                    payload: { id: action.payload.docId, document: pdfDocumentProxy, pages }
+                    payload: { id: action.payload.id, document: pdfDocumentProxy, pages }
                 };
 
                 yield put(addPDFAction);

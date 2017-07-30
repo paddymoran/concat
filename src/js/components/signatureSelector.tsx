@@ -39,7 +39,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
 
     constructor(props: SignatureSelectorProps) {
         super(props);
-        
+
         this.state = {
             selectedSignature: 0,
             currentTab: SELECT_SIGNATURE_TAB,
@@ -93,7 +93,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         this.setState({ uploading: true });
 
         // Upload image and trigger the parents signatureSelected method with the signature ID
-        axios.post('/signatures/upload', { base64Image })
+        axios.post('/api/signatures/upload', { base64Image })
             .then((response: SignaturesUploadResponse) => {
                 let signatureId = response.data.signature_id;
 
@@ -151,7 +151,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
 
                             <Tab eventKey={DRAW_SIGNATURE_TAB} title="Draw Signature">
                                 <div className='signature-canvas-conatiner clearfix'>
-                                    { this.state.uploading && 
+                                    { this.state.uploading &&
                                         <div className='loading' />
                                     }
                                     { !this.state.uploading &&
@@ -169,7 +169,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                                         { this.state.signatureUploaderErrors }
                                     </Alert>
                                 }
-                                { this.state.uploading && 
+                                { this.state.uploading &&
                                     <div className='loading' />
                                 }
                                 { !this.state.uploading &&

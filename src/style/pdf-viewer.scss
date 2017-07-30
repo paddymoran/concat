@@ -1,15 +1,11 @@
 $background: #fff;
 
 
-.pdf-screen {
+.pdf-screen{
     background: $background;
     z-index: 10;
-    position: absolute;
-    top: $header-height;
-    bottom: 60px;
-    left: 0;
-    width: 100%;
-    overflow: hidden;
+
+
 
     .pdf-viewer {
         .pdf-title {
@@ -46,11 +42,11 @@ $background: #fff;
 
                 &.selectable {
                     cursor: pointer;
-                    
+
                     canvas {
                         border: 5px solid $dark;
                     }
-                    
+
                     &.selected {
                         canvas {
                             border: 5px solid $light-red;
@@ -65,12 +61,7 @@ $background: #fff;
         }
 
         .pdf-container {
-            left:250px;
-            right:0;
-            position: absolute;
-            overflow-y: scroll;
-            height: 100%;
-            padding: 0 1em;
+
         }
 
         .pdf-page-wrapper {
@@ -78,12 +69,12 @@ $background: #fff;
             margin: 2em auto;
             max-width: 900px;
         }
-        
+
         .pdf-page {
             width: 100%;
             border: 1px solid $dark;
         }
-        
+
         .pdf-page-number{
             text-align: center;
         }

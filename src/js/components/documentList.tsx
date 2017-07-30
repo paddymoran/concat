@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { CSSTransitionGroup } from 'react-transition-group';
-import PDFThumbnail from './pdf/thumbnail';
 import PDFPage from './pdf/page';
 
 interface DocumentViewProps {

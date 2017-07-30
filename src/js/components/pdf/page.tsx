@@ -2,7 +2,6 @@ import * as React from "react";
 import { findDOMNode } from "react-dom";
 import PDFJS from 'pdfjs-dist';
 import { connect } from 'react-redux';
-import { getPage } from '../../actions/pdfStore';
 import Loading from '../loading';
 
 interface PDFPageConnectProps {
@@ -14,12 +13,10 @@ interface PDFPageConnectProps {
 
 interface PDFPageProps extends PDFPageConnectProps {
     page: PDFPageProxy;
-    getPage: (docId: string, pageNumber: number) => void;
 }
 
 @connect(
-    (state: Sign.State, ownProps: PDFPageConnectProps) => ({ page: state.pdfStore[ownProps.docId] ? state.pdfStore[ownProps.docId].pages[ownProps.pageNumber] : null }),
-    { getPage }
+    (state: Sign.State, ownProps: PDFPageConnectProps) => ({ page: state.pdfStore[ownProps.docId] ? state.pdfStore[ownProps.docId].pages[ownProps.pageNumber] : null })
 )
 export default class PDFPage extends React.PureComponent<PDFPageProps> {
     constructor(props) {
@@ -36,7 +33,6 @@ export default class PDFPage extends React.PureComponent<PDFPageProps> {
     }
 
     componentDidMount() {
-        debugger;
         if (this.props.page) {
             this.displayPage();
         }

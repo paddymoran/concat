@@ -69,6 +69,7 @@ declare namespace Sign.Actions {
         SET_DOCUMENT_SET_ID = 'SET_DOCUMENT_SET_ID',
 
         ADD_PDF_TO_STORE = 'ADD_PDF_TO_STORE',
+        FINISH_ADD_PDF_TO_STORE = 'FINISH_ADD_PDF_TO_STORE',
     }
 
     interface ActionCreator<T> {
@@ -93,16 +94,22 @@ declare namespace Sign.Actions {
         data?: ArrayBuffer;
     }
 
-    interface AddPDFToStoreActionPayload {
+    interface FinishAddPDFToStoreActionPayload {
         id: string;
         document: PDFDocumentProxy;
         pages: PDFPageProxy[];
+    }
+
+    interface AddPDFToStoreActionPayload {
+        id: string;
+        data: ArrayBuffer;
     }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
 
     interface AddPDFToStoreAction extends ActionCreator<AddPDFToStoreActionPayload> {}
+    interface FinishAddPDFToStoreAction extends ActionCreator<FinishAddPDFToStoreActionPayload> {}
 }
 
 declare module 'pdfjs-dist' {

@@ -2,6 +2,7 @@ import { select, takeEvery, put, call } from 'redux-saga/effects';
 import { SagaMiddleware, delay } from 'redux-saga';
 import axios from 'axios';
 import { updateDocument } from '../actions';
+import { addPDF } from '../actions/pdfStore';
 
 import pdfStoreSagas from './pdfStoreSagas';
 
@@ -23,10 +24,18 @@ function *readDocumentSaga() {
         const fileReader = new FileReader();
         fileReader.readAsArrayBuffer(action.payload.file);
         fileReader.onload = function*() {
+            debugger;
+            // Update the document
             yield put(updateDocument({
                 id: action.payload.id,
                 data: fileReader.result,
                 readStatus: Sign.DocumentReadStatus.Complete
+            }));
+
+            // Tell the pdf store to read this pdf
+            yield put(addPDF({
+                id: action.payload.id,
+                data: fileReader.result
             }));
         }
     }

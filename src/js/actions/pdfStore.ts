@@ -1,6 +1,3 @@
-export function getPage(docId: string, pageNumber: number): Sign.Actions.GetPageFromPDFStoreAction {
-    return {
-        type: Sign.Actions.Types.GET_PAGE_FROM_PDF_STORE,
-        payload: { docId, pageNumber }
-    };
+export function addPDF(payload: Sign.Actions.AddPDFToStoreActionPayload): Sign.Actions.AddPDFToStoreAction {
+    return { type: Sign.Actions.Types.ADD_PDF_TO_STORE, payload };
 }

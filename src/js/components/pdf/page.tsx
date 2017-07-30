@@ -34,7 +34,7 @@ export default class PDFPage extends React.PureComponent<PDFPageProps> {
 
     componentDidMount() {
         if (this.props.page) {
-            this.displayPage();
+            this.displayPage()
         }
     }
 

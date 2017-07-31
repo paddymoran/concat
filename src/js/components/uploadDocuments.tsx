@@ -8,6 +8,7 @@ import { DragDropContext } from 'react-dnd';
 import axios from 'axios';
 import { generateUUID } from './uuid';
 import  { Link } from 'react-router';
+import { addPDFToStore } from '../actions/pdfStore';
 
 interface UploadDocumentsProps {
     documentSet: Sign.DocumentSet;
@@ -15,6 +16,7 @@ interface UploadDocumentsProps {
     removeDocument: (id: number) => void;
     setDocumentSetId: () => void;
     updateDocument: Function;
+    addPDFToStore: (payload: Sign.Actions.AddPDFToStoreActionPayload) => void;
 }
 
 const eachSeries = (arr: Array<any>, iteratorFn: Function) => arr.reduce(
@@ -46,45 +48,47 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
     }
 
     uploadDocuments(documentSet: Sign.DocumentSet) {
-        const unUploaded = documentSet.documents.filter(doc => doc.uploadStatus === Sign.DocumentUploadStatus.NotStarted);
+        // const unUploaded = documentSet.documents.filter(doc => doc.uploadStatus === Sign.DocumentUploadStatus.NotStarted);
 
-        // Set each of the un-uploaded docs upload status to 'in progress' and the progress to 0
-        unUploaded.map(doc => this.props.updateDocument({
-            id: doc.id,
-            uploadStatus: Sign.DocumentUploadStatus.InProgress,
-            readStatus: Sign.DocumentReadStatus.InProgress,
-            progress: 0
-        }));
+        // // Set each of the un-uploaded docs upload status to 'in progress' and the progress to 0
+        // unUploaded.map(doc => this.props.updateDocument({
+        //     id: doc.id,
+        //     uploadStatus: Sign.DocumentUploadStatus.InProgress,
+        //     readStatus: Sign.DocumentReadStatus.InProgress,
+        //     progress: 0
+        // }));
 
-        eachSeries(unUploaded, (doc: Sign.Document) => {
-            // Read the document
-            const fileReader = new FileReader();
-            fileReader.readAsArrayBuffer(doc.file);
-            fileReader.onload = () => {
-                // Add the file reader result to the document, and mark the read process complete
-                this.props.updateDocument({
-                    id: doc.id,
-                    data: fileReader.result,
-                    readStatus: Sign.DocumentReadStatus.Complete
-                });
+        // eachSeries(unUploaded, (doc: Sign.Document) => {
+        //     // Read the document
+        //     const fileReader = new FileReader();
+        //     fileReader.readAsArrayBuffer(doc.file);
+        //     fileReader.onload = () => {
+        //         // Add the file reader result to the document, and mark the read process complete
+        //         this.props.updateDocument({
+        //             id: doc.id,
+        //             data: fileReader.result,
+        //             readStatus: Sign.DocumentReadStatus.Complete
+        //         });
 
-                // Upload the document to the server
-                const data = new FormData();
-                data.append('document_set_id', this.props.documentSet.id);
-                data.append('document_id', doc.id);
-                data.append('file[]', doc.file);
+        //         // this.props.addPDFToStore({ id: doc.id, data: fileReader.result });
 
-                const onUploadProgress = (progressEvent: any) => {
-                    // Update uploading percentage
-                    const percentCompleted = progressEvent.loaded / progressEvent.total;
-                    this.props.updateDocument({ id: doc.id, progress: percentCompleted });
-                }
+        //         // Upload the document to the server
+        //         const data = new FormData();
+        //         data.append('document_set_id', this.props.documentSet.id);
+        //         data.append('document_id', doc.id);
+        //         data.append('file[]', doc.file);
 
-                // Upload the document and set the upload status to complete
-                return axios.post('/api/documents', data, { onUploadProgress })
-                    .then((response) => this.props.updateDocument({ id: doc.id, uploadStatus: Sign.DocumentUploadStatus.Complete }));
-            };
-        });
+        //         const onUploadProgress = (progressEvent: any) => {
+        //             // Update uploading percentage
+        //             const percentCompleted = progressEvent.loaded / progressEvent.total;
+        //             this.props.updateDocument({ id: doc.id, progress: percentCompleted });
+        //         }
+
+        //         // Upload the document and set the upload status to complete
+        //         return axios.post('/api/documents', data, { onUploadProgress })
+        //             .then((response) => this.props.updateDocument({ id: doc.id, uploadStatus: Sign.DocumentUploadStatus.Complete }));
+        //     };
+        // });
     }
 
     fileDrop(files: File[]) {
@@ -137,5 +141,6 @@ export default connect(state => ({
     addDocument,
     removeDocument,
     updateDocument,
-    setDocumentSetId
+    setDocumentSetId,
+    addPDFToStore,
 })(DNDUploadDocuments);

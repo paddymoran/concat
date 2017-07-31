@@ -5,11 +5,13 @@ import { updateDocument } from '../actions';
 import { addPDF } from '../actions/pdfStore';
 
 import pdfStoreSagas from './pdfStoreSagas';
+import signatureSagas from './signatureSagas';
 
 export default function *rootSaga(): any {
     yield all([
         readDocumentSaga(),
-        ...pdfStoreSagas
+        ...pdfStoreSagas,
+        ...signatureSagas
     ]);
 }
 
@@ -24,7 +26,7 @@ function *readDocumentSaga() {
         const fileReader = new FileReader();
         fileReader.readAsArrayBuffer(action.payload.file);
         fileReader.onload = function*() {
-            debugger;
+
             // Update the document
             yield put(updateDocument({
                 id: action.payload.id,

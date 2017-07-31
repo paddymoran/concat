@@ -46,8 +46,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
             signing: false,
         };
         this.changePage = this.changePage.bind(this)
-
-        this.signatureSelected = this.signatureSelected.bind(this);
     }
 
     componentDidMount() {
@@ -62,17 +60,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
         }
     }
 
-    showModal() {
-        this.setState({ selectSignatureModalIsVisible: true });
-    }
-
-    hideModal() {
-        this.setState({ selectSignatureModalIsVisible: false });
-    }
-
-    signatureSelected(signatureId: string) {
-        this.setState({ signatureId, selectSignatureModalIsVisible: false, signingError: null });
-    }
 
     sign() {
         if (!this.state.signatureId) {
@@ -128,11 +115,7 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
                             Close Document
                         </Button>
 
-                        <SignatureSelector
-                            isVisible={this.state.selectSignatureModalIsVisible}
-                            showModal={this.showModal.bind(this)}
-                            hideModal={this.hideModal.bind(this)}
-                            onSignatureSelected={this.signatureSelected} />
+                        <SignatureSelector />
 
                         <Button onClick={this.sign.bind(this)}>Sign Document</Button>
                     </div>

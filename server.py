@@ -144,6 +144,8 @@ def get_documents_list(uuid):
 @app.route('/api/documents', methods=['POST'])
 def document_upload():
     try:
+        print('hi!')
+        print(request.form.get('document_set_id'))
         files = request.files.getlist('file[]')
         set_id = request.form.get('document_set_id')
         document_id = request.form.get('document_id')
@@ -153,6 +155,24 @@ def document_upload():
         print(e)
         raise InvalidUsage(e.message, status_code=500)
 
+@app.route('/api/documents/<doc_id>', methods=['GET'])
+def get_document(doc_id):
+    try:
+        print(session['user_id'])
+        document = db.get_document(session['user_id'], doc_id)
+
+        print(document)
+
+        if not document:
+            abort(404)
+
+        return jsonify(document)
+
+        # signature_file = BytesIO(signature)
+        # return send_file(signature_file, attachment_filename='signature.png')
+    except Exception as e:
+        print(e)
+        raise InvalidUsage(e.message, status_code=500)
 
 @app.route('/api/documents/thumb/<uuid>', methods=['GET'])
 def thumbview(uuid):

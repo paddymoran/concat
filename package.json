@@ -16,7 +16,7 @@
     "clean-webpack-plugin": "^0.1.9",
     "extract-text-webpack-plugin": "^2.1.0",
     "font-awesome": "^4.7.0",
-    "pdfjs-dist": "^1.5.336",
+    "pdfjs-dist": "^1.8.593",
     "react": "^15.3.2",
     "react-bootstrap": "^0.31.0",
     "react-dnd": "^2.1.4",
@@ -40,7 +40,6 @@
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.2",
-    "@types/pdf": "0.0.31",
     "@types/react": "^15.0.21",
     "@types/react-addons-css-transition-group": "^15.0.1",
     "@types/react-bootstrap": "0.0.47",

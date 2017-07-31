@@ -1,6 +1,6 @@
 import { takeEvery, put, call } from 'redux-saga/effects';
 import * as Promise from 'bluebird';
-import * as PDFJS from 'pdfjs-dist';
+import * as PDFJS from "pdfjs-dist";
 
 
 function *getPDFFromStore() {

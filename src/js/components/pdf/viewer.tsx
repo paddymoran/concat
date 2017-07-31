@@ -8,7 +8,7 @@ import SignatureSelector from '../signatureSelector';
 import SignatureDragContainer from '../signatureDragContainer';
 import * as Axios from 'axios';
 import axios from 'axios';
-import * as PDFJS from 'pdfjs-dist';
+
 
 Promise.config({ cancellation: true });
 

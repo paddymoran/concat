@@ -1,6 +1,5 @@
 import * as React from "react";
 import { findDOMNode } from "react-dom";
-import PDFJS from 'pdfjs-dist';
 
 interface PDFPreviewProps {
     pages: Array<PDFPageProxy>;

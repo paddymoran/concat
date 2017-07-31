@@ -1,6 +1,5 @@
 import * as React from "react";
 import { findDOMNode } from "react-dom";
-import PDFJS from 'pdfjs-dist';
 import { connect } from 'react-redux';
 import Loading from '../loading';
 import { requestDocument } from '../../actions/index';
@@ -22,6 +21,8 @@ interface PDFPageProps extends PDFPageConnectProps {
 
 
 export class PDFPage extends React.PureComponent<PDFPageProps>  {
+    // count forces react to use a new canvas on rerender, preventing a broken output.
+    // avoid unnecessary renders of this component
     private _count : number;
 
     constructor(props: PDFPageProps) {

@@ -145,10 +145,10 @@ declare namespace Sign.Actions {
     interface DeleteSignature extends ActionCreator<DeleteSignaturePayload> {}
 
 }
-
+/*
 declare module 'pdfjs-dist' {
-    export default PDFJS;
-}
+   export default  PDFJS ;
+}*/
 
 declare module 'react-signature-canvas' {
     class SignatureCanvas extends React.Component<any, any> {

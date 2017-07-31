@@ -90,7 +90,7 @@ def find_or_create_and_validate_document_set(set_id, user_id):
             raise Exception
 
 
-def add_document(set_id, doc_data_id, filename, binary_file_data):
+def add_document(set_id, document_id, filename, binary_file_data):
     """
     Add a document to the database. If no UUID is passed, one will be created
     by the database.
@@ -99,25 +99,25 @@ def add_document(set_id, doc_data_id, filename, binary_file_data):
     with database.cursor() as cursor:
         # Create the document data record
         create_doc_data_query = """
-            INSERT INTO document_data (document_data_id, data)
-            VALUES (%(doc_data_id)s, %(blob)s)
+            INSERT INTO document_data (data)
+            VALUES (%(blob)s)
             RETURNING document_data_id
         """
 
         cursor.execute(create_doc_data_query, {
-            'doc_data_id': doc_data_id,
             'blob': psycopg2.Binary(binary_file_data)
         })
         data_id = cursor.fetchone()[0]
 
         # Create the document record, including the ID of the document data
         create_document_query = """
-            INSERT INTO documents (document_set_id, filename, document_data_id)
-            VALUES (%(set_id)s, %(filename)s, %(document_data_id)s)
+            INSERT INTO documents (document_id, document_set_id, filename, document_data_id)
+            VALUES (%(document_id)s, %(set_id)s, %(filename)s, %(document_data_id)s)
             RETURNING document_id
         """
 
         cursor.execute(create_document_query, {
+            'document_id': document_id,
             'set_id': set_id,
             'filename': filename,
             'document_data_id': data_id

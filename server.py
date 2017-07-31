@@ -145,7 +145,7 @@ def get_documents_list(uuid):
 def document_upload():
     try:
         print('hi!')
-        print(request.form.get('document_set_id'))
+        print(request.form)
         files = request.files.getlist('file[]')
         set_id = request.form.get('document_set_id')
         document_id = request.form.get('document_id')

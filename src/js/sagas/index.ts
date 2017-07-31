@@ -1,8 +1,9 @@
 import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
 import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import axios from 'axios';
-import { updateDocument, uploadDocument } from '../actions';
+import { updateDocument } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
+import { generateUUID } from '../components/uuid';
 
 import pdfStoreSagas from './pdfStoreSagas';
 
@@ -64,9 +65,11 @@ function *uploadDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.ADD_DOCUMENT, uploadDocument);
 
     function *uploadDocument(action: Sign.Actions.AddDocument) {
-        let documentSetId = yield select((state: Sign.State) => ({ documentSetId: state.documentSet.id }));
+        let documentSetId = yield select((state: Sign.State) => state.documentSet.id);
 
-        debugger;
+        if (!documentSetId) {
+            documentSetId = yield generateUUID();
+        }
 
         yield put(updateDocument({
             id: action.payload.id,
@@ -95,11 +98,4 @@ function *uploadDocumentSaga() {
             uploadStatus: Sign.DocumentUploadStatus.Complete
         }));
     }
-
-    // function uploadFileEmitter(file: File) {
-
-
-    //     const unsubscribe = () => {}; // do nothing
-    //     return unsubscribe; // return the unsubscribe method
-    // }
 }

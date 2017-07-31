@@ -38,6 +38,7 @@ export function setDocumentSetId(id: string) {
         type: Sign.Actions.Types.SET_DOCUMENT_SET_ID,
         payload: id
     };
+
 }
 
 export function uploadSignature(payload: string) {
@@ -66,3 +67,4 @@ export function hideSignatureSelection() {
         type: Sign.Actions.Types.HIDE_SIGNATURE_SELECTION
     };
 }
+

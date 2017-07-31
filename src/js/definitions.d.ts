@@ -100,6 +100,7 @@ declare namespace Sign.Actions {
         readStatus?: Sign.DocumentReadStatus;
         uploadStatus?: Sign.DocumentUploadStatus;
         data?: ArrayBuffer;
+        progress?: number;
     }
 
     interface FinishAddPDFToStoreActionPayload {

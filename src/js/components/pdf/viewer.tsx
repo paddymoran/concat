@@ -111,10 +111,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
 
                 <div className='pdf-container'>
                     <div className="button-row">
-                        <Button bsStyle='info' onClick={() => this.props.removeDocument()}>
-                            Close Document
-                        </Button>
-
                         <SignatureSelector />
 
                         <Button onClick={this.sign.bind(this)}>Sign Document</Button>

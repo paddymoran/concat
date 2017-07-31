@@ -1,4 +1,4 @@
-import { select, takeEvery, put, call } from 'redux-saga/effects';
+import { takeEvery, put, call } from 'redux-saga/effects';
 import * as Promise from 'bluebird';
 
 function *getPDFFromStore() {

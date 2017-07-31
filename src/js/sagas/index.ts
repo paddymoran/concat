@@ -1,8 +1,8 @@
-import { select, takeEvery, put, call, all } from 'redux-saga/effects';
-import { SagaMiddleware, delay } from 'redux-saga';
+import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
+import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import axios from 'axios';
 import { updateDocument } from '../actions';
-import { addPDF } from '../actions/pdfStore';
+import { addPDFToStore } from '../actions/pdfStore';
 
 import pdfStoreSagas from './pdfStoreSagas';
 import signatureSagas from './signatureSagas';
@@ -21,24 +21,29 @@ function *readDocumentSaga() {
     function *readDocument(action: Sign.Actions.AddDocument) {
         // Update file upload progress
         yield put(updateDocument({ id: action.payload.id, readStatus: Sign.DocumentReadStatus.InProgress }));
+        const channel = yield call(readFile, action.payload.file);
 
-        // Create file reader, read file to BLOB, then call the updateDocument action
-        const fileReader = new FileReader();
-        fileReader.readAsArrayBuffer(action.payload.file);
-        fileReader.onload = function*() {
+        const data = yield take(channel);
 
-            // Update the document
-            yield put(updateDocument({
-                id: action.payload.id,
-                data: fileReader.result,
-                readStatus: Sign.DocumentReadStatus.Complete
-            }));
+        yield put(updateDocument({
+            id: action.payload.id,
+            data,
+            readStatus: Sign.DocumentReadStatus.Complete
+        }));
 
-            // Tell the pdf store to read this pdf
-            yield put(addPDF({
-                id: action.payload.id,
-                data: fileReader.result
-            }));
-        }
+        yield put(addPDFToStore({ id: action.payload.id, data }));
     }
+}
+
+function readFile(file: File) {
+    return eventChannel((emitter) => {
+        const fileReader = new FileReader();
+        fileReader.readAsArrayBuffer(file);
+        fileReader.onload = () => {
+            emitter(fileReader.result);
+            emitter(END);
+        };
+
+        return () => {};
+    });
 }

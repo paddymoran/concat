@@ -40,7 +40,7 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
         this._pdfPromise = null;
         this._pagePromises = null;
         this.state = {
-            pageNumber: 1,
+            pageNumber: 0,
             signing: false,
         };
         this.changePage = this.changePage.bind(this)
@@ -48,7 +48,7 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
 
     componentDidMount() {
         if (this.props.worker === false) {
-            PDFJS.disableWorker = true;
+            //PDFJS.disableWorker = true;
         }
     }
 

@@ -81,10 +81,6 @@ $background: #fff;
 
         .button-row{
             text-align:center;
-            & > *{
-                display:inline-block;
-                margin: 0.2em 1em;
-            }
         }
     }
 }

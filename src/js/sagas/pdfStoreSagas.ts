@@ -1,5 +1,7 @@
 import { takeEvery, put, call } from 'redux-saga/effects';
 import * as Promise from 'bluebird';
+import * as PDFJS from 'pdfjs-dist';
+
 
 function *getPDFFromStore() {
     yield takeEvery(Sign.Actions.Types.ADD_PDF_TO_STORE, task);

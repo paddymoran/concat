@@ -74,11 +74,13 @@ function *requestDocumentSaga() {
             return;
         }
         const response = yield call(axios.get, `/api/document/${action.payload.id}`, {responseType: 'arraybuffer'});
+        const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(response.headers['content-disposition'])[1];
         const data = response.data;
         yield all([
             // Finish the file upload to the document store
             put(updateDocument({
                 id: action.payload.id,
+                filename,
                 data,
                 readStatus: Sign.DocumentReadStatus.Complete
             })),

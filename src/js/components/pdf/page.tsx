@@ -11,33 +11,29 @@ interface PDFPageConnectProps {
     scale?: number;
     docId: string;
     pageNumber: number;
-    requestDocument: Function
+    showLoading?: boolean;
 }
 
 interface PDFPageProps extends PDFPageConnectProps {
     page: PDFPageProxy;
-    document: any;
+    requestDocument: Function;
+    documentExists: boolean;
 }
 
-@connect(
-    (state: Sign.State, ownProps: PDFPageConnectProps) => ({
-        page: state.pdfStore[ownProps.docId] ? state.pdfStore[ownProps.docId].pages[ownProps.pageNumber] : null,
-        document: state.documentSet.documents.find(d => d.id === ownProps.docId)
-    }),
-    {
-        requestDocument
-    }
-)
-export default class PDFPage extends React.PureComponent<PDFPageProps> {
+
+export class PDFPage extends React.PureComponent<PDFPageProps>  {
+    private _count : number;
+
     constructor(props: PDFPageProps) {
         super(props);
         this.state = {
             pageRendered: false
         }
+        this._count = 0;
     }
 
     componentWillMount() {
-        if(!this.props.document){
+        if(!this.props.documentExists){
             this.props.requestDocument(this.props.docId);
         }
     }
@@ -68,9 +64,22 @@ export default class PDFPage extends React.PureComponent<PDFPageProps> {
 
     render() {
         if (!this.props.page) {
+            if(!this.props.showLoading){
+                return false;
+            }
             return <Loading />;
         }
 
-        return <canvas ref="pdf-canvas" className='pdf-page' />;
+        return <canvas key={this._count++} ref="pdf-canvas" className='pdf-page' />;
     }
 }
+
+export default connect(
+    (state: Sign.State, ownProps: PDFPageConnectProps) => ({
+        page: state.pdfStore[ownProps.docId] ? state.pdfStore[ownProps.docId].pages[ownProps.pageNumber] : null,
+        documentExists: !!state.documentSet.documents.find(d => d.id === ownProps.docId)
+    }),
+    {
+        requestDocument
+    }
+)(PDFPage);

@@ -179,7 +179,7 @@ def get_document(doc_id):
         if not document:
             abort(404)
 
-        return send_file(BytesIO(document['data']), mimetype='application/pdf')
+        return send_file(BytesIO(document['data']), mimetype='application/pdf', attachment_filename=document['filename'], as_attachment=True)
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)

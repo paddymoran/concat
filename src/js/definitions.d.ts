@@ -55,6 +55,13 @@ declare namespace Sign {
         onDrop(files: any): void;
     }
 
+
+    interface CanvasReusePrevention {
+        _count: number
+    }
+
+
+
     interface FileDropZoneProps {
         connectDropTarget: Function;
         onDrop: Function;
@@ -98,11 +105,16 @@ declare namespace Sign.Actions {
         file: File;
     }
 
+    interface RequestDocumentPayload {
+        id: string;
+    }
+
     interface UpdateDocumentPayload {
         id: string;
         readStatus?: Sign.DocumentReadStatus;
         uploadStatus?: Sign.DocumentUploadStatus;
         data?: ArrayBuffer;
+        filename?: string;
         progress?: number;
     }
 
@@ -125,6 +137,7 @@ declare namespace Sign.Actions {
     }
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
+    interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
 
     interface AddPDFToStoreAction extends ActionCreator<AddPDFToStoreActionPayload> {}
     interface FinishAddPDFToStoreAction extends ActionCreator<FinishAddPDFToStoreActionPayload> {}

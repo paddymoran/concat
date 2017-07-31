@@ -6,12 +6,16 @@ import * as Promise from 'bluebird';
 import * as Axios from 'axios';
 import axios from 'axios';
 import SignatureUpload from './signatureUpload';
+import { uploadSignature, selectSignature, showSignatureSelection, hideSignatureSelection } from '../actions/index';
+import { connect } from 'react-redux';
 
 interface SignatureSelectorProps {
-    isVisible: boolean;
-    onSignatureSelected: Function;
+    selectSignature: Function;
+    uploadSignature: Function,
     showModal: Function;
     hideModal: Function;
+    uploading: boolean;
+    isVisible: boolean;
 }
 
 interface SignatureSelectorState {
@@ -26,15 +30,15 @@ interface SignaturesResponse extends Axios.AxiosResponse {
     data: Array<{ id: number }>
 }
 
-interface SignaturesUploadResponse extends Axios.AxiosResponse {
-    data: {signature_id: number }
-}
+
 
 const SELECT_SIGNATURE_TAB = 1;
 const DRAW_SIGNATURE_TAB = 2;
 const UPLOAD_SIGNATURE_TAB = 3;
 
-export default class SignatureSelector extends React.Component<SignatureSelectorProps, SignatureSelectorState> {
+
+
+export class SignatureSelector extends React.Component<SignatureSelectorProps, SignatureSelectorState> {
     private signatureCanvas: SignatureCanvas;
 
     constructor(props: SignatureSelectorProps) {
@@ -43,8 +47,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         this.state = {
             selectedSignature: 0,
             currentTab: SELECT_SIGNATURE_TAB,
-            signatureIds: [],
-            uploading: false
+            signatureIds: []
         };
     }
 
@@ -62,7 +65,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         this.setState({ currentTab: newTab });
     }
 
-    changeSelectedSignature(key: number) {
+     changeSelectedSignature(key: number) {
         this.setState({ selectedSignature: key });
     }
 
@@ -73,7 +76,7 @@ export default class SignatureSelector extends React.Component<SignatureSelector
     select() {
         if (this.state.currentTab == SELECT_SIGNATURE_TAB) {
             const signatureId = this.state.signatureIds[this.state.selectedSignature];
-            this.props.onSignatureSelected(signatureId);
+            this.props.selectSignature(signatureId);
         } else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
             const signature = this.signatureCanvas.getTrimmedCanvas().toDataURL();
             this.uploadSignature(signature);
@@ -87,26 +90,11 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                 this.uploadSignature(signature);
             }
         }
+        this.props.hideModal();
     }
 
     uploadSignature(base64Image: string) {
-        this.setState({ uploading: true });
-
-        // Upload image and trigger the parents signatureSelected method with the signature ID
-        axios.post('/api/signatures/upload', { base64Image })
-            .then((response: SignaturesUploadResponse) => {
-                let signatureId = response.data.signature_id;
-
-                // Add the new signature to the list of selectable signatures
-                let signatureIds = this.state.signatureIds;
-                signatureIds.push(signatureId);
-                this.setState({ signatureIds });
-
-                // Fire the signature selected event
-                this.props.onSignatureSelected(signatureId);
-
-                this.setState({ uploading: false });
-            });
+        this.props.uploadSignature(base64Image);
     }
 
     render() {
@@ -151,10 +139,10 @@ export default class SignatureSelector extends React.Component<SignatureSelector
 
                             <Tab eventKey={DRAW_SIGNATURE_TAB} title="Draw Signature">
                                 <div className='signature-canvas-conatiner clearfix'>
-                                    { this.state.uploading &&
+                                    { this.props.uploading &&
                                         <div className='loading' />
                                     }
-                                    { !this.state.uploading &&
+                                    { !this.props.uploading &&
                                         <div className='signature-display'>
                                             <SignatureCanvas canvasProps={signatureCanvasOptions} ref={(ref: SignatureCanvas) => this.signatureCanvas = ref} />
                                             <a className='btn btn-default btn-block' onClick={this.clearCanvas.bind(this)}>Clear</a>
@@ -169,10 +157,10 @@ export default class SignatureSelector extends React.Component<SignatureSelector
                                         { this.state.signatureUploaderErrors }
                                     </Alert>
                                 }
-                                { this.state.uploading &&
+                                { this.props.uploading &&
                                     <div className='loading' />
                                 }
-                                { !this.state.uploading &&
+                                { !this.props.uploading &&
                                     <SignatureUpload ref='signature-uploader' />
                                 }
                             </Tab>
@@ -187,3 +175,10 @@ export default class SignatureSelector extends React.Component<SignatureSelector
         )
     }
 }
+
+export default connect(state => ({isVisible: state.modals.showing === 'selectSignature', uploading: false}), {
+    uploadSignature: (payload) => uploadSignature(payload),
+    selectSignature: (id) => selectSignature(id),
+    showModal: () => showSignatureSelection(),
+    hideModal: () => hideSignatureSelection()
+})(SignatureSelector)

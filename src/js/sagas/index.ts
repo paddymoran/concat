@@ -6,14 +6,18 @@ import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
 import pdfStoreSagas from './pdfStoreSagas';
+import signatureSagas from './signatureSagas';
+
 
 export default function *rootSaga(): any {
     yield all([
         readDocumentSaga(),
         uploadDocumentSaga(),
-        ...pdfStoreSagas
+        ...pdfStoreSagas,
+        ...signatureSagas
     ]);
 }
+
 
 function *readDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.ADD_DOCUMENT, readDocument);
@@ -27,7 +31,7 @@ function *readDocumentSaga() {
 
         // Wait for the file reader to emit it's result
         const data = yield take(channel);
-        
+
         yield all([
             // Finish the file upload to the document store
             put(updateDocument({
@@ -35,7 +39,7 @@ function *readDocumentSaga() {
                 data,
                 readStatus: Sign.DocumentReadStatus.Complete
             })),
-        
+
             // Add the document to the PDF store
             put(addPDFToStore({ id: action.payload.id, data }))
         ]);
@@ -91,7 +95,7 @@ function *uploadDocumentSaga() {
 
         // Upload the document
         const response = yield call(axios.post, '/api/documents', data, { onUploadProgress });
-        
+
         // Set the document upload status to complete
         yield put(updateDocument({
             id: action.payload.id,

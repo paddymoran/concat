@@ -26,6 +26,10 @@ declare namespace Sign {
         documents: Document[];
     }
 
+    interface Modals {
+        showing?: string;
+    }
+
     interface PDFStore {
         [id: string]: {
             document: PDFDocumentProxy;
@@ -70,6 +74,10 @@ declare namespace Sign.Actions {
 
         ADD_PDF_TO_STORE = 'ADD_PDF_TO_STORE',
         FINISH_ADD_PDF_TO_STORE = 'FINISH_ADD_PDF_TO_STORE',
+        UPLOAD_SIGNATURE = 'UPLOAD_SIGNATURE',
+        SELECT_SIGNATURE = 'SELECT_SIGNATURE',
+        SHOW_SIGNATURE_SELECTION = 'SHOW_SIGNATURE_SELECTION',
+        HIDE_SIGNATURE_SELECTION = 'HIDE_SIGNATURE_SELECTION'
     }
 
     interface ActionCreator<T> {
@@ -106,11 +114,16 @@ declare namespace Sign.Actions {
         data: ArrayBuffer;
     }
 
+    interface UploadSignaturePayload {
+        data: ArrayBuffer;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
 
     interface AddPDFToStoreAction extends ActionCreator<AddPDFToStoreActionPayload> {}
     interface FinishAddPDFToStoreAction extends ActionCreator<FinishAddPDFToStoreActionPayload> {}
+    interface UploadSignature extends ActionCreator<UploadSignaturePayload> {}
 }
 
 declare module 'pdfjs-dist' {

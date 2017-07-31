@@ -70,6 +70,11 @@ function *requestDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT, requestDocument);
      function *requestDocument(action: Sign.Actions.RequestDocument) {
         const document = yield select((state: Sign.State) => state.documentSet.documents.find(d => d.id === action.payload.id));
+        // prevent anymore requests from going through
+        yield put(updateDocument({
+                id: action.payload.id,
+                readStatus: Sign.DocumentReadStatus.InProgress
+            }));
         if(document && document.readStatus !== Sign.DocumentReadStatus.NotStarted){
             return;
         }

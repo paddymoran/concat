@@ -35,48 +35,6 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
         this.onClick = this.onClick.bind(this);
     }
 
-    componentDidUpdate() {
-        this.uploadDocuments(this.props.documentSet);
-    }
-
-    componentWillMount() {
-        if (!this.props.documentSet.id) {
-            generateUUID().then(this.props.setDocumentSetId)
-        }
-
-        this.uploadDocuments(this.props.documentSet);
-    }
-
-    uploadDocuments(documentSet: Sign.DocumentSet) {
-        const unUploaded = documentSet.documents.filter(doc => doc.uploadStatus === Sign.DocumentUploadStatus.NotStarted);
-
-        // Set each of the un-uploaded docs upload status to 'in progress' and the progress to 0
-        unUploaded.map(doc => this.props.updateDocument({
-            id: doc.id,
-            uploadStatus: Sign.DocumentUploadStatus.InProgress,
-            progress: 0
-        }));
-
-        eachSeries(unUploaded, (doc: Sign.Document) => {
-
-            // // Upload the document to the server
-            // const data = new FormData();
-            // data.append('document_set_id', this.props.documentSet.id);
-            // data.append('document_id', doc.id);
-            // data.append('file[]', doc.file);
-
-            // const onUploadProgress = (progressEvent: any) => {
-            //     // Update uploading percentage
-            //     const percentCompleted = progressEvent.loaded / progressEvent.total;
-            //     this.props.updateDocument({ id: doc.id, progress: percentCompleted });
-            // }
-
-            // // Upload the document and set the upload status to complete
-            // return axios.post('/api/documents', data, { onUploadProgress })
-            //     .then((response) => this.props.updateDocument({ id: doc.id, uploadStatus: Sign.DocumentUploadStatus.Complete }));
-        });
-    }
-
     fileDrop(files: File[]) {
         files.map(file => generateUUID().then(uuid => this.props.addDocument(uuid, file.name, file)));
     }

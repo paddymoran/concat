@@ -18,4 +18,12 @@ function *uploadSignature() {
     }
 }
 
-export default [uploadSignature()];
+function *deleteSignature() {
+    yield takeEvery(Sign.Actions.Types.DELETE_SIGNATURE, task);
+
+    function *task(action: Sign.Actions.DeleteSignature) {
+        yield axios.delete(`/api/signatures/${action.payload}`);
+    }
+}
+
+export default [uploadSignature(), deleteSignature()];

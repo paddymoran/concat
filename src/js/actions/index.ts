@@ -68,3 +68,10 @@ export function hideSignatureSelection() {
     };
 }
 
+export function deleteSignature(id: number) {
+    return {
+        type: Sign.Actions.Types.DELETE_SIGNATURE,
+        payload: id
+    };
+}
+

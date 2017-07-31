@@ -6,12 +6,13 @@ import * as Promise from 'bluebird';
 import * as Axios from 'axios';
 import axios from 'axios';
 import SignatureUpload from './signatureUpload';
-import { uploadSignature, selectSignature, showSignatureSelection, hideSignatureSelection } from '../actions/index';
+import { uploadSignature, selectSignature, showSignatureSelection, hideSignatureSelection, deleteSignature } from '../actions/index';
 import { connect } from 'react-redux';
 
 interface SignatureSelectorProps {
     selectSignature: Function;
     uploadSignature: Function,
+    deleteSignature: Function,
     showModal: Function;
     hideModal: Function;
     uploading: boolean;
@@ -22,7 +23,6 @@ interface SignatureSelectorState {
     selectedSignature: number;
     currentTab: number;
     signatureIds: number[];
-    uploading: boolean;
     signatureUploaderErrors?: string
 }
 
@@ -45,7 +45,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
         super(props);
 
         this.state = {
-            selectedSignature: 0,
+            selectedSignature: null,
             currentTab: SELECT_SIGNATURE_TAB,
             signatureIds: []
         };
@@ -65,12 +65,16 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
         this.setState({ currentTab: newTab });
     }
 
-     changeSelectedSignature(key: number) {
+    changeSelectedSignature(key: number) {
         this.setState({ selectedSignature: key });
     }
 
     clearCanvas() {
         this.signatureCanvas.clear();
+    }
+
+    deleteSignature() {
+        this.props.deleteSignature(this.state.selectedSignature);
     }
 
     select() {
@@ -82,7 +86,6 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
             this.uploadSignature(signature);
         } else {
             const signature = this.signatureCanvas.toDataURL();
-
             if (signature === null) {
                 this.setState({ signatureUploaderErrors: 'Please upload a signature' });
             }
@@ -119,10 +122,10 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                                 <div className="row">
                                     {this.state.signatureIds.map((id: number, i: number) => {
                                             let classes = 'col-sm-6 selectable';
-                                            classes += i == this.state.selectedSignature ? ' selected' : '';
+                                            classes += id === this.state.selectedSignature ? ' selected' : '';
 
                                             return (
-                                                <div className={classes} key={i} onClick={() => this.changeSelectedSignature(i) }>
+                                                <div className={classes} key={i} onClick={() => this.changeSelectedSignature(id) }>
                                                     <img className='img-responsive' src={`/api/signatures/${id}`} />
                                                 </div>
                                             )
@@ -167,6 +170,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                         </Tabs>
                     </Modal.Body>
                     <Modal.Footer>
+                        <Button bsStyle="warning" disabled={!this.state.selectedSignature} onClick={() => this.deleteSignature()}>Delete Signature</Button>
                         <Button onClick={() => this.props.hideModal()}>Close</Button>
                         <Button bsStyle='primary' onClick={this.select.bind(this)} >Select</Button>
                     </Modal.Footer>
@@ -179,6 +183,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
 export default connect(state => ({isVisible: state.modals.showing === 'selectSignature', uploading: false}), {
     uploadSignature: (payload) => uploadSignature(payload),
     selectSignature: (id) => selectSignature(id),
+    deleteSignature: (id) => deleteSignature(id),
     showModal: () => showSignatureSelection(),
     hideModal: () => hideSignatureSelection()
 })(SignatureSelector)

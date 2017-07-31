@@ -180,6 +180,24 @@ def get_signature(signature_id, user_id):
         return first_row[0]
 
 
+def remove_signature(signature_id, user_id):
+    """
+    remove a signature, making sure the user has permission to access it
+    """
+    database = get_db()
+    with database.cursor() as cursor:
+        query = """
+            UPDATE signatures SET deleted = true
+            WHERE signature_id = %(signature_id)s
+                AND user_id = %(user_id)s
+        """
+        cursor.execute(query, {
+            'signature_id': signature_id,
+            'user_id': user_id,
+        })
+    database.commit()
+
+
 def upsert_user(user):
     """
     Create or update a user

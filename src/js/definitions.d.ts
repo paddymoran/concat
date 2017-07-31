@@ -77,7 +77,8 @@ declare namespace Sign.Actions {
         UPLOAD_SIGNATURE = 'UPLOAD_SIGNATURE',
         SELECT_SIGNATURE = 'SELECT_SIGNATURE',
         SHOW_SIGNATURE_SELECTION = 'SHOW_SIGNATURE_SELECTION',
-        HIDE_SIGNATURE_SELECTION = 'HIDE_SIGNATURE_SELECTION'
+        HIDE_SIGNATURE_SELECTION = 'HIDE_SIGNATURE_SELECTION',
+        DELETE_SIGNATURE = 'HIDE_SIGNATURE'
     }
 
     interface ActionCreator<T> {
@@ -117,13 +118,17 @@ declare namespace Sign.Actions {
     interface UploadSignaturePayload {
         data: ArrayBuffer;
     }
-
+    interface DeleteSignaturePayload {
+       payload: number
+    }
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
 
     interface AddPDFToStoreAction extends ActionCreator<AddPDFToStoreActionPayload> {}
     interface FinishAddPDFToStoreAction extends ActionCreator<FinishAddPDFToStoreActionPayload> {}
     interface UploadSignature extends ActionCreator<UploadSignaturePayload> {}
+    interface DeleteSignature extends ActionCreator<DeleteSignaturePayload> {}
+
 }
 
 declare module 'pdfjs-dist' {

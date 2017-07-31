@@ -102,6 +102,14 @@ def upload_signature(base64Image):
     return {'signature_id': signature_id}
 
 
+def delete_signature(id):
+    signature_id = db.remove_signature(
+        id,
+        session['user_id']
+    )
+    return {}
+
+
 def thumb(file_id):
     output = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
 
@@ -194,6 +202,14 @@ def signature_upload():
     try:
         base64Image = json.loads(request.data)['base64Image']
         return jsonify(upload_signature(base64Image))
+    except Exception as e:
+        print(e)
+        raise InvalidUsage(e.message, status_code=500)
+
+@app.route('/api/signatures/<id>', methods=['DELETE'])
+def signature_delete(id):
+    try:
+        return jsonify(delete_signature(id))
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)

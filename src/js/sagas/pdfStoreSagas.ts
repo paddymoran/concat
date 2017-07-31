@@ -1,7 +1,7 @@
 import { takeEvery, put, call } from 'redux-saga/effects';
 import * as Promise from 'bluebird';
 import * as PDFJS from "pdfjs-dist";
-
+import { updateDocument } from '../actions';
 
 function *getPDFFromStore() {
     yield takeEvery(Sign.Actions.Types.ADD_PDF_TO_STORE, task);
@@ -10,7 +10,10 @@ function *getPDFFromStore() {
         // Create the pdf document proxy
         const docData = new Uint8Array(action.payload.data);
         const pdfDocumentProxy = yield PDFJS.getDocument(docData);
-
+        yield put(updateDocument({
+            id: action.payload.id,
+            pageCount: pdfDocumentProxy.numPages
+        }))
         // Get all pages
         const pages = yield Promise.map(
             Array(pdfDocumentProxy.numPages).fill(null),

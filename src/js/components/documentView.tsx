@@ -15,7 +15,7 @@ export default class DocumentView extends React.Component<DocumentViewProps>  {
     render() {
         return (
             <div className='pdf-screen'>
-                <PDFViewer docId={this.props.params.documentId} removeDocument={() => console.log('return to doc tray')} />
+                <PDFViewer documentId={this.props.params.documentId} removeDocument={() => console.log('return to doc tray')} />
             </div>
         );
     }

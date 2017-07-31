@@ -19,6 +19,7 @@ declare namespace Sign {
         uploadStatus: DocumentUploadStatus;
         readStatus: DocumentReadStatus;
         progress?: number;
+        pageCount?: number;
     }
 
     interface DocumentSet {
@@ -114,6 +115,7 @@ declare namespace Sign.Actions {
         readStatus?: Sign.DocumentReadStatus;
         uploadStatus?: Sign.DocumentUploadStatus;
         data?: ArrayBuffer;
+        pageCount?: number,
         filename?: string;
         progress?: number;
     }

@@ -8,7 +8,7 @@ import { requestDocument } from '../../actions/index';
 interface PDFPageConnectProps {
     drawWidth: number;
     scale?: number;
-    docId: string;
+    documentId: string;
     pageNumber: number;
     showLoading?: boolean;
 }
@@ -35,7 +35,7 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
 
     componentWillMount() {
         if(!this.props.documentExists){
-            this.props.requestDocument(this.props.docId);
+            this.props.requestDocument(this.props.documentId);
         }
     }
 
@@ -77,8 +77,8 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
 
 export default connect(
     (state: Sign.State, ownProps: PDFPageConnectProps) => ({
-        page: state.pdfStore[ownProps.docId] ? state.pdfStore[ownProps.docId].pages[ownProps.pageNumber] : null,
-        documentExists: !!state.documentSet.documents.find(d => d.id === ownProps.docId)
+        page: state.pdfStore[ownProps.documentId] ? state.pdfStore[ownProps.documentId].pages[ownProps.pageNumber] : null,
+        documentExists: !!state.documentSet.documents.find(d => d.id === ownProps.documentId)
     }),
     {
         requestDocument

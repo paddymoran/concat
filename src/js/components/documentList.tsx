@@ -21,7 +21,7 @@ const DocumentView = (props: DocumentViewProps) => (
     <div className="document">
         <button className="remove" onClick={() => props.removeDocument()}>✖</button>
 
-        <PDFPage pageNumber={0} drawWidth={THUMBNAIL_WIDTH} docId={props.document.id} showLoading={false}/>
+        <PDFPage pageNumber={0} drawWidth={THUMBNAIL_WIDTH} documentId={props.document.id} showLoading={false}/>
         <div className="filename">{ props.document.filename }</div>
 
         <CSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>

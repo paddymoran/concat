@@ -2,7 +2,7 @@ import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import * as Promise from 'bluebird';
 import { Alert, Button, Modal } from 'react-bootstrap';
-import { PDFPreview } from './preview';
+import PDFPreview from './preview';
 import PDFPage from './page';
 import SignatureSelector from '../signatureSelector';
 import SignatureDragContainer from '../signatureDragContainer';
@@ -15,7 +15,7 @@ Promise.config({ cancellation: true });
 interface PDFViewerProps {
     worker?: boolean;
     removeDocument: Function;
-    docId: string;
+    documentId: string;
 }
 
 interface IPDFViewerState {
@@ -101,11 +101,13 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
                         <div className='text-center'>Signing document, please wait.</div>
                     </Modal.Body>
                 </Modal>
-                {/*<PDFPreview
-                    pages={this.state.pages}
-                    changePage={this.changePage.bind(this)}
+                <PDFPreview
+                    //pages={this.state.pages}
+                    //changePage={this.changePage.bind(this)}
+                    documentId={this.props.documentId}
                     activePageNumber={this.state.pageNumber}
-                    width={120} />*/}
+                    width={120}
+                    />
 
                 <div className='pdf-container'>
                     <div className="button-row">
@@ -117,7 +119,7 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
                     {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
 
                     <SignatureDragContainer signatureId={this.state.signatureId} className="pdf-page-wrapper" ref="signature-container">
-                        <PDFPage drawWidth={1000} docId={this.props.docId} pageNumber={this.state.pageNumber} />
+                        <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
                     </SignatureDragContainer>
                 </div>
             </div>

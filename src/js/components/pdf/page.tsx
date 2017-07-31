@@ -3,7 +3,7 @@ import { findDOMNode } from "react-dom";
 import { connect } from 'react-redux';
 import Loading from '../loading';
 import { requestDocument } from '../../actions/index';
-
+import { requestDocumentPage } from '../../actions/pdfStore';
 
 interface PDFPageConnectProps {
     drawWidth: number;
@@ -16,6 +16,7 @@ interface PDFPageConnectProps {
 interface PDFPageProps extends PDFPageConnectProps {
     page: PDFPageProxy;
     requestDocument: Function;
+    requestDocumentPage: Function;
     documentExists: boolean;
 }
 
@@ -33,16 +34,24 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
         this._count = 0;
     }
 
-    componentWillMount() {
+    requestParts() {
         if(!this.props.documentExists){
             this.props.requestDocument(this.props.documentId);
         }
+        else if(!this.props.page){
+            this.props.requestDocumentPage({id: this.props.documentId, index: this.props.pageNumber});
+        }
+    }
+
+    componentWillMount() {
+        this.requestParts();
     }
 
     componentDidUpdate(prevProps: PDFPageProps) {
         if (this.props.page) {
             this.displayPage();
         }
+        this.requestParts();
     }
 
     componentDidMount() {
@@ -81,6 +90,6 @@ export default connect(
         documentExists: !!state.documentSet.documents.find(d => d.id === ownProps.documentId)
     }),
     {
-        requestDocument
+        requestDocument , requestDocumentPage
     }
 )(PDFPage);

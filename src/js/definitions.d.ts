@@ -35,6 +35,7 @@ declare namespace Sign {
         [id: string]: {
             document: PDFDocumentProxy;
             pages: PDFPageProxy[];
+            pageStatuses: DocumentReadStatus[];
         }
     }
 
@@ -75,6 +76,7 @@ declare namespace Sign.Actions {
     const enum Types {
         ADD_DOCUMENT = 'ADD_DOCUMENT',
         REQUEST_DOCUMENT = 'REQUEST_DOCUMENT',
+        REQUEST_DOCUMENT_PAGE = 'REQUEST_DOCUMENT_PAGE',
         DOWNLOAD_DOCUMENT = 'DOWNLOAD_DOCUMENT',
         UPDATE_DOCUMENT = 'UPDATE_DOCUMENT',
         SUBMIT_DOCUMENTS = 'SUBMIT_DOCUMENTS',
@@ -84,6 +86,7 @@ declare namespace Sign.Actions {
 
         ADD_PDF_TO_STORE = 'ADD_PDF_TO_STORE',
         FINISH_ADD_PDF_TO_STORE = 'FINISH_ADD_PDF_TO_STORE',
+        UPDATE_PDF_PAGE_TO_STORE = 'UPDATE_PDF_PAGE_TO_STORE',
         UPLOAD_SIGNATURE = 'UPLOAD_SIGNATURE',
         SELECT_SIGNATURE = 'SELECT_SIGNATURE',
         SHOW_SIGNATURE_SELECTION = 'SHOW_SIGNATURE_SELECTION',
@@ -123,13 +126,25 @@ declare namespace Sign.Actions {
     interface FinishAddPDFToStoreActionPayload {
         id: string;
         document: PDFDocumentProxy;
-        pages: PDFPageProxy[];
     }
 
     interface AddPDFToStoreActionPayload {
         id: string;
         data: ArrayBuffer;
     }
+
+    interface UpdatePDFPageToStoreActionPayload {
+        id: string;
+        index: number;
+        page?: PDFPageProxy;
+        pageStatus: DocumentReadStatus;
+    }
+
+    interface RequestDocumentPagePayload {
+        id: string;
+        index: number;
+    }
+
 
     interface UploadSignaturePayload {
         data: ArrayBuffer;
@@ -143,8 +158,10 @@ declare namespace Sign.Actions {
 
     interface AddPDFToStoreAction extends ActionCreator<AddPDFToStoreActionPayload> {}
     interface FinishAddPDFToStoreAction extends ActionCreator<FinishAddPDFToStoreActionPayload> {}
+    interface UpdatePDFPageToStoreAction extends ActionCreator<UpdatePDFPageToStoreActionPayload> {}
     interface UploadSignature extends ActionCreator<UploadSignaturePayload> {}
     interface DeleteSignature extends ActionCreator<DeleteSignaturePayload> {}
+    interface RequestDocumentPageAction extends ActionCreator<RequestDocumentPagePayload> {}
 
 }
 /*

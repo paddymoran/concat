@@ -3,26 +3,42 @@ import { findDOMNode } from "react-dom";
 import PDFJS from 'pdfjs-dist';
 import { connect } from 'react-redux';
 import Loading from '../loading';
+import { requestDocument } from '../../actions/index';
+
 
 interface PDFPageConnectProps {
     drawWidth: number;
     scale?: number;
     docId: string;
     pageNumber: number;
+    requestDocument: Function
 }
 
 interface PDFPageProps extends PDFPageConnectProps {
     page: PDFPageProxy;
+    document: any;
 }
 
 @connect(
-    (state: Sign.State, ownProps: PDFPageConnectProps) => ({ page: state.pdfStore[ownProps.docId] ? state.pdfStore[ownProps.docId].pages[ownProps.pageNumber] : null })
+    (state: Sign.State, ownProps: PDFPageConnectProps) => ({
+        page: state.pdfStore[ownProps.docId] ? state.pdfStore[ownProps.docId].pages[ownProps.pageNumber] : null,
+        document: state.documentSet.documents.find(d => d.id === ownProps.docId)
+    }),
+    {
+        requestDocument
+    }
 )
 export default class PDFPage extends React.PureComponent<PDFPageProps> {
-    constructor(props) {
+    constructor(props: PDFPageProps) {
         super(props);
         this.state = {
             pageRendered: false
+        }
+    }
+
+    componentWillMount() {
+        if(!this.props.document){
+            this.props.requestDocument(this.props.docId);
         }
     }
 

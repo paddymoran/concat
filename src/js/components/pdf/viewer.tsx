@@ -25,7 +25,6 @@ interface IPDFViewerState {
     pageNumber: number;
     signatureId?: string;
     signing: boolean;
-    selectSignatureModalIsVisible: boolean;
 }
 
 interface PostSignResponse extends Axios.AxiosResponse {
@@ -42,7 +41,6 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
         this._pagePromises = null;
         this.state = {
             pageNumber: 1,
-            selectSignatureModalIsVisible: false,
             signing: false,
         };
         this.changePage = this.changePage.bind(this)

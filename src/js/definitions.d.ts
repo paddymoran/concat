@@ -66,6 +66,8 @@ declare namespace Sign {
 declare namespace Sign.Actions {
     const enum Types {
         ADD_DOCUMENT = 'ADD_DOCUMENT',
+        REQUEST_DOCUMENT = 'REQUEST_DOCUMENT',
+        DOWNLOAD_DOCUMENT = 'DOWNLOAD_DOCUMENT',
         UPDATE_DOCUMENT = 'UPDATE_DOCUMENT',
         SUBMIT_DOCUMENTS = 'SUBMIT_DOCUMENTS',
         REMOVE_DOCUMENT = 'REMOVE_DOCUMENT',

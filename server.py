@@ -161,7 +161,17 @@ def document_upload():
         print(e)
         raise InvalidUsage(e.message, status_code=500)
 
+
 @app.route('/api/documents/<doc_id>', methods=['GET'])
+def get_documents(doc_id):
+    try:
+        documents = db.get_document_set(session['user_id'], doc_id)
+        return jsonify(documents)
+    except Exception as e:
+        raise InvalidUsage(e.message, status_code=500)
+
+
+@app.route('/api/document/<doc_id>', methods=['GET'])
 def get_document(doc_id):
     try:
         document = db.get_document(session['user_id'], doc_id)
@@ -169,7 +179,7 @@ def get_document(doc_id):
         if not document:
             abort(404)
 
-        return send_file(BytesIO(document['data']), mimetype='application/pdf.')
+        return send_file(BytesIO(document['data']), mimetype='application/pdf')
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)

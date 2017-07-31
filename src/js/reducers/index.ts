@@ -26,6 +26,14 @@ const documentSet = (state: Sign.DocumentSet = {documents: []}, action: Sign.Doc
             };
             return Object.assign({}, state, { documents: state.documents.concat(newDoc) });
 
+        case Sign.Actions.Types.REQUEST_DOCUMENT:
+            const requestDoc = {
+                ...action.payload,
+                uploadStatus: Sign.DocumentUploadStatus.Complete,
+                readStatus: Sign.DocumentReadStatus.NotStarted
+            };
+            return Object.assign({}, state, { documents: state.documents.concat(requestDoc) });
+
         case Sign.Actions.Types.UPDATE_DOCUMENT:
             i = state.documents.findIndex(doc => doc.id === action.payload.id);
             documents = [...state.documents];

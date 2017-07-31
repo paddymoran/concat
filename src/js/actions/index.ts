@@ -4,6 +4,19 @@ export function addDocument(id: string, filename: string, file: File): Sign.Acti
         payload: { id, filename, file }
     };
 }
+export function requestDocument(id: string) {
+    return {
+        type: Sign.Actions.Types.REQUEST_DOCUMENT,
+        payload: { id }
+    }
+}
+
+export function downloadDocument(id: string) {
+    return {
+        type: Sign.Actions.Types.DOWNLOAD_DOCUMENT,
+        payload: { id }
+    }
+}
 
 export function updateDocument(payload: Sign.Actions.UpdateDocumentPayload): Sign.Actions.UpdateDocument {
     return {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { updateDocument } from '../actions';
+import { updateDocument, requestDocument } from '../actions';
 import PDFViewer from './pdf/viewer';
 
 interface DocumentViewProps {
@@ -8,16 +8,16 @@ interface DocumentViewProps {
     documents: Sign.Document[];
     removeDocument: Function;
     updateDocument: Function;
+    requestDocument: Function;
 }
 
-class DocumentView extends React.Component<DocumentViewProps>  {
+export default class DocumentView extends React.Component<DocumentViewProps>  {
     render() {
         return (
             <div className='pdf-screen'>
-                <PDFViewer docId={this.props.params.documentId} worker={false} removeDocument={() => console.log('return to doc tray')} />
+                <PDFViewer docId={this.props.params.documentId} removeDocument={() => console.log('return to doc tray')} />
             </div>
         );
     }
 }
 
-export default connect(undefined, { updateDocument: updateDocument })(DocumentView);

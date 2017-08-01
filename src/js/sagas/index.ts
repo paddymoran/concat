@@ -120,26 +120,45 @@ function *uploadDocumentSaga() {
             progress: 0
         }));
 
-        // Upload the document to the server
-        const data = new FormData();
-        data.append('document_set_id', documentSetId);
-        data.append('document_id', action.payload.id);
-        data.append('file[]', action.payload.file);
+        // Start the upload process
+        const channel = yield call(uploadDocumentProgressEmitter, documentSetId, action.payload.id, action.payload.file);
 
-        const onUploadProgress = function(progressEvent: any) {
-            // Update uploading percentage
-            const completed = progressEvent.loaded / progressEvent.total;
-            // PADDY, this needs to be an event channel
-            //put(updateDocument({ id: action.payload.id, progress: completed }));
+        try {
+            while (true) {
+                let progress = yield take(channel);
+                yield put(updateDocument({ id: action.payload.id, progress }));
+            }
+        } finally {
+            // Set the document upload status to complete
+            yield put(updateDocument({
+                id: action.payload.id,
+                uploadStatus: Sign.DocumentUploadStatus.Complete
+            }));
         }
+    }
 
-        // Upload the document
-        const response = yield call(axios.post, '/api/documents', data, { onUploadProgress });
+    function uploadDocumentProgressEmitter(documentSetId: string, documentId: string, file: File) {
+        return eventChannel((emitter) => {
+            // Create the form data object for upload
+            const data = new FormData();
+            data.append('document_set_id', documentSetId);
+            data.append('document_id', documentId);
+            data.append('file[]', file);
 
-        // Set the document upload status to complete
-        yield put(updateDocument({
-            id: action.payload.id,
-            uploadStatus: Sign.DocumentUploadStatus.Complete
-        }));
+            const onUploadProgress = function(progressEvent: any) {
+                // Update uploading percentage
+                const progress = progressEvent.loaded / progressEvent.total;
+                emitter(progress);
+            }
+
+            // Upload the document
+            const response = axios.post('/api/documents', data, { onUploadProgress })
+                .then((response) => {
+                    return emitter(END);
+                });
+
+            const unsubscribe = () => {};
+            return unsubscribe;
+        });
     }
 }

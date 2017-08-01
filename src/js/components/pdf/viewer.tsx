@@ -101,13 +101,13 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
                         <div className='text-center'>Signing document, please wait.</div>
                     </Modal.Body>
                 </Modal>
-                <PDFPreview
+                { /* <PDFPreview
                     //pages={this.state.pages}
                     //changePage={this.changePage.bind(this)}
                     documentId={this.props.documentId}
                     activePageNumber={this.state.pageNumber}
                     width={120}
-                    />
+                    /> */ }
 
                 <div className='pdf-container'>
                     <div className="button-row">

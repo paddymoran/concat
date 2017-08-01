@@ -4,7 +4,6 @@ import * as PDFJS from "pdfjs-dist";
 import { updateDocument } from '../actions';
 import { updatePDFPageToStore } from '../actions/pdfStore';
 
-
 function *getPDFFromStore() {
     yield takeEvery(Sign.Actions.Types.ADD_PDF_TO_STORE, task);
 
@@ -16,12 +15,6 @@ function *getPDFFromStore() {
             id: action.payload.id,
             pageCount: pdfDocumentProxy.numPages
         }))
-        /*// Get all pages
-        const pages = yield Promise.map(
-            Array(pdfDocumentProxy.numPages).fill(null),
-            (item: any, index: number) => pdfDocumentProxy.getPage(index + 1)
-        );*/
-
         // Add the pdf to the pdf store
         const addPDFAction: Sign.Actions.FinishAddPDFToStoreAction = {
             type: Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE,
@@ -32,32 +25,40 @@ function *getPDFFromStore() {
     }
 }
 
+
+
 function *getPDFPages() {
     yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT_PAGE, task);
+
     function *task(action: Sign.Actions.RequestDocumentPageAction) {
-        const document = yield select((state: Sign.State) => state.pdfStore[action.payload.id]);
-        if(!document){
+        const pdfStore = yield select((state: Sign.State) => state.pdfStore[action.payload.id]);
+        if(!pdfStore){
             return;
         }
-        const currentStatus = document.pageStatuses[action.payload.index];
-        if(!currentStatus || currentStatus === Sign.DocumentReadStatus.NotStarted){
-            yield put(updatePDFPageToStore({
-                id: action.payload.id,
-                index: action.payload.index,
-                pageStatus: Sign.DocumentReadStatus.InProgress
-            }));
-            const page = yield document.document.getPage(action.payload.index + 1);
-            yield put(updatePDFPageToStore({
-                id: action.payload.id,
-                index: action.payload.index,
-                page: page,
-                pageStatus: Sign.DocumentReadStatus.Complete
-            }));
-
+        const status = pdfStore.pageStatuses[action.payload.index];
+        if(status !== Sign.DocumentReadStatus.NotStarted){
+            return;
         }
+        yield put(updatePDFPageToStore({
+            id: action.payload.id,
+            index: action.payload.index,
+            pageStatus: Sign.DocumentReadStatus.InProgress
+        }));
+
+        console.log('RENDERING PAGE ', action.payload.index);
+
+        const page = yield pdfStore.document.getPage(action.payload.index + 1);
+ 
+        yield put(updatePDFPageToStore({
+            id: action.payload.id,
+            index: action.payload.index,
+            page: page,
+            pageStatus: Sign.DocumentReadStatus.Complete
+        }));
 
     }
 
 }
+
 
 export default [getPDFFromStore(), getPDFPages()];

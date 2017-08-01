@@ -68,16 +68,18 @@ function *readDocumentSaga() {
 
 function *requestDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT, requestDocument);
+
      function *requestDocument(action: Sign.Actions.RequestDocument) {
         const document = yield select((state: Sign.State) => state.documentSet.documents.find(d => d.id === action.payload.id));
         // prevent anymore requests from going through
+        console.log(document);
+        if(document && document.readStatus !== Sign.DocumentReadStatus.NotStarted){
+            return;
+        }
         yield put(updateDocument({
                 id: action.payload.id,
                 readStatus: Sign.DocumentReadStatus.InProgress
             }));
-        if(document && document.readStatus !== Sign.DocumentReadStatus.NotStarted){
-            return;
-        }
         const response = yield call(axios.get, `/api/document/${action.payload.id}`, {responseType: 'arraybuffer'});
         const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(response.headers['content-disposition'])[1];
         const data = response.data;
@@ -95,6 +97,8 @@ function *requestDocumentSaga() {
         ]);
      }
 }
+
+
 
 function *uploadDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.ADD_DOCUMENT, uploadDocument);
@@ -122,10 +126,11 @@ function *uploadDocumentSaga() {
         data.append('document_id', action.payload.id);
         data.append('file[]', action.payload.file);
 
-        const onUploadProgress = function*(progressEvent: any) {
+        const onUploadProgress = function(progressEvent: any) {
             // Update uploading percentage
-            const percentCompleted = progressEvent.loaded / progressEvent.total;
-            yield put(updateDocument({ id: action.payload.id, progress: percentCompleted }));
+            const completed = progressEvent.loaded / progressEvent.total;
+            // PADDY, this needs to be an event channel
+            //put(updateDocument({ id: action.payload.id, progress: completed }));
         }
 
         // Upload the document

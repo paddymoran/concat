@@ -134,6 +134,10 @@ declare namespace Sign.Actions {
         documentId: string;
     }
 
+    interface RemoveDocumentPayload {
+        documentId: string;
+    }
+
     interface UpdateDocumentPayload {
         documentId: string;
         readStatus?: Sign.DocumentReadStatus;
@@ -187,9 +191,11 @@ declare namespace Sign.Actions {
     interface DeleteSignaturePayload {
        payload: number
     }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
+    interface RemoveDocument extends ActionCreator<RemoveDocumentPayload> {}
 
     interface AddPDFToStoreAction extends ActionCreator<AddPDFToStoreActionPayload> {}
     interface FinishAddPDFToStoreAction extends ActionCreator<FinishAddPDFToStoreActionPayload> {}

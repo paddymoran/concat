@@ -52,14 +52,15 @@ const documentSets = (state: Sign.DocumentSets = {}, action: Sign.DocumentAction
             };
 
          case Sign.Actions.Types.REMOVE_DOCUMENT:
-            i = state[action.payload.documentSetId].documentIds.findIndex(doc => doc === action.payload.documentId);
+            const documentSetId = Object.keys(state).find(key => state[key].documentIds.includes(action.payload.documentId))
+            i = state[documentSetId].documentIds.findIndex(doc => doc === action.payload.documentId);
 
             if (i > -1) {
                 return {
                     ...state,
-                    [action.payload.documentSetId]: {
-                        ...state[action.payload.documentSetId],
-                        documents: state[action.payload.documentSetId].documentIds.splice(i, 1)
+                    [documentSetId]: {
+                        ...state[documentSetId],
+                        documents: state[documentSetId].documentIds.splice(i, 1)
                     }
                 };
             }

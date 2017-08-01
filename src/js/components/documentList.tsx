@@ -29,7 +29,7 @@ const THUMBNAIL_HEIGHT = THUMBNAIL_WIDTH * A4_RATIO;
         document: state.documents[ownProps.documentId],
         documentSetId: Object.keys(state.documentSets).find(key => state.documentSets[key].documentIds.includes(ownProps.documentId))
     }),
-    removeDocument
+    { removeDocument }
 )
 class DocumentView extends React.PureComponent<DocumentViewProps> {
     render() {

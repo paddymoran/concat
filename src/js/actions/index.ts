@@ -32,10 +32,10 @@ export function submitDocuments(payload: string) {
     };
 }
 
-export function removeDocument(id: string) {
+export function removeDocument(documentId: string): Sign.Actions.RemoveDocument {
     return {
         type: Sign.Actions.Types.REMOVE_DOCUMENT,
-        payload: id
+        payload: { documentId }
     };
 }
 

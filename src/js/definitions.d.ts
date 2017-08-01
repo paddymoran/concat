@@ -29,12 +29,14 @@ declare namespace Sign {
         Failed,
     }
 
+    interface DocumentSet {
+        documentIds: string[];
+        downloadStatus: DownloadStatus;
+        title?: string;
+    }
+    
     interface DocumentSets {
-        [documentSetId: string]: {
-            documentIds: string[];
-            downloadStatus: DownloadStatus;
-            title?: string;
-        };
+        [documentSetId: string]: DocumentSet;
     }
 
     interface Documents {
@@ -129,11 +131,11 @@ declare namespace Sign.Actions {
     }
 
     interface RequestDocumentPayload {
-        id: string;
+        documentId: string;
     }
 
     interface UpdateDocumentPayload {
-        id: string;
+        documentId: string;
         readStatus?: Sign.DocumentReadStatus;
         uploadStatus?: Sign.DocumentUploadStatus;
         data?: ArrayBuffer;

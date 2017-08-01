@@ -1,13 +1,13 @@
-export function addDocument(id: string, filename: string, file: File): Sign.Actions.AddDocument {
+export function addDocument(documentId: string, filename: string, file: File): Sign.Actions.AddDocument {
     return {
         type: Sign.Actions.Types.ADD_DOCUMENT,
         payload: { documentId, filename, file }
     };
 }
-export function requestDocument(id: string) {
+export function requestDocument(documentId: string): Sign.Actions.RequestDocument {
     return {
         type: Sign.Actions.Types.REQUEST_DOCUMENT,
-        payload: { id }
+        payload: { documentId }
     }
 }
 

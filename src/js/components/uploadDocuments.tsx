@@ -2,21 +2,17 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocument, removeDocument, updateDocument, requestDocumentSet } from '../actions';
+import { addDocument, requestDocumentSet } from '../actions';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import axios from 'axios';
 import { generateUUID } from './uuid';
 import  { Link } from 'react-router';
-import { addPDFToStore } from '../actions/pdfStore';
 import PDFPage from './pdf/page';
 
 interface UploadDocumentsProps {
-    documentSet: Sign.DocumentSet;
+    documentIds: string[];
     addDocument: Function;
-    removeDocument: (id: number) => void;
-    updateDocument: Function;
-    addPDFToStore: (payload: Sign.Actions.AddPDFToStoreActionPayload) => void;
 }
 
 const eachSeries = (arr: Array<any>, iteratorFn: Function) => arr.reduce(
@@ -36,6 +32,7 @@ interface ConnectedDocumentSetProps {
 
 interface DocumentSetProps {
     documentSetId: string;
+    documentSet: Sign.DocumentSet;
     documentIds: string[];
     loaded: boolean;
     requestDocumentSet: (documentSetId: string) => void;
@@ -52,7 +49,11 @@ export class DocumentSetView extends React.PureComponent<DocumentSetViewProps> {
         const documentSet = state.documentSets[ownProps.documentSetId];
         const documentIds = documentSet ? documentSet.documentIds : [];
 
-        return { documentIds, loaded: documentSet && documentSet.downloadStatus === Sign.DownloadStatus.Complete };
+        return {
+            documentIds,
+            documentSet,
+            loaded: documentSet && documentSet.downloadStatus === Sign.DownloadStatus.Complete
+        };
     },
     {
         requestDocumentSet
@@ -69,8 +70,11 @@ class DocumentSet extends React.PureComponent<DocumentSetProps> {
         }
 
         return (
-            <div>
-                {this.props.documentIds.map(id => <PDFPage key={id} documentId={id} pageNumber={0} drawWidth={200} />)}
+            <div className="container">
+                <div className='page-heading'>
+                    <h1 className="title question">{this.props.documentSet.title ? this.props.documentSet.title : 'Unnamed Set'}</h1>
+                </div>
+                <DocumentList documentIds={this.props.documentIds} />
             </div>
         );
     }
@@ -118,10 +122,10 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                     </div>
 
 
-                    <DocumentList documents={this.props.documentSet.documents} removeDocument={this.props.removeDocument} />
+                    <DocumentList documentIds={this.props.documentIds} />
 
-                    { !!this.props.documentSet.documents.length && <div className="button-bar">
-                        <Link to={`/documents/${this.props.documentSet.documents[0] ? this.props.documentSet.documents[0].id: 'no-id'}`} className={'btn btn-primary ' + (this.props.documentSet.documents.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
+                    { !!this.props.documentIds.length && <div className="button-bar">
+                        <Link to={`/documents/${this.props.documentIds[0] ? this.props.documentIds[0]: 'no-id'}`} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
                     </div> }
                 </div>
             </FileDropZone>
@@ -131,11 +135,9 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
 
 const DNDUploadDocuments = DragDropContext(HTML5Backend)(UploadDocuments)
 
-export default connect(state => ({
-    documentSet: state.documentSet
-}), {
-    addDocument,
-    removeDocument,
-    updateDocument,
-    addPDFToStore,
-})(DNDUploadDocuments);
+export default connect(
+    (state: Sign.State) => ({
+        documentsIds: state.documentSets[0].documentIds
+    }),
+    { addDocument }
+)(DNDUploadDocuments);

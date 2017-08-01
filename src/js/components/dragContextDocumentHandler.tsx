@@ -8,7 +8,6 @@ import { generateUUID } from './uuid';
 
 interface DocumentHandlerProps {
     addDocuments: (files: File[]) => void,
-    documentSet: Sign.DocumentSet,
     form: any,
 }
 
@@ -38,7 +37,6 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
     }
 
     render() {
-        const loaded = !!this.props.documentSet.documents.length && this.props.documentSet.documents.every((f => f.uploadStatus === Sign.DocumentUploadStatus.Complete));
         return  (
             <FileDropZone onDrop={this.onDrop}>
                 <div className="explanation" onClick={this.onClick}>
@@ -53,7 +51,6 @@ class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implemen
 const DragContext = DragDropContext(HTML5Backend)(DocumentHandler)
 
 export default connect(state => ({
-    documentSet: state.documentSet,
     form: state.form
 }), {
     addDocuments: (files: File[]) => files.map(file => generateUUID().then(uuid => addDocument(uuid, file.name, file))),

@@ -28,7 +28,7 @@ const documentSets = (state: Sign.DocumentSets = {}, action: Sign.DocumentAction
                 return {
                     ...state,
                     [action.payload.documentSetId]: newDocumentSet
-                }
+                };
             }
 
         case Sign.Actions.Types.UPDATE_DOCUMENT_SET:
@@ -37,8 +37,8 @@ const documentSets = (state: Sign.DocumentSets = {}, action: Sign.DocumentAction
 
                 return {
                     ...state,
-                    [action.payload.documentSetId]: { ...state[action.payload.documentSetId], ...rest }
-                }
+                    [documentSetId]: { ...state[documentSetId], ...rest }
+                };
             }
 
 
@@ -71,19 +71,19 @@ const documentSets = (state: Sign.DocumentSets = {}, action: Sign.DocumentAction
 function documents(state: Sign.Documents = {}, action: any) {
     switch (action.type) {
         case Sign.Actions.Types.ADD_DOCUMENT:
+            const { documentSetId, documentId, ...rest } = action.payload;
             const newDoc = {
-                file: action.payload.file,
-                filename: action.payload.filename,
+                ...rest,
                 uploadStatus: Sign.DocumentUploadStatus.NotStarted,
                 readStatus: Sign.DocumentReadStatus.NotStarted
             };
 
-            return { ...state, [action.payload.documentId]: newDoc };
+            return { ...state, [documentId]: newDoc };
 
         case Sign.Actions.Types.UPDATE_DOCUMENT:
             {
                 const { documentSetId, documentId, ...rest } = action.payload;
-                return { ...state, [action.payload.documentId]: { ...state[action.payload.documentId], ...rest } };
+                return { ...state, [documentId]: { ...state[documentId], ...rest } };
             }
 
         case Sign.Actions.Types.REQUEST_DOCUMENT:
@@ -94,7 +94,7 @@ function documents(state: Sign.Documents = {}, action: any) {
                     uploadStatus: Sign.DocumentUploadStatus.Complete,
                     readStatus: Sign.DocumentReadStatus.NotStarted
                 };
-                return { ...state, [action.payload.documentId]: { ...state[action.payload.documentId], ...rest } };
+                return { ...state, [documentId]: { ...state[documentId], ...requestDoc } };
             }
 
         case Sign.Actions.Types.REMOVE_DOCUMENT:

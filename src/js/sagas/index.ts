@@ -26,7 +26,7 @@ function *readDocumentSaga() {
 
     function *readDocument(action: Sign.Actions.AddDocument) {
         // Update file upload progress
-        yield put(updateDocument({ id: action.payload.documentId, readStatus: Sign.DocumentReadStatus.InProgress }));
+        yield put(updateDocument({ documentId: action.payload.documentId, readStatus: Sign.DocumentReadStatus.InProgress }));
 
         // Start the file reading process
         const channel = yield call(readFileEmitter, action.payload.file);
@@ -37,7 +37,7 @@ function *readDocumentSaga() {
         yield all([
             // Finish the file upload to the document store
             put(updateDocument({
-                id: action.payload.documentId,
+                documentId: action.payload.documentId,
                 data,
                 readStatus: Sign.DocumentReadStatus.Complete
             })),
@@ -71,30 +71,29 @@ function *requestDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT, requestDocument);
 
      function *requestDocument(action: Sign.Actions.RequestDocument) {
-        const document = yield select((state: Sign.State) => state.documents[action.payload.id]);
+        const document = yield select((state: Sign.State) => state.documents[action.payload.documentId]);
         // prevent anymore requests from going through
-        console.log(document);
         if(document && document.readStatus !== Sign.DocumentReadStatus.NotStarted){
             return;
         }
         yield put(updateDocument({
-                id: action.payload.id,
-                readStatus: Sign.DocumentReadStatus.InProgress
-            }));
-        const response = yield call(axios.get, `/api/document/${action.payload.id}`, {responseType: 'arraybuffer'});
+            documentId: action.payload.documentId,
+            readStatus: Sign.DocumentReadStatus.InProgress
+        }));
+        const response = yield call(axios.get, `/api/document/${action.payload.documentId}`, {responseType: 'arraybuffer'});
         const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(response.headers['content-disposition'])[1];
         const data = response.data;
         yield all([
             // Finish the file upload to the document store
             put(updateDocument({
-                id: action.payload.id,
+                documentId: action.payload.documentId,
                 filename,
                 data,
                 readStatus: Sign.DocumentReadStatus.Complete
             })),
 
             // Add the document to the PDF store
-            put(addPDFToStore({ id: action.payload.id, data }))
+            put(addPDFToStore({ id: action.payload.documentId, data }))
         ]);
      }
 }
@@ -145,7 +144,7 @@ function *uploadDocumentSaga() {
         }
 
         yield put(updateDocument({
-            id: action.payload.documentId,
+            documentId: action.payload.documentId,
             uploadStatus: Sign.DocumentUploadStatus.InProgress,
             progress: 0
         }));
@@ -156,12 +155,12 @@ function *uploadDocumentSaga() {
         try {
             while (true) {
                 let progress = yield take(channel);
-                yield put(updateDocument({ id: action.payload.documentId, progress }));
+                yield put(updateDocument({ documentId: action.payload.documentId, progress }));
             }
         } finally {
             // Set the document upload status to complete
             yield put(updateDocument({
-                id: action.payload.documentId,
+                documentId: action.payload.documentId,
                 uploadStatus: Sign.DocumentUploadStatus.Complete
             }));
         }

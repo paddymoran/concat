@@ -12,46 +12,103 @@ const modals = (state: Sign.Modals = {}, action: any) => {
     return state;
 }
 
-const documentSet = (state: Sign.DocumentSet = {documents: []}, action: Sign.DocumentAction) => {
+const documentSets = (state: Sign.DocumentSets = {}, action: Sign.DocumentAction) => {
     let setId, documents, i;
     switch(action.type) {
-        case Sign.Actions.Types.SET_DOCUMENT_SET_ID:
-            return Object.assign({}, state, {id: action.payload});
+        case Sign.Actions.Types.CREATE_DOCUMENT_SET:
+            {
+                const { documentSetId, ...rest } = action.payload;
+
+                const newDocumentSet = {
+                    ...rest,
+                    documentIds: [],
+                    downloadStatus: Sign.DownloadStatus.NotStarted
+                };
+
+                return {
+                    ...state,
+                    [action.payload.documentSetId]: newDocumentSet
+                }
+            }
+
+        case Sign.Actions.Types.UPDATE_DOCUMENT_SET:
+            {
+                const { documentSetId, ...rest } = action.payload;
+
+                return {
+                    ...state,
+                    [action.payload.documentSetId]: { ...state[action.payload.documentSetId], ...rest }
+                }
+            }
+
 
         case Sign.Actions.Types.ADD_DOCUMENT:
-            const newDoc = {
-                ...action.payload,
-                uploadStatus: Sign.DocumentUploadStatus.NotStarted,
-                readStatus: Sign.DocumentReadStatus.NotStarted
-            };
-            return Object.assign({}, state, { documents: state.documents.concat(newDoc) });
+            // dedupe
+            const documentIds = [...state[action.payload.documentSetId].documentIds, action.payload.documentId];
 
-        case Sign.Actions.Types.REQUEST_DOCUMENT:
-            const requestDoc = {
-                ...action.payload,
-                uploadStatus: Sign.DocumentUploadStatus.Complete,
-                readStatus: Sign.DocumentReadStatus.NotStarted
+            return {
+                ...state,
+                [action.payload.documentSetId]: { ...state[action.payload.documentSetId], documentIds }
             };
-            return Object.assign({}, state, { documents: state.documents.concat(requestDoc) });
-
-        case Sign.Actions.Types.UPDATE_DOCUMENT:
-            i = state.documents.findIndex(doc => doc.id === action.payload.id);
-            documents = [...state.documents];
-            documents[i] = Object.assign({}, documents[i], action.payload);
-            return Object.assign({}, state, {documents});
 
          case Sign.Actions.Types.REMOVE_DOCUMENT:
-            i = state.documents.findIndex(doc => doc.id === action.payload);
-            documents = [...state.documents];
-            documents.splice(i, 1);
-            return Object.assign({}, state, {documents});
+            i = state[action.payload.documentSetId].documentIds.findIndex(doc => doc === action.payload.documentId);
+
+            if (i > -1) {
+                return {
+                    ...state,
+                    [action.payload.documentSetId]: {
+                        ...state[action.payload.documentSetId],
+                        documents: state[action.payload.documentSetId].documentIds.splice(i, 1)
+                    }
+                };
+            }
+            return state;
     }
     return state;
 }
 
+function documents(state: Sign.Documents = {}, action: any) {
+    switch (action.type) {
+        case Sign.Actions.Types.ADD_DOCUMENT:
+            const newDoc = {
+                file: action.payload.file,
+                filename: action.payload.filename,
+                uploadStatus: Sign.DocumentUploadStatus.NotStarted,
+                readStatus: Sign.DocumentReadStatus.NotStarted
+            };
+
+            return { ...state, [action.payload.documentId]: newDoc };
+
+        case Sign.Actions.Types.UPDATE_DOCUMENT:
+            {
+                const { documentSetId, documentId, ...rest } = action.payload;
+                return { ...state, [action.payload.documentId]: { ...state[action.payload.documentId], ...rest } };
+            }
+
+        case Sign.Actions.Types.REQUEST_DOCUMENT:
+            {
+                const  { documentSetId, documentId, ...rest } = action.payload;
+                const requestDoc = {
+                    ...rest,
+                    uploadStatus: Sign.DocumentUploadStatus.Complete,
+                    readStatus: Sign.DocumentReadStatus.NotStarted
+                };
+                return { ...state, [action.payload.documentId]: { ...state[action.payload.documentId], ...rest } };
+            }
+
+        case Sign.Actions.Types.REMOVE_DOCUMENT:
+            return { ...state, [action.payload.documentId]: undefined };
+        
+        default:
+            return state;
+    }
+}
+
 const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     routing: routerReducer,
-    documentSet,
+    documentSets,
+    documents,
     pdfStore: pdfStoreReducer,
     modals: modals
 });

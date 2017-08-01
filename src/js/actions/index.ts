@@ -1,7 +1,7 @@
 export function addDocument(id: string, filename: string, file: File): Sign.Actions.AddDocument {
     return {
         type: Sign.Actions.Types.ADD_DOCUMENT,
-        payload: { id, filename, file }
+        payload: { documentId, filename, file }
     };
 }
 export function requestDocument(id: string) {
@@ -46,14 +46,6 @@ export function updateForm(payload: string) {
     };
 }
 
-export function setDocumentSetId(id: string) {
-    return {
-        type: Sign.Actions.Types.SET_DOCUMENT_SET_ID,
-        payload: id
-    };
-
-}
-
 export function uploadSignature(payload: string) {
     return {
         type: Sign.Actions.Types.UPLOAD_SIGNATURE,
@@ -88,3 +80,14 @@ export function deleteSignature(id: number) {
     };
 }
 
+export function updateDocumentSet(payload: Sign.Actions.DocumentSetPayload): Sign.Actions.UpdateDocumentSet {
+    return { type: Sign.Actions.Types.UPDATE_DOCUMENT_SET, payload };
+}
+
+export function createDocumentSet(payload: Sign.Actions.DocumentSetPayload): Sign.Actions.CreateDocumentSet {
+    return { type: Sign.Actions.Types.CREATE_DOCUMENT_SET, payload };
+}
+
+export function requestDocumentSet(documentSetId: string): Sign.Actions.RequestDocumentSet {
+    return { type: Sign.Actions.Types.REQUEST_DOCUMENT_SET, payload: { documentSetId } };
+}

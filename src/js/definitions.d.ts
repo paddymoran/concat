@@ -22,9 +22,23 @@ declare namespace Sign {
         pageCount?: number;
     }
 
-    interface DocumentSet {
-        id?: string;
-        documents: Document[];
+    const enum DownloadStatus {
+        NotStarted,
+        InProgress,
+        Complete,
+        Failed,
+    }
+
+    interface DocumentSets {
+        [documentSetId: string]: {
+            documentIds: string[];
+            downloadStatus: DownloadStatus;
+            title?: string;
+        };
+    }
+
+    interface Documents {
+        [documentId: string]: Document;
     }
 
     interface Modals {
@@ -41,7 +55,8 @@ declare namespace Sign {
 
     interface State {
         routing: any;
-        documentSet: DocumentSet;
+        documentSets: DocumentSets;
+        documents: Documents;
         pdfStore: PDFStore;
     }
 
@@ -82,7 +97,6 @@ declare namespace Sign.Actions {
         SUBMIT_DOCUMENTS = 'SUBMIT_DOCUMENTS',
         REMOVE_DOCUMENT = 'REMOVE_DOCUMENT',
         UPDATE_FORM = 'UPDATE_FORM',
-        SET_DOCUMENT_SET_ID = 'SET_DOCUMENT_SET_ID',
 
         ADD_PDF_TO_STORE = 'ADD_PDF_TO_STORE',
         FINISH_ADD_PDF_TO_STORE = 'FINISH_ADD_PDF_TO_STORE',
@@ -91,7 +105,11 @@ declare namespace Sign.Actions {
         SELECT_SIGNATURE = 'SELECT_SIGNATURE',
         SHOW_SIGNATURE_SELECTION = 'SHOW_SIGNATURE_SELECTION',
         HIDE_SIGNATURE_SELECTION = 'HIDE_SIGNATURE_SELECTION',
-        DELETE_SIGNATURE = 'HIDE_SIGNATURE'
+        DELETE_SIGNATURE = 'HIDE_SIGNATURE',
+
+        REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
+        CREATE_DOCUMENT_SET = 'CREATE_DOCUMENT_SET',
+        UPDATE_DOCUMENT_SET = 'UPDATE_DOCUMENT_SET',
     }
 
     interface ActionCreator<T> {
@@ -104,7 +122,8 @@ declare namespace Sign.Actions {
     }
 
     interface AddDocumentPayload {
-        id: string;
+        documentSetId: string;
+        documentId: string;
         filename: string;
         file: File;
     }
@@ -145,6 +164,20 @@ declare namespace Sign.Actions {
         index: number;
     }
 
+    interface RequestDocumentSetPayload {
+        documentSetId: string;
+    }
+
+    interface DocumentSetPayload {
+        documentSetId: string;
+        title?: string;
+        documentIds?: string[];
+        downloadStatus?: Sign.DownloadStatus;
+    }
+
+    interface RequestDocumentSetPayload {
+        documentSetId: string;
+    }
 
     interface UploadSignaturePayload {
         data: ArrayBuffer;
@@ -163,6 +196,10 @@ declare namespace Sign.Actions {
     interface DeleteSignature extends ActionCreator<DeleteSignaturePayload> {}
     interface RequestDocumentPageAction extends ActionCreator<RequestDocumentPagePayload> {}
 
+    interface CreateDocumentSet extends ActionCreator<DocumentSetPayload> {}
+    interface UpdateDocumentSet extends ActionCreator<DocumentSetPayload> {}
+
+    interface RequestDocumentSet extends ActionCreator<RequestDocumentSetPayload> {}
 }
 /*
 declare module 'pdfjs-dist' {

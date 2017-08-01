@@ -2,19 +2,19 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocument, removeDocument, updateDocument, setDocumentSetId } from '../actions';
+import { addDocument, removeDocument, updateDocument, requestDocumentSet } from '../actions';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import axios from 'axios';
 import { generateUUID } from './uuid';
 import  { Link } from 'react-router';
 import { addPDFToStore } from '../actions/pdfStore';
+import PDFPage from './pdf/page';
 
 interface UploadDocumentsProps {
     documentSet: Sign.DocumentSet;
     addDocument: Function;
     removeDocument: (id: number) => void;
-    setDocumentSetId: () => void;
     updateDocument: Function;
     addPDFToStore: (payload: Sign.Actions.AddPDFToStoreActionPayload) => void;
 }
@@ -23,6 +23,58 @@ const eachSeries = (arr: Array<any>, iteratorFn: Function) => arr.reduce(
     (p, item) => p.then(() => iteratorFn(item)),
     Promise.resolve()
 );
+
+interface DocumentSetViewProps {
+    params: {
+        documentSetId: string;
+    }
+}
+
+interface ConnectedDocumentSetProps {
+    documentSetId: string;
+}
+
+interface DocumentSetProps {
+    documentSetId: string;
+    documentIds: string[];
+    loaded: boolean;
+    requestDocumentSet: (documentSetId: string) => void;
+}
+
+export class DocumentSetView extends React.PureComponent<DocumentSetViewProps> {
+    render() {
+        return <DocumentSet documentSetId={this.props.params.documentSetId} />
+    }
+}
+
+@connect(
+    (state: Sign.State, ownProps: ConnectedDocumentSetProps) => {
+        const documentSet = state.documentSets[ownProps.documentSetId];
+        const documentIds = documentSet ? documentSet.documentIds : [];
+
+        return { documentIds, loaded: documentSet && documentSet.downloadStatus === Sign.DownloadStatus.Complete };
+    },
+    {
+        requestDocumentSet
+    }
+)
+class DocumentSet extends React.PureComponent<DocumentSetProps> {
+    componentWillMount() {
+        this.props.requestDocumentSet(this.props.documentSetId);
+    }
+
+    render() {
+        if (!this.props.loaded) {
+            return false;
+        }
+
+        return (
+            <div>
+                {this.props.documentIds.map(id => <PDFPage key={id} documentId={id} pageNumber={0} drawWidth={200} />)}
+            </div>
+        );
+    }
+}
 
 
 class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
@@ -85,6 +137,5 @@ export default connect(state => ({
     addDocument,
     removeDocument,
     updateDocument,
-    setDocumentSetId,
     addPDFToStore,
 })(DNDUploadDocuments);

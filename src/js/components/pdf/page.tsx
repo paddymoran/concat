@@ -28,9 +28,6 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
 
     constructor(props: PDFPageProps) {
         super(props);
-        this.state = {
-            pageRendered: false
-        }
         this._count = 0;
     }
 

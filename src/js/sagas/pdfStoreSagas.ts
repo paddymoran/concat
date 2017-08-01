@@ -3,6 +3,7 @@ import * as Promise from 'bluebird';
 import * as PDFJS from "pdfjs-dist";
 import { updateDocument } from '../actions';
 import { updatePDFPageToStore } from '../actions/pdfStore';
+import { delay } from 'redux-saga'
 
 function *getPDFFromStore() {
     yield takeEvery(Sign.Actions.Types.ADD_PDF_TO_STORE, task);
@@ -26,38 +27,34 @@ function *getPDFFromStore() {
 }
 
 
+function *getPage(action: Sign.Actions.RequestDocumentPageAction) {
+    yield call(delay, 0);
+    const pdfStore = yield select((state: Sign.State) => state.pdfStore[action.payload.id]);
+    if(!pdfStore){
+        return;
+    }
+    const status = pdfStore.pageStatuses[action.payload.index];
+    if(status !== Sign.DocumentReadStatus.NotStarted){
+        return;
+    }
+    yield put(updatePDFPageToStore({
+        id: action.payload.id,
+        index: action.payload.index,
+        pageStatus: Sign.DocumentReadStatus.InProgress
+    }));
+    const page = yield call(pdfStore.document.getPage.bind(pdfStore.document), action.payload.index + 1);
+ 
+    yield put(updatePDFPageToStore({
+        id: action.payload.id,
+        index: action.payload.index,
+        page: page,
+        pageStatus: Sign.DocumentReadStatus.Complete
+    }));
+
+}
 
 function *getPDFPages() {
-    yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT_PAGE, task);
-
-    function *task(action: Sign.Actions.RequestDocumentPageAction) {
-        const pdfStore = yield select((state: Sign.State) => state.pdfStore[action.payload.id]);
-        if(!pdfStore){
-            return;
-        }
-        const status = pdfStore.pageStatuses[action.payload.index];
-        if(status !== Sign.DocumentReadStatus.NotStarted){
-            return;
-        }
-        yield put(updatePDFPageToStore({
-            id: action.payload.id,
-            index: action.payload.index,
-            pageStatus: Sign.DocumentReadStatus.InProgress
-        }));
-
-        console.log('RENDERING PAGE ', action.payload.index);
-
-        const page = yield pdfStore.document.getPage(action.payload.index + 1);
- 
-        yield put(updatePDFPageToStore({
-            id: action.payload.id,
-            index: action.payload.index,
-            page: page,
-            pageStatus: Sign.DocumentReadStatus.Complete
-        }));
-
-    }
-
+    yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT_PAGE, getPage);
 }
 
 

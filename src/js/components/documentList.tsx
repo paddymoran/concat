@@ -36,6 +36,7 @@ const DocumentView = (props: DocumentViewProps) => (
 
 export default class DocumentList extends React.Component<DocumentListProps> {
     render() {
+        console.log(this.props.documents)
         return (
             <div className="document-list clearfix">
                 {this.props.documents.map(doc => <DocumentView key={doc.id} document={doc} removeDocument={() => {this.props.removeDocument(doc.id)}} />)}

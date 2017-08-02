@@ -32,7 +32,7 @@ export default class SignatureDragContainer extends React.Component<SignatureDra
 
         return (
             <div className={this.props.className || ''} ref='container'>
-                {this.props.signatures.map(signature => <Signature key={signature.signatureId} signatureId={signature.signatureId} ref='signature' />)}
+                {this.props.signatures.map((signature, index) => <Signature key={index} signatureId={signature.signatureId} ref='signature' />)}
                 {this.props.children}
             </div>
         );

@@ -117,10 +117,8 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
                     </div>
 
                     {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
-
-                    {/*<SignatureDragContainer signatureId={this.state.signatureId} className="pdf-page-wrapper" ref="signature-container">*/}
-                        <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
-                    {/*</SignatureDragContainer>*/}
+                    
+                    <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
                 </div>
             </div>
         );

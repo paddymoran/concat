@@ -33,43 +33,60 @@ const handleStyles = {
     }
 };
 
-class Signature extends React.PureComponent<SignatureProps> {
+interface SignatureState {
+    yOffset: number;
+}
+
+class Signature extends React.PureComponent<SignatureProps, SignatureState> {
     private signature: ReactRnd;
 
-    position() {
+    constructor(props: SignatureProps) {
+        super(props);
+
+        this.state = {
+            yOffset: (props.signature.height / 2) + 1
+        };
+        
+        this.onMove = this.onMove.bind(this);
+        this.onResize = this.onResize.bind(this);
+    }
+
+    onMove(event: ReactRnd.DraggableData, resizeData: ReactRnd.ResizeData) {
+        this.props.moveSignature({
+            signatureIndex: this.props.signatureIndex,
+            x: resizeData.x,
+            y: resizeData.y - this.state.yOffset
+        });
+    }
+
+    onResize(event: any, resizeHandle: string, element: any) {
         const signature: ReactRnd = this.signature;
 
-        if (!signature) {
-            throw new Error('Signature does not exist');
-        }
-
-        const signatureNode = findDOMNode(signature) as HTMLElement;
-
-        return {
-            x: signature.state.x,
-            y: signature.state.y,
-            width: signatureNode.offsetWidth,
-            height: signatureNode.offsetHeight
-        }
+        this.props.moveSignature({
+            signatureIndex: this.props.signatureIndex,
+            width: element.clientWidth,
+            height: element.clientHeight
+        });
     }
 
     render() {
         const { signature } = this.props;
+        const defaults = {
+            x: 0,
+            y: (signature.height / 2) + 1,
+            width: signature.width,
+            height: signature.height
+        };
+
         return (
             <ReactRnd
                 ref={(ref: ReactRnd) => this.signature = ref as ReactRnd}
-                default={{
-                    x: 0,
-                    y: 0,
-                    width: 400,
-                    height: 160
-                }}
+                default={defaults}
                 style={style}
-                minWidth={200}
-                maxWidth={800}
-                onDragStop={(event) => this.props.moveSignature({ signatureIndex: this.props.signatureIndex, x: event.x, y: event.y })}
+                onDragStop={this.onMove}
                 bounds=".pdf-page"
                 resizeHandlerStyles={handleStyles}
+                onResizeStop={this.onResize}
                 lockAspectRatio={true}
             >
                 <img src={'/api/signatures/' + this.props.signature.signatureId} style={{width: '100%'}} draggable={false} />

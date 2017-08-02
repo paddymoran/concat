@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { updateDocument, requestDocument } from '../actions';
 import PDFViewer from './pdf/viewer';
+import PDFPage from './pdf/page';
 import Signature from './signature';
 import SignatureDragContainer from './signatureDragContainer';
 
@@ -19,9 +20,9 @@ class DocumentView extends React.Component<DocumentViewProps>  {
         return (
             <div className="container">
                 <div className="pdf-screen">
-                    <SignatureDragContainer signatures={this.props.signatures} className="pdf-page-wrapper">
-                        <PDFViewer documentId={this.props.params.documentId} removeDocument={() => console.log('return to doc tray')} />
-                    </SignatureDragContainer>
+                    {this.props.signatures.map((signature, index) => <Signature key={index} signatureIndex={index} ref='signature' />)}
+
+                    <PDFViewer documentId={this.props.params.documentId} removeDocument={() => console.log('return to doc tray')} />
                 </div>
             </div>
         );

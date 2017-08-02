@@ -51,7 +51,8 @@ declare namespace Sign {
         signatureId: number;
         x: number;
         y: number;
-        scale: number;
+        width?: number;
+        height?: number;
     }
 
     interface DocumentViewer {
@@ -220,7 +221,8 @@ declare namespace Sign.Actions {
         signatureIndex: number;
         x?: number;
         y?: number;
-        scale?: number;
+        width?: number;
+        height?: number;
     }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
@@ -259,7 +261,7 @@ declare module 'react-signature-canvas' {
     export default SignatureCanvas;
 }
 
-declare module 'react-rnd' {
+declare namespace ReactRnd {
     interface DraggableData {
         node: HTMLElement,
         x: number,
@@ -270,6 +272,16 @@ declare module 'react-rnd' {
         lastY: number
     }
 
+    interface ResizeData {
+        deltaX: number;
+        deltaY: number;
+        lastX: number;
+        lastY: number;
+        node: any;
+        x: number;
+        y: number;
+    }
+
     interface ReactRndProps {
         default: {
             x: number;
@@ -278,22 +290,25 @@ declare module 'react-rnd' {
             height: number;
         };
 
-        minWidth: number;
-        maxWidth: number;
+        minWidth?: number;
+        maxHeight?: number;
         style: Object;
         bounds: string;
         resizeHandlerStyles: Object;
         lockAspectRatio: boolean;
 
-        onDragStop: (event: DraggableData) => void;
+        onDragStop?: (event: DraggableData, resizeData: ResizeData) => void;
+        onResizeStop?: (event: any, resizeHandle: string, element: any) => void;
     }
 
     interface ReactRndState {
         x: number;
         y: number;
     }
+}
 
-    class ReactRnd extends React.Component<ReactRndProps, ReactRndState> { }
+declare module 'react-rnd' {
+    class ReactRnd extends React.Component<ReactRnd.ReactRndProps, ReactRnd.ReactRndState> { }
 
     export default ReactRnd;
 }

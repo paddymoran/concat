@@ -9,25 +9,6 @@ interface SignatureDragContainerProps {
 }
 
 export default class SignatureDragContainer extends React.Component<SignatureDragContainerProps> {
-    // relativeSignaturePosition() {
-    //     const signature = this.refs.signature as Signature;
-    //     const container = this.refs.container as HTMLElement;
-        
-    //     if (!signature) {
-    //         throw new Error('Signature does not exist');
-    //     }
-
-    //     const signaturePosition = signature.position();
-    //     const sizeRatio = (size: number, input: number) => { return (1 / size) * input }
-
-    //     return {
-    //         x: sizeRatio(container.offsetWidth, signaturePosition.x),
-    //         y: sizeRatio(container.offsetHeight, signaturePosition.y),
-    //         width: sizeRatio(container.offsetWidth, signaturePosition.width),
-    //         height: sizeRatio(container.offsetHeight, signaturePosition.height),
-    //     }
-    // }
-
     render() {
 
         return (

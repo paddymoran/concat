@@ -111,7 +111,9 @@ module.exports = {
         }) : function(){},
 
         !DEV ? new webpack.optimize.UglifyJsPlugin() : function(){},
-
+        new CopyWebpackPlugin([
+                { from: 'node_modules/pdfjs-dist/build/pdf.worker.min.js', to: './app.worker.js'}
+        ]),
         new HtmlWebpackPlugin({
             template: 'src/static/index.ejs',
             inject: 'body'

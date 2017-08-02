@@ -22,13 +22,41 @@ declare namespace Sign {
         pageCount?: number;
     }
 
+    const enum DownloadStatus {
+        NotStarted,
+        InProgress,
+        Complete,
+        Failed,
+    }
+
     interface DocumentSet {
-        id?: string;
-        documents: Document[];
+        documentIds: string[];
+        downloadStatus: DownloadStatus;
+        title?: string;
+    }
+    
+    interface DocumentSets {
+        [documentSetId: string]: DocumentSet;
+    }
+
+    interface Documents {
+        [documentId: string]: Document;
     }
 
     interface Modals {
         showing?: string;
+    }
+
+    interface DocumentSignature {
+        signatureId: number;
+        x: number;
+        y: number;
+        scale: number;
+    }
+
+    interface DocumentViewer {
+        selectedSignatureId?: number;
+        signatures: DocumentSignature[];
     }
 
     interface PDFStore {
@@ -41,8 +69,10 @@ declare namespace Sign {
 
     interface State {
         routing: any;
-        documentSet: DocumentSet;
+        documentSets: DocumentSets;
+        documents: Documents;
         pdfStore: PDFStore;
+        documentViewer: DocumentViewer;
     }
 
     interface Action<T> {
@@ -57,12 +87,9 @@ declare namespace Sign {
         onDrop(files: any): void;
     }
 
-
     interface CanvasReusePrevention {
         _count: number
     }
-
-
 
     interface FileDropZoneProps {
         connectDropTarget: Function;
@@ -82,16 +109,25 @@ declare namespace Sign.Actions {
         SUBMIT_DOCUMENTS = 'SUBMIT_DOCUMENTS',
         REMOVE_DOCUMENT = 'REMOVE_DOCUMENT',
         UPDATE_FORM = 'UPDATE_FORM',
-        SET_DOCUMENT_SET_ID = 'SET_DOCUMENT_SET_ID',
 
         ADD_PDF_TO_STORE = 'ADD_PDF_TO_STORE',
         FINISH_ADD_PDF_TO_STORE = 'FINISH_ADD_PDF_TO_STORE',
         UPDATE_PDF_PAGE_TO_STORE = 'UPDATE_PDF_PAGE_TO_STORE',
         UPLOAD_SIGNATURE = 'UPLOAD_SIGNATURE',
-        SELECT_SIGNATURE = 'SELECT_SIGNATURE',
         SHOW_SIGNATURE_SELECTION = 'SHOW_SIGNATURE_SELECTION',
         HIDE_SIGNATURE_SELECTION = 'HIDE_SIGNATURE_SELECTION',
-        DELETE_SIGNATURE = 'HIDE_SIGNATURE'
+        DELETE_SIGNATURE = 'DELETE_SIGNATURE',
+        
+        SELECT_SIGNATURE = 'SELECT_SIGNATURE',
+        ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
+        MOVE_SIGNATURE = 'MOVE_SIGNATURE',
+
+        REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
+        CREATE_DOCUMENT_SET = 'CREATE_DOCUMENT_SET',
+        UPDATE_DOCUMENT_SET = 'UPDATE_DOCUMENT_SET',
+        
+        SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
+        GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
     }
 
     interface ActionCreator<T> {
@@ -104,17 +140,22 @@ declare namespace Sign.Actions {
     }
 
     interface AddDocumentPayload {
-        id: string;
+        documentSetId: string;
+        documentId: string;
         filename: string;
         file: File;
     }
 
     interface RequestDocumentPayload {
-        id: string;
+        documentId: string;
+    }
+
+    interface RemoveDocumentPayload {
+        documentId: string;
     }
 
     interface UpdateDocumentPayload {
-        id: string;
+        documentId: string;
         readStatus?: Sign.DocumentReadStatus;
         uploadStatus?: Sign.DocumentUploadStatus;
         data?: ArrayBuffer;
@@ -145,6 +186,20 @@ declare namespace Sign.Actions {
         index: number;
     }
 
+    interface RequestDocumentSetPayload {
+        documentSetId: string;
+    }
+
+    interface DocumentSetPayload {
+        documentSetId: string;
+        title?: string;
+        documentIds?: string[];
+        downloadStatus?: Sign.DownloadStatus;
+    }
+
+    interface RequestDocumentSetPayload {
+        documentSetId: string;
+    }
 
     interface UploadSignaturePayload {
         data: ArrayBuffer;
@@ -152,9 +207,26 @@ declare namespace Sign.Actions {
     interface DeleteSignaturePayload {
        payload: number
     }
+
+    interface SelectSignaturePayload {
+        signatureId: number;
+    }
+
+    interface AddSignatureToDocumentPayload {
+        signatureId: number;
+    }
+
+    interface MoveSignaturePayload {
+        signatureIndex: number;
+        x?: number;
+        y?: number;
+        scale?: number;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
+    interface RemoveDocument extends ActionCreator<RemoveDocumentPayload> {}
 
     interface AddPDFToStoreAction extends ActionCreator<AddPDFToStoreActionPayload> {}
     interface FinishAddPDFToStoreAction extends ActionCreator<FinishAddPDFToStoreActionPayload> {}
@@ -163,6 +235,14 @@ declare namespace Sign.Actions {
     interface DeleteSignature extends ActionCreator<DeleteSignaturePayload> {}
     interface RequestDocumentPageAction extends ActionCreator<RequestDocumentPagePayload> {}
 
+    interface SelectSignature extends ActionCreator<SelectSignaturePayload> {}
+    interface AddSignatureToDocument extends ActionCreator<AddSignatureToDocumentPayload> {}
+    interface MoveSignature extends ActionCreator<MoveSignaturePayload> {}
+
+    interface CreateDocumentSet extends ActionCreator<DocumentSetPayload> {}
+    interface UpdateDocumentSet extends ActionCreator<DocumentSetPayload> {}
+
+    interface RequestDocumentSet extends ActionCreator<RequestDocumentSetPayload> {}
 }
 /*
 declare module 'pdfjs-dist' {
@@ -180,8 +260,18 @@ declare module 'react-signature-canvas' {
 }
 
 declare module 'react-rnd' {
+    interface DraggableData {
+        node: HTMLElement,
+        x: number,
+        y: number,
+        deltaX: number,
+        deltaY: number,
+        lastX: number,
+        lastY: number
+    }
+
     interface ReactRndProps {
-        initial: {
+        default: {
             x: number;
             y: number;
             width: number;
@@ -192,8 +282,10 @@ declare module 'react-rnd' {
         maxWidth: number;
         style: Object;
         bounds: string;
-        resizerHandleStyle: Object;
+        resizeHandlerStyles: Object;
         lockAspectRatio: boolean;
+
+        onDragStop: (event: DraggableData) => void;
     }
 
     interface ReactRndState {

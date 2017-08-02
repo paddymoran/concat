@@ -13,7 +13,7 @@ function *getPDFFromStore() {
         const docData = new Uint8Array(action.payload.data);
         const pdfDocumentProxy = yield PDFJS.getDocument(docData);
         yield put(updateDocument({
-            id: action.payload.id,
+            documentId: action.payload.id,
             pageCount: pdfDocumentProxy.numPages
         }))
         // Add the pdf to the pdf store

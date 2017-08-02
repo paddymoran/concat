@@ -1,7 +1,6 @@
 import * as React from "react";
 import Header from './header';
 import DocumentView from './documentView';
-import DragContextDocumentHandler from './dragContextDocumentHandler';
 import { CSSTransitionGroup } from 'react-transition-group';
 
 

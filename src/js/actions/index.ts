@@ -1,13 +1,13 @@
-export function addDocument(id: string, filename: string, file: File): Sign.Actions.AddDocument {
+export function addDocument(payload: Sign.Actions.AddDocumentPayload): Sign.Actions.AddDocument {
     return {
         type: Sign.Actions.Types.ADD_DOCUMENT,
-        payload: { id, filename, file }
+        payload
     };
 }
-export function requestDocument(id: string) {
+export function requestDocument(documentId: string): Sign.Actions.RequestDocument {
     return {
         type: Sign.Actions.Types.REQUEST_DOCUMENT,
-        payload: { id }
+        payload: { documentId }
     }
 }
 
@@ -32,10 +32,10 @@ export function submitDocuments(payload: string) {
     };
 }
 
-export function removeDocument(id: string) {
+export function removeDocument(documentId: string): Sign.Actions.RemoveDocument {
     return {
         type: Sign.Actions.Types.REMOVE_DOCUMENT,
-        payload: id
+        payload: { documentId }
     };
 }
 
@@ -46,14 +46,6 @@ export function updateForm(payload: string) {
     };
 }
 
-export function setDocumentSetId(id: string) {
-    return {
-        type: Sign.Actions.Types.SET_DOCUMENT_SET_ID,
-        payload: id
-    };
-
-}
-
 export function uploadSignature(payload: string) {
     return {
         type: Sign.Actions.Types.UPLOAD_SIGNATURE,
@@ -61,18 +53,23 @@ export function uploadSignature(payload: string) {
     };
 }
 
-export function selectSignature(id: number) {
+export function selectSignature(signatureId: number): Sign.Actions.SelectSignature {
     return {
         type: Sign.Actions.Types.SELECT_SIGNATURE,
-        id
+        payload: { signatureId }
     };
 }
 
+export function moveSignature(payload: Sign.Actions.MoveSignaturePayload): Sign.Actions.MoveSignature {
+    return { type: Sign.Actions.Types.MOVE_SIGNATURE, payload };
+}
+
+export function addSignatureToDocument(payload: Sign.Actions.AddSignatureToDocumentPayload): Sign.Actions.AddSignatureToDocument {
+    return { type: Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT, payload };
+}
 
 export function showSignatureSelection() {
-    return {
-        type: Sign.Actions.Types.SHOW_SIGNATURE_SELECTION
-    };
+    return { type: Sign.Actions.Types.SHOW_SIGNATURE_SELECTION };
 }
 
 export function hideSignatureSelection() {
@@ -88,3 +85,14 @@ export function deleteSignature(id: number) {
     };
 }
 
+export function updateDocumentSet(payload: Sign.Actions.DocumentSetPayload): Sign.Actions.UpdateDocumentSet {
+    return { type: Sign.Actions.Types.UPDATE_DOCUMENT_SET, payload };
+}
+
+export function createDocumentSet(payload: Sign.Actions.DocumentSetPayload): Sign.Actions.CreateDocumentSet {
+    return { type: Sign.Actions.Types.CREATE_DOCUMENT_SET, payload };
+}
+
+export function requestDocumentSet(documentSetId: string): Sign.Actions.RequestDocumentSet {
+    return { type: Sign.Actions.Types.REQUEST_DOCUMENT_SET, payload: { documentSetId } };
+}

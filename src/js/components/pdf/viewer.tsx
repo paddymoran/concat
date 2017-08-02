@@ -23,7 +23,7 @@ interface IPDFViewerState {
     error?: string;
     pages?: PDFPageProxy[];
     pageNumber: number;
-    signatureId?: string;
+    signatureId?: number;
     signing: boolean;
 }
 
@@ -60,32 +60,32 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
 
 
     sign() {
-        if (!this.state.signatureId) {
-            this.setState({ signingError: 'Please select add a signature' })
-        }
-        else {
-            this.setState({ signing: true });
+        // if (!this.state.signatureId) {
+        //     this.setState({ signingError: 'Please select add a signature' })
+        // }
+        // else {
+        //     this.setState({ signing: true });
 
-            const signatureContainer = this.refs['signature-container'] as SignatureDragContainer;
-            const position = signatureContainer.relativeSignaturePosition();
+        //     const signatureContainer = this.refs['signature-container'] as SignatureDragContainer;
+        //     // const position = signatureContainer.relativeSignaturePosition();
 
-            let data = new FormData();
-            // data.append('file', this.props.file.file);
-            data.append('signature_id', this.state.signatureId);
-            data.append('page_number', this.state.pageNumber.toString());
-            data.append('x_offset', position.x.toString());
-            data.append('y_offset', position.y.toString());
-            data.append('width_ratio', position.width.toString());
-            data.append('height_ratio', position.height.toString());
+        //     let data = new FormData();
+        //     // data.append('file', this.props.file.file);
+        //     data.append('signature_id', this.state.signatureId.toString());
+        //     data.append('page_number', this.state.pageNumber.toString());
+        //     data.append('x_offset', position.x.toString());
+        //     data.append('y_offset', position.y.toString());
+        //     data.append('width_ratio', position.width.toString());
+        //     data.append('height_ratio', position.height.toString());
 
-            axios.post('/sign', data)
-                .then((response: PostSignResponse) => {
-                    this.setState({ signing: false });
+        //     axios.post('/sign', data)
+        //         .then((response: PostSignResponse) => {
+        //             this.setState({ signing: false });
 
-                    const signedPDFLink = window.location.origin + '/signed-documents/' + response.data.file_id + '?filename=test.pdf';
-                    window.open(signedPDFLink, '_blank');
-                });
-        }
+        //             const signedPDFLink = window.location.origin + '/signed-documents/' + response.data.file_id + '?filename=test.pdf';
+        //             window.open(signedPDFLink, '_blank');
+        //         });
+        // }
     }
 
     render() {
@@ -118,9 +118,9 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
 
                     {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
 
-                    <SignatureDragContainer signatureId={this.state.signatureId} className="pdf-page-wrapper" ref="signature-container">
+                    {/*<SignatureDragContainer signatureId={this.state.signatureId} className="pdf-page-wrapper" ref="signature-container">*/}
                         <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
-                    </SignatureDragContainer>
+                    {/*</SignatureDragContainer>*/}
                 </div>
             </div>
         );

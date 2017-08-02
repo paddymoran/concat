@@ -271,7 +271,7 @@ def get_document_set(user_id, document_set_id):
         if first_row is None:
             return None
 
-        return first_row
+        return [dict(x) for x in first_row]
 
 def get_document(user_id, document_id):
     """

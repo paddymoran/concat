@@ -15,7 +15,6 @@ const modals = (state: Sign.Modals = {}, action: any) => {
     return state;
 }
 
-
 const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     routing,
     documentSets,

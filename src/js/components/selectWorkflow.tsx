@@ -9,11 +9,7 @@ interface SelectWorkflowProps {
     openSelfSign: () => void;
 }
 
-@connect(
-    undefined,
-    { openSelfSign: (uuid: string) => push(`/selfsign/${uuid}`) }
-)
-export default class SelectWorkflow extends React.Component<SelectWorkflowProps> {
+class SelectWorkflow extends React.Component<SelectWorkflowProps> {
     render() {
         return (
             <div className='container'>
@@ -53,3 +49,8 @@ export default class SelectWorkflow extends React.Component<SelectWorkflowProps>
         );
     }
 }
+
+export default connect(
+    undefined,
+    { openSelfSign: (uuid: string) => push(`/selfsign/${uuid}`) }
+)(SelectWorkflow);

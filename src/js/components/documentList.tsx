@@ -5,11 +5,11 @@ import { connect } from 'react-redux';
 import { removeDocument } from '../actions';
 import { Link } from 'react-router';
 
-interface PreConnectDocumentViewProps {
+interface ConnectedDocumentViewProps {
     documentId: string;
 }
 
-interface DocumentViewProps extends PreConnectDocumentViewProps {
+interface DocumentViewProps extends ConnectedDocumentViewProps {
     document: Sign.Document;
     documentSetId: string;
     removeDocument: Function;
@@ -24,13 +24,6 @@ const A4_RATIO = 1.414;
 const THUMBNAIL_WIDTH = 150;
 const THUMBNAIL_HEIGHT = THUMBNAIL_WIDTH * A4_RATIO;
 
-@connect(
-    (state: Sign.State, ownProps: PreConnectDocumentViewProps) => ({
-        document: state.documents[ownProps.documentId],
-        documentSetId: Object.keys(state.documentSets).find(key => state.documentSets[key].documentIds.includes(ownProps.documentId))
-    }),
-    { removeDocument }
-)
 class DocumentView extends React.PureComponent<DocumentViewProps> {
     render() {
         return (
@@ -53,11 +46,19 @@ class DocumentView extends React.PureComponent<DocumentViewProps> {
     }
 }
 
+const ConnectedDocumentView = connect(
+    (state: Sign.State, ownProps: ConnectedDocumentViewProps) => ({
+        document: state.documents[ownProps.documentId],
+        documentSetId: Object.keys(state.documentSets).find(key => state.documentSets[key].documentIds.includes(ownProps.documentId))
+    }),
+    { removeDocument }
+)(DocumentView)
+
 export default class DocumentList extends React.Component<DocumentListProps> {
     render() {
         return (
             <div className="document-list clearfix">
-                {this.props.documentIds.map(documentId => <DocumentView key={documentId} documentId={documentId} />)}
+                {this.props.documentIds.map(documentId => <ConnectedDocumentView key={documentId} documentId={documentId} />)}
             </div>
         );
     }

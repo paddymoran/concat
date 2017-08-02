@@ -32,8 +32,15 @@ interface ConnectedDocumentSetProps {
     documentSetId: string;
 }
 
-interface DocumentSetProps {
+interface ConnectedDocumentSetProps {
     documentSetId: string;
+}
+
+interface DocumentSetViewProps {
+    params: { documentSetId: string; };
+}
+
+interface DocumentSetProps extends ConnectedDocumentSetProps {
     documentSet: Sign.DocumentSet;
     documentIds: string[];
     loaded: boolean;
@@ -42,25 +49,10 @@ interface DocumentSetProps {
 
 export class DocumentSetView extends React.PureComponent<DocumentSetViewProps> {
     render() {
-        return <DocumentSet documentSetId={this.props.params.documentSetId} />
+        return <ConnectedDocumentSet documentSetId={this.props.params.documentSetId} />
     }
 }
 
-@connect(
-    (state: Sign.State, ownProps: ConnectedDocumentSetProps) => {
-        const documentSet = state.documentSets[ownProps.documentSetId];
-        const documentIds = documentSet ? documentSet.documentIds : [];
-
-        return {
-            documentIds,
-            documentSet,
-            loaded: documentSet && documentSet.downloadStatus === Sign.DownloadStatus.Complete
-        };
-    },
-    {
-        requestDocumentSet
-    }
-)
 class DocumentSet extends React.PureComponent<DocumentSetProps> {
     componentWillMount() {
         this.props.requestDocumentSet(this.props.documentSetId);
@@ -81,6 +73,22 @@ class DocumentSet extends React.PureComponent<DocumentSetProps> {
         );
     }
 }
+
+const ConnectedDocumentSet = connect(
+    (state: Sign.State, ownProps: ConnectedDocumentSetProps) => {
+        const documentSet = state.documentSets[ownProps.documentSetId];
+        const documentIds = documentSet ? documentSet.documentIds : [];
+
+        return {
+            documentIds,
+            documentSet,
+            loaded: documentSet && documentSet.downloadStatus === Sign.DownloadStatus.Complete
+        };
+    },
+    {
+        requestDocumentSet
+    }
+)(DocumentSet);
 
 
 class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {

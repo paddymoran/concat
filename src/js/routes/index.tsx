@@ -5,8 +5,6 @@ import SelectWorkflow from '../components/selectWorkflow';
 import DocumentView from '../components/documentView';
 import UploadDocuments, { DocumentSetView } from '../components/uploadDocuments';
 
-import { generateUploadDocumentsDocumentSetId } from '../actions';
-
 export default () => {
     return (
         <Route path='/' component={App}>

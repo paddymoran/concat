@@ -4,7 +4,7 @@ import { DragSource } from 'react-dnd';
 import ReactRnd from 'react-rnd';
 
 interface SignatureProps {
-    signatureId: string;
+    signatureId: number;
 }
 
 const style = {
@@ -29,10 +29,6 @@ const handleStyles = {
 export default class Signature extends React.Component<SignatureProps, any> {
     private signature: ReactRnd;
 
-    constructor(props: SignatureProps) {
-        super(props);
-    }
-
     position() {
         const signature: ReactRnd = this.signature;
 
@@ -54,7 +50,7 @@ export default class Signature extends React.Component<SignatureProps, any> {
         return (
             <ReactRnd
                 ref={(ref: ReactRnd) => this.signature = ref as ReactRnd}
-                initial={{
+                default={{
                     x: 0,
                     y: 0,
                     width: 400,
@@ -67,7 +63,7 @@ export default class Signature extends React.Component<SignatureProps, any> {
                 resizerHandleStyle={handleStyles}
                 lockAspectRatio={true}
             >
-                <img src={'signatures/' + this.props.signatureId} style={{width: '100%'}} draggable={false} />
+                <img src={'/api/signatures/' + this.props.signatureId} style={{width: '100%'}} draggable={false} />
             </ReactRnd>
         );
     }

@@ -4,15 +4,11 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import Signature from './signature';
 
 interface SignatureDragContainerProps {
-    signatureId?: string;
+    signatures: Sign.DocumentSignature[];
     className?: string;
 }
 
-export default class SignatureDragContainer extends React.Component<SignatureDragContainerProps, {}> {
-    constructor(props: SignatureDragContainerProps) {
-        super(props);
-    }
-
+export default class SignatureDragContainer extends React.Component<SignatureDragContainerProps> {
     relativeSignaturePosition() {
         const signature = this.refs.signature as Signature;
         const container = this.refs.container as HTMLElement;
@@ -36,9 +32,7 @@ export default class SignatureDragContainer extends React.Component<SignatureDra
 
         return (
             <div className={this.props.className || ''} ref='container'>
-                {this.props.signatureId &&
-                    <Signature signatureId={this.props.signatureId} ref='signature' />
-                }
+                {this.props.signatures.map(signature => <Signature key={signature.signatureId} signatureId={signature.signatureId} ref='signature' />)}
                 {this.props.children}
             </div>
         );

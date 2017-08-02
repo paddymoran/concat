@@ -23,7 +23,7 @@ interface IPDFViewerState {
     error?: string;
     pages?: PDFPageProxy[];
     pageNumber: number;
-    signatureId?: string;
+    signatureId?: number;
     signing: boolean;
 }
 
@@ -71,7 +71,7 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
 
             let data = new FormData();
             // data.append('file', this.props.file.file);
-            data.append('signature_id', this.state.signatureId);
+            data.append('signature_id', this.state.signatureId.toString());
             data.append('page_number', this.state.pageNumber.toString());
             data.append('x_offset', position.x.toString());
             data.append('y_offset', position.y.toString());
@@ -118,9 +118,9 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
 
                     {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
 
-                    <SignatureDragContainer signatureId={this.state.signatureId} className="pdf-page-wrapper" ref="signature-container">
+                    {/*<SignatureDragContainer signatureId={this.state.signatureId} className="pdf-page-wrapper" ref="signature-container">*/}
                         <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
-                    </SignatureDragContainer>
+                    {/*</SignatureDragContainer>*/}
                 </div>
             </div>
         );

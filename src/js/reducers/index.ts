@@ -4,6 +4,7 @@ import { routerReducer as routing } from 'react-router-redux';
 import pdfStore from './pdfStore';
 import documents from './documents';
 import documentSets from './documentSets';
+import documentViewer from './documentViewer';
 
 const modals = (state: Sign.Modals = {}, action: any) => {
     switch (action.type) {
@@ -21,6 +22,7 @@ const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     documents,
     pdfStore,
     modals,
+    documentViewer,
 });
 
 export default rootReducer;

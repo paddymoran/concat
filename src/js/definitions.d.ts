@@ -47,6 +47,18 @@ declare namespace Sign {
         showing?: string;
     }
 
+    interface DocumentSignature {
+        signatureId: number;
+        x: number;
+        y: number;
+        scale: number;
+    }
+
+    interface DocumentViewer {
+        selectedSignatureId?: number;
+        signatures: DocumentSignature[];
+    }
+
     interface PDFStore {
         [id: string]: {
             document: PDFDocumentProxy;
@@ -60,6 +72,7 @@ declare namespace Sign {
         documentSets: DocumentSets;
         documents: Documents;
         pdfStore: PDFStore;
+        documentViewer: DocumentViewer;
     }
 
     interface Action<T> {
@@ -105,6 +118,8 @@ declare namespace Sign.Actions {
         SHOW_SIGNATURE_SELECTION = 'SHOW_SIGNATURE_SELECTION',
         HIDE_SIGNATURE_SELECTION = 'HIDE_SIGNATURE_SELECTION',
         DELETE_SIGNATURE = 'HIDE_SIGNATURE',
+        
+        ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
 
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
         CREATE_DOCUMENT_SET = 'CREATE_DOCUMENT_SET',
@@ -192,6 +207,14 @@ declare namespace Sign.Actions {
        payload: number
     }
 
+    interface SelectSignaturePayload {
+        signatureId: number;
+    }
+
+    interface AddSignatureToDocumentPayload {
+        signatureId: number;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -203,6 +226,9 @@ declare namespace Sign.Actions {
     interface UploadSignature extends ActionCreator<UploadSignaturePayload> {}
     interface DeleteSignature extends ActionCreator<DeleteSignaturePayload> {}
     interface RequestDocumentPageAction extends ActionCreator<RequestDocumentPagePayload> {}
+
+    interface SelectSignature extends ActionCreator<SelectSignaturePayload> {}
+    interface AddSignatureToDocument extends ActionCreator<AddSignatureToDocumentPayload> {}
 
     interface CreateDocumentSet extends ActionCreator<DocumentSetPayload> {}
     interface UpdateDocumentSet extends ActionCreator<DocumentSetPayload> {}
@@ -226,7 +252,7 @@ declare module 'react-signature-canvas' {
 
 declare module 'react-rnd' {
     interface ReactRndProps {
-        initial: {
+        default: {
             x: number;
             y: number;
             width: number;

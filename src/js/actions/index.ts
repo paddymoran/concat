@@ -53,18 +53,19 @@ export function uploadSignature(payload: string) {
     };
 }
 
-export function selectSignature(id: number) {
+export function selectSignature(signatureId: number): Sign.Actions.SelectSignature {
     return {
         type: Sign.Actions.Types.SELECT_SIGNATURE,
-        id
+        payload: { signatureId }
     };
 }
 
+export function addSignatureToDocument(payload: Sign.Actions.AddSignatureToDocumentPayload): Sign.Actions.AddSignatureToDocument {
+    return { type: Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT, payload };
+}
 
 export function showSignatureSelection() {
-    return {
-        type: Sign.Actions.Types.SHOW_SIGNATURE_SELECTION
-    };
+    return { type: Sign.Actions.Types.SHOW_SIGNATURE_SELECTION };
 }
 
 export function hideSignatureSelection() {

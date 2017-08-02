@@ -11,7 +11,7 @@ interface DocumentHandlerProps {
     form: any,
 }
 
-class DocumentHandler extends React.Component<DocumentHandlerProps, {}> implements Sign.DocumentHandler {
+class DocumentHandler extends React.Component<DocumentHandlerProps> implements Sign.DocumentHandler {
     _fileInput: HTMLInputElement;
 
     constructor(props: DocumentHandlerProps) {
@@ -53,5 +53,5 @@ const DragContext = DragDropContext(HTML5Backend)(DocumentHandler)
 export default connect(state => ({
     form: state.form
 }), {
-    addDocuments: (files: File[]) => files.map(file => generateUUID().then(uuid => addDocument(uuid, file.name, file))),
+    addDocuments: (files: File[]) => files.map(file => generateUUID().then(documentId => addDocument({ documentId, filename: file.name, file }))),
 })(DragContext);

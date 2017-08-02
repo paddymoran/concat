@@ -74,12 +74,9 @@ declare namespace Sign {
         onDrop(files: any): void;
     }
 
-
     interface CanvasReusePrevention {
         _count: number
     }
-
-
 
     interface FileDropZoneProps {
         connectDropTarget: Function;
@@ -112,6 +109,9 @@ declare namespace Sign.Actions {
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
         CREATE_DOCUMENT_SET = 'CREATE_DOCUMENT_SET',
         UPDATE_DOCUMENT_SET = 'UPDATE_DOCUMENT_SET',
+        
+        SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
+        GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
     }
 
     interface ActionCreator<T> {

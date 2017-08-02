@@ -1,7 +1,7 @@
 import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
 import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import axios from 'axios';
-import { updateDocument, updateDocumentSet, createDocumentSet } from '../actions';
+import { updateDocument, updateDocumentSet, createDocumentSet, setUploadDocumentsDocumentSetId } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -19,7 +19,6 @@ export default function *rootSaga(): any {
         ...signatureSagas
     ]);
 }
-
 
 function *readDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.ADD_DOCUMENT, readDocument);

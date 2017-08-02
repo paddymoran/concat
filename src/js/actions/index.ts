@@ -1,7 +1,7 @@
-export function addDocument(documentId: string, filename: string, file: File): Sign.Actions.AddDocument {
+export function addDocument(payload: Sign.Actions.AddDocumentPayload): Sign.Actions.AddDocument {
     return {
         type: Sign.Actions.Types.ADD_DOCUMENT,
-        payload: { documentId, filename, file }
+        payload
     };
 }
 export function requestDocument(documentId: string): Sign.Actions.RequestDocument {
@@ -90,4 +90,12 @@ export function createDocumentSet(payload: Sign.Actions.DocumentSetPayload): Sig
 
 export function requestDocumentSet(documentSetId: string): Sign.Actions.RequestDocumentSet {
     return { type: Sign.Actions.Types.REQUEST_DOCUMENT_SET, payload: { documentSetId } };
+}
+
+export function setUploadDocumentsDocumentSetId(documentSetId: string): Sign.Actions.SetUploadDocumentsDocumentSetId {
+    return { type: Sign.Actions.Types.SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID, payload: { documentSetId } };
+}
+
+export function generateUploadDocumentsDocumentSetId(): Sign.Actions.GenerateUploadDocumentsDocumentSetId {
+    return { type: Sign.Actions.Types.GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID };
 }

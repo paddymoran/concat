@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocument, requestDocumentSet } from '../actions';
+import { addDocument, requestDocumentSet, createDocumentSet } from '../actions';
 import *  as HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import axios from 'axios';
@@ -13,6 +13,8 @@ import PDFPage from './pdf/page';
 interface UploadDocumentsProps {
     documentIds: string[];
     addDocument: Function;
+    createDocumentSet: (payload: Sign.Actions.DocumentSetPayload) => void;
+    documentSetId: string;
 }
 
 const eachSeries = (arr: Array<any>, iteratorFn: Function) => arr.reduce(
@@ -91,6 +93,10 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
         this.onClick = this.onClick.bind(this);
     }
 
+    componentWillMount() {
+        this.props.createDocumentSet({ documentSetId: this.props.documentSetId });
+    }
+
     fileDrop(files: File[]) {
         files.map(file => generateUUID().then(uuid => this.props.addDocument(uuid, file.name, file)));
     }
@@ -122,9 +128,9 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                     </div>
 
 
-                    <DocumentList documentIds={this.props.documentIds} />
+                    { this.props.documentIds && <DocumentList documentIds={this.props.documentIds} /> }
 
-                    { !!this.props.documentIds.length && <div className="button-bar">
+                    { !!this.props.documentIds && this.props.documentIds.length && <div className="button-bar">
                         <Link to={`/documents/${this.props.documentIds[0] ? this.props.documentIds[0]: 'no-id'}`} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
                     </div> }
                 </div>
@@ -136,8 +142,15 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
 const DNDUploadDocuments = DragDropContext(HTML5Backend)(UploadDocuments)
 
 export default connect(
-    (state: Sign.State) => ({
-        documentsIds: state.documentSets[0].documentIds
-    }),
-    { addDocument }
+    (state: Sign.State, ownProps: any) => {
+        const { documentSetId } = ownProps.params;
+        return {
+            documentsIds: state.documentSets[documentSetId] ? state.documentSets[documentSetId].documentIds : null,
+            documentSetId
+        };
+    },
+    {
+        addDocument,
+        createDocumentSet
+    }
 )(DNDUploadDocuments);

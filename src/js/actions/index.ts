@@ -60,6 +60,10 @@ export function selectSignature(signatureId: number): Sign.Actions.SelectSignatu
     };
 }
 
+export function moveSignature(payload: Sign.Actions.MoveSignaturePayload): Sign.Actions.MoveSignature {
+    return { type: Sign.Actions.Types.MOVE_SIGNATURE, payload };
+}
+
 export function addSignatureToDocument(payload: Sign.Actions.AddSignatureToDocumentPayload): Sign.Actions.AddSignatureToDocument {
     return { type: Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT, payload };
 }

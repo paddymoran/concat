@@ -2,9 +2,16 @@ import * as React from 'react';
 import { findDOMNode } from "react-dom";
 import { DragSource } from 'react-dnd';
 import ReactRnd from 'react-rnd';
+import { moveSignature } from '../actions';
+import { connect } from 'react-redux';
 
-interface SignatureProps {
-    signatureId: number;
+interface ConnectedSignatureProps {
+    signatureIndex: number;
+}
+
+interface SignatureProps extends ConnectedSignatureProps {
+    moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
+    signature: Sign.DocumentSignature;
 }
 
 const style = {
@@ -26,7 +33,7 @@ const handleStyles = {
     }
 };
 
-export default class Signature extends React.Component<SignatureProps, any> {
+class Signature extends React.PureComponent<SignatureProps> {
     private signature: ReactRnd;
 
     position() {
@@ -47,6 +54,7 @@ export default class Signature extends React.Component<SignatureProps, any> {
     }
 
     render() {
+        const { signature } = this.props;
         return (
             <ReactRnd
                 ref={(ref: ReactRnd) => this.signature = ref as ReactRnd}
@@ -59,12 +67,18 @@ export default class Signature extends React.Component<SignatureProps, any> {
                 style={style}
                 minWidth={200}
                 maxWidth={800}
-                bounds={'resizerHandleStyle'}
-                resizerHandleStyle={handleStyles}
+                onDragStop={(event) => this.props.moveSignature({ signatureIndex: this.props.signatureIndex, x: event.x, y: event.y })}
+                bounds=".pdf-page"
+                resizeHandlerStyles={handleStyles}
                 lockAspectRatio={true}
             >
-                <img src={'/api/signatures/' + this.props.signatureId} style={{width: '100%'}} draggable={false} />
+                <img src={'/api/signatures/' + this.props.signature.signatureId} style={{width: '100%'}} draggable={false} />
             </ReactRnd>
         );
     }
 }
+
+export default connect(
+    (state: Sign.State, ownProps: ConnectedSignatureProps) => ({ signature: state.documentViewer.signatures[ownProps.signatureIndex] }),
+    { moveSignature }
+)(Signature);

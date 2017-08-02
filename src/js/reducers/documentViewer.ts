@@ -2,15 +2,16 @@ const DEFAULT_STATE: Sign.DocumentViewer = {
     signatures: []
 };
 
-type ActionType = Sign.Actions.SelectSignature | Sign.Actions.SelectSignature;
-
-export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STATE, action: ActionType): Sign.DocumentViewer {
+export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STATE, action: any): Sign.DocumentViewer {
     switch (action.type) {
         case Sign.Actions.Types.SELECT_SIGNATURE:
             return selectSignature(state, action);
         
         case Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT:
             return addSignatureToDocument(state, action);
+
+        case Sign.Actions.Types.MOVE_SIGNATURE:
+            return moveSignature(state, action);
         
         default:
             return state;
@@ -30,4 +31,16 @@ function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions
     };
 
     return { ...state, signatures: [ ...state.signatures, newSignature ] };
+}
+
+function moveSignature(state: Sign.DocumentViewer, action: Sign.Actions.MoveSignature): Sign.DocumentViewer {
+    const { signatureIndex, ...rest } = action.payload;
+
+    let signatures = [...state.signatures];
+    signatures[signatureIndex] = {
+        ...state.signatures[signatureIndex],
+        ...rest
+    };
+
+    return { ...state, signatures };
 }

@@ -9,30 +9,30 @@ interface SignatureDragContainerProps {
 }
 
 export default class SignatureDragContainer extends React.Component<SignatureDragContainerProps> {
-    relativeSignaturePosition() {
-        const signature = this.refs.signature as Signature;
-        const container = this.refs.container as HTMLElement;
+    // relativeSignaturePosition() {
+    //     const signature = this.refs.signature as Signature;
+    //     const container = this.refs.container as HTMLElement;
         
-        if (!signature) {
-            throw new Error('Signature does not exist');
-        }
+    //     if (!signature) {
+    //         throw new Error('Signature does not exist');
+    //     }
 
-        const signaturePosition = signature.position();
-        const sizeRatio = (size: number, input: number) => { return (1 / size) * input }
+    //     const signaturePosition = signature.position();
+    //     const sizeRatio = (size: number, input: number) => { return (1 / size) * input }
 
-        return {
-            x: sizeRatio(container.offsetWidth, signaturePosition.x),
-            y: sizeRatio(container.offsetHeight, signaturePosition.y),
-            width: sizeRatio(container.offsetWidth, signaturePosition.width),
-            height: sizeRatio(container.offsetHeight, signaturePosition.height),
-        }
-    }
+    //     return {
+    //         x: sizeRatio(container.offsetWidth, signaturePosition.x),
+    //         y: sizeRatio(container.offsetHeight, signaturePosition.y),
+    //         width: sizeRatio(container.offsetWidth, signaturePosition.width),
+    //         height: sizeRatio(container.offsetHeight, signaturePosition.height),
+    //     }
+    // }
 
     render() {
 
         return (
             <div className={this.props.className || ''} ref='container'>
-                {this.props.signatures.map((signature, index) => <Signature key={index} signatureId={signature.signatureId} ref='signature' />)}
+                {this.props.signatures.map((signature, index) => <Signature key={index} signatureIndex={index} ref='signature' />)}
                 {this.props.children}
             </div>
         );

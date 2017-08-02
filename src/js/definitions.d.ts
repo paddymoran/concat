@@ -114,12 +114,13 @@ declare namespace Sign.Actions {
         FINISH_ADD_PDF_TO_STORE = 'FINISH_ADD_PDF_TO_STORE',
         UPDATE_PDF_PAGE_TO_STORE = 'UPDATE_PDF_PAGE_TO_STORE',
         UPLOAD_SIGNATURE = 'UPLOAD_SIGNATURE',
-        SELECT_SIGNATURE = 'SELECT_SIGNATURE',
         SHOW_SIGNATURE_SELECTION = 'SHOW_SIGNATURE_SELECTION',
         HIDE_SIGNATURE_SELECTION = 'HIDE_SIGNATURE_SELECTION',
-        DELETE_SIGNATURE = 'HIDE_SIGNATURE',
+        DELETE_SIGNATURE = 'DELETE_SIGNATURE',
         
+        SELECT_SIGNATURE = 'SELECT_SIGNATURE',
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
+        MOVE_SIGNATURE = 'MOVE_SIGNATURE',
 
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
         CREATE_DOCUMENT_SET = 'CREATE_DOCUMENT_SET',
@@ -215,6 +216,13 @@ declare namespace Sign.Actions {
         signatureId: number;
     }
 
+    interface MoveSignaturePayload {
+        signatureIndex: number;
+        x?: number;
+        y?: number;
+        scale?: number;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -229,6 +237,7 @@ declare namespace Sign.Actions {
 
     interface SelectSignature extends ActionCreator<SelectSignaturePayload> {}
     interface AddSignatureToDocument extends ActionCreator<AddSignatureToDocumentPayload> {}
+    interface MoveSignature extends ActionCreator<MoveSignaturePayload> {}
 
     interface CreateDocumentSet extends ActionCreator<DocumentSetPayload> {}
     interface UpdateDocumentSet extends ActionCreator<DocumentSetPayload> {}
@@ -251,6 +260,16 @@ declare module 'react-signature-canvas' {
 }
 
 declare module 'react-rnd' {
+    interface DraggableData {
+        node: HTMLElement,
+        x: number,
+        y: number,
+        deltaX: number,
+        deltaY: number,
+        lastX: number,
+        lastY: number
+    }
+
     interface ReactRndProps {
         default: {
             x: number;
@@ -263,8 +282,10 @@ declare module 'react-rnd' {
         maxWidth: number;
         style: Object;
         bounds: string;
-        resizerHandleStyle: Object;
+        resizeHandlerStyles: Object;
         lockAspectRatio: boolean;
+
+        onDragStop: (event: DraggableData) => void;
     }
 
     interface ReactRndState {

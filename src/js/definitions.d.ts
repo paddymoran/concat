@@ -123,6 +123,8 @@ declare namespace Sign.Actions {
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
         MOVE_SIGNATURE = 'MOVE_SIGNATURE',
 
+        SIGN_DOCUMENT = "SIGN_DOCUMENT",
+
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
         CREATE_DOCUMENT_SET = 'CREATE_DOCUMENT_SET',
         UPDATE_DOCUMENT_SET = 'UPDATE_DOCUMENT_SET',
@@ -225,6 +227,18 @@ declare namespace Sign.Actions {
         height?: number;
     }
 
+    interface SignDocumentPayload {
+        documentSetId: string;
+        documentId: string;
+        signatures: {
+            pageNumber: number;
+            offsetX: number;
+            offsetY: number;
+            ratioX: number;
+            ratioY: number;
+        }[];
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -245,6 +259,8 @@ declare namespace Sign.Actions {
     interface UpdateDocumentSet extends ActionCreator<DocumentSetPayload> {}
 
     interface RequestDocumentSet extends ActionCreator<RequestDocumentSetPayload> {}
+
+    interface SignDocument extends ActionCreator<SignDocumentPayload> {}
 }
 /*
 declare module 'pdfjs-dist' {

@@ -12,7 +12,7 @@ import PDFPage from './pdf/page';
 
 interface UploadDocumentsProps {
     documentIds: string[];
-    addDocument: Function;
+    addDocument: (payload: Sign.Actions.AddDocumentPayload) => void;
     createDocumentSet: (payload: Sign.Actions.DocumentSetPayload) => void;
     documentSetId: string;
 }
@@ -66,9 +66,9 @@ class DocumentSet extends React.PureComponent<DocumentSetProps> {
         return (
             <div className="container">
                 <div className='page-heading'>
-                    <h1 className="title question">{this.props.documentSet.title ? this.props.documentSet.title : 'Unnamed Set'}</h1>
+                    <h1 className="title question">{this.props.documentSet.title ? this.props.documentSet.title : 'New Document Set'}</h1>
                 </div>
-                <DocumentList documentIds={this.props.documentIds} />
+                <DocumentList documentIds={this.props.documentIds} showRemove={false} />
             </div>
         );
     }
@@ -106,7 +106,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
     }
 
     fileDrop(files: File[]) {
-        files.map(file => generateUUID().then(uuid => this.props.addDocument(uuid, file.name, file)));
+        files.map(file => generateUUID().then(uuid => this.props.addDocument({ documentId: uuid, documentSetId: this.props.documentSetId, filename: file.name, file: file })));
     }
 
     collectFiles(event: React.ChangeEvent<HTMLInputElement>) {
@@ -136,10 +136,10 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                     </div>
 
 
-                    { this.props.documentIds && <DocumentList documentIds={this.props.documentIds} /> }
+                    { !!this.props.documentIds && <DocumentList documentIds={this.props.documentIds} /> }
 
-                    { !!this.props.documentIds && this.props.documentIds.length && <div className="button-bar">
-                        <Link to={`/documents/${this.props.documentIds[0] ? this.props.documentIds[0]: 'no-id'}`} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
+                    { !!this.props.documentIds && !!this.props.documentIds.length && <div className="button-bar">
+                        <Link to={`/documents/${this.props.documentSetId}`} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
                     </div> }
                 </div>
             </FileDropZone>
@@ -147,18 +147,16 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
     }
 }
 
-const DNDUploadDocuments = DragDropContext(HTML5Backend)(UploadDocuments)
+const DNDUploadDocuments = DragDropContext(HTML5Backend)(UploadDocuments);
 
 export default connect(
     (state: Sign.State, ownProps: any) => {
         const { documentSetId } = ownProps.params;
+        
         return {
-            documentsIds: state.documentSets[documentSetId] ? state.documentSets[documentSetId].documentIds : null,
+            documentIds: state.documentSets[documentSetId] ? state.documentSets[documentSetId].documentIds : null,
             documentSetId
         };
     },
-    {
-        addDocument,
-        createDocumentSet
-    }
+    { addDocument, createDocumentSet }
 )(DNDUploadDocuments);

@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 
 interface ConnectedDocumentViewProps {
     documentId: string;
+    showRemove: boolean;
 }
 
 interface DocumentViewProps extends ConnectedDocumentViewProps {
@@ -17,6 +18,7 @@ interface DocumentViewProps extends ConnectedDocumentViewProps {
 
 interface DocumentListProps {
     documentIds: string[];
+    showRemove?: boolean;
 };
 
 const A4_RATIO = 1.414;
@@ -28,7 +30,7 @@ class DocumentView extends React.PureComponent<DocumentViewProps> {
     render() {
         return (
             <div className="document">
-                <button className="remove" onClick={() => this.props.removeDocument(this.props.documentId)}>✖</button>
+                {!!this.props.showRemove && <button className="remove" onClick={() => this.props.removeDocument(this.props.documentId)}>✖</button>}
 
                 <PDFPage pageNumber={0} drawWidth={THUMBNAIL_WIDTH} documentId={this.props.documentId} showLoading={false}/>
                 <div className="filename">{ this.props.document && this.props.document.filename ? this.props.document.filename : '' }</div>
@@ -58,7 +60,7 @@ export default class DocumentList extends React.Component<DocumentListProps> {
     render() {
         return (
             <div className="document-list clearfix">
-                {this.props.documentIds.map(documentId => <ConnectedDocumentView key={documentId} documentId={documentId} />)}
+                {this.props.documentIds.map(documentId => <ConnectedDocumentView showRemove={this.props.showRemove || false} key={documentId} documentId={documentId} />)}
             </div>
         );
     }

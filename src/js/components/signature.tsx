@@ -19,7 +19,6 @@ const style = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundSize: '100% 100%'
 };
 
 const handleStyles = {
@@ -30,7 +29,7 @@ const handleStyles = {
         height: '20px',
         right: '-10px',
         bottom: '-10px',
-        cursor: 'nw-resize'
+        cursor: 'nw-resize',
     }
 };
 
@@ -81,7 +80,8 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
 
         const stylesWithbackground = {
             ...style,
-            background: `url("/api/signatures/${this.props.signature.signatureId}"`
+            background: `url("/api/signatures/${this.props.signature.signatureId}"`,
+            backgroundSize: '100% 100%',
         };
 
         return (

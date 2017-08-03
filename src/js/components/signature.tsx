@@ -2,16 +2,21 @@ import * as React from 'react';
 import { findDOMNode } from "react-dom";
 import { DragSource } from 'react-dnd';
 import ReactRnd from 'react-rnd';
-import { moveSignature } from '../actions';
+import { moveSignature, removeSignatureFromDocument } from '../actions';
 import { connect } from 'react-redux';
 
 interface ConnectedSignatureProps {
-    signatureIndex: number;
+    signatureIndex: string;
 }
 
 interface SignatureProps extends ConnectedSignatureProps {
     moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
     signature: Sign.DocumentSignature;
+    removeSignatureFromDocument: (payload: Sign.Actions.RemoveSignatureFromDocumentPayload) => void;
+}
+
+interface SignatureState {
+    yOffset: number;
 }
 
 const style = {
@@ -32,10 +37,6 @@ const handleStyles = {
         cursor: 'nw-resize',
     }
 };
-
-interface SignatureState {
-    yOffset: number;
-}
 
 class Signature extends React.PureComponent<SignatureProps, SignatureState> {
     private signature: ReactRnd;
@@ -92,12 +93,13 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
                 onDragStop={this.onMove}
                 bounds=".drag-container .pdf-page"
                 resizeHandlerStyles={handleStyles}
-                onResizeStop={this.onResize} />
+                onResizeStop={this.onResize}
+            ><button onClick={() => this.props.removeSignatureFromDocument({ signatureIndex: this.props.signatureIndex })}>x</button></ReactRnd>
         );
     }
 }
 
 export default connect(
     (state: Sign.State, ownProps: ConnectedSignatureProps) => ({ signature: state.documentViewer.signatures[ownProps.signatureIndex] }),
-    { moveSignature }
+    { moveSignature, removeSignatureFromDocument }
 )(Signature);

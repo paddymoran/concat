@@ -12,18 +12,15 @@ interface DocumentViewProps {
     removeDocument: Function;
     updateDocument: Function;
     requestDocument: Function;
-    signatures: Sign.DocumentSignature[];
+    signatures: Sign.DocumentSignatures;
 }
 
 export default class DocumentView extends React.Component<DocumentViewProps>  {
     render() {
         return (
-
-                <div className="pdf-screen">
-
-                        <PDFViewer documentId={this.props.params.documentId} removeDocument={() => console.log('return to doc tray')} />
-
-                </div>
+            <div className="pdf-screen">
+                <PDFViewer documentId={this.props.params.documentId} />
+            </div>
         );
     }
 }

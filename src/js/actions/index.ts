@@ -67,6 +67,13 @@ export function addSignatureToDocument(payload: Sign.Actions.AddSignatureToDocum
     };
 }
 
+export function removeSignatureFromDocument(payload: Sign.Actions.RemoveSignatureFromDocumentPayload): Sign.Actions.RemoveSignatureFromDocument {
+    return {
+        type: Sign.Actions.Types.REMOVE_SIGNATURE_FROM_DOCUMENT,
+        payload
+    }
+}
+
 export function showSignatureSelection() {
     return { type: Sign.Actions.Types.SHOW_SIGNATURE_SELECTION };
 }

@@ -56,10 +56,14 @@ declare namespace Sign {
         height?: number;
     }
 
+    interface DocumentSignatures {
+        [key: string]: DocumentSignature;
+    }
+
     interface DocumentViewer {
         signRequestStatus: DownloadStatus;
         selectedSignatureId?: number;
-        signatures: DocumentSignature[];
+        signatures: DocumentSignatures;
     }
 
     interface PDFStore {
@@ -129,6 +133,7 @@ declare namespace Sign.Actions {
         SELECT_SIGNATURE = 'SELECT_SIGNATURE',
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
         MOVE_SIGNATURE = 'MOVE_SIGNATURE',
+        REMOVE_SIGNATURE_FROM_DOCUMENT = 'REMOVE_SIGNATURE_FROM_DOCUMENT',
 
         SIGN_DOCUMENT = "SIGN_DOCUMENT",
         SET_SIGN_REQUEST_STATUS = "SET_SIGN_REQUEST_STATUS",
@@ -227,12 +232,17 @@ declare namespace Sign.Actions {
     }
 
     interface AddSignatureToDocumentPayload {
+        signatureIndex: string;
         signatureId: number;
         pageNumber: number;
     }
 
+    interface RemoveSignatureFromDocumentPayload {
+        signatureIndex: string;
+    }
+
     interface MoveSignaturePayload {
-        signatureIndex: number;
+        signatureIndex: string;
         pageNumber?: number;
         x?: number;
         y?: number;
@@ -274,6 +284,7 @@ declare namespace Sign.Actions {
     interface SelectSignature extends ActionCreator<SelectSignaturePayload> {}
     interface AddSignatureToDocument extends ActionCreator<AddSignatureToDocumentPayload> {}
     interface MoveSignature extends ActionCreator<MoveSignaturePayload> {}
+    interface RemoveSignatureFromDocument extends ActionCreator<RemoveSignatureFromDocumentPayload> {}
 
     interface CreateDocumentSet extends ActionCreator<DocumentSetPayload> {}
     interface UpdateDocumentSet extends ActionCreator<DocumentSetPayload> {}

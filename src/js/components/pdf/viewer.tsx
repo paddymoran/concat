@@ -82,7 +82,7 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
         // For each signature: onvert pixel values to ratios (of the page) and add page number
         const signatures: Sign.Actions.SignDocumentPayloadSignature[] = this.props.signatures.map(signature => ({
             signatureId: signature.signatureId,
-            pageNumber: 1,
+            pageNumber: 0,
             offsetX: signature.x / pageWidth,
             offsetY: signature.y / pageHeight,
             ratioX: signature.width / pageWidth,

@@ -211,7 +211,7 @@ declare namespace Sign.Actions {
         data: ArrayBuffer;
     }
     interface DeleteSignaturePayload {
-       payload: number
+       signatureId: number
     }
 
     interface SelectSignaturePayload {

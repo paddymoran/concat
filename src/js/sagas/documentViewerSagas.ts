@@ -13,7 +13,7 @@ function *signDocumentSaga() {
         try {
             const response = yield call(axios.post, '/api/sign', action.payload);
 
-            const signedPDFLink = window.location.origin + '/signed-documents/' + response.data.file_id + '?filename=test.pdf';
+            const signedPDFLink = window.location.origin + '/document/' + response.data.document_id;
             window.open(signedPDFLink, '_blank');
 
             yield put(setSignRequestStatus(Sign.DownloadStatus.Complete));

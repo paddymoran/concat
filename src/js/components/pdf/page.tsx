@@ -34,14 +34,8 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
     requestParts() {
         if(!this.props.documentExists){
             this.props.requestDocument(this.props.documentId);
-            this.props.requestDocument(this.props.documentId);
-            this.props.requestDocument(this.props.documentId);
-            this.props.requestDocument(this.props.documentId);
         }
         else if(!this.props.page){
-            this.props.requestDocumentPage({id: this.props.documentId, index: this.props.pageNumber});
-            this.props.requestDocumentPage({id: this.props.documentId, index: this.props.pageNumber});
-            this.props.requestDocumentPage({id: this.props.documentId, index: this.props.pageNumber});
             this.props.requestDocumentPage({id: this.props.documentId, index: this.props.pageNumber});
         }
     }

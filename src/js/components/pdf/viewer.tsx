@@ -109,7 +109,7 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                         <div className='text-center'>Signing document, please wait.</div>
                     </Modal.Body>
                 </Modal>
-                <PDFPreview
+                    <PDFPreview
                     //pages={this.state.pages}
                     //changePage={this.changePage.bind(this)}
                     documentId={this.props.documentId}
@@ -117,17 +117,27 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                     width={120}
                     />
 
-                <div className='pdf-container'>
-                    <div className="button-row">
-                        <SignatureSelector />
+                    <div className="controls">
+                        <div className="container">
+                            <SignatureSelector />
+                              <div>
+                                <Button >Add Initials</Button>
+                             </div>
+                              <div>
+                                <Button >Add Date</Button>
+                             </div>
 
-                        <Button onClick={this.sign.bind(this)} disabled={this.props.signRequestStatus === Sign.DownloadStatus.InProgress}>Sign Document</Button>
+                            <div>
+                                <Button onClick={this.sign.bind(this)} disabled={this.props.signRequestStatus === Sign.DownloadStatus.InProgress}>Sign Document</Button>
+                             </div>
+                        </div>
+
                     </div>
+                <div className='pdf-container drag-container'>
 
                     {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
-                    <div className="drag-container">
-                        <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
-                    </div>
+
+                    <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
                 </div>
             </div>
         );

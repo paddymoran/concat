@@ -367,10 +367,6 @@ ALTER TABLE ONLY signatures
 -- Name: public; Type: ACL; Schema: -; Owner: -
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM josh;
-GRANT ALL ON SCHEMA public TO josh;
-GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --

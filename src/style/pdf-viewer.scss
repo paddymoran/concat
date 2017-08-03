@@ -1,6 +1,30 @@
 $background: #fff;
-
-
+.controls{
+    width:100%;
+    background-color:$gray-lighter;
+    height:50px;
+    .container{
+        text-align:center;
+        & > div{
+            display:inline-block;
+                padding: 6px 20px;
+            button{
+            }
+        }
+    }
+}
+.drag-container{
+    text-align: center;
+        position: fixed;
+    left:0;
+    right: 0;
+    bottom: 0;
+    top: 100px;
+    overflow-y: auto;
+}
+.pdf-container{
+    padding: 30px 0;
+}
 .pdf-screen{
     background: $background;
     z-index: 10;
@@ -15,18 +39,17 @@ $background: #fff;
         }
 
         .pdf-preview-panel {
-            background: $background;
-            position: absolute;
+            background: #fff;
+            position: fixed;
             height: 100%;
             left: 0;
-            top: 0;
-            width: 250px;
+            top: 100px;
             padding: 5px;
             overflow-y: scroll;
-
+            z-index: 20;
             .pdf-thumbnail {
                 position: relative;
-                margin: 10px 40px;
+
 
                 .pdf-thumbnail-number {
                     background: $dark;
@@ -71,7 +94,19 @@ $background: #fff;
         }
 
         .pdf-page {
-            border: 1px solid $dark;
+                position:relative;
+                    box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+            }
+        .pdf-page before, .pdf-page:after {
+            content:"";
+            position:absolute;
+            z-index:-1;
+            box-shadow:0 0 20px rgba(0,0,0,0.8);
+            top:50%;
+            bottom:0;
+            left:10px;
+            right:10px;
+            border-radius:100px / 10px;
         }
 
         .pdf-page-number{

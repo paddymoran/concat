@@ -18,7 +18,7 @@ interface DocumentViewProps {
 class DocumentView extends React.Component<DocumentViewProps>  {
     render() {
         return (
-            <div className="container">
+
                 <div className="pdf-screen">
                     {this.props.signatures.map((signature, index) => <Signature key={index} signatureIndex={index} ref='signature' />)}
 
@@ -26,7 +26,6 @@ class DocumentView extends React.Component<DocumentViewProps>  {
                         <PDFViewer documentId={this.props.params.documentId} removeDocument={() => console.log('return to doc tray')} />
                     {/*</SignatureDragContainer>*/}
                 </div>
-            </div>
         );
     }
 }

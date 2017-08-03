@@ -321,10 +321,10 @@ declare namespace ReactRnd {
 
         minWidth?: number;
         maxHeight?: number;
-        style: Object;
-        bounds: string;
-        resizeHandlerStyles: Object;
-        lockAspectRatio: boolean;
+        style?: Object;
+        bounds?: string;
+        resizeHandlerStyles?: Object;
+        lockAspectRatio?: boolean;
 
         onDragStop?: (event: DraggableData, resizeData: ResizeData) => void;
         onResizeStop?: (event: any, resizeHandle: string, element: any) => void;

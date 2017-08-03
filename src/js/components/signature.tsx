@@ -87,7 +87,6 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
                 bounds=".pdf-page"
                 resizeHandlerStyles={handleStyles}
                 onResizeStop={this.onResize}
-                lockAspectRatio={true}
             >
                 <img src={'/api/signatures/' + this.props.signature.signatureId} style={{width: '100%'}} draggable={false} />
             </ReactRnd>

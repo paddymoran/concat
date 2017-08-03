@@ -34,7 +34,7 @@ declare namespace Sign {
         downloadStatus: DownloadStatus;
         title?: string;
     }
-    
+
     interface DocumentSets {
         [documentSetId: string]: DocumentSet;
     }
@@ -100,6 +100,11 @@ declare namespace Sign {
         canDrop: Function;
         isOver: boolean
     }
+
+    interface Viewport {
+        width: number,
+        height: number,
+    }
 }
 
 declare namespace Sign.Actions {
@@ -120,7 +125,7 @@ declare namespace Sign.Actions {
         SHOW_SIGNATURE_SELECTION = 'SHOW_SIGNATURE_SELECTION',
         HIDE_SIGNATURE_SELECTION = 'HIDE_SIGNATURE_SELECTION',
         DELETE_SIGNATURE = 'DELETE_SIGNATURE',
-        
+
         SELECT_SIGNATURE = 'SELECT_SIGNATURE',
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
         MOVE_SIGNATURE = 'MOVE_SIGNATURE',
@@ -131,7 +136,7 @@ declare namespace Sign.Actions {
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
         CREATE_DOCUMENT_SET = 'CREATE_DOCUMENT_SET',
         UPDATE_DOCUMENT_SET = 'UPDATE_DOCUMENT_SET',
-        
+
         SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
         GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
     }
@@ -168,11 +173,14 @@ declare namespace Sign.Actions {
         pageCount?: number,
         filename?: string;
         progress?: number;
+        pageViewports?: Sign.Viewport[];
     }
 
     interface FinishAddPDFToStoreActionPayload {
         id: string;
         document: PDFDocumentProxy;
+        pages: PDFPageProxy[];
+        pageStatuses: DocumentReadStatus[];
     }
 
     interface AddPDFToStoreActionPayload {

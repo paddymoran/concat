@@ -12,14 +12,24 @@ function *getPDFFromStore() {
         // Create the pdf document proxy
         const docData = new Uint8Array(action.payload.data);
         const pdfDocumentProxy = yield PDFJS.getDocument(docData);
+        // Add the pdf to the pdf store
+
+        const pages = yield Promise.all(Array(pdfDocumentProxy.numPages).fill(1).map((p, i) => {
+            return pdfDocumentProxy.getPage(i+1)
+        }));
+
         yield put(updateDocument({
             documentId: action.payload.id,
-            pageCount: pdfDocumentProxy.numPages
-        }))
-        // Add the pdf to the pdf store
+            pageCount: pdfDocumentProxy.numPages,
+            pageViewports: pages.map((p : PDFPageProxy) => ({width: p.view[2], height: p.view[3]}))
+        }));
+
+
+
+        const pageStatuses =  Array(pdfDocumentProxy.numPages).fill(1).map(() => Sign.DocumentReadStatus.Complete);
         const addPDFAction: Sign.Actions.FinishAddPDFToStoreAction = {
             type: Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE,
-            payload: { id: action.payload.id, document: pdfDocumentProxy }
+            payload: { id: action.payload.id, document: pdfDocumentProxy, pages, pageStatuses }
         };
 
         yield put(addPDFAction);
@@ -42,7 +52,9 @@ function *getPage(action: Sign.Actions.RequestDocumentPageAction) {
         index: action.payload.index,
         pageStatus: Sign.DocumentReadStatus.InProgress
     }));
+
     const page = yield call(pdfStore.document.getPage.bind(pdfStore.document), action.payload.index + 1);
+
  
     yield put(updatePDFPageToStore({
         id: action.payload.id,

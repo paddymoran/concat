@@ -46,7 +46,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
         this.state = {
             yOffset: (props.signature.height / 2) + 1
         };
-        
+
         this.onMove = this.onMove.bind(this);
         this.onResize = this.onResize.bind(this);
     }
@@ -84,7 +84,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
                 default={defaults}
                 style={style}
                 onDragStop={this.onMove}
-                bounds=".pdf-page"
+                bounds=".drag-container .pdf-page"
                 resizeHandlerStyles={handleStyles}
                 onResizeStop={this.onResize}
             >

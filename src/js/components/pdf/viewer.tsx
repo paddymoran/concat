@@ -125,8 +125,9 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                     </div>
 
                     {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
-
-                    <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
+                    <div className="drag-container">
+                        <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
+                    </div>
                 </div>
             </div>
         );

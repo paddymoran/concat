@@ -84,7 +84,7 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
         // For each signature: onvert pixel values to ratios (of the page) and add page number
         const signatures: Sign.Actions.SignDocumentPayloadSignature[] = Object.keys(this.props.signatures).map(key => {
             const signature = this.props.signatures[key];
-            
+
             return {
                 signatureId: signature.signatureId,
                 pageNumber: 0,
@@ -120,7 +120,7 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                     <div className="controls">
                         <div className="container">
                             <SignatureSelector />
-                            
+
                             <div><Button>Add Initials</Button></div>
                             <div><Button>Add Date</Button></div>
 
@@ -131,16 +131,16 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                     </div>
                 </AutoAffix>
 
-                <div className='pdf-container drag-container container'>
+                <div className='pdf-container container'>
                     <Row>
                         <Col lg={2}>
                             <AutoAffix offsetTop={50}>
                                 <PDFPreview documentId={this.props.documentId} width={120} />
                             </AutoAffix>
                         </Col>
-                        <Col lg={10}>
-                            <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
+                        <Col lg={10} className="drag-container">
                             {Object.keys(this.props.signatures).map(key => <Signature key={key} signatureIndex={key} />)}
+                            <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
                         </Col>
                     </Row>
                 </div>

@@ -91,7 +91,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
                 default={defaults}
                 style={stylesWithbackground}
                 onDragStop={this.onMove}
-                bounds=".drag-container .pdf-page"
+                bounds="parent"
                 resizeHandlerStyles={handleStyles}
                 onResizeStop={this.onResize}
             ><button onClick={() => this.props.removeSignatureFromDocument({ signatureIndex: this.props.signatureIndex })}>x</button></ReactRnd>

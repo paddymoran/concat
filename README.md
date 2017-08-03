@@ -7,11 +7,14 @@ python server.py config.py
 
 # Dev setup
 
-1. install imagemagick and ghostscript
+**Requirements:** npm, virtualenv, python 3.4, imagemagick, and ghostscript
+
 2. create `catalex_sign` database
 3. `npm install`
-4. `python setup.py install`
-5. `python migrate.py config_dev.py`
+4. `virtualenv -p /usr/local/bin/python3.4 .`
+5. `source bin/activate`
+6. `python setup.py install`
+7. `python migrate.py config_dev.py`
 
 **NOTE:** figure out why seed isn't working
 

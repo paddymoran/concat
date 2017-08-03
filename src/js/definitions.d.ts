@@ -49,6 +49,7 @@ declare namespace Sign {
 
     interface DocumentSignature {
         signatureId: number;
+        pageNumber: number;
         x: number;
         y: number;
         width?: number;
@@ -217,26 +218,31 @@ declare namespace Sign.Actions {
 
     interface AddSignatureToDocumentPayload {
         signatureId: number;
+        pageNumber: number;
     }
 
     interface MoveSignaturePayload {
         signatureIndex: number;
+        pageNumber?: number;
         x?: number;
         y?: number;
         width?: number;
         height?: number;
     }
 
+    interface SignDocumentPayloadSignature {
+        signatureId: number;
+        pageNumber: number;
+        offsetX: number;
+        offsetY: number;
+        ratioX: number;
+        ratioY: number;
+    }
+
     interface SignDocumentPayload {
         documentSetId: string;
         documentId: string;
-        signatures: {
-            pageNumber: number;
-            offsetX: number;
-            offsetY: number;
-            ratioX: number;
-            ratioY: number;
-        }[];
+        signatures: SignDocumentPayloadSignature[];
     }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}

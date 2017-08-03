@@ -7,6 +7,7 @@ import { generateUUID } from '../components/uuid';
 
 import pdfStoreSagas from './pdfStoreSagas';
 import signatureSagas from './signatureSagas';
+import documentViewerSagas from './documentViewerSagas';
 
 
 export default function *rootSaga(): any {
@@ -16,7 +17,8 @@ export default function *rootSaga(): any {
         requestDocumentSaga(),
         requestDocumentSetSaga(),
         ...pdfStoreSagas,
-        ...signatureSagas
+        ...signatureSagas,
+        ...documentViewerSagas,
     ]);
 }
 

@@ -81,7 +81,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
     select() {
         if (this.state.currentTab == SELECT_SIGNATURE_TAB) {
             this.props.selectSignature(this.state.selectedSignatureId);
-            this.props.addSignatureToDocument({ signatureId: this.state.selectedSignatureId });
+            this.props.addSignatureToDocument({ signatureId: this.state.selectedSignatureId, pageNumber: 0 });
         } else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
             const signature = this.signatureCanvas.getTrimmedCanvas().toDataURL();
             this.uploadSignature(signature);

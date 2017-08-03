@@ -8,14 +8,23 @@ import SignatureSelector from '../signatureSelector';
 import SignatureDragContainer from '../signatureDragContainer';
 import * as Axios from 'axios';
 import axios from 'axios';
+import { connect } from 'react-redux';
+import { findSetForDocument } from '../../utils';
+import { signDocument } from '../../actions';
 
 
 Promise.config({ cancellation: true });
 
-interface PDFViewerProps {
+interface ConnectedPDFViewerProps {
     worker?: boolean;
     removeDocument: Function;
     documentId: string;
+}
+
+interface PDFViewerProps extends ConnectedPDFViewerProps {
+    signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
+    documentSetId: string;
+    signatures: Sign.DocumentSignature[];
 }
 
 interface IPDFViewerState {
@@ -31,7 +40,7 @@ interface PostSignResponse extends Axios.AxiosResponse {
     data: {file_id: string };
 }
 
-export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
+class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
     _pdfPromise: Promise<PDFPageProxy[]>;
     _pagePromises: Promise<PDFPageProxy[]>;
 
@@ -60,32 +69,30 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
 
 
     sign() {
-        // if (!this.state.signatureId) {
-        //     this.setState({ signingError: 'Please select add a signature' })
-        // }
-        // else {
-        //     this.setState({ signing: true });
+        // Check there is at least one signature
+        if (this.props.signatures.length === 0) {
+            this.setState({ signingError: 'Please select add a signature' })
+        }
 
-        //     const signatureContainer = this.refs['signature-container'] as SignatureDragContainer;
-        //     // const position = signatureContainer.relativeSignaturePosition();
+        // Hardcoded for now
+        const pageWidth = 940;
+        const pageHeight = 1328;
 
-        //     let data = new FormData();
-        //     // data.append('file', this.props.file.file);
-        //     data.append('signature_id', this.state.signatureId.toString());
-        //     data.append('page_number', this.state.pageNumber.toString());
-        //     data.append('x_offset', position.x.toString());
-        //     data.append('y_offset', position.y.toString());
-        //     data.append('width_ratio', position.width.toString());
-        //     data.append('height_ratio', position.height.toString());
+        // For each signature: onvert pixel values to ratios (of the page) and add page number
+        const signatures: Sign.Actions.SignDocumentPayloadSignature[] = this.props.signatures.map(signature => ({
+            signatureId: signature.signatureId,
+            pageNumber: 1,
+            offsetX: signature.x / pageWidth,
+            offsetY: signature.y / pageHeight,
+            ratioX: signature.width / pageWidth,
+            ratioY: signature.height / pageHeight
+        }));
 
-        //     axios.post('/sign', data)
-        //         .then((response: PostSignResponse) => {
-        //             this.setState({ signing: false });
-
-        //             const signedPDFLink = window.location.origin + '/signed-documents/' + response.data.file_id + '?filename=test.pdf';
-        //             window.open(signedPDFLink, '_blank');
-        //         });
-        // }
+        this.props.signDocument({
+            documentSetId: this.props.documentSetId,
+            documentId: this.props.documentId,
+            signatures
+        });
     }
 
     render() {
@@ -124,3 +131,13 @@ export default class PDFViewer extends React.Component<PDFViewerProps, IPDFViewe
         );
     }
 }
+
+const ConnectedPDFViewer = connect(
+    (state: Sign.State, ownProps: ConnectedPDFViewerProps) => ({
+        documentSetId: findSetForDocument(state.documentSets, ownProps.documentId),
+        signatures: state.documentViewer.signatures
+    }),
+    { signDocument }
+)(PDFViewer)
+
+export default ConnectedPDFViewer;

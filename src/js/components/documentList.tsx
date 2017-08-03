@@ -4,6 +4,7 @@ import PDFPage from './pdf/page';
 import { connect } from 'react-redux';
 import { removeDocument } from '../actions';
 import { Link } from 'react-router';
+import { findSetForDocument } from '../utils';
 
 interface ConnectedDocumentViewProps {
     documentId: string;
@@ -51,7 +52,7 @@ class DocumentView extends React.PureComponent<DocumentViewProps> {
 const ConnectedDocumentView = connect(
     (state: Sign.State, ownProps: ConnectedDocumentViewProps) => ({
         document: state.documents[ownProps.documentId],
-        documentSetId: Object.keys(state.documentSets).find(key => state.documentSets[key].documentIds.includes(ownProps.documentId))
+        documentSetId: findSetForDocument(state.documentSets, ownProps.documentId)
     }),
     { removeDocument }
 )(DocumentView)

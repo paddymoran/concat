@@ -2,15 +2,15 @@ import { select, takeEvery, put, call, all } from 'redux-saga/effects';
 import * as Promise from 'bluebird';
 import * as Axios from 'axios';
 import axios from 'axios';
-import { selectSignature, hideSignatureSelection } from '../actions/index'
 
 function *signDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.SIGN_DOCUMENT, signDocument);
 
-    function *signDocument(action: Sign.Actions.UploadSignature) {
+    function *signDocument(action: Sign.Actions.SignDocument) {
+        const response = yield call(axios.post, '/api/sign', action.payload);
 
-        // const response = yield call(axios.post, '/api/sign');
-        // let signatureId = response.data.signature_id;
+        const signedPDFLink = window.location.origin + '/signed-documents/' + response.data.file_id + '?filename=test.pdf';
+        window.open(signedPDFLink, '_blank');
     }
 }
 

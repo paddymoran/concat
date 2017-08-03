@@ -248,6 +248,7 @@ Sign
 
 @app.route('/api/sign', methods=['POST'])
 def sign():
+    print(request.form)
     file = request.files['file']
     signature_id = request.form['signature_id']
     user_id = session['user_id']

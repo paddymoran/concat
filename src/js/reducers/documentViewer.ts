@@ -28,6 +28,7 @@ function selectSignature(state: Sign.DocumentViewer, action: Sign.Actions.Select
 function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions.AddSignatureToDocument): Sign.DocumentViewer {
     const newSignature: Sign.DocumentSignature = {
         signatureId: action.payload.signatureId,
+        pageNumber: action.payload.pageNumber,
         x: 0,
         y: SIGNATURE_DEFAULT_HEIGHT,
         width: SIGNATURE_DEFAULT_WIDTH,

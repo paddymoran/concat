@@ -96,3 +96,7 @@ export function createDocumentSet(payload: Sign.Actions.DocumentSetPayload): Sig
 export function requestDocumentSet(documentSetId: string): Sign.Actions.RequestDocumentSet {
     return { type: Sign.Actions.Types.REQUEST_DOCUMENT_SET, payload: { documentSetId } };
 }
+
+export function signDocument(payload: Sign.Actions.SignDocumentPayload): Sign.Actions.SignDocument {
+    return { type: Sign.Actions.Types.SIGN_DOCUMENT, payload };
+}

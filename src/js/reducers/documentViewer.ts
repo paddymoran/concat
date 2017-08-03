@@ -1,5 +1,5 @@
 const DEFAULT_STATE: Sign.DocumentViewer = {
-    signatures: [],
+    signatures: {},
     signRequestStatus: Sign.DownloadStatus.NotStarted,
 };
 
@@ -19,6 +19,9 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
 
         case Sign.Actions.Types.SET_SIGN_REQUEST_STATUS:
             return setSignRequestStatus(state, action);
+
+        case Sign.Actions.Types.REMOVE_SIGNATURE_FROM_DOCUMENT:
+            return removeSignatureFromDocument(state, action);
         
         default:
             return state;
@@ -39,19 +42,22 @@ function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions
         height: SIGNATURE_DEFAULT_HEIGHT
     };
 
-    return { ...state, signatures: [ ...state.signatures, newSignature ] };
+    return {
+        ...state,
+        signatures: { ...state.signatures, [action.payload.signatureIndex]: newSignature }
+    };
 }
 
 function moveSignature(state: Sign.DocumentViewer, action: Sign.Actions.MoveSignature): Sign.DocumentViewer {
     const { signatureIndex, ...rest } = action.payload;
 
-    let signatures = [...state.signatures];
-    signatures[signatureIndex] = {
-        ...state.signatures[signatureIndex],
-        ...rest
+    return {
+        ...state,
+        signatures: {
+            ...state.signatures,
+            [signatureIndex]: { ...state.signatures[signatureIndex], ...rest }
+        }
     };
-
-    return { ...state, signatures };
 }
 
 function setSignRequestStatus(state: Sign.DocumentViewer, action: Sign.Actions.SetSignRequestStatus): Sign.DocumentViewer {
@@ -59,4 +65,11 @@ function setSignRequestStatus(state: Sign.DocumentViewer, action: Sign.Actions.S
         ...state,
         signRequestStatus: action.payload.signRequestStatus
     };
+}
+
+function removeSignatureFromDocument(state: Sign.DocumentViewer, action: Sign.Actions.RemoveSignatureFromDocument): Sign.DocumentViewer {
+    const signatures = { ...state.signatures };
+    delete signatures[action.payload.signatureIndex];
+
+    return { ...state, signatures };
 }

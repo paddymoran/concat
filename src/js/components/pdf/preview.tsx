@@ -16,7 +16,7 @@ interface PDFPreviewProps extends PDFPreviewConnectProps{
     pageCount: number;
 }
 
-export class PDFPreview extends React.PureComponent<PDFPreviewProps> {
+class PDFPreview extends React.PureComponent<PDFPreviewProps> {
 
     changeActivePage(pageNumber: number) {
         this.props.changePage(pageNumber);

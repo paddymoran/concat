@@ -24,7 +24,7 @@ interface ConnectedPDFViewerProps {
 interface PDFViewerProps extends ConnectedPDFViewerProps {
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
     documentSetId: string;
-    signatures: Sign.DocumentSignature[];
+    signatures: Sign.DocumentSignatures;
     signRequestStatus: Sign.DownloadStatus;
 }
 
@@ -71,7 +71,7 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
 
     sign() {
         // Check there is at least one signature
-        if (this.props.signatures.length === 0) {
+        if (Object.keys(this.props.signatures).length === 0) {
             this.setState({ signingError: 'Please select add a signature' })
         }
 
@@ -80,14 +80,18 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
         const pageHeight = 1328;
 
         // For each signature: onvert pixel values to ratios (of the page) and add page number
-        const signatures: Sign.Actions.SignDocumentPayloadSignature[] = this.props.signatures.map(signature => ({
-            signatureId: signature.signatureId,
-            pageNumber: 0,
-            offsetX: signature.x / pageWidth,
-            offsetY: signature.y / pageHeight,
-            ratioX: signature.width / pageWidth,
-            ratioY: signature.height / pageHeight
-        }));
+        const signatures: Sign.Actions.SignDocumentPayloadSignature[] = Object.keys(this.props.signatures).map(key => {
+            const signature = this.props.signatures[key];
+            
+            return {
+                signatureId: signature.signatureId,
+                pageNumber: 0,
+                offsetX: signature.x / pageWidth,
+                offsetY: signature.y / pageHeight,
+                ratioX: signature.width / pageWidth,
+                ratioY: signature.height / pageHeight
+            };
+        });
 
         this.props.signDocument({
             documentSetId: this.props.documentSetId,
@@ -109,13 +113,13 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                         <div className='text-center'>Signing document, please wait.</div>
                     </Modal.Body>
                 </Modal>
-                { /* <PDFPreview
+                
+                {/*<PDFPreview
                     //pages={this.state.pages}
                     //changePage={this.changePage.bind(this)}
                     documentId={this.props.documentId}
                     activePageNumber={this.state.pageNumber}
-                    width={120}
-                    /> */ }
+                    width={120} />*/}
 
                 <div className='pdf-container'>
                     <div className="button-row">

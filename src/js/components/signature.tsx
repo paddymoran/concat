@@ -78,18 +78,21 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
             height: signature.height
         };
 
+        const allStyles = {
+            background: `url("/api/signatures/${this.props.signature.signatureId}"`,
+            backgroundSize: '100% 100%',
+            ...style
+        };
+
         return (
             <ReactRnd
                 ref={(ref: ReactRnd) => this.signature = ref as ReactRnd}
                 default={defaults}
-                style={style}
+                style={allStyles}
                 onDragStop={this.onMove}
                 bounds=".pdf-page"
                 resizeHandlerStyles={handleStyles}
-                onResizeStop={this.onResize}
-            >
-                <img src={'/api/signatures/' + this.props.signature.signatureId} style={{width: '100%'}} draggable={false} />
-            </ReactRnd>
+                onResizeStop={this.onResize} />
         );
     }
 }

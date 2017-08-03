@@ -109,13 +109,13 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                         <div className='text-center'>Signing document, please wait.</div>
                     </Modal.Body>
                 </Modal>
-                { /* <PDFPreview
+                <PDFPreview
                     //pages={this.state.pages}
                     //changePage={this.changePage.bind(this)}
                     documentId={this.props.documentId}
-                    activePageNumber={this.state.pageNumber}
+                    //activePageNumber={this.state.pageNumber}
                     width={120}
-                    /> */ }
+                    />
 
                 <div className='pdf-container'>
                     <div className="button-row">
@@ -125,7 +125,7 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                     </div>
 
                     {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
-                    
+
                     <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
                 </div>
             </div>

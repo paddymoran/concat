@@ -42,6 +42,6 @@ export class PDFPreview extends React.PureComponent<PDFPreviewProps> {
 
 export default connect(
     (state: Sign.State, ownProps: PDFPreviewConnectProps) => ({
-        pageCount: state.documents[ownProps.documentId].pageCount
+        pageCount: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageCount : 0
     }),
 )(PDFPreview);

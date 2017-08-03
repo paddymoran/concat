@@ -12,7 +12,7 @@ function *uploadSignature() {
     yield takeEvery(Sign.Actions.Types.UPLOAD_SIGNATURE, task);
 
     function *task(action: Sign.Actions.UploadSignature) {
-        const response : SignaturesUploadResponse = yield axios.post('/api/signatures/upload', { base64Image: action.payload });
+        const response : SignaturesUploadResponse = yield axios.post('/api/signatures/upload', { base64Image: action.payload.data });
         let signatureId = response.data.signature_id;
         yield all([
             put(hideSignatureSelection()),

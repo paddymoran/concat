@@ -25,6 +25,7 @@ interface PDFViewerProps extends ConnectedPDFViewerProps {
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
     documentSetId: string;
     signatures: Sign.DocumentSignature[];
+    signRequestStatus: Sign.DownloadStatus;
 }
 
 interface IPDFViewerState {
@@ -81,7 +82,7 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
         // For each signature: onvert pixel values to ratios (of the page) and add page number
         const signatures: Sign.Actions.SignDocumentPayloadSignature[] = this.props.signatures.map(signature => ({
             signatureId: signature.signatureId,
-            pageNumber: 1,
+            pageNumber: 0,
             offsetX: signature.x / pageWidth,
             offsetY: signature.y / pageHeight,
             ratioX: signature.width / pageWidth,
@@ -102,7 +103,7 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
 
         return (
             <div className='pdf-viewer'>
-                <Modal show={this.state.signing} onHide={() => {}}>
+                <Modal show={this.props.signRequestStatus === Sign.DownloadStatus.InProgress} onHide={() => {}}>
                     <Modal.Body>
                         <div className='loading' />
                         <div className='text-center'>Signing document, please wait.</div>
@@ -120,7 +121,7 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                     <div className="button-row">
                         <SignatureSelector />
 
-                        <Button onClick={this.sign.bind(this)}>Sign Document</Button>
+                        <Button onClick={this.sign.bind(this)} disabled={this.props.signRequestStatus === Sign.DownloadStatus.InProgress}>Sign Document</Button>
                     </div>
 
                     {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
@@ -135,7 +136,8 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
 const ConnectedPDFViewer = connect(
     (state: Sign.State, ownProps: ConnectedPDFViewerProps) => ({
         documentSetId: findSetForDocument(state.documentSets, ownProps.documentId),
-        signatures: state.documentViewer.signatures
+        signatures: state.documentViewer.signatures,
+        signRequestStatus: state.documentViewer.signRequestStatus,
     }),
     { signDocument }
 )(PDFViewer)

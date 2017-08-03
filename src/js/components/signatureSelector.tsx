@@ -11,8 +11,8 @@ import { connect } from 'react-redux';
 
 interface SignatureSelectorProps {
     selectSignature: (signatureId: number) => void;
-    uploadSignature: Function,
-    deleteSignature: Function,
+    uploadSignature: (payload: Sign.Actions.UploadSignaturePayload) => void;
+    deleteSignature: (signatureId: number) => void;
     showModal: Function;
     hideModal: Function;
     uploading: boolean;
@@ -98,7 +98,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
     }
 
     uploadSignature(base64Image: string) {
-        this.props.uploadSignature(base64Image);
+        this.props.uploadSignature({ data: base64Image });
     }
 
     render() {

@@ -57,6 +57,7 @@ declare namespace Sign {
     }
 
     interface DocumentViewer {
+        signRequestStatus: DownloadStatus;
         selectedSignatureId?: number;
         signatures: DocumentSignature[];
     }
@@ -125,6 +126,7 @@ declare namespace Sign.Actions {
         MOVE_SIGNATURE = 'MOVE_SIGNATURE',
 
         SIGN_DOCUMENT = "SIGN_DOCUMENT",
+        SET_SIGN_REQUEST_STATUS = "SET_SIGN_REQUEST_STATUS",
 
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
         CREATE_DOCUMENT_SET = 'CREATE_DOCUMENT_SET',
@@ -206,10 +208,10 @@ declare namespace Sign.Actions {
     }
 
     interface UploadSignaturePayload {
-        data: ArrayBuffer;
+        data: string;
     }
     interface DeleteSignaturePayload {
-       payload: number
+       signatureId: number
     }
 
     interface SelectSignaturePayload {
@@ -245,6 +247,10 @@ declare namespace Sign.Actions {
         signatures: SignDocumentPayloadSignature[];
     }
 
+    interface SetSignRequestStatusPayload {
+        signRequestStatus: DownloadStatus;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -267,6 +273,7 @@ declare namespace Sign.Actions {
     interface RequestDocumentSet extends ActionCreator<RequestDocumentSetPayload> {}
 
     interface SignDocument extends ActionCreator<SignDocumentPayload> {}
+    interface SetSignRequestStatus extends ActionCreator<SetSignRequestStatusPayload> {}
 }
 /*
 declare module 'pdfjs-dist' {

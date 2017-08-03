@@ -100,3 +100,7 @@ export function requestDocumentSet(documentSetId: string): Sign.Actions.RequestD
 export function signDocument(payload: Sign.Actions.SignDocumentPayload): Sign.Actions.SignDocument {
     return { type: Sign.Actions.Types.SIGN_DOCUMENT, payload };
 }
+
+export function setSignRequestStatus(signRequestStatus: Sign.DownloadStatus): Sign.Actions.SetSignRequestStatus {
+    return { type: Sign.Actions.Types.SET_SIGN_REQUEST_STATUS, payload: { signRequestStatus } };
+}

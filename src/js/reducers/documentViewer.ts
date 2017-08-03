@@ -1,5 +1,6 @@
 const DEFAULT_STATE: Sign.DocumentViewer = {
-    signatures: []
+    signatures: [],
+    signRequestStatus: Sign.DownloadStatus.NotStarted,
 };
 
 const SIGNATURE_DEFAULT_HEIGHT = 150;
@@ -15,6 +16,9 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
 
         case Sign.Actions.Types.MOVE_SIGNATURE:
             return moveSignature(state, action);
+
+        case Sign.Actions.Types.SET_SIGN_REQUEST_STATUS:
+            return setSignRequestStatus(state, action);
         
         default:
             return state;
@@ -48,4 +52,11 @@ function moveSignature(state: Sign.DocumentViewer, action: Sign.Actions.MoveSign
     };
 
     return { ...state, signatures };
+}
+
+function setSignRequestStatus(state: Sign.DocumentViewer, action: Sign.Actions.SetSignRequestStatus): Sign.DocumentViewer {
+    return {
+        ...state,
+        signRequestStatus: action.payload.signRequestStatus
+    };
 }

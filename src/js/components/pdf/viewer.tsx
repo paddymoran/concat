@@ -11,13 +11,15 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
 import { signDocument } from '../../actions';
+import Signature from '../signature';
+import * as AutoAffix from 'react-overlays/lib/Affix'
+import { Col, Row } from 'react-bootstrap';
 
 
 Promise.config({ cancellation: true });
 
 interface ConnectedPDFViewerProps {
     worker?: boolean;
-    removeDocument: Function;
     documentId: string;
 }
 
@@ -113,35 +115,47 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                         <div className='text-center'>Signing document, please wait.</div>
                     </Modal.Body>
                 </Modal>
-                
-                {/*<PDFPreview
-                    //pages={this.state.pages}
-                    //changePage={this.changePage.bind(this)}
-                    documentId={this.props.documentId}
-                    activePageNumber={this.state.pageNumber}
-                    width={120} />*/}
 
-                <div className='pdf-container'>
-                    <div className="button-row">
-                        <SignatureSelector />
+                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
+                    <div className="controls">
+                        <div className="container">
+                            <SignatureSelector />
+                            
+                            <div><Button>Add Initials</Button></div>
+                            <div><Button>Add Date</Button></div>
 
-                        <Button onClick={this.sign.bind(this)} disabled={this.props.signRequestStatus === Sign.DownloadStatus.InProgress}>Sign Document</Button>
+                            <div>
+                                <Button onClick={this.sign.bind(this)} disabled={this.props.signRequestStatus === Sign.DownloadStatus.InProgress}>Sign Document</Button>
+                            </div>
+                        </div>
                     </div>
+                </AutoAffix>
 
-                    {this.state.signingError && <Alert bsStyle='danger'>{ this.state.signingError }</Alert>}
-                    
-                    <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
+                <div className='pdf-container drag-container container'>
+                    <Row>
+                        <Col lg={2}>
+                            <AutoAffix offsetTop={50}>
+                                <PDFPreview documentId={this.props.documentId} width={120} />
+                            </AutoAffix>
+                        </Col>
+                        <Col lg={10}>
+                            <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
+                            {Object.keys(this.props.signatures).map(key => <Signature key={key} signatureIndex={key} />)}
+                        </Col>
+                    </Row>
                 </div>
             </div>
         );
     }
 }
 
+
+
 const ConnectedPDFViewer = connect(
     (state: Sign.State, ownProps: ConnectedPDFViewerProps) => ({
         documentSetId: findSetForDocument(state.documentSets, ownProps.documentId),
         signatures: state.documentViewer.signatures,
-        signRequestStatus: state.documentViewer.signRequestStatus,
+        signRequestStatus: state.documentViewer.signRequestStatus
     }),
     { signDocument }
 )(PDFViewer)

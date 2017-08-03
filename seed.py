@@ -5,6 +5,7 @@ Seed file
 """
 from __future__ import print_function
 from db import upsert_user
+import server
 
 def run():
     """
@@ -16,4 +17,5 @@ def run():
     })
 
 if __name__ == '__main__':
-    run()
+    with server.app.app_context():
+        run()

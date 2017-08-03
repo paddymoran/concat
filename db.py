@@ -7,7 +7,7 @@ Functions for working with the database
 import psycopg2
 import psycopg2.extras
 from flask import g, current_app
-
+import uuid
 
 def get_db():
     """
@@ -96,6 +96,8 @@ def add_document(set_id, document_id, filename, binary_file_data):
     by the database.
     """
     database = get_db()
+    if not document_id:
+        document_id = str(uuid.uuid4())
     with database.cursor() as cursor:
         # Create the document data record
         create_doc_data_query = """
@@ -298,11 +300,23 @@ def get_document(user_id, document_id):
         return first_row
 
 
-def sign_document(user_id, sign_request_id, data):
+def sign_document(user_id, input_document_id, result_document_id, data):
     """
     Sign a document
     """
-    pass
+    database = get_db()
+    insert = """
+        INSERT INTO sign_results (user_id, input_document_id, result_document_id, field_data) VALUES (%(user_id)s, %(input_document_id)s, %(result_document_id)s, %(field_data)s)
+
+    """
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(insert, {
+            'user_id': user_id,
+            'input_document_id': input_document_id,
+            'result_document_id': result_document_id,
+            'field_data': psycopg2.extras.Json(data)
+        })
+        database.commit()
 
 
 def get_set_info(user_id, set_id):

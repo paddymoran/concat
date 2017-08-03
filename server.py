@@ -15,6 +15,9 @@ from io import BytesIO
 from subprocess import Popen, STDOUT
 import uuid
 import tempfile
+from sign import sign
+import codecs
+from copy import deepcopy
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -61,25 +64,6 @@ def generate_signed_filename(file_id):
     return SIGNED_FILE_PREFIX + file_id + '.pdf'
 
 
-def sign_document(
-        file, signature_id, user_id, page_number, x_offset, y_offset,
-        x_scale, y_scale):
-    pdf_filepath = upload_document(file)
-    signed_file_id = str(uuid.uuid4())
-    signed_filename = generate_signed_filename(signed_file_id)
-
-    signature_filepath = save_temp_signature(signature_id, user_id)
-
-    sign_command = [
-        'bash', './sign.sh', pdf_filepath, str(page_number),
-        signature_filepath, str(x_offset), str(y_offset), str(x_scale),
-        str(y_scale), os.path.join(TMP_DIR, signed_filename)
-    ]
-
-    Popen(sign_command, stdout=DEVNULL, stderr=STDOUT).wait()
-
-    return signed_file_id
-
 
 def save_temp_signature(signature_id, user_id):
     signature_binary = db.get_signature(signature_id, user_id)
@@ -118,7 +102,7 @@ def thumb(file_id):
         args = thumb_cmds[:] + [pdf_first_page_path, output.name]
         Popen(args, stdout=DEVNULL, stderr=STDOUT).wait()
         return output.read()
-    except Exception, e:
+    except Exception as e:
         raise e
     finally:
         output.close()
@@ -247,36 +231,23 @@ Sign
 
 
 @app.route('/api/sign', methods=['POST'])
-def sign():
-    print(request.form)
-    file = request.files['file']
-    signature_id = request.form['signature_id']
-    user_id = session['user_id']
-    page_number = request.form['page_number']
-    x_offset = request.form['x_offset']
-    y_offset = request.form['y_offset']
-    x_scale = request.form['width_ratio']
-    y_scale = request.form['height_ratio']
+def sign_document():
+    args = request.get_json()
+    saveable = deepcopy(args)
+    document_db = db.get_document(session['user_id'], args['documentId'])
+    document_id = args['documentId']
+    document =  BytesIO(document_db['data'])
+    filename = document_db['filename']
+    document_set_id = document_db['document_set_id']
+    for signature in args['signatures']:
+        signature['signature'] = BytesIO(db.get_signature(signature['signatureId'], session['user_id']))
 
-    file_id = sign_document(
-        file, signature_id, user_id, page_number, x_offset, y_offset, x_scale,
-        y_scale
-    )
-
-    return jsonify({'file_id': file_id})
+    result = sign(document, args['signatures'])
+    saved_document_id = db.add_document(document_set_id, None, filename, result.read())['document_id']
+    db.sign_document(session['user_id'], document_id, saved_document_id, saveable)
+    return jsonify({'document_id': saved_document_id})
 
 
-@app.route('/api/signed-documents/<uuid>', methods=['GET'])
-def get_signed_pdf(uuid):
-    filepath = os.path.join(TMP_DIR, generate_signed_filename(uuid))
-    filename = request.args.get('filename', 'signed-document.pdf')
-
-    return send_file(
-        filepath,
-        attachment_filename=filename,
-        as_attachment=True,
-        mimetype='application/pdf'
-    )
 
 
 @app.route('/api/login', methods=['GET'])

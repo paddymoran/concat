@@ -5,7 +5,7 @@ BEGIN
     RETURN NEW;
 END $$ LANGUAGE 'plpgsql';
 
-
+DROP TRIGGER IF EXISTS  document_hash_trigger on documents;
 CREATE TRIGGER document_hash_trigger
     BEFORE INSERT ON documents
     FOR EACH ROW

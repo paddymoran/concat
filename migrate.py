@@ -25,7 +25,7 @@ def get_migrations(db):
     files = set([f for f in os.listdir('migrations') if not f.startswith('_') and not f.endswith('.pyc')])
     with db.cursor() as cur:
         cur.execute(""" SELECT name FROM migrations """)
-        return sorted(list(files.difference(map(lambda x: x[0], cur.fetchall()))))
+        return sorted(list(files.difference([x[0] for x in cur.fetchall()])))
 
 
 def run_py_migration(db, filename, config):
@@ -70,7 +70,8 @@ def run():
         migrations = map(lambda x: os.path.basename(x), sys.argv[2:])
     else:
         migrations = get_migrations(db)
-    map(lambda m: run_migration(db, m, config), migrations)
+    for m in migrations:
+        run_migration(db, m, config)
 
     load_functions(db)
 

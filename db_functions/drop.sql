@@ -1,4 +1,5 @@
 DROP TRIGGER IF EXISTS document_hash_trigger ON public.documents;
+DROP FUNCTION IF EXISTS document_hash();
 DROP TABLE IF EXISTS public.signatures;
 
 
@@ -16,5 +17,8 @@ DROP TABLE IF EXISTS public.documents;
 DROP TABLE IF EXISTS  public.document_sets;
 DROP TABLE IF EXISTS public.document_data;
 DROP SEQUENCE IF EXISTS public.signatures_id_seq;
+DROP SEQUENCE IF EXISTS public.sign_results_id_seq;
 
 DROP TABLE IF EXISTS public.users;
+
+DROP TABLE IF EXISTS public.migrations;

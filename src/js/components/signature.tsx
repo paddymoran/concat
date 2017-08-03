@@ -18,7 +18,7 @@ const style = {
     border: '1px dashed black',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
 };
 
 const handleStyles = {
@@ -29,7 +29,7 @@ const handleStyles = {
         height: '20px',
         right: '-10px',
         bottom: '-10px',
-        cursor: 'nw-resize'
+        cursor: 'nw-resize',
     }
 };
 
@@ -78,18 +78,21 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
             height: signature.height
         };
 
+        const stylesWithbackground = {
+            ...style,
+            background: `url("/api/signatures/${this.props.signature.signatureId}"`,
+            backgroundSize: '100% 100%',
+        };
+
         return (
             <ReactRnd
                 ref={(ref: ReactRnd) => this.signature = ref as ReactRnd}
                 default={defaults}
-                style={style}
+                style={stylesWithbackground}
                 onDragStop={this.onMove}
                 bounds=".drag-container .pdf-page"
                 resizeHandlerStyles={handleStyles}
-                onResizeStop={this.onResize}
-            >
-                <img src={'/api/signatures/' + this.props.signature.signatureId} style={{width: '100%'}} draggable={false} />
-            </ReactRnd>
+                onResizeStop={this.onResize} />
         );
     }
 }

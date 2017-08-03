@@ -3,6 +3,7 @@ $background: #fff;
     width:100%;
     background-color:$gray-lighter;
     height:50px;
+        z-index: 10;
     .container{
         text-align:center;
         & > div{
@@ -14,21 +15,13 @@ $background: #fff;
     }
 }
 .drag-container{
-    text-align: center;
-        position: fixed;
-    left:0;
-    right: 0;
-    bottom: 0;
-    top: 100px;
-    overflow-y: auto;
+
 }
 .pdf-container{
     padding: 30px 0;
 }
 .pdf-screen{
     background: $background;
-    z-index: 10;
-
 
 
     .pdf-viewer {
@@ -39,14 +32,12 @@ $background: #fff;
         }
 
         .pdf-preview-panel {
-            background: #fff;
-            position: fixed;
-            height: 100%;
-            left: 0;
-            top: 100px;
-            padding: 5px;
-            overflow-y: scroll;
-            z-index: 20;
+background: #fff;
+    position: fixed;
+    bottom: 50px;
+    top: 100px;
+    overflow: auto;
+
             .pdf-thumbnail {
                 position: relative;
 
@@ -61,6 +52,7 @@ $background: #fff;
                     vertical-align: middle;
                     color: white;
                     text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+                        z-index: 2;
                 }
 
                 &.selectable {

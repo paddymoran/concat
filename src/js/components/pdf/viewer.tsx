@@ -118,6 +118,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
 
                             return (
                                 <PDFPageWithSignatures
+                                    key={index}
                                     documentId={this.props.documentId}
                                     pageNumber={index}
                                     viewport={this.props.pageViewports[index]}

@@ -44,8 +44,8 @@ interface PDFPageWrapperProps {
 class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
     render() {
         const height = (this.props.containerWidth / this.props.viewport.width) * this.props.viewport.height;
-        return <div className="pdf-page-wrapper">
-            <LazyLoad height={ height } offsetVertical={300}>
+        return <div className="pdf-page-wrapper" id={`page-view-${this.props.pageNumber}`}>
+            <LazyLoad height={ height || 1} offsetVertical={300}>
                    <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  />
              </LazyLoad>
         </div>
@@ -55,6 +55,18 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 const PDFPageWrapperDimensions = Dimensions()(PDFPageWrapper);
 
 class PDFViewer extends React.Component<PDFViewerProps> {
+
+    constructor(props) {
+        super(props);
+        this.onSelectPage = this.onSelectPage.bind(this);
+    }
+
+    onSelectPage(pageNumber) {
+        //sucks remove later
+        document.querySelector(`#page-view-${pageNumber}`).scrollIntoView();
+    }
+
+
     sign() {
         // Hardcoded for now
         const pageWidth = this.props.pageViewports[0].width;
@@ -109,7 +121,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                 <div className='pdf-container container'>
                     <Row>
                         <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true} >
-                            <PDFPreview documentId={this.props.documentId} width={120} />
+                            <PDFPreview documentId={this.props.documentId} width={120} onSelectPage={this.onSelectPage}/>
                         </Col>
                         <Col lg={10} md={12} className="drag-container">
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
@@ -120,7 +132,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                                         key={index}
                                         documentId={this.props.documentId}
                                         pageNumber={index}
-                                        viewport={this.props.pageViewports[index]}
+                                        viewport={this.props.pageViewports[index] || {}}
                                         signaturesIndexes={signaturesIndexes} />
                                 );
                             })}

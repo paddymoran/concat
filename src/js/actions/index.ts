@@ -123,3 +123,4 @@ export function setSignRequestStatus(signRequestStatus: Sign.DownloadStatus): Si
         payload: { signRequestStatus }
     };
 }
+

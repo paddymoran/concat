@@ -1,6 +1,6 @@
 import { takeEvery, put, call, select } from 'redux-saga/effects';
 import * as Promise from 'bluebird';
-import * as PDFJS from "pdfjs-dist/webpack";
+import { PDFJS } from "pdfjs-dist/webpack";
 
 import { updateDocument } from '../actions';
 import { updatePDFPageToStore } from '../actions/pdfStore';

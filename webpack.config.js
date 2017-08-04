@@ -17,7 +17,7 @@ module.exports = {
         publicPath: '/'
 
     },
-    devtool: DEV ? "source-map" : null,
+    devtool: DEV ? "source-map" : false,
     module: {
         rules: [
             {
@@ -81,6 +81,7 @@ module.exports = {
         extensions: ['.ts', '.tsx', '.js', '.json']
     },
     plugins: [
+
         new WebpackNotifierPlugin({ title: 'CataLex Sign' }),
         new webpack.DefinePlugin({
             'process.env': {

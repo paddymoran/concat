@@ -7,7 +7,8 @@ $background: #fff;
     width:100%;
     background-color:$gray-lighter;
     height:50px;
-        z-index: 10;
+    z-index: 10;
+
     .container{
         text-align:center;
         & > div{
@@ -36,11 +37,11 @@ $background: #fff;
         }
 
         .pdf-preview-panel {
-background: #fff;
-    position: fixed;
-    bottom: 50px;
-    top: 100px;
-    overflow: auto;
+            background: #fff;
+            position: fixed;
+            bottom: 50px;
+            top: 100px;
+            overflow: auto;
 
             .pdf-thumbnail {
                 position: relative;
@@ -79,31 +80,12 @@ background: #fff;
             }
         }
 
-        .pdf-container {
-
-        }
-
-        .pdf-page-wrapper {
-            position: relative;
-            margin: 2em auto;
-            max-width: 900px;
-        }
-
         .pdf-page {
                 position:relative;
-                    box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+                    box-shadow:0 3px 6px rgba(0, 0, 0, 0.3);
+                    background-color: #fff;
+                    margin-bottom: 30px;
             }
-        .pdf-page before, .pdf-page:after {
-            content:"";
-            position:absolute;
-            z-index:-1;
-            box-shadow:0 0 20px rgba(0,0,0,0.8);
-            top:50%;
-            bottom:0;
-            left:10px;
-            right:10px;
-            border-radius:100px / 10px;
-        }
 
         .pdf-page-number{
             text-align: center;

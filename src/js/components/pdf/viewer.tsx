@@ -14,68 +14,42 @@ import { signDocument } from '../../actions';
 import Signature from '../signature';
 import * as AutoAffix from 'react-overlays/lib/Affix'
 import { Col, Row } from 'react-bootstrap';
+import LazyLoad from 'react-lazy-load';
+
 
 
 Promise.config({ cancellation: true });
 
 interface ConnectedPDFViewerProps {
-    worker?: boolean;
     documentId: string;
 }
 
 interface PDFViewerProps extends ConnectedPDFViewerProps {
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
+    pageCount: number;
+    pageViewports: Sign.Viewport[],
     documentSetId: string;
     signatures: Sign.DocumentSignatures;
     signRequestStatus: Sign.DownloadStatus;
 }
 
-interface IPDFViewerState {
-    signingError?: string;
-    error?: string;
-    pages?: PDFPageProxy[];
-    pageNumber: number;
-    signatureId?: number;
-    signing: boolean;
+
+class PDFPageWrapper extends React.Component {
+    render() {
+        return <div className="pdf-page">
+            <LazyLoad height={(this.props.pageViewport || {}).height || 1000 } offsetVertical={300}>
+                   <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  />
+             </LazyLoad>
+        </div>
+    }
 }
 
-interface PostSignResponse extends Axios.AxiosResponse {
-    data: {file_id: string };
-}
 
-class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
-    _pdfPromise: Promise<PDFPageProxy[]>;
-    _pagePromises: Promise<PDFPageProxy[]>;
-
-    constructor(props: PDFViewerProps) {
-        super(props);
-        this._pdfPromise = null;
-        this._pagePromises = null;
-        this.state = {
-            pageNumber: 0,
-            signing: false,
-        };
-        this.changePage = this.changePage.bind(this)
-    }
-
-    componentDidMount() {
-        if (this.props.worker === false) {
-            //PDFJS.disableWorker = true;
-        }
-    }
-
-    changePage(newPageNumber: number) {
-        if (newPageNumber != this.state.pageNumber) {
-            this.setState({ pageNumber: newPageNumber });
-        }
-    }
+class PDFViewer extends React.Component<PDFViewerProps> {
 
 
     sign() {
-        // Check there is at least one signature
-        if (Object.keys(this.props.signatures).length === 0) {
-            this.setState({ signingError: 'Please select add a signature' })
-        }
+
 
         // Hardcoded for now
         const pageWidth = 940;
@@ -103,9 +77,7 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
     }
 
     render() {
-        if (this.state.error) {
-            return <div>{ this.state.error }</div>
-        }
+
 
         return (
             <div className='pdf-viewer'>
@@ -139,9 +111,12 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                             </AutoAffix>
                         </Col>
                         <Col lg={10} className="drag-container">
-                            {Object.keys(this.props.signatures).map(key => <Signature key={key} signatureIndex={key} />)}
-                            <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
-                        </Col>
+                            {Object.keys(this.props.signatures).map(key => <Signature key={key} signatureIndex={key} /> )}
+                                  { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
+                                    return  <PDFPageWrapper  key={index}  documentId={this.props.documentId} pageNumber={index} viewport={this.props.pageViewports[index]}/>
+                                }) }
+
+                       </Col>
                     </Row>
                 </div>
             </div>
@@ -154,6 +129,8 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
 const ConnectedPDFViewer = connect(
     (state: Sign.State, ownProps: ConnectedPDFViewerProps) => ({
         documentSetId: findSetForDocument(state.documentSets, ownProps.documentId),
+        pageCount: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageCount : 1,
+        pageViewports: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageViewports || [] : [],
         signatures: state.documentViewer.signatures,
         signRequestStatus: state.documentViewer.signRequestStatus
     }),

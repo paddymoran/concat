@@ -1,4 +1,9 @@
 declare namespace Sign {
+    interface Viewport {
+        width: number,
+        height: number,
+    }
+
     const enum DocumentUploadStatus {
         NotStarted,
         InProgress,
@@ -20,6 +25,7 @@ declare namespace Sign {
         readStatus: DocumentReadStatus;
         progress?: number;
         pageCount?: number;
+        pageViewports?: Viewport[];
     }
 
     const enum DownloadStatus {
@@ -104,12 +110,8 @@ declare namespace Sign {
         canDrop: Function;
         isOver: boolean
     }
-
-    interface Viewport {
-        width: number,
-        height: number,
-    }
 }
+
 
 declare namespace Sign.Actions {
     const enum Types {
@@ -294,10 +296,10 @@ declare namespace Sign.Actions {
     interface SignDocument extends ActionCreator<SignDocumentPayload> {}
     interface SetSignRequestStatus extends ActionCreator<SetSignRequestStatusPayload> {}
 }
-/*
-declare module 'pdfjs-dist' {
+
+declare module 'pdfjs-dist/webpack' {
    export default  PDFJS ;
-}*/
+}
 
 declare module 'react-signature-canvas' {
     class SignatureCanvas extends React.Component<any, any> {

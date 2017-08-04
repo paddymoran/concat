@@ -5,6 +5,9 @@ import Loading from '../loading';
 import { requestDocument } from '../../actions/index';
 import { requestDocumentPage } from '../../actions/pdfStore';
 
+
+
+
 interface PDFPageConnectProps {
     drawWidth: number;
     scale?: number;
@@ -51,22 +54,8 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
         this.requestParts();
     }
 
-    componentDidMount() {
-        if (this.props.page) {
-            this.displayPage()
-        }
-    }
-
     displayPage() {
-        const canvas : HTMLCanvasElement = findDOMNode(this.refs['pdf-canvas']) as HTMLCanvasElement;
-        const context = canvas.getContext('2d');
-        const scale = this.props.scale || 1;
-        const viewport = this.props.page.getViewport(this.props.drawWidth / this.props.page.getViewport(scale).width);
 
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        this.props.page.render({ canvasContext: context, viewport: viewport });
     }
 
     render() {
@@ -77,7 +66,21 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
             return <Loading />;
         }
 
-        return <canvas key={this._count++} ref="pdf-canvas" className='pdf-page' />;
+        return <canvas style={{display: 'none'}} key={this._count++}  ref={(ref) => {
+          if (!ref) return;
+            const canvas : HTMLCanvasElement = ref as HTMLCanvasElement;
+
+            const context = canvas.getContext('2d', { alpha: false, });
+            const scale = this.props.scale || 1;
+            const viewport = this.props.page.getViewport(this.props.drawWidth / this.props.page.getViewport(scale).width);
+            //const viewport = this.props.page.getViewport(scale);
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            this.props.page.render({ canvasContext: context, viewport, renderInteractiveForms: false, transform: null })
+            .then(() => {
+                canvas.style.display= 'inline-block';
+            });
+        }}/>;
     }
 }
 

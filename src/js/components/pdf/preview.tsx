@@ -4,19 +4,18 @@ import PDFPage from './page';
 import { connect } from 'react-redux';
 import LazyLoad from 'react-lazy-load';
 
-interface PDFPreviewConnectProps {
+interface PDFPreviewtProps {
     // activePageNumber: number;
     width: number;
     documentId: string;
     scale?: number;
     onSelectPage: Function;
+    pageViewports: Sign.Viewports[];
+    pageCount: number
 }
 
-interface PDFPreviewProps extends PDFPreviewConnectProps{
-    pageCount: number;
-}
 
-class PDFPreview extends React.PureComponent<PDFPreviewProps> {
+export default class PDFPreview extends React.PureComponent<PDFPreviewProps> {
     render() {
         return (
             <div className='pdf-preview-panel'>
@@ -37,9 +36,3 @@ class PDFPreview extends React.PureComponent<PDFPreviewProps> {
         )
     }
 }
-
-export default connect(
-    (state: Sign.State, ownProps: PDFPreviewConnectProps) => ({
-        pageCount: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageCount : 0
-    }),
-)(PDFPreview);

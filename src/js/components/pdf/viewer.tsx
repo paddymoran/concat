@@ -42,12 +42,14 @@ interface PDFPageWrapperProps {
 
 
 class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
+
     render() {
         const height = (this.props.containerWidth / this.props.viewport.width) * this.props.viewport.height;
         return <div className="pdf-page-wrapper" id={`page-view-${this.props.pageNumber}`}>
-            <LazyLoad height={ height || 1} offsetVertical={300}>
+            { this.props.pageNumber > 0 && <LazyLoad height={ height} offsetVertical={300}>
                    <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  />
-             </LazyLoad>
+             </LazyLoad> }
+            { this.props.pageNumber === 0 &&  <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  /> }
         </div>
     };
 }
@@ -69,20 +71,17 @@ class PDFViewer extends React.Component<PDFViewerProps> {
 
     sign() {
         // Hardcoded for now
-        const pageWidth = this.props.pageViewports[0].width;
-        const pageHeight = this.props.pageViewports[0].height;
 
         // For each signature: onvert pixel values to ratios (of the page) and add page number
         const signatures: Sign.Actions.SignDocumentPayloadSignature[] = Object.keys(this.props.signatures).map(key => {
             const signature = this.props.signatures[key];
-
             return {
                 signatureId: signature.signatureId,
-                pageNumber: 0,
+                pageNumber: signature.pageNumber,
                 offsetX: signature.xRatio,
                 offsetY: signature.yRatio,
-                ratioX: signature.widthRatio / pageWidth,
-                ratioY: signature.heightRatio / pageHeight
+                ratioX: signature.widthRatio,
+                ratioY: signature.heightRatio
             };
         });
 
@@ -121,7 +120,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                 <div className='pdf-container container'>
                     <Row>
                         <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true} >
-                            <PDFPreview documentId={this.props.documentId} width={120} onSelectPage={this.onSelectPage}/>
+                            <PDFPreview documentId={this.props.documentId} width={120} onSelectPage={this.onSelectPage} pageViewports={this.props.pageViewports} pageCount={this.props.pageCount}/>
                         </Col>
                         <Col lg={10} md={12} className="drag-container">
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
@@ -132,7 +131,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                                         key={index}
                                         documentId={this.props.documentId}
                                         pageNumber={index}
-                                        viewport={this.props.pageViewports[index] || {}}
+                                        viewport={this.props.pageViewports[index] || {height: 1, width: 1}}
                                         signaturesIndexes={signaturesIndexes} />
                                 );
                             })}
@@ -154,7 +153,7 @@ interface PDFPageWithSignaturesProps {
 class PDFPageWithSignatures extends React.PureComponent<PDFPageWithSignaturesProps> {
     render() {
         return (
-            <div>
+            <div className="signature-wrapper">
                 { this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
                 <PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={this.props.pageNumber} viewport={this.props.viewport}/>
             </div>

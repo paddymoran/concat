@@ -19,9 +19,12 @@ def sign(input_file, signatures):
         signature_data = BytesIO()
         signature_page = canvas.Canvas(signature_data, tuple(mbox[2:]))
         for signature in signatures:
-            print('adding')
             image = ImageReader(signature['signature'])
-            signature_page.drawImage(image, mbox[2] * signature['offsetX'], mbox[3] - (mbox[3] * signature['offsetY']), mbox[2] * signature['ratioX'], mbox[3] * signature['ratioY'], mask='auto')
+            size = image.getSize()
+            offsetY = mbox[3] - (mbox[3] * signature['offsetY']) - mbox[3] * signature['ratioY'];
+            print(offsetY)
+
+            signature_page.drawImage(image, mbox[2] * signature['offsetX'], offsetY, mbox[2] * signature['ratioX'], mbox[3] * signature['ratioY'], mask='auto')
         signature_page.save()
         signature_data.seek(0)
 

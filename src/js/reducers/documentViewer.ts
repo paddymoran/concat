@@ -3,9 +3,6 @@ const DEFAULT_STATE: Sign.DocumentViewer = {
     signRequestStatus: Sign.DownloadStatus.NotStarted,
 };
 
-const SIGNATURE_DEFAULT_HEIGHT = 150;
-const SIGNATURE_DEFAULT_WIDTH = SIGNATURE_DEFAULT_HEIGHT * 2;
-
 export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STATE, action: any): Sign.DocumentViewer {
     switch (action.type) {
         case Sign.Actions.Types.SELECT_SIGNATURE:
@@ -36,10 +33,8 @@ function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions
     const newSignature: Sign.DocumentSignature = {
         signatureId: action.payload.signatureId,
         pageNumber: action.payload.pageNumber,
-        x: 0,
-        y: SIGNATURE_DEFAULT_HEIGHT,
-        width: SIGNATURE_DEFAULT_WIDTH,
-        height: SIGNATURE_DEFAULT_HEIGHT
+        xRatio: 0,
+        yRatio: 0
     };
 
     return {

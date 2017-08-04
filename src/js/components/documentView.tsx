@@ -1,10 +1,5 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { updateDocument, requestDocument } from '../actions';
 import PDFViewer from './pdf/viewer';
-import PDFPage from './pdf/page';
-import Signature from './signature';
-import SignatureDragContainer from './signatureDragContainer';
 
 interface DocumentViewProps {
     params: { documentId: string };

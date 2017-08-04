@@ -56,10 +56,10 @@ declare namespace Sign {
     interface DocumentSignature {
         signatureId: number;
         pageNumber: number;
-        x: number;
-        y: number;
-        width?: number;
-        height?: number;
+        xRatio: number;
+        yRatio: number;
+        widthRatio?: number;
+        heightRatio?: number;
     }
 
     interface DocumentSignatures {
@@ -246,10 +246,10 @@ declare namespace Sign.Actions {
     interface MoveSignaturePayload {
         signatureIndex: string;
         pageNumber?: number;
-        x?: number;
-        y?: number;
-        width?: number;
-        height?: number;
+        xRatio?: number;
+        yRatio?: number;
+        widthRatio?: number;
+        heightRatio?: number;
     }
 
     interface SignDocumentPayloadSignature {
@@ -348,7 +348,7 @@ declare namespace ReactRnd {
         lockAspectRatio?: boolean;
 
         onDragStop?: (event: DraggableData, resizeData: ResizeData) => void;
-        onResizeStop?: (event: any, resizeHandle: string, element: any) => void;
+        onResizeStop?: (event: any, resizeDirection: string, element: any) => void;
     }
 
     interface ReactRndState {
@@ -358,7 +358,11 @@ declare namespace ReactRnd {
 }
 
 declare module 'react-rnd' {
-    class ReactRnd extends React.Component<ReactRnd.ReactRndProps, ReactRnd.ReactRndState> { }
+    class ReactRnd extends React.Component<ReactRnd.ReactRndProps, ReactRnd.ReactRndState> {
+        updateSize: (data: { width: number; height: number; }) => void;
+        updatePosition: (data: { x: number; y: number; }) => void;
+        updateZIndex(z: number): void;
+    }
 
     export default ReactRnd;
 }

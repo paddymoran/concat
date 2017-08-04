@@ -5,12 +5,11 @@ import { Alert, Button, Modal } from 'react-bootstrap';
 import PDFPreview from './preview';
 import PDFPage from './page';
 import SignatureSelector from '../signatureSelector';
-import SignatureDragContainer from '../signatureDragContainer';
 import * as Axios from 'axios';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import { signDocument } from '../../actions';
+import { signDocument, moveSignature } from '../../actions';
 import Signature from '../signature';
 import * as AutoAffix from 'react-overlays/lib/Affix'
 import { Col, Row } from 'react-bootstrap';
@@ -25,16 +24,24 @@ interface ConnectedPDFViewerProps {
 }
 
 interface PDFViewerProps extends ConnectedPDFViewerProps {
-    signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
     pageCount: number;
-    pageViewports: Sign.Viewport[],
+    pageViewports: Sign.Viewport[];
     documentSetId: string;
     signatures: Sign.DocumentSignatures;
     signRequestStatus: Sign.DownloadStatus;
+    signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
+    moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
+}
+
+interface PDFPageWrapperProps {
+    documentId: string;
+    viewport: Sign.Viewport;
+    pageNumber: number;
+    containerWidth: number;
 }
 
 
-class PDFPageWrapper extends React.Component {
+class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
     render() {
         const height = (this.props.containerWidth / this.props.viewport.width) * this.props.viewport.height;
         return <div className="pdf-page-wrapper" id={`page-view-${this.props.pageNumber}`}>
@@ -42,7 +49,7 @@ class PDFPageWrapper extends React.Component {
                    <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  />
              </LazyLoad>
         </div>
-    }
+    };
 }
 
 const PDFPageWrapperDimensions = Dimensions()(PDFPageWrapper);
@@ -59,12 +66,11 @@ class PDFViewer extends React.Component<PDFViewerProps> {
         document.querySelector(`#page-view-${pageNumber}`).scrollIntoView();
     }
 
+
     sign() {
-
-
         // Hardcoded for now
-        const pageWidth = 940;
-        const pageHeight = 1328;
+        const pageWidth = this.props.pageViewports[0].width;
+        const pageHeight = this.props.pageViewports[0].height;
 
         // For each signature: onvert pixel values to ratios (of the page) and add page number
         const signatures: Sign.Actions.SignDocumentPayloadSignature[] = Object.keys(this.props.signatures).map(key => {
@@ -73,10 +79,10 @@ class PDFViewer extends React.Component<PDFViewerProps> {
             return {
                 signatureId: signature.signatureId,
                 pageNumber: 0,
-                offsetX: signature.x / pageWidth,
-                offsetY: signature.y / pageHeight,
-                ratioX: signature.width / pageWidth,
-                ratioY: signature.height / pageHeight
+                offsetX: signature.xRatio,
+                offsetY: signature.yRatio,
+                ratioX: signature.widthRatio / pageWidth,
+                ratioY: signature.heightRatio / pageHeight
             };
         });
 
@@ -118,11 +124,18 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                             <PDFPreview documentId={this.props.documentId} width={120} onSelectPage={this.onSelectPage}/>
                         </Col>
                         <Col lg={10} md={12} className="drag-container">
-                            {Object.keys(this.props.signatures).map(key => <Signature key={key} signatureIndex={key} /> )}
-                                  { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
-                                    return  <PDFPageWrapperDimensions  key={index}  documentId={this.props.documentId} pageNumber={index} viewport={this.props.pageViewports[index] || {width: 0}}/>
-                          }) }
+                            { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
+                                const signaturesIndexes = Object.keys(this.props.signatures).filter(signatureIndex => this.props.signatures[signatureIndex].pageNumber === index);
 
+                                return (
+                                    <PDFPageWithSignatures
+                                        key={index}
+                                        documentId={this.props.documentId}
+                                        pageNumber={index}
+                                        viewport={this.props.pageViewports[index]}
+                                        signaturesIndexes={signaturesIndexes} />
+                                );
+                            })}
                        </Col>
                     </Row>
                 </div>
@@ -131,6 +144,23 @@ class PDFViewer extends React.Component<PDFViewerProps> {
     }
 }
 
+interface PDFPageWithSignaturesProps {
+    documentId: string;
+    pageNumber: number;
+    viewport: Sign.Viewport;
+    signaturesIndexes: string[];
+}
+
+class PDFPageWithSignatures extends React.PureComponent<PDFPageWithSignaturesProps> {
+    render() {
+        return (
+            <div>
+                { this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
+                <PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={this.props.pageNumber} viewport={this.props.viewport}/>
+            </div>
+        );
+    }
+}
 
 
 const ConnectedPDFViewer = connect(
@@ -139,9 +169,9 @@ const ConnectedPDFViewer = connect(
         pageCount: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageCount : 1,
         pageViewports: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageViewports || [] : [],
         signatures: state.documentViewer.signatures,
-        signRequestStatus: state.documentViewer.signRequestStatus
+        signRequestStatus: state.documentViewer.signRequestStatus,
     }),
-    { signDocument }
+    { signDocument, moveSignature }
 )(PDFViewer)
 
 export default ConnectedPDFViewer;

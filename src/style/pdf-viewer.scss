@@ -43,7 +43,7 @@ $background: #fff;
             position: fixed;
             top: 100px;
             bottom:50px;
-
+                width: 160px;
             .pdf-thumbnail {
                 position: relative;
 
@@ -96,4 +96,12 @@ $background: #fff;
             text-align:center;
         }
     }
+}
+
+.loading-container{
+   position:absolute;
+    left:50%;
+    top:50%;
+    transform: translate(-50%,-50%);
+    overflow:hidden;
 }

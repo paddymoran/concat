@@ -15,7 +15,7 @@ import Signature from '../signature';
 import * as AutoAffix from 'react-overlays/lib/Affix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
-
+import * as Dimensions from 'react-dimensions';
 
 
 Promise.config({ cancellation: true });
@@ -36,14 +36,16 @@ interface PDFViewerProps extends ConnectedPDFViewerProps {
 
 class PDFPageWrapper extends React.Component {
     render() {
+        const height = (this.props.containerWidth / this.props.viewport.width) * this.props.viewport.height;
         return <div className="pdf-page-wrapper">
-            <LazyLoad height={(this.props.pageViewport || {}).height || 1000 } offsetVertical={300}>
-                   <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  />
+            <LazyLoad height={ height } offsetVertical={300}>
+                   <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  />
              </LazyLoad>
         </div>
     }
 }
 
+const PDFPageWrapperDimensions = Dimensions()(PDFPageWrapper);
 
 class PDFViewer extends React.Component<PDFViewerProps> {
 
@@ -77,8 +79,6 @@ class PDFViewer extends React.Component<PDFViewerProps> {
     }
 
     render() {
-
-
         return (
             <div className='pdf-viewer'>
                 <Modal show={this.props.signRequestStatus === Sign.DownloadStatus.InProgress} onHide={() => {}}>
@@ -105,13 +105,13 @@ class PDFViewer extends React.Component<PDFViewerProps> {
 
                 <div className='pdf-container container'>
                     <Row>
-                        <Col lg={2} ref="col">
+                        <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true} >
                             <PDFPreview documentId={this.props.documentId} width={120} />
                         </Col>
-                        <Col lg={10} className="drag-container">
+                        <Col lg={10} md={12} className="drag-container">
                             {Object.keys(this.props.signatures).map(key => <Signature key={key} signatureIndex={key} /> )}
                                   { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
-                                    return  <PDFPageWrapper  key={index}  documentId={this.props.documentId} pageNumber={index} viewport={this.props.pageViewports[index]}/>
+                                    return  <PDFPageWrapperDimensions  key={index}  documentId={this.props.documentId} pageNumber={index} viewport={this.props.pageViewports[index] || {width: 0}}/>
                           }) }
 
                        </Col>

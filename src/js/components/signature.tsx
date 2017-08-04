@@ -4,6 +4,7 @@ import { DragSource } from 'react-dnd';
 import ReactRnd from 'react-rnd';
 import { moveSignature, removeSignatureFromDocument } from '../actions';
 import { connect } from 'react-redux';
+import { signatureUrl } from '../utils';
 
 interface ConnectedSignatureProps {
     signatureIndex: string;
@@ -171,7 +172,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
 
         const stylesWithbackground = {
             ...style,
-            background: `url("/api/signatures/${this.props.signature.signatureId}"`,
+            background: `url("${signatureUrl(this.props.signature.signatureId)}"`,
             backgroundSize: '100% 100%', // Must come after background
         };
 

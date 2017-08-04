@@ -366,3 +366,16 @@ declare module 'react-rnd' {
 
     export default ReactRnd;
 }
+
+declare namespace ReactLazyLoad {
+    interface Props {
+        height: number;
+        offsetVertical: number;
+    }
+}
+
+declare module 'react-lazy-load' {
+    export default class ReactLazyLoad extends React.PureComponent<ReactLazyLoad.Props> {
+        
+    }
+}

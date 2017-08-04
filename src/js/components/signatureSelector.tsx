@@ -11,13 +11,13 @@ import { generateUUID } from './uuid';
 import { connect } from 'react-redux';
 
 interface SignatureSelectorProps {
+    uploading: boolean;
+    isVisible: boolean;
+    showModal: Function;
+    hideModal: Function;
     selectSignature: (signatureId: number) => void;
     uploadSignature: (payload: Sign.Actions.UploadSignaturePayload) => void;
     deleteSignature: (signatureId: number) => void;
-    showModal: Function;
-    hideModal: Function;
-    uploading: boolean;
-    isVisible: boolean;
     addSignatureToDocument: (payload: Sign.Actions.AddSignatureToDocumentPayload) => void;
 }
 
@@ -82,12 +82,6 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
     select() {
         if (this.state.currentTab == SELECT_SIGNATURE_TAB) {
             this.props.selectSignature(this.state.selectedSignatureId);
-            // We need a unqiue string index - sounds like a UUID to me
-            generateUUID().then(signatureIndex => this.props.addSignatureToDocument({
-                signatureIndex,
-                signatureId: this.state.selectedSignatureId,
-                pageNumber: 0
-            }));
         }
         else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
             const signature = this.signatureCanvas.getTrimmedCanvas().toDataURL();
@@ -189,7 +183,11 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
     }
 }
 
-export default connect(state => ({isVisible: state.modals.showing === 'selectSignature', uploading: false}), {
+export default connect(
+    (state: Sign.State) => ({
+        isVisible: state.modals.showing === 'selectSignature',
+        uploading: false
+    }), {
     uploadSignature: (payload) => uploadSignature(payload),
     selectSignature: (id) => selectSignature(id),
     deleteSignature: (id) => deleteSignature(id),

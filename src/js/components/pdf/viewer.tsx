@@ -9,14 +9,14 @@ import * as Axios from 'axios';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import { signDocument, moveSignature } from '../../actions';
+import { signDocument, moveSignature, addSignatureToDocument } from '../../actions';
 import Signature from '../signature';
 import * as AutoAffix from 'react-overlays/lib/Affix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
 import * as Dimensions from 'react-dimensions';
 import { signatureUrl } from '../../utils';
-
+import { generateUUID } from '../uuid';
 
 Promise.config({ cancellation: true });
 
@@ -107,8 +107,8 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                 <AutoAffix viewportOffsetTop={0} offsetTop={50}>
                     <div className="controls">
                         <div className="container">
-                            {!!this.props.selectedSignatureId && <div><img src={signatureUrl(this.props.selectedSignatureId)} style={{ height: '36px' }} /></div>}
-                            
+                            {!!this.props.selectedSignatureId && <div className="signature-icon"><img src={signatureUrl(this.props.selectedSignatureId)} /></div>}
+
                             <SignatureSelector />
 
                             <div><Button>Add Initials</Button></div>
@@ -135,6 +135,8 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                                         key={index}
                                         documentId={this.props.documentId}
                                         pageNumber={index}
+                                        selectedSignatureId={this.props.selectedSignatureId}
+                                        addSignatureToDocument={this.props.addSignatureToDocument}
                                         viewport={this.props.pageViewports[index] || {height: 1, width: 1}}
                                         signaturesIndexes={signaturesIndexes} />
                                 );
@@ -152,12 +154,38 @@ interface PDFPageWithSignaturesProps {
     pageNumber: number;
     viewport: Sign.Viewport;
     signaturesIndexes: string[];
+    selectedSignatureId?: number;
 }
 
 class PDFPageWithSignatures extends React.PureComponent<PDFPageWithSignaturesProps> {
+    constructor(props) {
+        super(props);
+        this.addSelected = this.addSelected.bind(this);
+    }
+    addSelected(e) {
+
+        const rect = e.target.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
+
+        if(this.props.selectedSignatureId && e.target.tagName==='CANVAS') { // lolololol
+            return generateUUID()
+                .then((id) => {
+                    this.props.addSignatureToDocument({
+                        signatureIndex: id,
+                        signatureId: this.props.selectedSignatureId,
+                        pageNumber: this.props.pageNumber,
+                        documentId: this.props.documentId,
+                        xOffset: offsetX / rect.width,
+                        yOffset: offsetY / rect.height
+                    })
+            })
+        }
+    }
+
     render() {
         return (
-            <div className="signature-wrapper">
+            <div className="signature-wrapper" onClick={this.addSelected}>
                 { this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
                 <PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={this.props.pageNumber} viewport={this.props.viewport}/>
             </div>
@@ -175,7 +203,7 @@ const ConnectedPDFViewer = connect(
         signRequestStatus: state.documentViewer.signRequestStatus,
         selectedSignatureId: state.documentViewer.selectedSignatureId,
     }),
-    { signDocument, moveSignature }
+    { signDocument, moveSignature, addSignatureToDocument }
 )(PDFViewer)
 
 export default ConnectedPDFViewer;

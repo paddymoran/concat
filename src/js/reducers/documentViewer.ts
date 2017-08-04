@@ -7,7 +7,7 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
     switch (action.type) {
         case Sign.Actions.Types.SELECT_SIGNATURE:
             return selectSignature(state, action);
-        
+
         case Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT:
             return addSignatureToDocument(state, action);
 
@@ -19,7 +19,7 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
 
         case Sign.Actions.Types.REMOVE_SIGNATURE_FROM_DOCUMENT:
             return removeSignatureFromDocument(state, action);
-        
+
         default:
             return state;
     }
@@ -33,8 +33,8 @@ function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions
     const newSignature: Sign.DocumentSignature = {
         signatureId: action.payload.signatureId,
         pageNumber: action.payload.pageNumber,
-        xRatio: 0,
-        yRatio: 0
+        xRatio: action.payload.xOffset || 0,
+        yRatio: action.payload.yOffset || 0
     };
 
     return {

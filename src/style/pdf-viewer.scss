@@ -96,6 +96,13 @@ $background: #fff;
         }
     }
 }
+.signature-icon > img{
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+        padding: 4px 16px;
+    height: 36px;
+}
 .signature-wrapper{
      margin-bottom: 30px;
 }

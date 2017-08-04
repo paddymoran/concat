@@ -237,6 +237,8 @@ declare namespace Sign.Actions {
         signatureIndex: string;
         signatureId: number;
         pageNumber: number;
+        xOffset?: number;
+        yOffset?: number;
     }
 
     interface RemoveSignatureFromDocumentPayload {
@@ -376,6 +378,6 @@ declare namespace ReactLazyLoad {
 
 declare module 'react-lazy-load' {
     export default class ReactLazyLoad extends React.PureComponent<ReactLazyLoad.Props> {
-        
+
     }
 }

@@ -18,6 +18,7 @@ import tempfile
 from sign import sign
 import codecs
 from copy import deepcopy
+from base64 import b64decode
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -56,7 +57,6 @@ def upload_document(files, set_id, document_id, user_id):
             document_info.append(db.add_document(
                 set_id, document_id, file.filename, file.read(),
             ))
-
     return document_info
 
 
@@ -81,7 +81,7 @@ def save_temp_signature(signature_id, user_id):
 def upload_signature(base64Image):
     signature_id = db.add_signature(
         session['user_id'],
-        str(base64Image.split(",")[1].decode('base64'))
+        b64decode(base64Image.split(",")[1])
     )
     return {'signature_id': signature_id}
 
@@ -186,7 +186,7 @@ Signatures
 @app.route('/api/signatures/upload', methods=['POST'])
 def signature_upload():
     try:
-        base64Image = json.loads(request.data)['base64Image']
+        base64Image = request.get_json()['base64Image']
         return jsonify(upload_signature(base64Image))
     except Exception as e:
         print(e)

@@ -5,12 +5,11 @@ import { Alert, Button, Modal } from 'react-bootstrap';
 import PDFPreview from './preview';
 import PDFPage from './page';
 import SignatureSelector from '../signatureSelector';
-import SignatureDragContainer from '../signatureDragContainer';
 import * as Axios from 'axios';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import { signDocument } from '../../actions';
+import { signDocument, moveSignature } from '../../actions';
 import Signature from '../signature';
 import * as AutoAffix from 'react-overlays/lib/Affix'
 import { Col, Row } from 'react-bootstrap';
@@ -24,10 +23,12 @@ interface ConnectedPDFViewerProps {
 }
 
 interface PDFViewerProps extends ConnectedPDFViewerProps {
-    signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
     documentSetId: string;
     signatures: Sign.DocumentSignatures;
     signRequestStatus: Sign.DownloadStatus;
+    pageViewports: Sign.Viewport[];
+    signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
+    moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
 }
 
 interface IPDFViewerState {
@@ -55,7 +56,8 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
             pageNumber: 0,
             signing: false,
         };
-        this.changePage = this.changePage.bind(this)
+
+        this.changePage = this.changePage.bind(this);
     }
 
     componentDidMount() {
@@ -70,7 +72,6 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
         }
     }
 
-
     sign() {
         // Check there is at least one signature
         if (Object.keys(this.props.signatures).length === 0) {
@@ -78,8 +79,8 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
         }
 
         // Hardcoded for now
-        const pageWidth = 940;
-        const pageHeight = 1328;
+        const pageWidth = this.props.pageViewports[this.state.pageNumber].width;
+        const pageHeight = this.props.pageViewports[this.state.pageNumber].height;
 
         // For each signature: onvert pixel values to ratios (of the page) and add page number
         const signatures: Sign.Actions.SignDocumentPayloadSignature[] = Object.keys(this.props.signatures).map(key => {
@@ -88,10 +89,10 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
             return {
                 signatureId: signature.signatureId,
                 pageNumber: 0,
-                offsetX: signature.x / pageWidth,
-                offsetY: signature.y / pageHeight,
-                ratioX: signature.width / pageWidth,
-                ratioY: signature.height / pageHeight
+                offsetX: signature.xRatio,
+                offsetY: signature.yRatio,
+                ratioX: signature.widthRatio / pageWidth,
+                ratioY: signature.heightRatio / pageHeight
             };
         });
 
@@ -139,8 +140,8 @@ class PDFViewer extends React.Component<PDFViewerProps, IPDFViewerState> {
                             </AutoAffix>
                         </Col>
                         <Col lg={10} className="drag-container">
-                            {Object.keys(this.props.signatures).map(key => <Signature key={key} signatureIndex={key} />)}
-                            <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} />
+                            { Object.keys(this.props.signatures).map(key => <Signature key={key} signatureIndex={key} page={this.refs['pdf-page']} />)}
+                            <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.state.pageNumber} ref='pdf-page' />
                         </Col>
                     </Row>
                 </div>
@@ -155,9 +156,9 @@ const ConnectedPDFViewer = connect(
     (state: Sign.State, ownProps: ConnectedPDFViewerProps) => ({
         documentSetId: findSetForDocument(state.documentSets, ownProps.documentId),
         signatures: state.documentViewer.signatures,
-        signRequestStatus: state.documentViewer.signRequestStatus
+        signRequestStatus: state.documentViewer.signRequestStatus,
     }),
-    { signDocument }
+    { signDocument, moveSignature }
 )(PDFViewer)
 
 export default ConnectedPDFViewer;

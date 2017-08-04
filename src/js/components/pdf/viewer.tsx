@@ -15,6 +15,7 @@ import * as AutoAffix from 'react-overlays/lib/Affix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
 import * as Dimensions from 'react-dimensions';
+import { signatureUrl } from '../../utils';
 
 
 Promise.config({ cancellation: true });
@@ -29,6 +30,7 @@ interface PDFViewerProps extends ConnectedPDFViewerProps {
     documentSetId: string;
     signatures: Sign.DocumentSignatures;
     signRequestStatus: Sign.DownloadStatus;
+    selectedSignatureId?: number;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
     moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
 }
@@ -106,6 +108,8 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                 <AutoAffix viewportOffsetTop={0} offsetTop={50}>
                     <div className="controls">
                         <div className="container">
+                            {!!this.props.selectedSignatureId && <div><img src={signatureUrl(this.props.selectedSignatureId)} style={{ height: '36px' }} /></div>}
+                            
                             <SignatureSelector />
 
                             <div><Button>Add Initials</Button></div>
@@ -170,6 +174,7 @@ const ConnectedPDFViewer = connect(
         pageViewports: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageViewports || [] : [],
         signatures: state.documentViewer.signatures,
         signRequestStatus: state.documentViewer.signRequestStatus,
+        selectedSignatureId: state.documentViewer.selectedSignatureId,
     }),
     { signDocument, moveSignature }
 )(PDFViewer)

@@ -11,13 +11,13 @@ import { generateUUID } from './uuid';
 import { connect } from 'react-redux';
 
 interface SignatureSelectorProps {
+    uploading: boolean;
+    isVisible: boolean;
+    showModal: Function;
+    hideModal: Function;
     selectSignature: (signatureId: number) => void;
     uploadSignature: (payload: Sign.Actions.UploadSignaturePayload) => void;
     deleteSignature: (signatureId: number) => void;
-    showModal: Function;
-    hideModal: Function;
-    uploading: boolean;
-    isVisible: boolean;
     addSignatureToDocument: (payload: Sign.Actions.AddSignatureToDocumentPayload) => void;
 }
 
@@ -189,7 +189,11 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
     }
 }
 
-export default connect(state => ({isVisible: state.modals.showing === 'selectSignature', uploading: false}), {
+export default connect(
+    (state: Sign.State) => ({
+        isVisible: state.modals.showing === 'selectSignature',
+        uploading: false
+    }), {
     uploadSignature: (payload) => uploadSignature(payload),
     selectSignature: (id) => selectSignature(id),
     deleteSignature: (id) => deleteSignature(id),

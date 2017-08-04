@@ -298,7 +298,7 @@ declare namespace Sign.Actions {
 }
 
 declare module 'pdfjs-dist/webpack' {
-   export default  PDFJS ;
+   export = PDFJS ;
 }
 
 declare module 'react-signature-canvas' {

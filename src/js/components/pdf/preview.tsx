@@ -9,6 +9,7 @@ interface PDFPreviewConnectProps {
     width: number;
     documentId: string;
     scale?: number;
+    onSelectPage: Function;
 }
 
 interface PDFPreviewProps extends PDFPreviewConnectProps{
@@ -24,7 +25,7 @@ class PDFPreview extends React.PureComponent<PDFPreviewProps> {
                     let classes = 'pdf-thumbnail selectable';
 
                     return (
-                        <div className={classes} key={index}>
+                        <div className={classes} key={index}  onClick={() => this.props.onSelectPage(index)}>
                             <div className='pdf-thumbnail-number'>{index + 1}</div>
                             <LazyLoad offsetVertical={100} height={200}>
                                 <PDFPage pageNumber={index} documentId={this.props.documentId} drawWidth={120} />

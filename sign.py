@@ -8,7 +8,6 @@ from collections import defaultdict
 def sign(input_file, signatures):
 
     pdf = PdfReader(input_file)
-    print(signatures)
     # group by page
     page_map = defaultdict(list)
     for signature in signatures:
@@ -20,9 +19,7 @@ def sign(input_file, signatures):
         signature_page = canvas.Canvas(signature_data, tuple(mbox[2:]))
         for signature in signatures:
             image = ImageReader(signature['signature'])
-            size = image.getSize()
-            offsetY = mbox[3] - (mbox[3] * signature['offsetY']) - mbox[3] * signature['ratioY'];
-            print(offsetY)
+            offsetY = mbox[3] - (mbox[3] * signature['offsetY']) - mbox[3] * signature['ratioY']
 
             signature_page.drawImage(image, mbox[2] * signature['offsetX'], offsetY, mbox[2] * signature['ratioX'], mbox[3] * signature['ratioY'], mask='auto')
         signature_page.save()

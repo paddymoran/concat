@@ -38,10 +38,11 @@ $background: #fff;
 
         .pdf-preview-panel {
             background: #fff;
-            position: fixed;
-            bottom: 50px;
-            top: 100px;
+            margin: 8px;
             overflow: auto;
+            position: fixed;
+            top: 100px;
+            bottom:50px;
 
             .pdf-thumbnail {
                 position: relative;
@@ -80,9 +81,9 @@ $background: #fff;
             }
         }
 
-        .pdf-page {
+        .pdf-page-wrapper {
                 position:relative;
-                    box-shadow:0 3px 6px rgba(0, 0, 0, 0.3);
+                    box-shadow:3px 3px 6px rgba(0, 0, 0, 0.3);
                     background-color: #fff;
                     margin-bottom: 30px;
             }

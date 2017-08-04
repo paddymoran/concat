@@ -2,7 +2,7 @@ import * as React from "react";
 import { findDOMNode } from "react-dom";
 import PDFPage from './page';
 import { connect } from 'react-redux';
-
+import LazyLoad from 'react-lazy-load';
 
 interface PDFPreviewConnectProps {
     // activePageNumber: number;
@@ -26,7 +26,9 @@ class PDFPreview extends React.PureComponent<PDFPreviewProps> {
                     return (
                         <div className={classes} key={index}>
                             <div className='pdf-thumbnail-number'>{index + 1}</div>
-                            <PDFPage pageNumber={index} documentId={this.props.documentId} drawWidth={120} />
+                            <LazyLoad offsetVertical={100} height={200}>
+                                <PDFPage pageNumber={index} documentId={this.props.documentId} drawWidth={120} />
+                            </LazyLoad>
                         </div>
                     );
                 }) }

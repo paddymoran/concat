@@ -36,7 +36,7 @@ interface PDFViewerProps extends ConnectedPDFViewerProps {
 
 class PDFPageWrapper extends React.Component {
     render() {
-        return <div className="pdf-page">
+        return <div className="pdf-page-wrapper">
             <LazyLoad height={(this.props.pageViewport || {}).height || 1000 } offsetVertical={300}>
                    <PDFPage drawWidth={1000} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  />
              </LazyLoad>
@@ -105,16 +105,14 @@ class PDFViewer extends React.Component<PDFViewerProps> {
 
                 <div className='pdf-container container'>
                     <Row>
-                        <Col lg={2}>
-                            <AutoAffix offsetTop={50}>
-                                <PDFPreview documentId={this.props.documentId} width={120} />
-                            </AutoAffix>
+                        <Col lg={2} ref="col">
+                            <PDFPreview documentId={this.props.documentId} width={120} />
                         </Col>
                         <Col lg={10} className="drag-container">
                             {Object.keys(this.props.signatures).map(key => <Signature key={key} signatureIndex={key} /> )}
                                   { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
                                     return  <PDFPageWrapper  key={index}  documentId={this.props.documentId} pageNumber={index} viewport={this.props.pageViewports[index]}/>
-                                }) }
+                          }) }
 
                        </Col>
                     </Row>

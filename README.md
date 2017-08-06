@@ -7,7 +7,10 @@ python server.py config.py
 
 # Dev setup
 
-**Requirements:** npm, virtualenv, python 3.4, imagemagick, and ghostscript
+
+
+
+**Requirements:** npm, virtualenv, python 3.4, imagemagick, and ghostscript, python-dev build-essential libfreetype6 libfreetype6-dev
 
 2. create `catalex_sign` database
 3. `npm install`

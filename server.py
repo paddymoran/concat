@@ -298,7 +298,7 @@ def login():
         return redirect(url_for('catch_all'))
     except Exception as e:
         print(e)
-        raise InvalidUsage(e.message, status_code=500)
+        raise InvalidUsage('Could not log in', status_code=500)
 
 
 @app.route('/logout', methods=['GET'])

@@ -250,7 +250,7 @@ def sign_document():
 
 
 
-@app.route('/api/login', methods=['GET'])
+@app.route('/login', methods=['GET'])
 def login():
     try:
         user_data = {}
@@ -262,9 +262,9 @@ def login():
                 'email': 'dev@user.com'
             }
         else:
-            args = request.args
-            provided_code = args.get('code')
+            args = request.args.to_dict()
 
+            provided_code = args.get('code')
             if not all([provided_code]):
                 return redirect(app.config.get('OAUTH_URL'))
 
@@ -282,6 +282,7 @@ def login():
             )
             access_data = response.json()
 
+
             response = requests.get(
                 app.config.get('AUTH_SERVER') + '/api/user',
                 params={'access_token': access_data['access_token']}
@@ -290,16 +291,17 @@ def login():
             user_data = response.json()
             user_data['user_id'] = user_data['id']
 
+
+
         db.upsert_user(user_data)
         session['user_id'] = user_data['user_id']
-
         return redirect(url_for('catch_all'))
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)
 
 
-@app.route('/api/logout', methods=['GET'])
+@app.route('/logout', methods=['GET'])
 def logout():
     session.clear()
     return redirect(app.config.get('USER_LOGOUT_URL'))

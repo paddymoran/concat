@@ -126,21 +126,16 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                 <div className='pdf-container container'>
                     <Row>
                         <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true} >
-                            <PDFPreview documentId={this.props.documentId} width={120} onSelectPage={this.onSelectPage} pageViewports={this.props.pageViewports} pageCount={this.props.pageCount}/>
+                            <PDFPreview documentId={this.props.documentId} width={120} onSelectPage={this.onSelectPage} pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
                         </Col>
                         <Col lg={10} md={12} className="drag-container">
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
                                 const signaturesIndexes = Object.keys(this.props.signatures).filter(signatureIndex => this.props.signatures[signatureIndex].pageNumber === index);
 
                                 return (
-                                    <PDFPageWithSignatures
-                                        key={index}
-                                        documentId={this.props.documentId}
-                                        pageNumber={index}
-                                        selectedSignatureId={this.props.selectedSignatureId}
-                                        addSignatureToDocument={this.props.addSignatureToDocument}
-                                        viewport={this.props.pageViewports[index] || {height: 1, width: 1}}
-                                        signaturesIndexes={signaturesIndexes} />
+                                    <SignaturesPageWrapper viewport={this.props.pageViewports[index] || {height: 1, width: 1}} key={index} documentId={this.props.documentId} pageNumber={index} signaturesIndexes={signaturesIndexes} addSignatureToDocument={this.props.addSignatureToDocument} selectedSignatureId={this.props.selectedSignatureId}>
+                                        {/*<PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={index} viewport={this.props.pageViewports[index] || {height: 1, width: 1}}/>*/}
+                                    </SignaturesPageWrapper>
                                 );
                             })}
                        </Col>
@@ -150,28 +145,6 @@ class PDFViewer extends React.Component<PDFViewerProps> {
         );
     }
 }
-
-/*const signatureSource = {
-    beginDrag(props) {
-        // Return the data describing the dragged item
-        // const item = { id: props.id };
-        // return item;
-        return 1
-    },
-
-    endDrag(props, monitor, component) {
-        if (!monitor.didDrop()) {
-            return;
-        }
-
-        // // When dropped on a compatible target, do something
-        // const item = monitor.getItem();
-        // const dropResult = monitor.getDropResult();
-        // CardActions.moveCardToList(item.id, dropResult.listId);
-
-        console.log(monitor.getItem());
-    }
-};
 
 
 interface AddSignatureControlProps {
@@ -189,28 +162,37 @@ class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> 
     }
 }
 
-const DraggableAddSignatureControl = DragSource('ADD_SIGNATURE_CONTROL', signatureSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging()
-}))(AddSignatureControl);*/
+const signatureSource = {
+    beginDrag(props: AddSignatureControlProps) {
+        return { a: 1 };
+    }
+};
+
+const DraggableAddSignatureControl = DragSource(
+    Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT,
+    signatureSource,
+    (connect, monitor) => ({
+        connectDragSource: connect.dragSource(),
+        isDragging: monitor.isDragging()
+    })
+)(AddSignatureControl);
 
 interface PDFPageWithSignaturesProps {
     documentId: string;
     pageNumber: number;
-    viewport: Sign.Viewport;
     signaturesIndexes: string[];
     selectedSignatureId?: number;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
+    viewport: any;
 }
 
-class PDFPageWithSignatures extends React.PureComponent<PDFPageWithSignaturesProps> {
+class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesProps> {
     constructor(props: PDFPageWithSignaturesProps) {
         super(props);
         this.addSelected = this.addSelected.bind(this);
     }
 
     addSelected(e) {
-
         const rect = e.target.getBoundingClientRect();
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
@@ -231,9 +213,12 @@ class PDFPageWithSignatures extends React.PureComponent<PDFPageWithSignaturesPro
     }
 
     render() {
+        const children = this.props.children;
+
         return (
             <div className="signature-wrapper" onClick={this.addSelected}>
-                { this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
+                {this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
+                {/*{React.cloneElement(this.props.children, { ref: "pdf-page" })}*/}
                 <PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={this.props.pageNumber} viewport={this.props.viewport}/>
             </div>
         );

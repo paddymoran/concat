@@ -111,6 +111,10 @@ declare namespace Sign {
         canDrop: Function;
         isOver: boolean
     }
+
+    const enum DragAndDropTypes {
+        ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
+    }
 }
 
 

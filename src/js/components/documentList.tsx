@@ -50,6 +50,7 @@ class DocumentView extends React.PureComponent<DocumentViewProps> {
                             </div>
                         }
                     </CSSTransitionGroup>
+                    
                     <Link to={`/documents/${this.props.documentSetId}/${this.props.documentId}`}>View</Link>
                 </div>
             )
@@ -68,7 +69,6 @@ const ConnectedDocumentView = connect(
 
 const documentDragSource = {
     beginDrag(props) {
-        console.log('Jebus!');
         return {
             documentId: props.documentId,
             index: props.index
@@ -111,14 +111,22 @@ const documentDragTarget = {
     }
 };
 
-const DraggableDocumentView = DragSource('DOCUMENTS', documentDragSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging()
-}))(ConnectedDocumentView);
+const DraggableDocumentView = DragSource(
+    'DOCUMENTS',
+    documentDragSource,
+    (connect, monitor) => ({
+        connectDragSource: connect.dragSource(),
+        isDragging: monitor.isDragging()
+    })
+)(ConnectedDocumentView);
 
-const DraggableDroppableDocumentView = DropTarget('DOCUMENTS', documentDragTarget, connect => ({
-  connectDropTarget: connect.dropTarget()
-}))(DraggableDocumentView);
+const DraggableDroppableDocumentView = DropTarget(
+    'DOCUMENTS',
+    documentDragTarget,
+    connect => ({
+        connectDropTarget: connect.dropTarget()
+    })
+)(DraggableDocumentView);
 
 const ConnectedDraggableDroppableDocumentView = connect(
     undefined,

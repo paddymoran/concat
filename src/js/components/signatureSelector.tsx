@@ -9,12 +9,13 @@ import SignatureUpload from './signatureUpload';
 import { uploadSignature, selectSignature, showSignatureSelection, hideSignatureSelection, deleteSignature, addSignatureToDocument } from '../actions/index';
 import { generateUUID } from './uuid';
 import { connect } from 'react-redux';
+import Loading from './loading';
 
 interface SignatureSelectorProps {
     uploading: boolean;
     isVisible: boolean;
-    showModal: Function;
-    hideModal: Function;
+    showModal: () => void;
+    hideModal: () => void;
     selectSignature: (signatureId: number) => void;
     uploadSignature: (payload: Sign.Actions.UploadSignaturePayload) => void;
     deleteSignature: (signatureId: number) => void;
@@ -145,9 +146,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
 
                             <Tab eventKey={DRAW_SIGNATURE_TAB} title="Draw Signature">
                                 <div className='signature-canvas-conatiner clearfix'>
-                                    { this.props.uploading &&
-                                        <div className='loading' />
-                                    }
+                                    { this.props.uploading && <Loading />}
                                     { !this.props.uploading &&
                                         <div className='signature-display'>
                                             <SignatureCanvas canvasProps={signatureCanvasOptions} ref={(ref: SignatureCanvas) => this.signatureCanvas = ref} />
@@ -163,12 +162,8 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                                         { this.state.signatureUploaderErrors }
                                     </Alert>
                                 }
-                                { this.props.uploading &&
-                                    <div className='loading' />
-                                }
-                                { !this.props.uploading &&
-                                    <SignatureUpload ref='signature-uploader' />
-                                }
+                                {this.props.uploading && <Loading />}
+                                {!this.props.uploading && <SignatureUpload ref='signature-uploader' />}
                             </Tab>
                         </Tabs>
                     </Modal.Body>
@@ -187,11 +182,13 @@ export default connect(
     (state: Sign.State) => ({
         isVisible: state.modals.showing === 'selectSignature',
         uploading: false
-    }), {
-    uploadSignature: (payload) => uploadSignature(payload),
-    selectSignature: (id) => selectSignature(id),
-    deleteSignature: (id) => deleteSignature(id),
-    showModal: () => showSignatureSelection(),
-    hideModal: () => hideSignatureSelection(),
-    addSignatureToDocument
-})(SignatureSelector)
+    }),
+    {
+        uploadSignature,
+        selectSignature,
+        deleteSignature,
+        showModal: showSignatureSelection,
+        hideModal: hideSignatureSelection,
+        addSignatureToDocument
+    }
+)(SignatureSelector)

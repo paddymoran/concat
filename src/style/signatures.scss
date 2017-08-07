@@ -1,0 +1,19 @@
+.react-draggable{
+    border: 1px dashed black;
+    .handler-corner{
+            background: rgba(100, 100, 100, 0.1);
+        border: 1px solid #777;
+    }
+
+    .signature-destroy {
+        position: absolute;
+        right: 15px;
+        top: -25px;
+        font-size: 20px;
+        line-height: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        color: $gray-light;
+    }
+
+}

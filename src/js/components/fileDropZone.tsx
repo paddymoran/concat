@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DragSource, DropTarget, DragDropContext } from 'react-dnd';
+import { DropTarget } from 'react-dnd';
 
 class FileDropZone extends React.Component<Sign.FileDropZoneProps, {}> {
     render() {

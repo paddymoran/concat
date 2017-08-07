@@ -7,6 +7,8 @@ import App from './components/app';
 import routes from './routes';
 import { Router } from 'react-router';
 import { History } from 'history';
+import { DragSource, DropTarget, DragDropContext } from 'react-dnd';
+import * as HTML5Backend from 'react-dnd-html5-backend';
 
 import '../style/style.scss';
 
@@ -15,7 +17,7 @@ interface RootProps {
     store: any
 }
 
-export default class Root extends React.Component<RootProps, {}> {
+class Root extends React.Component<RootProps> {
     render() {
         return (
             <Provider store={this.props.store}>
@@ -27,3 +29,5 @@ export default class Root extends React.Component<RootProps, {}> {
         );
     }
 }
+
+export default DragDropContext(HTML5Backend)(Root);

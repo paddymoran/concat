@@ -130,3 +130,16 @@ export function reorderDocuments(payload: Sign.Actions.ReorderDocumentsPayload):
         payload
     };
 }
+
+export function requestSignatures(): Sign.Actions.RequestSignatures {
+    return {
+        type: Sign.Actions.Types.REQUEST_SIGNATURES
+    };
+}
+
+export function setSignatureIds(payload: Sign.Actions.SetSignatureIdsPayload): Sign.Actions.SetSignatureIds {
+    return {
+        type: Sign.Actions.Types.SET_SIGNATURE_IDS,
+        payload
+    };
+}

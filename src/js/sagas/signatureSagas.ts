@@ -2,10 +2,18 @@ import { select, takeEvery, put, call, all } from 'redux-saga/effects';
 import * as Promise from 'bluebird';
 import * as Axios from 'axios';
 import axios from 'axios';
-import { selectSignature, hideSignatureSelection } from '../actions/index'
+import { selectSignature, hideSignatureSelection, setSignatureIds } from '../actions/index'
 
 interface SignaturesUploadResponse extends Axios.AxiosResponse {
-    data: {signature_id: number }
+    data: {
+        signature_id: number
+    };
+}
+
+interface SignaturesResponse extends Axios.AxiosResponse {
+    data: {
+        id: number
+    }[];
 }
 
 function *uploadSignature() {
@@ -29,4 +37,22 @@ function *deleteSignature() {
     }
 }
 
-export default [uploadSignature(), deleteSignature()];
+function *requestSignaturesSaga() {
+    yield takeEvery(Sign.Actions.Types.REQUEST_SIGNATURES, requestSignatures);
+
+    function *requestSignatures(action: Sign.Actions.RequestSignatures) {
+        const response: SignaturesResponse = yield call(axios.get, '/api/signatures');
+        const signatureIds = response.data.map((signature) => signature.id);
+
+        yield put(setSignatureIds({
+            signatureIds,
+            status: Sign.DownloadStatus.Complete
+        }));
+    }
+}
+
+export default [
+    uploadSignature(),
+    deleteSignature(),
+    requestSignaturesSaga(),
+];

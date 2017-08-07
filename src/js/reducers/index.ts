@@ -5,6 +5,7 @@ import pdfStore from './pdfStore';
 import documents from './documents';
 import documentSets from './documentSets';
 import documentViewer from './documentViewer';
+import signatures from './signatures';
 
 const modals = (state: Sign.Modals = {}, action: any) => {
     switch (action.type) {
@@ -23,6 +24,7 @@ const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     pdfStore,
     modals,
     documentViewer,
+    signatures,
 });
 
 export default rootReducer;

@@ -55,6 +55,21 @@ const boundNumber = (number: number) => {
 class Signature extends React.PureComponent<SignatureProps, SignatureState> {
     private signature: ReactRnd;
 
+    public static MIN_WIDTH = 50;
+    public static MIN_HEIGHT = 25;
+
+    private static HANDLER_STYLES = {
+      bottom: 'handler',
+      bottomLeft: 'handler',
+      bottomRight: 'handler',
+      left: 'handler',
+      right: 'handler',
+      top: 'handler',
+      topLeft: 'handler',
+      topRight: 'handler'
+    } ;
+
+
     constructor(props: SignatureProps) {
         super(props);
 
@@ -139,7 +154,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
 
             // Figure out the new Y position === <old Y position> + <change in height>
             const newYPosition = oldYPosition + (oldHeight - newHeight);
-            
+
             // Add the new Y ratio to the move signature action
             moveData.yRatio = boundNumber(newYPosition / pageSize.height);
         }
@@ -185,6 +200,9 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
                 onResizeStop={this.onResize}
                 bounds="parent"
                 resizeHandlerStyles={handleStyles}
+                minWidth={Signature.MIN_WIDTH}
+                minHeight={Signature.MIN_HEIGHT}
+                resizeHandlerClasses={Signature.HANDLER_STYLES}
             ><button onClick={() => this.props.removeSignatureFromDocument({ signatureIndex: this.props.signatureIndex })}>x</button></ReactRnd>
         );
     }

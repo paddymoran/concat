@@ -326,6 +326,18 @@ declare module 'react-signature-canvas' {
 }
 
 declare namespace ReactRnd {
+
+    type HandlerClasses = {
+      bottom?: string;
+      bottomLeft?: string;
+      bottomRight?: string;
+      left?: string;
+      right?: string;
+      top?: string;
+      topLeft?: string;
+      topRight?: string;
+    }
+
     interface DraggableData {
         node: HTMLElement,
         x: number,
@@ -355,12 +367,13 @@ declare namespace ReactRnd {
         };
 
         minWidth?: number;
-        maxHeight?: number;
+        minHeight?: number;
         style?: Object;
         bounds?: string;
         resizeHandlerStyles?: Object;
         lockAspectRatio?: boolean;
-
+        resizeHandlerClasses? : HandlerClasses;
+        dragHandlerClassName? : string;
         onDragStop?: (event: DraggableData, resizeData: ResizeData) => void;
         onResizeStop?: (event: any, resizeDirection: string, element: any) => void;
     }

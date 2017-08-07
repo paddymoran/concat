@@ -124,3 +124,9 @@ export function setSignRequestStatus(signRequestStatus: Sign.DownloadStatus): Si
     };
 }
 
+export function reorderDocuments(payload: Sign.Actions.ReorderDocumentsPayload): Sign.Actions.ReorderDocuments {
+    return {
+        type: Sign.Actions.Types.REORDER_DOCUMENTS,
+        payload
+    };
+}

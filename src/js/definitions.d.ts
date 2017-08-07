@@ -86,6 +86,7 @@ declare namespace Sign {
         documents: Documents;
         pdfStore: PDFStore;
         documentViewer: DocumentViewer;
+        modals: Modals;
     }
 
     interface Action<T> {
@@ -122,6 +123,7 @@ declare namespace Sign.Actions {
         UPDATE_DOCUMENT = 'UPDATE_DOCUMENT',
         SUBMIT_DOCUMENTS = 'SUBMIT_DOCUMENTS',
         REMOVE_DOCUMENT = 'REMOVE_DOCUMENT',
+        REORDER_DOCUMENTS = 'REORDER_DOCUMENTS',
         UPDATE_FORM = 'UPDATE_FORM',
 
         ADD_PDF_TO_STORE = 'ADD_PDF_TO_STORE',
@@ -273,10 +275,16 @@ declare namespace Sign.Actions {
         signRequestStatus: DownloadStatus;
     }
 
+    interface ReorderDocumentsPayload {
+        documentId: string;
+        newIndex: number;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
     interface RemoveDocument extends ActionCreator<RemoveDocumentPayload> {}
+    interface ReorderDocuments extends ActionCreator<ReorderDocumentsPayload> {}
 
     interface AddPDFToStoreAction extends ActionCreator<AddPDFToStoreActionPayload> {}
     interface FinishAddPDFToStoreAction extends ActionCreator<FinishAddPDFToStoreActionPayload> {}

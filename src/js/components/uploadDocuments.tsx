@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
 import { addDocument, requestDocumentSet, createDocumentSet } from '../actions';
-import *  as HTML5Backend from 'react-dnd-html5-backend';
-import { DragDropContext } from 'react-dnd';
 import axios from 'axios';
 import { generateUUID } from './uuid';
 import  { Link } from 'react-router';
@@ -68,7 +66,7 @@ class DocumentSet extends React.PureComponent<DocumentSetProps> {
                 <div className='page-heading'>
                     <h1 className="title question">{this.props.documentSet.title ? this.props.documentSet.title : 'New Document Set'}</h1>
                 </div>
-                <DocumentList documentIds={this.props.documentIds} showRemove={false} />
+                <DocumentList documentSetId={this.props.documentSetId} showRemove={false} />
             </div>
         );
     }
@@ -80,7 +78,6 @@ const ConnectedDocumentSet = connect(
         const documentIds = documentSet ? documentSet.documentIds : [];
 
         return {
-            documentIds,
             documentSet,
             loaded: documentSet && documentSet.downloadStatus === Sign.DownloadStatus.Complete
         };
@@ -91,7 +88,7 @@ const ConnectedDocumentSet = connect(
 )(DocumentSet);
 
 
-class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
+class UploadDocuments extends React.Component<UploadDocumentsProps> {
     _fileInput: HTMLInputElement;
 
     constructor(props: UploadDocumentsProps) {
@@ -136,7 +133,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
                     </div>
 
 
-                    { !!this.props.documentIds && <DocumentList documentIds={this.props.documentIds} /> }
+                    <DocumentList documentSetId={this.props.documentSetId} />
 
                     { !!this.props.documentIds && !!this.props.documentIds.length && <div className="button-bar">
                         <Link to={`/documents/${this.props.documentSetId}`} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
@@ -146,8 +143,6 @@ class UploadDocuments extends React.Component<UploadDocumentsProps, {}> {
         );
     }
 }
-
-const DNDUploadDocuments = DragDropContext(HTML5Backend)(UploadDocuments);
 
 export default connect(
     (state: Sign.State, ownProps: any) => {
@@ -159,4 +154,4 @@ export default connect(
         };
     },
     { addDocument, createDocumentSet }
-)(DNDUploadDocuments);
+)(UploadDocuments);

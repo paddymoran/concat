@@ -17,6 +17,7 @@ import LazyLoad from 'react-lazy-load';
 import * as Dimensions from 'react-dimensions';
 import { signatureUrl } from '../../utils';
 import { generateUUID } from '../uuid';
+import { DragSource } from 'react-dnd';
 
 Promise.config({ cancellation: true });
 
@@ -33,6 +34,7 @@ interface PDFViewerProps extends ConnectedPDFViewerProps {
     selectedSignatureId?: number;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
     moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
+    addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
 }
 
 interface PDFPageWrapperProps {
@@ -60,12 +62,12 @@ const PDFPageWrapperDimensions = Dimensions()(PDFPageWrapper);
 
 class PDFViewer extends React.Component<PDFViewerProps> {
 
-    constructor(props) {
+    constructor(props: PDFViewerProps) {
         super(props);
         this.onSelectPage = this.onSelectPage.bind(this);
     }
 
-    onSelectPage(pageNumber) {
+    onSelectPage(pageNumber: number) {
         //sucks remove later
         document.querySelector(`#page-view-${pageNumber}`).scrollIntoView();
     }
@@ -107,7 +109,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                 <AutoAffix viewportOffsetTop={0} offsetTop={50}>
                     <div className="controls">
                         <div className="container">
-                            {!!this.props.selectedSignatureId && <div className="signature-icon"><img src={signatureUrl(this.props.selectedSignatureId)} /></div>}
+                            {!!this.props.selectedSignatureId && <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId} />}
 
                             <SignatureSelector />
 
@@ -149,19 +151,64 @@ class PDFViewer extends React.Component<PDFViewerProps> {
     }
 }
 
+/*const signatureSource = {
+    beginDrag(props) {
+        // Return the data describing the dragged item
+        // const item = { id: props.id };
+        // return item;
+        return 1
+    },
+
+    endDrag(props, monitor, component) {
+        if (!monitor.didDrop()) {
+            return;
+        }
+
+        // // When dropped on a compatible target, do something
+        // const item = monitor.getItem();
+        // const dropResult = monitor.getDropResult();
+        // CardActions.moveCardToList(item.id, dropResult.listId);
+
+        console.log(monitor.getItem());
+    }
+};
+
+
+interface AddSignatureControlProps {
+    signatureId: number;
+    connectDragSource: Function;
+}
+
+class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> {
+    render() {
+        return this.props.connectDragSource(
+            <div className="signature-icon">
+                <img src={signatureUrl(this.props.signatureId)} />
+            </div>
+        );
+    }
+}
+
+const DraggableAddSignatureControl = DragSource('ADD_SIGNATURE_CONTROL', signatureSource, (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging()
+}))(AddSignatureControl);*/
+
 interface PDFPageWithSignaturesProps {
     documentId: string;
     pageNumber: number;
     viewport: Sign.Viewport;
     signaturesIndexes: string[];
     selectedSignatureId?: number;
+    addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
 }
 
 class PDFPageWithSignatures extends React.PureComponent<PDFPageWithSignaturesProps> {
-    constructor(props) {
+    constructor(props: PDFPageWithSignaturesProps) {
         super(props);
         this.addSelected = this.addSelected.bind(this);
     }
+
     addSelected(e) {
 
         const rect = e.target.getBoundingClientRect();

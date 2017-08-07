@@ -4,13 +4,13 @@ import PDFPage from './page';
 import { connect } from 'react-redux';
 import LazyLoad from 'react-lazy-load';
 
-interface PDFPreviewtProps {
+interface PDFPreviewProps {
     // activePageNumber: number;
     width: number;
     documentId: string;
     scale?: number;
     onSelectPage: Function;
-    pageViewports: Sign.Viewports[];
+    pageViewports: Sign.Viewport[];
     pageCount: number
 }
 

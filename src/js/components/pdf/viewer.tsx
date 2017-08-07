@@ -192,12 +192,13 @@ class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesPro
         this.addSelected = this.addSelected.bind(this);
     }
 
-    addSelected(e) {
-        const rect = e.target.getBoundingClientRect();
+    addSelected(e: React.MouseEvent<HTMLElement>) {
+        const target = e.target as HTMLElement;
+        const rect = target.getBoundingClientRect();
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
 
-        if(this.props.selectedSignatureId && e.target.tagName==='CANVAS') { // lolololol
+        if(this.props.selectedSignatureId && target.tagName==='CANVAS') { // lolololol
             return generateUUID()
                 .then((id) => {
                     this.props.addSignatureToDocument({

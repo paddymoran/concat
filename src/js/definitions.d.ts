@@ -80,6 +80,11 @@ declare namespace Sign {
         }
     }
 
+    interface Signatures {
+        status: DownloadStatus;
+        signatureIds?: number[];
+    }
+
     interface State {
         routing: any;
         documentSets: DocumentSets;
@@ -87,6 +92,7 @@ declare namespace Sign {
         pdfStore: PDFStore;
         documentViewer: DocumentViewer;
         modals: Modals;
+        signatures: Signatures;
     }
 
     interface Action<T> {
@@ -149,6 +155,10 @@ declare namespace Sign.Actions {
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
         CREATE_DOCUMENT_SET = 'CREATE_DOCUMENT_SET',
         UPDATE_DOCUMENT_SET = 'UPDATE_DOCUMENT_SET',
+
+        REQUEST_SIGNATURES = 'REQUEST_SIGNATURES',
+        SET_SIGNATURES_REQUEST_STATUS = 'SET_SIGNATURES_REQUEST_STATUS',
+        SET_SIGNATURE_IDS = 'SET_SIGNATURE_IDS',
 
         SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
         GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
@@ -284,6 +294,11 @@ declare namespace Sign.Actions {
         newIndex: number;
     }
 
+    interface SetSignatureIdsPayload {
+        signatureIds: number[];
+        status?: Sign.DownloadStatus;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -309,10 +324,13 @@ declare namespace Sign.Actions {
 
     interface SignDocument extends ActionCreator<SignDocumentPayload> {}
     interface SetSignRequestStatus extends ActionCreator<SetSignRequestStatusPayload> {}
+
+    interface RequestSignatures extends Action {}
+    interface SetSignatureIds extends ActionCreator<SetSignatureIdsPayload> {}
 }
 
 declare module 'pdfjs-dist/webpack' {
-   export = PDFJS ;
+    export = PDFJS ;
 }
 
 declare module 'react-signature-canvas' {

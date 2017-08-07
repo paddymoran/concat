@@ -133,9 +133,14 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                                 const signaturesIndexes = Object.keys(this.props.signatures).filter(signatureIndex => this.props.signatures[signatureIndex].pageNumber === index);
 
                                 return (
-                                    <SignaturesPageWrapper viewport={this.props.pageViewports[index] || {height: 1, width: 1}} key={index} documentId={this.props.documentId} pageNumber={index} signaturesIndexes={signaturesIndexes} addSignatureToDocument={this.props.addSignatureToDocument} selectedSignatureId={this.props.selectedSignatureId}>
-                                        {/*<PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={index} viewport={this.props.pageViewports[index] || {height: 1, width: 1}}/>*/}
-                                    </SignaturesPageWrapper>
+                                    <SignaturesPageWrapper
+                                        key={index}
+                                        documentId={this.props.documentId}
+                                        pageNumber={index}
+                                        signaturesIndexes={signaturesIndexes}
+                                        addSignatureToDocument={this.props.addSignatureToDocument}
+                                        selectedSignatureId={this.props.selectedSignatureId}
+                                        viewport={this.props.pageViewports[index] || {height: 1, width: 1}} />
                                 );
                             })}
                        </Col>

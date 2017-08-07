@@ -2,38 +2,29 @@ import  * as React from "react";
 import { findDOMNode } from "react-dom";
 import SignatureCanvas from 'react-signature-canvas';
 import { Alert, Button, ControlLabel, FormGroup, FormControl, Modal, Tab, Tabs } from 'react-bootstrap';
-import * as Promise from 'bluebird';
-import * as Axios from 'axios';
-import axios from 'axios';
 import SignatureUpload from './signatureUpload';
-import { uploadSignature, selectSignature, showSignatureSelection, hideSignatureSelection, deleteSignature, addSignatureToDocument } from '../actions/index';
-import { generateUUID } from './uuid';
+import { uploadSignature, selectSignature, showSignatureSelection, hideSignatureSelection, deleteSignature, addSignatureToDocument, requestSignatures } from '../actions/index';
 import { connect } from 'react-redux';
 import Loading from './loading';
 
 interface SignatureSelectorProps {
     uploading: boolean;
     isVisible: boolean;
+    signatures: Sign.Signatures;
+    selectedSignatureId: number;
     showModal: () => void;
     hideModal: () => void;
     selectSignature: (signatureId: number) => void;
     uploadSignature: (payload: Sign.Actions.UploadSignaturePayload) => void;
     deleteSignature: (signatureId: number) => void;
     addSignatureToDocument: (payload: Sign.Actions.AddSignatureToDocumentPayload) => void;
+    requestSignatures: () => void;
 }
 
 interface SignatureSelectorState {
-    selectedSignatureId: number;
     currentTab: number;
-    signatureIds: number[];
     signatureUploaderErrors?: string
 }
-
-interface SignaturesResponse extends Axios.AxiosResponse {
-    data: Array<{ id: number }>
-}
-
-
 
 const SELECT_SIGNATURE_TAB = 1;
 const DRAW_SIGNATURE_TAB = 2;
@@ -48,28 +39,20 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
         super(props);
 
         this.state = {
-            selectedSignatureId: null,
-            currentTab: SELECT_SIGNATURE_TAB,
-            signatureIds: []
+            currentTab: SELECT_SIGNATURE_TAB
         };
     }
 
     componentDidMount() {
-        axios.get('/api/signatures')
-            .then((response: SignaturesResponse) => {
-                let signatureIds: number[] = [];
-                response.data.map((signature) => signatureIds.push(signature.id));
-
-                this.setState({ signatureIds });
-            });
+        this.props.requestSignatures();
     }
 
     changeTab(newTab: number) {
         this.setState({ currentTab: newTab });
     }
 
-    changeSelectedSignature(key: number) {
-        this.setState({ selectedSignatureId: key });
+    changeSelectedSignature(selectedSignatureId: number) {
+        this.props.selectSignature(selectedSignatureId);
     }
 
     clearCanvas() {
@@ -77,18 +60,12 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
     }
 
     deleteSignature() {
-        this.props.deleteSignature(this.state.selectedSignatureId);
+        this.props.deleteSignature(this.props.selectedSignatureId);
+        this.props.selectSignature(null);
     }
 
     select() {
-        if (this.state.currentTab == SELECT_SIGNATURE_TAB) {
-            this.props.selectSignature(this.state.selectedSignatureId);
-        }
-        else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
-            const signature = this.signatureCanvas.getTrimmedCanvas().toDataURL();
-            this.uploadSignature(signature);
-        }
-        else {
+        if (this.state.currentTab == UPLOAD_SIGNATURE_TAB) {
             const signature = this.signatureCanvas.toDataURL();
             if (signature === null) {
                 this.setState({ signatureUploaderErrors: 'Please upload a signature' });
@@ -97,6 +74,11 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                 this.uploadSignature(signature);
             }
         }
+        else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
+            const signature = this.signatureCanvas.getTrimmedCanvas().toDataURL();
+            this.uploadSignature(signature);
+        }
+
         this.props.hideModal();
     }
 
@@ -124,9 +106,11 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                         <Tabs activeKey={this.state.currentTab} onSelect={this.changeTab.bind(this)} animation={false} id='select-signature-tabs'>
                             <Tab eventKey={SELECT_SIGNATURE_TAB} title="Select Signature" className="select-signature">
                                 <div className="row">
-                                    {this.state.signatureIds.map((id: number, i: number) => {
+                                    {this.props.signatures.status === Sign.DownloadStatus.InProgress && <Loading />}
+
+                                    {this.props.signatures.status === Sign.DownloadStatus.Complete && this.props.signatures.signatureIds.map((id: number, i: number) => {
                                             let classes = 'col-sm-6 selectable';
-                                            classes += id === this.state.selectedSignatureId ? ' selected' : '';
+                                            classes += id === this.props.selectedSignatureId ? ' selected' : '';
 
                                             return (
                                                 <div className={classes} key={i} onClick={() => this.changeSelectedSignature(id) }>
@@ -136,7 +120,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                                         })
                                     }
 
-                                    { this.state.signatureIds.length == 0 &&
+                                    {this.props.signatures.status === Sign.DownloadStatus.Complete && this.props.signatures.signatureIds.length == 0 &&
                                         <div className="col-xs-12">
                                             <p>No saved signatures</p>
                                         </div>
@@ -168,7 +152,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                         </Tabs>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button bsStyle="warning" disabled={!this.state.selectedSignatureId} onClick={() => this.deleteSignature()}>Delete Signature</Button>
+                        <Button bsStyle="warning" disabled={!this.props.selectedSignatureId} onClick={() => this.deleteSignature()}>Delete Signature</Button>
                         <Button onClick={() => this.props.hideModal()}>Close</Button>
                         <Button bsStyle='primary' onClick={this.select.bind(this)} >Select</Button>
                     </Modal.Footer>
@@ -181,7 +165,9 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
 export default connect(
     (state: Sign.State) => ({
         isVisible: state.modals.showing === 'selectSignature',
-        uploading: false
+        uploading: false,
+        signatures: state.signatures,
+        selectedSignatureId: state.documentViewer.selectedSignatureId,
     }),
     {
         uploadSignature,
@@ -189,6 +175,7 @@ export default connect(
         deleteSignature,
         showModal: showSignatureSelection,
         hideModal: hideSignatureSelection,
-        addSignatureToDocument
+        addSignatureToDocument,
+        requestSignatures,
     }
 )(SignatureSelector)

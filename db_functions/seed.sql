@@ -142,7 +142,8 @@ CREATE TABLE document_data (
 CREATE TABLE document_sets (
     document_set_id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id integer,
-    name text
+    name text,
+    created_at timestamp without time zone DEFAULT now()
 );
 
 

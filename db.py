@@ -265,7 +265,7 @@ def get_user_document_sets(user_id):
     """
     database = get_db()
     query = """
-        SELECT document_set_json(document_set_id) as documents_sets, name as name
+        SELECT document_set_json(document_set_id) as documents_sets, name as name, created_at as created_at
         FROM document_sets sets
         WHERE sets.user_id = %(user_id)s
     """

@@ -49,6 +49,7 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 
     render() {
         const height = (this.props.containerWidth / this.props.viewport.width) * this.props.viewport.height;
+        console.log(this.props.containerWidth, height, this.props)
         return <div className="pdf-page-wrapper" id={`page-view-${this.props.pageNumber}`}>
             { this.props.pageNumber > 0 && <LazyLoad height={ height} offsetVertical={300}>
                    <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  />
@@ -128,7 +129,8 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                         <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true} >
                             <PDFPreview documentId={this.props.documentId} width={120} onSelectPage={this.onSelectPage} pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
                         </Col>
-                        <Col lg={10} md={12} className="drag-container">
+                        <Col lg={10} md={12} className="page-list">
+
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
                                 const signaturesIndexes = Object.keys(this.props.signatures).filter(signatureIndex => this.props.signatures[signatureIndex].pageNumber === index);
 

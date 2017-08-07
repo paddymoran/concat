@@ -136,7 +136,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps> {
                     <DocumentList documentSetId={this.props.documentSetId} />
 
                     { !!this.props.documentIds && !!this.props.documentIds.length && <div className="button-bar">
-                        <Link to={`/documents/${this.props.documentSetId}`} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
+                        <Link to={`/documents/${this.props.documentSetId}/${this.props.documentIds[0]}`} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
                     </div> }
                 </div>
             </FileDropZone>
@@ -147,7 +147,7 @@ class UploadDocuments extends React.Component<UploadDocumentsProps> {
 export default connect(
     (state: Sign.State, ownProps: any) => {
         const { documentSetId } = ownProps.params;
-        
+
         return {
             documentIds: state.documentSets[documentSetId] ? state.documentSets[documentSetId].documentIds : null,
             documentSetId

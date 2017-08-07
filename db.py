@@ -205,16 +205,32 @@ def upsert_user(user):
     Create or update a user
     """
     database = get_db()
-    query = """
-        INSERT INTO users (user_id, name, email)
-        VALUES (%(user_id)s, %(name)s, %(email)s)
-        ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s;
-    """
-    with database.cursor() as cursor:
-        cursor.execute(query, user)
+    if current_app.config.get('USE_DB_UPSERT'):
+        query = """
+            INSERT INTO users (user_id, name, email)
+            VALUES (%(user_id)s, %(name)s, %(email)s)
+            ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s;
+        """
+        with database.cursor() as cursor:
+            cursor.execute(query, user)
+        database.commit()
+    else:
+        try:
+            query = """
+                INSERT INTO users (user_id, name, email)
+                VALUES (%(user_id)s, %(name)s, %(email)s)
+            """
+            with database.cursor() as cursor:
+                cursor.execute(query, user)
 
-    database.commit()
-
+        except:
+            database.rollback()
+            query = """
+                UPDATE users SET name = %(name)s, email = %(email)s where user_id = %(user_id)s;
+            """
+            with database.cursor() as cursor:
+                cursor.execute(query, user)
+        database.commit()
     return
 
 

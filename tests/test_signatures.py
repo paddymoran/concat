@@ -5,7 +5,7 @@ from io import BytesIO
 
 class TestPopulateSignatures(DBTestCase):
 
-    def test_login(self):
+    def test_signatures(self):
         with server.app.app_context():
             upsert_user({
                         'user_id': 1,

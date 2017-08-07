@@ -129,8 +129,8 @@ Documents
 
 
 @app.route('/api/documents', methods=['GET'])
-def get_documents_list(uuid):
-    return jsonify('test_one')
+def get_document_set_list():
+    return jsonify(db.get_user_document_sets(session['user_id']))
 
 
 @app.route('/api/documents', methods=['POST'])
@@ -167,6 +167,7 @@ def get_document(doc_id):
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)
+
 
 @app.route('/api/documents/thumb/<uuid>', methods=['GET'])
 def thumbview(uuid):
@@ -243,7 +244,7 @@ def sign_document():
         signature['signature'] = BytesIO(db.get_signature(signature['signatureId'], session['user_id']))
 
     result = sign(document, args['signatures'])
-    saved_document_id = db.add_document(document_set_id, None, filename, result.read())['document_id']
+    saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
     db.sign_document(session['user_id'], document_id, saved_document_id, saveable)
     return jsonify({'document_id': saved_document_id})
 

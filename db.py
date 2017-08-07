@@ -253,43 +253,15 @@ def get_user_document_sets(user_id):
     """
     database = get_db()
     query = """
-        SELECT * FROM document_sets sets
-        JOIN document_set_mapper set_mapper ON
-            sets.document_set_id = set_mapper.document_id
-        JOIN documents ON
-            set_mapper.document_set_id = documents.document_id
+        SELECT document_set_json(document_set_id) as documents_sets, name as name
+        FROM document_sets sets
         WHERE sets.user_id = %(user_id)s
     """
-    with database.cursor() as cursor:
-        cursor.execute(query, user_id)
-        data = cursor.fetchall()
-
-        return data
-
-
-def get_document_set(user_id, document_set_id):
-    """
-    Get a document, checking the user has permission to access it
-    """
-    database = get_db()
-    query = """
-        SELECT document_id, d.document_set_id, hash, filename
-        FROM documents d
-        JOIN document_sets ds on ds.document_set_id = d.document_set_id
-        JOIN document_data dd on d.document_data_id = dd.document_data_id
-        WHERE user_id = %(user_id)s AND d.document_set_id = %(document_set_id)s
-    """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
-        cursor.execute(query, {
-            'user_id': user_id,
-            'document_set_id': document_set_id
-        })
-        first_row = cursor.fetchall()
+        cursor.execute(query, {'user_id': user_id})
+        data = cursor.fetchall()
+        return [dict(x) for x in data]
 
-        if first_row is None:
-            return None
-
-        return [dict(x) for x in first_row]
 
 def get_document(user_id, document_id):
     """
@@ -299,9 +271,8 @@ def get_document(user_id, document_id):
     query = """
         SELECT document_id, d.document_set_id, hash, filename, data
         FROM documents d
-        JOIN document_sets ds on ds.document_set_id = d.document_set_id
         JOIN document_data dd on d.document_data_id = dd.document_data_id
-        WHERE user_id = %(user_id)s AND d.document_id = %(document_id)s
+        WHERE d.document_id = %(document_id)s
     """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {
@@ -335,22 +306,13 @@ def sign_document(user_id, input_document_id, result_document_id, data):
         database.commit()
 
 
-def get_set_info(user_id, set_id):
+def get_document_set(user_id, set_id):
     """
     Get the info about a document set
     """
     database = get_db()
     query = """
-    SELECT row_to_json(qq) FROM (
-        SELECT
-            %(set_id)s as document_set_id,
-            array_to_json(array_agg(row_to_json(q))) as documents
-        FROM (
-            SELECT d.* FROM document_sets ds
-            JOIN documents d ON ds.document_set_id = d.document_set_id
-            WHERE ds.user_id = %(user_id)s  AND ds.document_set_id = %(set_id)s
-            ) q
-        ) qq
+    SELECT document_set_json(%(set_id)s)
     """
     with database.cursor() as cursor:
         cursor.execute(query, {

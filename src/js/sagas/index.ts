@@ -128,7 +128,7 @@ function *requestDocumentSetSaga() {
         yield put(updateDocumentSet({
             documentSetId: action.payload.documentSetId,
             downloadStatus: Sign.DownloadStatus.Complete,
-            documentIds: data.map((d: any) => d.document_id)
+            documentIds: data.documents.map((d: any) => d.document_id)
         }));
      }
 }

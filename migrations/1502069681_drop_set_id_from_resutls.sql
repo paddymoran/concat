@@ -1,0 +1,1 @@
+update  documents set document_set_id =null where document_id in (Select result_document_id from sign_results);

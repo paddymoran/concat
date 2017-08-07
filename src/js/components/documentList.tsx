@@ -28,17 +28,24 @@ interface DocumentListProps {
     reorderable: boolean;
 };
 
-const A4_RATIO = 1.414;
-
 const THUMBNAIL_WIDTH = 150;
-const THUMBNAIL_HEIGHT = THUMBNAIL_WIDTH * A4_RATIO;
+
 
 class DocumentView extends React.PureComponent<DocumentViewProps> {
+    constructor(props) {
+        super(props);
+        this.removeDocument = this.removeDocument.bind(this);
+    }
+
+    removeDocument() {
+        this.props.removeDocument(this.props.documentId);
+    }
+
     render() {
         return this.props.connectDragSource(
             this.props.connectDropTarget(
                 <div className="document">
-                    {this.props.showRemove && <button className="remove" onClick={() => this.props.removeDocument(this.props.documentId)}>✖</button>}
+                {this.props.showRemove && <button className="button-no-styles remove" onClick={this.removeDocument}><span className="fa fa-trash-o"/></button>}
 
                     <PDFPage pageNumber={0} drawWidth={THUMBNAIL_WIDTH} documentId={this.props.documentId} showLoading={false}/>
                     <div className="filename">{ this.props.document && this.props.document.filename ? this.props.document.filename : '' }</div>
@@ -50,8 +57,8 @@ class DocumentView extends React.PureComponent<DocumentViewProps> {
                             </div>
                         }
                     </CSSTransitionGroup>
-                    
-                    <Link to={`/documents/${this.props.documentSetId}/${this.props.documentId}`}>View</Link>
+
+                    { /** <Link to={`/documents/${this.props.documentSetId}/${this.props.documentId}`}>View</Link> */ }
                 </div>
             )
         );

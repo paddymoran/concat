@@ -1,5 +1,5 @@
 from db import (
-    upsert_user, add_document, get_document, get_set_info,
+    upsert_user, add_document, get_document, get_document_set,
     find_or_create_and_validate_document_set
 )
 from tests import DBTestCase
@@ -38,7 +38,7 @@ class TestDocumentUpload(DBTestCase):
             self.assertEqual(expected_hash, document_info['hash'])
             self.assertEqual(binary_data, document_info['data'].tobytes())
 
-            set_info = get_set_info(USER_ID, set_id)
+            set_info = get_document_set(USER_ID, set_id)
 
             self.assertEqual(len(set_info['documents']), 1)
             self.assertEqual(set_info['documents'][0]['filename'], 'filename')

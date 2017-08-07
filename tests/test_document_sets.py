@@ -1,5 +1,5 @@
 from db import (
-    upsert_user, add_document, get_document, get_set_info,
+    upsert_user, add_document, get_document, get_document_set,
     find_or_create_and_validate_document_set, sign_document
 )
 from tests import DBTestCase
@@ -31,4 +31,4 @@ class TestPopulateSignatures(DBTestCase):
             sign_document(USER_ID, doc1, sign1, {})
             sign_document(USER_ID, sign1, sign2, {})
 
-            print(get_set_info(USER_ID, set_id))
+            self.assertEqual(len(get_document_set(USER_ID, set_id)['documents']), 2)

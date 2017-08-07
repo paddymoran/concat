@@ -140,7 +140,10 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                                         signaturesIndexes={signaturesIndexes}
                                         addSignatureToDocument={this.props.addSignatureToDocument}
                                         selectedSignatureId={this.props.selectedSignatureId}
-                                        viewport={this.props.pageViewports[index] || {height: 1, width: 1}} />
+                                        viewport={this.props.pageViewports[index] || {height: 1, width: 1}}
+                                    >
+                                        <PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={index} viewport={this.props.pageViewports[index] || {height: 1, width: 1}}/>
+                                    </SignaturesPageWrapper>
                                 );
                             })}
                        </Col>
@@ -188,7 +191,6 @@ interface PDFPageWithSignaturesProps {
     signaturesIndexes: string[];
     selectedSignatureId?: number;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
-    viewport: any;
 }
 
 class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesProps> {
@@ -203,7 +205,7 @@ class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesPro
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
 
-        if(this.props.selectedSignatureId && target.tagName==='CANVAS') { // lolololol
+        if (this.props.selectedSignatureId && target.tagName==='CANVAS') { // lolololol
             return generateUUID()
                 .then((id) => {
                     this.props.addSignatureToDocument({
@@ -219,13 +221,12 @@ class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesPro
     }
 
     render() {
-        const children = this.props.children;
+        const child = React.cloneElement(React.Children.toArray(this.props.children)[0], { ref: 'pdf-page' });
 
         return (
             <div className="signature-wrapper" onClick={this.addSelected}>
                 {this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
-                {/*{React.cloneElement(this.props.children, { ref: "pdf-page" })}*/}
-                <PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={this.props.pageNumber} viewport={this.props.viewport}/>
+                {child}
             </div>
         );
     }

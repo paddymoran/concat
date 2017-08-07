@@ -230,7 +230,7 @@ def upsert_user(user):
             """
             with database.cursor() as cursor:
                 cursor.execute(query, user)
-            database.commit()
+        database.commit()
     return
 
 

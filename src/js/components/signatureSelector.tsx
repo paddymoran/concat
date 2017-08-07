@@ -26,8 +26,6 @@ interface SignatureSelectorState {
     signatureUploaderErrors?: string
 }
 
-
-
 const SELECT_SIGNATURE_TAB = 1;
 const DRAW_SIGNATURE_TAB = 2;
 const UPLOAD_SIGNATURE_TAB = 3;

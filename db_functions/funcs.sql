@@ -44,3 +44,14 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
  ) qqq
 
 $$ LANGUAGE sql;
+
+
+
+
+CREATE OR REPLACE FUNCTION delete_document(user_id integer, document_id uuid)
+RETURNS VOID as
+$$
+
+
+
+$$ LANGUAGE sql;

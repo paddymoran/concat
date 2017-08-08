@@ -21,24 +21,7 @@ interface SignatureState {
     yOffset: number;
 }
 
-const style = {
-    border: '1px dashed black',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-};
 
-const handleStyles = {
-    bottomRight: {
-        background: 'black',
-        position: 'absolute',
-        width: '20px',
-        height: '20px',
-        right: '-10px',
-        bottom: '-10px',
-        cursor: 'nw-resize',
-    }
-};
 
 // Keep numbers between 0 and 1
 const boundNumber = (number: number) => {
@@ -60,13 +43,13 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
 
     private static HANDLER_STYLES = {
       bottom: 'handler',
-      bottomLeft: 'handler',
-      bottomRight: 'handler',
+      bottomLeft: 'handler-corner',
+      bottomRight: 'handler-corner',
       left: 'handler',
       right: 'handler',
       top: 'handler',
-      topLeft: 'handler',
-      topRight: 'handler'
+      topLeft: 'handler-corner',
+      topRight: 'handler-corner'
     } ;
 
 
@@ -79,6 +62,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
 
         this.onMove = this.onMove.bind(this);
         this.onResize = this.onResize.bind(this);
+        this.onDelete = this.onDelete.bind(this);
     }
 
     /**
@@ -176,6 +160,10 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
         this.props.moveSignature(moveData);
     }
 
+    onDelete() {
+        this.props.removeSignatureFromDocument({ signatureIndex: this.props.signatureIndex })
+    }
+
     render() {
         const { signature } = this.props;
         const defaults = {
@@ -186,7 +174,6 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
         };
 
         const stylesWithbackground = {
-            ...style,
             background: `url("${signatureUrl(this.props.signature.signatureId)}"`,
             backgroundSize: '100% 100%', // Must come after background
         };
@@ -199,11 +186,10 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
                 onDragStop={this.onMove}
                 onResizeStop={this.onResize}
                 bounds="parent"
-                resizeHandlerStyles={handleStyles}
                 minWidth={Signature.MIN_WIDTH}
                 minHeight={Signature.MIN_HEIGHT}
                 resizeHandlerClasses={Signature.HANDLER_STYLES}
-            ><button onClick={() => this.props.removeSignatureFromDocument({ signatureIndex: this.props.signatureIndex })}>x</button></ReactRnd>
+            ><button className="button-no-style signature-destroy" onClick={this.onDelete}><span className="fa fa-trash-o"/></button></ReactRnd>
         );
     }
 }

@@ -1,0 +1,1 @@
+ALTER table document_sets ADD COLUMN created_at timestamp without time zone DEFAULT now();

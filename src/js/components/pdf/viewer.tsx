@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
 import { signDocument, moveSignature, addSignatureToDocument } from '../../actions';
 import Signature from '../signature';
-import * as AutoAffix from 'react-overlays/lib/Affix'
+import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
 import * as Dimensions from 'react-dimensions';
@@ -60,6 +60,9 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 
 const PDFPageWrapperDimensions = Dimensions()(PDFPageWrapper);
 
+const PDFPreviewDimensions = Dimensions()(PDFPreview);
+
+
 class PDFViewer extends React.Component<PDFViewerProps> {
 
     constructor(props: PDFViewerProps) {
@@ -98,7 +101,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
 
     render() {
         return (
-            <div className='pdf-viewer'>
+            <div className='pdf-viewer' >
                 <Modal show={this.props.signRequestStatus === Sign.DownloadStatus.InProgress} onHide={() => {}}>
                     <Modal.Body>
                         <div className='loading' />
@@ -106,7 +109,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                     </Modal.Body>
                 </Modal>
 
-                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
+               <AutoAffix viewportOffsetTop={0} offsetTop={50}>
                     <div className="controls">
                         <div className="container">
                             {!!this.props.selectedSignatureId && <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId} />}
@@ -124,11 +127,17 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                 </AutoAffix>
 
                 <div className='pdf-container container'>
-                    <Row>
-                        <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true} >
-                            <PDFPreview documentId={this.props.documentId} width={120} onSelectPage={this.onSelectPage} pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
+                    <Row  >
+                        <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true}  >
+                         <AutoAffix viewportOffsetTop={50} offsetTop={0}  bottomClassName="bottom" affixClassName="affixed">
+                             <div>
+                            <PDFPreviewDimensions documentId={this.props.documentId} width={120} onSelectPage={this.onSelectPage} pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
+                            </div>
+                          </AutoAffix>
+
                         </Col>
-                        <Col lg={10} md={12} className="drag-container">
+                        <Col lg={10} md={12} className="page-list">
+
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
                                 const signaturesIndexes = Object.keys(this.props.signatures).filter(signatureIndex => this.props.signatures[signatureIndex].pageNumber === index);
 

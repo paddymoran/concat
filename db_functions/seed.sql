@@ -44,6 +44,21 @@ COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 SET search_path = public, pg_catalog;
 
 --
+-- Name: delete_document(integer, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION delete_document(user_id integer, document_id uuid) RETURNS void
+    LANGUAGE sql
+    AS $_$
+DELETE FROM document_data dd
+USING documents d 
+JOIN document_sets ds ON ds.document_set_id = d.document_set_id
+WHERE d.document_data_id = dd.document_data_id and user_id = $1 AND document_id = $2 ;
+
+$_$;
+
+
+--
 -- Name: document_hash(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -54,6 +69,44 @@ BEGIN
     NEW.hash = encode(digest(data, 'sha256'), 'hex') FROM document_data WHERE document_data_id = NEW.document_data_id;
     RETURN NEW;
 END $$;
+
+
+--
+-- Name: document_set_json(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION document_set_json(uuid) RETURNS json
+    LANGUAGE sql
+    AS $_$
+WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generation) as (
+    SELECT t.document_id, null::uuid, t.document_id,  document_set_id, 0
+    FROM documents t
+    UNION
+   SELECT result_document_id, input_document_id,original_id, document_set_id, generation + 1
+    FROM sign_results tt, docs t
+    WHERE t.document_id = tt.input_document_id 
+)
+    SELECT row_to_json(qqq) FROM (
+        SELECT
+            $1 as document_set_id,
+            array_to_json(array_agg(row_to_json(qq))) as documents
+    FROM (
+    SELECT d.document_id, filename, created_at, versions
+    FROM (
+    SELECT
+    DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions
+    FROM docs 
+    WHERE document_set_id = $1
+    WINDOW wnd AS (
+       PARTITION BY original_id ORDER BY generation ASC
+       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+    )
+    ) q
+    JOIN documents d on d.document_id = q.document_id
+    ) qq
+ ) qqq
+
+$_$;
 
 
 SET default_tablespace = '';
@@ -88,7 +141,9 @@ CREATE TABLE document_data (
 
 CREATE TABLE document_sets (
     document_set_id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id integer
+    user_id integer,
+    name text,
+    created_at timestamp without time zone DEFAULT now()
 );
 
 
@@ -102,7 +157,8 @@ CREATE TABLE documents (
     document_data_id uuid,
     filename text,
     hash text,
-    created_at timestamp without time zone DEFAULT now()
+    created_at timestamp without time zone DEFAULT now(),
+    order_index integer DEFAULT 0
 );
 
 
@@ -304,7 +360,7 @@ ALTER TABLE ONLY document_sets
 --
 
 ALTER TABLE ONLY documents
-    ADD CONSTRAINT documents_document_data_id_fk FOREIGN KEY (document_data_id) REFERENCES document_data(document_data_id);
+    ADD CONSTRAINT documents_document_data_id_fk FOREIGN KEY (document_data_id) REFERENCES document_data(document_data_id) ON DELETE CASCADE;
 
 
 --
@@ -361,12 +417,6 @@ ALTER TABLE ONLY sign_results
 
 ALTER TABLE ONLY signatures
     ADD CONSTRAINT signatures_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
-
-
---
--- Name: public; Type: ACL; Schema: -; Owner: -
---
-
 
 
 --

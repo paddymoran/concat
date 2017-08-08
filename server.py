@@ -146,6 +146,15 @@ def document_upload():
         raise InvalidUsage(e.message, status_code=500)
 
 
+@app.route('/api/document/<doc_id>', methods=['DELETE'])
+def remove_document_from_set(set_id, document_id, user_id):
+    try:
+        db.remove_document_from_set(set_id, document_id, user_id)
+        return jsonify({'message': 'Document removed'})
+    except Exception as e:
+        raise InvalidUsage('Failed to removed document', status_code=500)
+
+
 @app.route('/api/documents/<doc_id>', methods=['GET'])
 def get_documents(doc_id):
     try:
@@ -247,7 +256,6 @@ def sign_document():
     saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
     db.sign_document(session['user_id'], document_id, saved_document_id, saveable)
     return jsonify({'document_id': saved_document_id})
-
 
 
 

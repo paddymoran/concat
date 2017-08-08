@@ -135,6 +135,18 @@ def add_document(set_id, document_id, filename, binary_file_data):
         }
 
 
+def remove_document_from_set(set_id, document_id, uesr_id):
+    database = get_db()
+    with database.cursor() as cursor:
+        # Create the document data record
+        delete_query = """
+            SELECT delete_document(%(document_id)s, %(user_id)s)
+        """
+        db.commit()
+
+
+
+
 def get_signatures_for_user(user_id):
     """
     Get all signatures for a user
@@ -253,7 +265,7 @@ def get_user_document_sets(user_id):
     """
     database = get_db()
     query = """
-        SELECT document_set_json(document_set_id) as documents_sets, name as name
+        SELECT document_set_json(document_set_id) as documents_sets, name as name, created_at as created_at
         FROM document_sets sets
         WHERE sets.user_id = %(user_id)s
     """

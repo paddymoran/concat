@@ -1,13 +1,14 @@
 .react-draggable{
     z-index: 10;
 }
-
+$control-height:50px;
 $background: #fff;
 .controls{
     width:100%;
     background-color:$gray-lighter;
-    height:50px;
-    z-index: 10;
+    height: $control-height;
+    z-index: 20;
+        box-shadow: 0 4px 2px -2px $gray-light;
 
     .container{
         text-align:center;
@@ -22,9 +23,7 @@ $background: #fff;
 .drag-container{
 
 }
-.pdf-container{
-    padding: 30px 0;
-}
+
 .pdf-screen{
     background: $background;
 
@@ -36,17 +35,23 @@ $background: #fff;
             text-align: center;
         }
 
+        .page-list{
+            padding-top:30px;
+        }
+
+        .affixed .pdf-preview-panel{
+             height: calc(100vh - #{$control-height + 8 + 8});
+        }
+
         .pdf-preview-panel {
             background: #fff;
-            margin: 8px;
+            margin: 8px 0;
             overflow: auto;
-            position: fixed;
-            top: 100px;
-            bottom:50px;
-                width: 160px;
+            height: calc(100vh - #{$header-height + $control-height + 8 + 8});
+                overflow-x: hidden;
             .pdf-thumbnail {
                 position: relative;
-
+                margin-bottom: 16px;
 
                 .pdf-thumbnail-number {
                     background: $dark;
@@ -83,8 +88,8 @@ $background: #fff;
 
         .pdf-page-wrapper {
                 position:relative;
-                    box-shadow:3px 3px 6px rgba(0, 0, 0, 0.3);
-                    background-color: #fff;
+                box-shadow:0 0 10px 2px rgba(0, 0, 0, 0.3);
+                background-color: #fff;
             }
 
         .pdf-page-number{

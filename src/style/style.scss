@@ -9,7 +9,7 @@ $light-red: rgb(197, 27, 36);
 $label-color: $text-color;
 $input-border-width: 2px;
 $body-bg:  #fff;
-$font-size-base: 17px;
+$font-size-base: 14px;
 $btn-primary-color: white;
 $btn-primary-bg: $light-red;
 $btn-primary-border: $light-red;
@@ -58,6 +58,7 @@ $fa-font-path: '~font-awesome/fonts';
 @import "beta-ribbon";
 @import "documents";
 @import "dropzone";
+@import "signatures";
 
 html {
   position: relative;
@@ -146,4 +147,12 @@ a {
             padding: 0 20px;
         }
     }
+}
+
+.button-no-style {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: inherit;
 }

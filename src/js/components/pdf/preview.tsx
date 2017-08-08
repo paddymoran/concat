@@ -6,7 +6,7 @@ import LazyLoad from 'react-lazy-load';
 
 interface PDFPreviewProps {
     // activePageNumber: number;
-    width: number;
+    containerWidth: number;
     documentId: string;
     scale?: number;
     onSelectPage: Function;
@@ -20,14 +20,14 @@ export default class PDFPreview extends React.PureComponent<PDFPreviewProps> {
         return (
             <div className='pdf-preview-panel'>
                 { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
-                    // let classes = index === this.props.activePageNumber ? 'pdf-thumbnail selectable selected' : 'pdf-thumbnail selectable';
                     let classes = 'pdf-thumbnail selectable';
-
+                    const width = this.props.containerWidth - 30;
+                    const height = this.props.pageViewports[index] ?  (width / this.props.pageViewports[index].width) * this.props.pageViewports[index].height : 100;
                     return (
                         <div className={classes} key={index}  onClick={() => this.props.onSelectPage(index)}>
                             <div className='pdf-thumbnail-number'>{index + 1}</div>
-                            <LazyLoad offsetVertical={100} height={200}>
-                                <PDFPage pageNumber={index} documentId={this.props.documentId} drawWidth={120} />
+                            <LazyLoad offsetVertical={100} height={height}>
+                                <PDFPage pageNumber={index} documentId={this.props.documentId} drawWidth={width } />
                             </LazyLoad>
                         </div>
                     );

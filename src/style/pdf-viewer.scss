@@ -1,13 +1,14 @@
 .react-draggable{
     z-index: 10;
 }
-$control-height:65px;
+$control-height:50px;
 $background: #fff;
 .controls{
     width:100%;
     background-color:$gray-lighter;
     height: $control-height;
-    z-index: 10;
+    z-index: 20;
+        box-shadow: 0 4px 2px -2px $gray-light;
 
     .container{
         text-align:center;
@@ -38,17 +39,19 @@ $background: #fff;
             padding-top:30px;
         }
 
+        .affixed .pdf-preview-panel{
+             height: calc(100vh - #{$control-height + 8 + 8});
+        }
+
         .pdf-preview-panel {
             background: #fff;
-            margin: 8px;
+            margin: 8px 0;
             overflow: auto;
-            position: fixed;
-            top: $header-height + $control-height;
-            bottom:0px;
-            width: 160px;
+            height: calc(100vh - #{$header-height + $control-height + 8 + 8});
+                overflow-x: hidden;
             .pdf-thumbnail {
                 position: relative;
-
+                margin-bottom: 16px;
 
                 .pdf-thumbnail-number {
                     background: $dark;

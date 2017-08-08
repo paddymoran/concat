@@ -18,6 +18,9 @@ import * as Dimensions from 'react-dimensions';
 import { signatureUrl } from '../../utils';
 import { generateUUID } from '../uuid';
 import { DragSource } from 'react-dnd';
+import * as Helpers from 'react-scroll/modules/mixins/Helpers';
+
+
 
 Promise.config({ cancellation: true });
 
@@ -49,7 +52,7 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 
     render() {
         const height = (this.props.containerWidth / this.props.viewport.width) * this.props.viewport.height;
-        return <div className="pdf-page-wrapper" id={`page-view-${this.props.pageNumber}`}>
+        return <div className="pdf-page-wrapper" id={`page-view-${this.props.pageNumber}`} name={`page-view-${this.props.pageNumber}`}>
             { this.props.pageNumber > 0 && <LazyLoad height={ height} offsetVertical={300}>
                    <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  />
              </LazyLoad> }
@@ -202,6 +205,7 @@ interface PDFPageWithSignaturesProps {
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
 }
 
+@Helpers.Element
 class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesProps> {
     constructor(props: PDFPageWithSignaturesProps) {
         super(props);
@@ -234,8 +238,8 @@ class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesPro
 
         return (
             <div className="signature-wrapper" onClick={this.addSelected}>
-                {this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
-                {child}
+                { this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />) }
+                { child }
             </div>
         );
     }

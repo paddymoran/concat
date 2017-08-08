@@ -63,25 +63,22 @@ $background: #fff;
                     vertical-align: middle;
                     color: white;
                     text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
-                        z-index: 2;
+                    z-index: 2;
+                    transition: background-color 300ms ease-in-out;
                 }
 
                 &.selectable {
                     cursor: pointer;
+                      border: 5px solid $dark;
+                      transition: border 300ms ease-in-out;
+                   &.active {
+                        border: 5px solid $light-red;
+                      .pdf-thumbnail-number{
+                        background-color: $light-red;
+                      }
 
-                    canvas {
-                        border: 5px solid $dark;
                     }
 
-                    &.selected {
-                        canvas {
-                            border: 5px solid $light-red;
-                        }
-
-                        .pdf-thumbnail-number {
-                            background: $light-red;
-                        }
-                    }
                 }
             }
         }

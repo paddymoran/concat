@@ -11,6 +11,7 @@ import { DragSource, DropTarget } from 'react-dnd';
 interface ConnectedDocumentViewProps {
     documentId: string;
     showRemove: boolean;
+    index: number;
 }
 
 interface DocumentViewProps extends ConnectedDocumentViewProps {
@@ -32,7 +33,7 @@ const THUMBNAIL_WIDTH = 150;
 
 
 class DocumentView extends React.PureComponent<DocumentViewProps> {
-    constructor(props) {
+    constructor(props: DocumentViewProps) {
         super(props);
         this.removeDocument = this.removeDocument.bind(this);
     }
@@ -74,7 +75,7 @@ const ConnectedDocumentView = connect(
 )(DocumentView);
 
 
-const documentDragSource = {
+const documentDragSource: __ReactDnd.DragSourceSpec<ConnectedDocumentViewProps> = {
     beginDrag(props) {
         return {
             documentId: props.documentId,
@@ -84,7 +85,7 @@ const documentDragSource = {
 };
 
 
-const documentDragTarget = {
+const documentDragTarget: __ReactDnd.DropTargetSpec<ConnectedDocumentViewProps> = {
     hover(dropTargetProps, monitor, component) {
         const dragItem = monitor.getItem();
 

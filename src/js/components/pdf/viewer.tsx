@@ -186,24 +186,7 @@ class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> 
     }
 }
 
-const signatureSource = {
-    beginDrag(props: AddSignatureControlProps) {
-        return {
-            signatureId: props.signatureId
-        };
-    }
-};
-
-const DraggableAddSignatureControl = DragSource(
-    Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT,
-    signatureSource,
-    (connect, monitor) => ({
-        connectDragSource: connect.dragSource(),
-        isDragging: monitor.isDragging()
-    })
-)(AddSignatureControl);
-
-interface PDFPageWithSignaturesProps {
+interface SignaturesPageWrapperProps {
     pageNumber: number;
     signaturesIndexes: string[];
     selectedSignatureId?: number;
@@ -211,8 +194,8 @@ interface PDFPageWithSignaturesProps {
     connectDropTarget: Function;
 }
 
-class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesProps> {
-    constructor(props: PDFPageWithSignaturesProps) {
+class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperProps> {
+    constructor(props: SignaturesPageWrapperProps) {
         super(props);
         this.addSelected = this.addSelected.bind(this);
     }
@@ -252,7 +235,28 @@ class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesPro
     }
 }
 
-const signatureDropTarget = {
+interface SignatureDragSourceProps {
+    signatureId: number;
+}
+
+const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {
+    beginDrag(props) {
+        return {
+            signatureId: props.signatureId
+        };
+    }
+};
+
+const DraggableAddSignatureControl = DragSource(
+    Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT,
+    signatureSource,
+    (connect, monitor) => ({
+        connectDragSource: connect.dragSource(),
+        isDragging: monitor.isDragging()
+    })
+)(AddSignatureControl);
+
+const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
     drop(props, monitor, pageComponent) {
         const { signatureId } = monitor.getItem();
 
@@ -275,15 +279,14 @@ const signatureDropTarget = {
         const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
         const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
         
-        generateUUID()
-            .then(signatureIndex =>
-                props.addSignatureToDocument({
-                    signatureIndex,
-                    signatureId,
-                    pageNumber: props.pageNumber,
-                    xOffset: signatureXOffset,
-                    yOffset: signatureYOffset,
-                }))
+        generateUUID().then(signatureIndex =>
+            props.addSignatureToDocument({
+                signatureIndex,
+                signatureId,
+                pageNumber: props.pageNumber,
+                xOffset: signatureXOffset,
+                yOffset: signatureYOffset,
+            }))
     }
 };
 

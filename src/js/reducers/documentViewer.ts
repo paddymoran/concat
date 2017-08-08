@@ -39,7 +39,10 @@ function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions
 
     return {
         ...state,
-        signatures: { ...state.signatures, [action.payload.signatureIndex]: newSignature }
+        signatures: {
+            ...state.signatures,
+            [action.payload.signatureIndex]: newSignature
+        }
     };
 }
 

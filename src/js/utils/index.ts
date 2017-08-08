@@ -5,3 +5,15 @@ export function findSetForDocument(documentSets: Sign.DocumentSets, documentId: 
 export function signatureUrl(signatureId: number) {
     return `/api/signatures/${signatureId}`;
 }
+
+export function boundNumber(number: number, min: number, max: number) {
+    if (number < min) {
+        return min;
+    }
+
+    if (number > max) {
+        return max;
+    }
+
+    return number;
+}

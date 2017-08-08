@@ -15,7 +15,7 @@ import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
 import * as Dimensions from 'react-dimensions';
-import { signatureUrl } from '../../utils';
+import { signatureUrl, boundNumber } from '../../utils';
 import { generateUUID } from '../uuid';
 import { DragSource, DropTarget } from 'react-dnd';
 
@@ -144,7 +144,6 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                                 return (
                                     <DropTargetSignaturesPageWrapper
                                         key={index}
-                                        documentId={this.props.documentId}
                                         pageNumber={index}
                                         signaturesIndexes={signaturesIndexes}
                                         addSignatureToDocument={this.props.addSignatureToDocument}
@@ -205,7 +204,6 @@ const DraggableAddSignatureControl = DragSource(
 )(AddSignatureControl);
 
 interface PDFPageWithSignaturesProps {
-    documentId: string;
     pageNumber: number;
     signaturesIndexes: string[];
     selectedSignatureId?: number;
@@ -233,7 +231,6 @@ class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesPro
                         signatureIndex: id,
                         signatureId: this.props.selectedSignatureId,
                         pageNumber: this.props.pageNumber,
-                        documentId: this.props.documentId,
                         xOffset: offsetX / rect.width,
                         yOffset: offsetY / rect.height
                     })
@@ -270,9 +267,13 @@ const signatureDropTarget = {
         const centeredSignatureX = sigantureX - (Sign.DefaultSignatureSize.WIDTH / 2);
         const centeredSignatureY = sigantureY - (Sign.DefaultSignatureSize.HEIGHT / 2);
 
+        // Keep signature offsets within an expecptable bounds
+        const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - Sign.DefaultSignatureSize.WIDTH);
+        const boundCenteredSignatureY = boundNumber(centeredSignatureY, 0, pageBounds.height - Sign.DefaultSignatureSize.HEIGHT);
+
         // Convert the centered signature position to ratios
-        const signatureXOffset = centeredSignatureX / pageBounds.width;
-        const signatureYOffset = centeredSignatureY / pageBounds.height;
+        const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
+        const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
         
         generateUUID()
             .then(signatureIndex =>
@@ -280,7 +281,6 @@ const signatureDropTarget = {
                     signatureIndex,
                     signatureId,
                     pageNumber: props.pageNumber,
-                    documentId: props.documentId,
                     xOffset: signatureXOffset,
                     yOffset: signatureYOffset,
                 }))

@@ -169,8 +169,8 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
         const defaults = {
             x: 0,
             y: 0,
-            width: 200,
-            height: 100
+            width: Sign.DefaultSignatureSize.WIDTH,
+            height: Sign.DefaultSignatureSize.HEIGHT
         };
 
         const stylesWithbackground = {

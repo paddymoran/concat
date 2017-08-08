@@ -167,13 +167,21 @@ class PDFViewer extends React.Component<PDFViewerProps> {
 interface AddSignatureControlProps {
     signatureId: number;
     connectDragSource: Function;
+    isDragging: boolean;
 }
 
 class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> {
     render() {
+        const classes = 'signature-icon' + (this.props.isDragging ? ' dragging' : '');
+
+        const dragStyles = {
+            // width: Sign.DefaultSignatureSize.WIDTH,
+            // height: Sign.DefaultSignatureSize.HEIGHT,
+        };
+
         return this.props.connectDragSource(
-            <div className="signature-icon">
-                <img src={signatureUrl(this.props.signatureId)} />
+            <div className={classes}>
+                <img src={signatureUrl(this.props.signatureId)} style={this.props.isDragging ? dragStyles : {}}/>
             </div>
         );
     }
@@ -236,12 +244,14 @@ class SignaturesPageWrapper extends React.PureComponent<PDFPageWithSignaturesPro
     render() {
         const child = React.cloneElement(React.Children.toArray(this.props.children)[0], { ref: 'pdf-page' });
 
-        return this.props.connectDropTarget(
+        const body = (
             <div className="signature-wrapper">
                 {this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
                 {child}
             </div>
         );
+
+        return this.props.connectDropTarget(body);
     }
 }
 

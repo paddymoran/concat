@@ -9,6 +9,9 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
         case Sign.Actions.Types.SELECT_SIGNATURE:
             return selectSignature(state, action);
 
+        case Sign.Actions.Types.SELECT_INITITAL:
+            return selectInitial(state, action);
+
         case Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT:
             return addSignatureToDocument(state, action);
 
@@ -23,6 +26,7 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
 
         case Sign.Actions.Types.SET_ACTIVE_PAGE:
             return setActivePage(state, action);
+        
         default:
             return state;
     }
@@ -30,6 +34,13 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
 
 function selectSignature(state: Sign.DocumentViewer, action: Sign.Actions.SelectSignature): Sign.DocumentViewer {
     return { ...state, selectedSignatureId: action.payload.signatureId };
+}
+
+function selectInitial(state: Sign.DocumentViewer, action: Sign.Actions.SelectInitial): Sign.DocumentViewer {
+    return {
+        ...state,
+        selectedInitialId: action.payload.initialId
+    };
 }
 
 function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions.AddSignatureToDocument): Sign.DocumentViewer {

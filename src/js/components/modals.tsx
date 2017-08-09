@@ -1,5 +1,5 @@
 import  * as React from "react";
-import { SignatureModal } from './signatureSelector';
+import { SignatureModal, InitialsModal } from './signatureSelector';
 import { connect } from 'react-redux';
 import { closeShowingModal } from '../actions/index';
 
@@ -7,9 +7,14 @@ class Modals extends React.PureComponent<any>{
     render() {
         switch(this.props.showing){
             case 'selectSignature':
-                return <SignatureModal hideModal={this.props.closeModal}/>
+                return <SignatureModal hideModal={this.props.closeModal} />
+            
+            case 'selectInitial':
+                return <InitialsModal hideModal={this.props.closeModal} />
+            
+            default:
+                return false;
         }
-        return false;
     }
 }
 

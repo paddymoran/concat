@@ -4,7 +4,7 @@ import * as Promise from 'bluebird';
 import { Button, Modal } from 'react-bootstrap';
 import PDFPreview from './preview';
 import PDFPage from './page';
-import { SignatureButton } from '../signatureSelector';
+import { SignatureButton, InitialButton } from '../signatureSelector';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
 import { signDocument, moveSignature, addSignatureToDocument, setActivePage } from '../../actions';
@@ -122,8 +122,8 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                             {!!this.props.selectedSignatureId && <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId} />}
 
                             <SignatureButton />
+                            <InitialButton />
 
-                            <div><Button>Add Initials</Button></div>
                             <div><Button>Add Date</Button></div>
 
                             <div>

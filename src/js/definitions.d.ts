@@ -69,6 +69,7 @@ declare namespace Sign {
     interface DocumentViewer {
         signRequestStatus: DownloadStatus;
         selectedSignatureId?: number;
+        selectedInitialId?: number;
         signatures: DocumentSignatures;
         documents?: {
             [documentId: string] : {
@@ -152,9 +153,11 @@ declare namespace Sign.Actions {
         UPDATE_PDF_PAGE_TO_STORE = 'UPDATE_PDF_PAGE_TO_STORE',
         UPLOAD_SIGNATURE = 'UPLOAD_SIGNATURE',
         SHOW_SIGNATURE_SELECTION = 'SHOW_SIGNATURE_SELECTION',
+        SHOW_INITIAL_SELECTION_MODAL = 'SHOW_INITIAL_SELECTION_MODAL',
         DELETE_SIGNATURE = 'DELETE_SIGNATURE',
 
         SELECT_SIGNATURE = 'SELECT_SIGNATURE',
+        SELECT_INITITAL = 'SELECT_INITITAL',
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
         MOVE_SIGNATURE = 'MOVE_SIGNATURE',
         REMOVE_SIGNATURE_FROM_DOCUMENT = 'REMOVE_SIGNATURE_FROM_DOCUMENT',
@@ -262,6 +265,10 @@ declare namespace Sign.Actions {
         signatureId: number;
     }
 
+    interface SelectInitialPayload {
+        initialId: number;
+    }
+
     interface AddSignatureToDocumentPayload {
         signatureIndex: string;
         signatureId: number;
@@ -332,6 +339,7 @@ declare namespace Sign.Actions {
     interface RequestDocumentPageAction extends ActionCreator<RequestDocumentPagePayload> {}
 
     interface SelectSignature extends ActionCreator<SelectSignaturePayload> {}
+    interface SelectInitial extends ActionCreator<SelectInitialPayload> {}
     interface AddSignatureToDocument extends ActionCreator<AddSignatureToDocumentPayload> {}
     interface MoveSignature extends ActionCreator<MoveSignaturePayload> {}
     interface RemoveSignatureFromDocument extends ActionCreator<RemoveSignatureFromDocumentPayload> {}
@@ -349,6 +357,7 @@ declare namespace Sign.Actions {
     interface SetActivePage extends ActionCreator<SetActivePagePayload> {}
 
     interface CloseShowingModal extends Action {}
+    interface ShowInitialSelectionModal extends Action {}
 }
 
 declare module 'pdfjs-dist/webpack' {

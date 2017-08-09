@@ -30,7 +30,7 @@ function setSignatureIds(state: Sign.Signatures, action: Sign.Actions.SetSignatu
         signatureIds: action.payload.signatureIds,
         initialIds: action.payload.initialIds
     };
-
+}
 
 
 function deleteSignature(state: Sign.Signatures, action: Sign.Actions.DeleteSignature): Sign.Signatures {
@@ -39,3 +39,4 @@ function deleteSignature(state: Sign.Signatures, action: Sign.Actions.DeleteSign
         signatureIds: state.signatureIds.filter(id => id !== action.payload.signatureId),
         initialIds: state.initialIds.filter(id => id !== action.payload.signatureId)
     };
+}

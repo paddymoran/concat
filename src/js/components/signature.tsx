@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
-import { DragSource } from 'react-dnd';
 import ReactRnd from 'react-rnd';
 import { moveSignature, removeSignatureFromDocument } from '../actions';
 import { connect } from 'react-redux';

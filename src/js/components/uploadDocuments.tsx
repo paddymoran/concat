@@ -3,30 +3,13 @@ import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
 import { addDocument, requestDocumentSet, createDocumentSet } from '../actions';
-import axios from 'axios';
 import { generateUUID } from './uuid';
 import  { Link } from 'react-router';
-import PDFPage from './pdf/page';
 
 interface UploadDocumentsProps {
     documentIds: string[];
     addDocument: (payload: Sign.Actions.AddDocumentPayload) => void;
     createDocumentSet: (payload: Sign.Actions.DocumentSetPayload) => void;
-    documentSetId: string;
-}
-
-const eachSeries = (arr: Array<any>, iteratorFn: Function) => arr.reduce(
-    (p, item) => p.then(() => iteratorFn(item)),
-    Promise.resolve()
-);
-
-interface DocumentSetViewProps {
-    params: {
-        documentSetId: string;
-    }
-}
-
-interface ConnectedDocumentSetProps {
     documentSetId: string;
 }
 

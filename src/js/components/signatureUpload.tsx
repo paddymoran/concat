@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Button, Modal, Tabs, Tab, ControlLabel, FormGroup, FormControl } from 'react-bootstrap';
 
 const removeImageBackground = (canvas: HTMLCanvasElement, file: File, finished: (imageData: ImageData) => void) => {
     const context = canvas.getContext('2d');

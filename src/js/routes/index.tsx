@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IndexRoute, Route, Router, RouteComponent } from 'react-router';
+import { IndexRoute, Route } from 'react-router';
 import App from '../components/app';
 import SelectWorkflow from '../components/selectWorkflow';
 import DocumentView from '../components/documentView';

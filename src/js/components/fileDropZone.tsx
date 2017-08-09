@@ -22,7 +22,7 @@ const fileTarget = {
         const item = monitor.getItem() as MonitorItem;
         props.onDrop(item.files.filter(f => f.type === 'application/pdf'));
     },
-    hover(props: any, monitor: any, component: any) {
+    hover(props: any) {
        if(props.onOver){
             props.onOver()
        }

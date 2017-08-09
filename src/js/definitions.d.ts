@@ -70,6 +70,11 @@ declare namespace Sign {
         signRequestStatus: DownloadStatus;
         selectedSignatureId?: number;
         signatures: DocumentSignatures;
+        documents?: {
+            [documentId: string] : {
+                activePage: number;
+            }
+        }
     }
 
     interface PDFStore {
@@ -162,6 +167,7 @@ declare namespace Sign.Actions {
 
         SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
         GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
+        SET_ACTIVE_PAGE = 'SET_ACTIVE_PAGE',
     }
 
     interface ActionCreator<T> {
@@ -299,6 +305,11 @@ declare namespace Sign.Actions {
         status?: Sign.DownloadStatus;
     }
 
+    interface SetActivePagePayload {
+        documentId: string;
+        pageNumber: number;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -327,6 +338,7 @@ declare namespace Sign.Actions {
 
     interface RequestSignatures extends Action {}
     interface SetSignatureIds extends ActionCreator<SetSignatureIdsPayload> {}
+    interface SetActivePage extends ActionCreator<SetActivePagePayload> {}
 }
 
 declare module 'pdfjs-dist/webpack' {

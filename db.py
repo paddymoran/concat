@@ -152,21 +152,17 @@ def get_signatures_for_user(user_id):
     Get all signatures for a user
     """
     database = get_db()
-    with database.cursor() as cursor:
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         query = """
-            SELECT signature_id
+            SELECT signature_id, type
             FROM signatures
             WHERE user_id = %(user_id)s
+                AND (type = 'signature' OR type = 'initial')
                 AND deleted IS FALSE
         """
         cursor.execute(query, {'user_id': user_id})
         signatures = cursor.fetchall()
-        return_data = []
-
-        for signature in signatures:
-            return_item = {'id': signature[0]}
-            return_data.append(return_item)
-        return return_data
+        return [dict(x) for x in signatures]
 
 
 def get_signature(signature_id, user_id):

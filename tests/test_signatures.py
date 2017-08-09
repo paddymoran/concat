@@ -13,11 +13,11 @@ class TestPopulateSignatures(DBTestCase):
                         'email': 'signatureuser@email.com'
                         })
 
-            add_signature(1, b'abc')
+            add_signature(1, b'abc', 'signature')
             signatures = get_signatures_for_user(1)
             self.assertEqual(len(signatures), 1)
             self.assertEqual(get_signature(signatures[0]['signature_id'], 1).tobytes(), b'abc')
 
-            add_signature(1, b'abcd')
+            add_signature(1, b'abcd', 'signature')
             signatures = get_signatures_for_user(1)
             self.assertEqual(len(signatures), 2)

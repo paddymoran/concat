@@ -9,7 +9,7 @@ import * as Axios from 'axios';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import { signDocument, moveSignature, addSignatureToDocument } from '../../actions';
+import { signDocument, moveSignature, addSignatureToDocument, setActivePage } from '../../actions';
 import Signature from '../signature';
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
@@ -18,6 +18,8 @@ import * as Dimensions from 'react-dimensions';
 import { signatureUrl, boundNumber } from '../../utils';
 import { generateUUID } from '../uuid';
 import { DragSource, DropTarget } from 'react-dnd';
+import * as Waypoint from 'react-waypoint';
+
 
 Promise.config({ cancellation: true });
 
@@ -35,6 +37,7 @@ interface PDFViewerProps extends ConnectedPDFViewerProps {
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
     moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
+    setActivePage: (payload: Sign.Actions.SetActivePagePayload) => void;
 }
 
 interface PDFPageWrapperProps {
@@ -42,19 +45,26 @@ interface PDFPageWrapperProps {
     viewport: Sign.Viewport;
     pageNumber: number;
     containerWidth: number;
+    setActivePage: Function;
 }
 
 
 class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 
     render() {
-        const height = (this.props.containerWidth / this.props.viewport.width) * this.props.viewport.height;
-        return <div className="pdf-page-wrapper" id={`page-view-${this.props.pageNumber}`}>
+        const height = ((this.props.containerWidth / this.props.viewport.width) * this.props.viewport.height) | 0;
+        let className = "pdf-page-wrapper ";
+        if(height) {
+            className += "loaded"
+        }
+        return <Waypoint topOffset='50px' bottomOffset={'50%'} onEnter={({ previousPosition, currentPosition, event }) => { this.props.setActivePage(this.props.pageNumber) }} >
+                  <div className={className} id={`page-view-${this.props.pageNumber}`} >
             { this.props.pageNumber > 0 && <LazyLoad height={ height} offsetVertical={300}>
-                   <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  />
+                   <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber} />
              </LazyLoad> }
-            { this.props.pageNumber === 0 &&  <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  /> }
+             { this.props.pageNumber === 0 &&  <div style={{height: height}}><PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  /></div> }
         </div>
+        </Waypoint>
     };
 }
 
@@ -66,12 +76,14 @@ const PDFPreviewDimensions = Dimensions()(PDFPreview);
 class PDFViewer extends React.Component<PDFViewerProps> {
     constructor(props: PDFViewerProps) {
         super(props);
-        this.onSelectPage = this.onSelectPage.bind(this);
+        this.setActivePage = this.setActivePage.bind(this);
     }
 
-    onSelectPage(pageNumber: number) {
-        //sucks remove later
-        document.querySelector(`#page-view-${pageNumber}`).scrollIntoView();
+    setActivePage(pageNumber: number) {
+         this.props.setActivePage({
+            documentId: this.props.documentId,
+            pageNumber
+        })
     }
 
 
@@ -126,9 +138,9 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                 <div className='pdf-container container'>
                     <Row  >
                         <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true}  >
-                         <AutoAffix viewportOffsetTop={50} offsetTop={0}  bottomClassName="bottom" affixClassName="affixed">
+                         <AutoAffix viewportOffsetTop={50} offsetTop={0}  bottomClassName="bottom" affixClassName="affixed" >
                              <div>
-                            <PDFPreviewDimensions documentId={this.props.documentId} width={120} onSelectPage={this.onSelectPage} pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
+                            <PDFPreviewDimensions documentId={this.props.documentId} width={120}  pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
                             </div>
                           </AutoAffix>
 
@@ -147,7 +159,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                                         selectedSignatureId={this.props.selectedSignatureId}
                                         viewport={this.props.pageViewports[index] || {height: 1, width: 1}}
                                     >
-                                        <PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={index} viewport={this.props.pageViewports[index] || {height: 1, width: 1}}/>
+                                        <PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={index}  setActivePage={this.setActivePage} viewport={this.props.pageViewports[index] || {height: 1, width: 1}}/>
                                     </DropTargetSignaturesPageWrapper>
                                 );
                             })}
@@ -220,7 +232,6 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
 
     render() {
         const child = React.cloneElement(React.Children.toArray(this.props.children)[0], { ref: 'pdf-page' });
-
         const body = (
             <div className="signature-wrapper">
                 {this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
@@ -276,7 +287,7 @@ const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps>
         // Convert the centered signature position to ratios
         const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
         const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
-        
+
         generateUUID().then(signatureIndex =>
             props.addSignatureToDocument({
                 signatureIndex,
@@ -304,9 +315,9 @@ const ConnectedPDFViewer = connect(
         pageViewports: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageViewports || [] : [],
         signatures: state.documentViewer.signatures,
         signRequestStatus: state.documentViewer.signRequestStatus,
-        selectedSignatureId: state.documentViewer.selectedSignatureId,
+        selectedSignatureId: state.documentViewer.selectedSignatureId
     }),
-    { signDocument, moveSignature, addSignatureToDocument }
+    { signDocument, moveSignature, addSignatureToDocument, setActivePage }
 )(PDFViewer)
 
 export default ConnectedPDFViewer;

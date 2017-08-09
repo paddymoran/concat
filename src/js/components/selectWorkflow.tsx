@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Link } from 'react-router';
 import { Col, Row } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';

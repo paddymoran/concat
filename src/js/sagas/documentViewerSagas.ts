@@ -1,6 +1,4 @@
-import { select, takeEvery, put, call, all } from 'redux-saga/effects';
-import * as Promise from 'bluebird';
-import * as Axios from 'axios';
+import { takeEvery, put, call } from 'redux-saga/effects';
 import axios from 'axios';
 import { setSignRequestStatus } from '../actions';
 

@@ -1,7 +1,6 @@
 import  * as React from "react";
-import { findDOMNode } from "react-dom";
 import SignatureCanvas from 'react-signature-canvas';
-import { Alert, Button, ControlLabel, FormGroup, FormControl, Modal, Tab, Tabs } from 'react-bootstrap';
+import { Alert, Button, Modal, Tab, Tabs } from 'react-bootstrap';
 import SignatureUpload from './signatureUpload';
 import { uploadSignature, selectSignature, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures } from '../actions/index';
 import { connect } from 'react-redux';

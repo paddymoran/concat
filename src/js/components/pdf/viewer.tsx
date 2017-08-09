@@ -1,12 +1,10 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import * as Promise from 'bluebird';
-import { Alert, Button, Modal } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 import PDFPreview from './preview';
 import PDFPage from './page';
 import { SignatureButton } from '../signatureSelector';
-import * as Axios from 'axios';
-import axios from 'axios';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
 import { signDocument, moveSignature, addSignatureToDocument, setActivePage } from '../../actions';

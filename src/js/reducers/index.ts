@@ -7,12 +7,19 @@ import documentSets from './documentSets';
 import documentViewer from './documentViewer';
 import signatures from './signatures';
 
-const modals = (state: Sign.Modals = {}, action: any) => {
+const modals = (state: Sign.Modals = {
+    results: {}
+
+}, action: any) => {
     switch (action.type) {
         case Sign.Actions.Types.SHOW_SIGNATURE_SELECTION:
             return Object.assign({}, state, {showing: 'selectSignature'});
         case Sign.Actions.Types.HIDE_SIGNATURE_SELECTION:
             return Object.assign({}, state, {showing: null});
+        case Sign.Actions.Types.SHOW_RESULTS:
+            return Object.assign({}, state, {showing: 'results', results: action.payload});
+
+
     }
     return state;
 }

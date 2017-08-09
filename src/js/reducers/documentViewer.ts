@@ -1,6 +1,7 @@
 const DEFAULT_STATE: Sign.DocumentViewer = {
     signatures: {},
     signRequestStatus: Sign.DownloadStatus.NotStarted,
+    documents: {}
 };
 
 export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STATE, action: any): Sign.DocumentViewer {
@@ -20,6 +21,8 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
         case Sign.Actions.Types.REMOVE_SIGNATURE_FROM_DOCUMENT:
             return removeSignatureFromDocument(state, action);
 
+        case Sign.Actions.Types.SET_ACTIVE_PAGE:
+            return setActivePage(state, action);
         default:
             return state;
     }
@@ -70,4 +73,8 @@ function removeSignatureFromDocument(state: Sign.DocumentViewer, action: Sign.Ac
     delete signatures[action.payload.signatureIndex];
 
     return { ...state, signatures };
+}
+
+function setActivePage(state: Sign.DocumentViewer, action: Sign.Actions.SetActivePage): Sign.DocumentViewer {
+    return { ...state, documents: {...state.documents, [action.payload.documentId]: {...(state.documents || {})[action.payload.documentId], activePage: action.payload.pageNumber} } };
 }

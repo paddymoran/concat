@@ -143,3 +143,11 @@ export function setSignatureIds(payload: Sign.Actions.SetSignatureIdsPayload): S
         payload
     };
 }
+
+
+export function setActivePage(payload: Sign.Actions.SetActivePagePayload): Sign.Actions.SetActivePage {
+    return {
+        type: Sign.Actions.Types.SET_ACTIVE_PAGE,
+        payload
+    };
+}

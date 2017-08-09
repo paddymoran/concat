@@ -2,7 +2,7 @@ import  * as React from "react";
 import SignatureCanvas from 'react-signature-canvas';
 import { Alert, Button, Modal, Tab, Tabs } from 'react-bootstrap';
 import SignatureUpload from './signatureUpload';
-import { uploadSignature, selectSignature, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures } from '../actions/index';
+import { uploadSignature, selectSignature, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures, closeShowingModal } from '../actions/index';
 import { connect } from 'react-redux';
 import Loading from './loading';
 
@@ -10,7 +10,7 @@ interface SignatureSelectorProps {
     uploading: boolean;
     signatures: Sign.Signatures;
     selectedSignatureId: number;
-    hideModal: () => void;
+    closeModal: () => void;
     selectSignature: (signatureId: number) => void;
     uploadSignature: (payload: Sign.Actions.UploadSignaturePayload) => void;
     deleteSignature: (signatureId: number) => void;
@@ -76,7 +76,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
             this.uploadSignature(signature);
         }
 
-        this.props.hideModal();
+        this.props.closeModal();
     }
 
     uploadSignature(base64Image: string) {
@@ -88,7 +88,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
             width: 500,
             height: 200
         };
-        return  <Modal  show={true} onHide={() => this.props.hideModal()}>
+        return  <Modal  show={true} onHide={() => this.props.closeModal()}>
             <Modal.Header closeButton>
                 <Modal.Title>Select Signature</Modal.Title>
             </Modal.Header>
@@ -143,7 +143,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
             </Modal.Body>
             <Modal.Footer>
                 <Button bsStyle="warning" disabled={!this.props.selectedSignatureId} onClick={() => this.deleteSignature()}>Delete Signature</Button>
-                <Button onClick={() => this.props.hideModal()}>Close</Button>
+                <Button onClick={() => this.props.closeModal()}>Close</Button>
                 <Button bsStyle='primary' onClick={this.select.bind(this)} >Select</Button>
             </Modal.Footer>
         </Modal>
@@ -182,5 +182,6 @@ export const SignatureModal = connect(
         deleteSignature,
         addSignatureToDocument,
         requestSignatures,
+        closeModal: closeShowingModal
     }
 )(SignatureSelector)

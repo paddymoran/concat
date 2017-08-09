@@ -1,7 +1,7 @@
 import { takeEvery, put, call, all } from 'redux-saga/effects';
 import * as Axios from 'axios';
 import axios from 'axios';
-import { selectSignature, hideSignatureSelection, setSignatureIds } from '../actions/index'
+import { selectSignature, setSignatureIds, closeShowingModal } from '../actions/index'
 
 interface SignaturesUploadResponse extends Axios.AxiosResponse {
     data: {
@@ -23,7 +23,7 @@ function *uploadSignature() {
         const response : SignaturesUploadResponse = yield axios.post('/api/signatures/upload', { base64Image: action.payload.data });
         let signatureId = response.data.signature_id;
         yield all([
-            put(hideSignatureSelection()),
+            put(closeShowingModal()),
             put(selectSignature(signatureId))
         ]);
     }

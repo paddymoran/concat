@@ -4,7 +4,7 @@ import * as Promise from 'bluebird';
 import { Alert, Button, Modal } from 'react-bootstrap';
 import PDFPreview from './preview';
 import PDFPage from './page';
-import SignatureSelector from '../signatureSelector';
+import { SignatureButton } from '../signatureSelector';
 import * as Axios from 'axios';
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -123,7 +123,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                         <div className="container">
                             {!!this.props.selectedSignatureId && <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId} />}
 
-                            <SignatureSelector />
+                            <SignatureButton />
 
                             <div><Button>Add Initials</Button></div>
                             <div><Button>Add Date</Button></div>

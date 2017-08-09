@@ -181,9 +181,22 @@ interface AddSignatureControlProps {
 
 class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> {
     componentDidMount() {
-        const img = new Image(Sign.DefaultSignatureSize.WIDTH, Sign.DefaultSignatureSize.HEIGHT);
+        //this.preview();
+    }
+
+    preview() {
+        // disable previews for now
+        const img = new Image();
         img.src = signatureUrl(this.props.signatureId);
-        img.onload = () => this.props.connectDragPreview(img);
+        img.onload = () => {
+            this.props.connectDragPreview(img);
+        }
+    }
+
+    componentWillUpdate(newProps : AddSignatureControlProps) {
+        if(this.props.signatureId !== newProps.signatureId && newProps.signatureId){
+           // this.preview();
+        }
     }
 
     render() {
@@ -231,7 +244,8 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
     }
 
     render() {
-        const child = React.cloneElement(React.Children.toArray(this.props.children)[0], { ref: 'pdf-page' });
+        const child = React.cloneElement(React.Children.only(this.props.children), { ref: 'pdf-page' });
+
         const body = (
             <div className="signature-wrapper">
                 {this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
@@ -267,7 +281,8 @@ const DraggableAddSignatureControl = DragSource(
 
 const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
     drop(props, monitor, pageComponent) {
-        const { signatureId } = monitor.getItem();
+        const item : any = monitor.getItem();
+        const { signatureId } = item;
 
         const pageBounds = findDOMNode(pageComponent).getBoundingClientRect()
         const dropTargetBounds = monitor.getClientOffset();

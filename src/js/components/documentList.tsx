@@ -86,8 +86,8 @@ const documentDragSource: __ReactDnd.DragSourceSpec<ConnectedDocumentViewProps> 
 
 
 const documentDragTarget: __ReactDnd.DropTargetSpec<ConnectedDocumentViewProps> = {
-    hover(dropTargetProps, monitor, component) {
-        const dragItem = monitor.getItem();
+    hover(dropTargetProps : DocumentViewProps, monitor, component) {
+        const dragItem : any = monitor.getItem();
 
         // Don't replace items with themselves
         if (dragItem.index === dropTargetProps.index) {
@@ -115,7 +115,7 @@ const documentDragTarget: __ReactDnd.DropTargetSpec<ConnectedDocumentViewProps> 
         // Generally it's better to avoid mutations,
         // but it's good here for the sake of performance
         // to avoid expensive index searches.
-        monitor.getItem().index = dropTargetProps.index;
+        dragItem.index = dropTargetProps.index;
     }
 };
 

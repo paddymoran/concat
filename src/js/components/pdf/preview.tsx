@@ -19,18 +19,21 @@ interface ThumbProps {
     height: number;
     documentId: string;
     index: number;
+}
+
+interface ConnectedThumbProps extends ThumbProps {
     isActivePage: boolean;
 }
 
-class Thumb extends React.PureComponent<ThumbProps> {
-    constructor(props) {
+class Thumb extends React.PureComponent<ConnectedThumbProps> {
+    constructor(props : ConnectedThumbProps) {
         super(props);
         this.scrollTo = this.scrollTo.bind(this);
     }
     scrollTo() {
         Scroll.scrollTo(`page-view-${this.props.index}`, {smooth: true, duration: 350, offset: -60})
     }
-    componentWillUpdate(nextProps) {
+    componentWillUpdate(nextProps : ConnectedThumbProps) {
         if(this.props.isActivePage !== nextProps.isActivePage && nextProps.isActivePage) {
 
             //Scroll.scrollTo(`page-preview-${this.props.index}`, {smooth: true, duration: 350, containerId: 'pdf-preview-panel-scroll'})
@@ -55,9 +58,8 @@ class Thumb extends React.PureComponent<ThumbProps> {
 
 const ConnectedThumb = connect(
     (state: Sign.State, ownProps: ThumbProps) => ({
-        isActivePage: (state.documentViewer.documents[ownProps.documentId] || {}).activePage === ownProps.index
-    }),
-    {  }
+        isActivePage: (state.documentViewer.documents[ownProps.documentId] || {activePage: 0}).activePage === ownProps.index
+    })
 )(Thumb);
 
 

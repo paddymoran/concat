@@ -151,3 +151,9 @@ export function setActivePage(payload: Sign.Actions.SetActivePagePayload): Sign.
         payload
     };
 }
+
+export function closeShowingModal(): Sign.Actions.CloseShowingModal {
+    return {
+        type: Sign.Actions.Types.CLOSE_SHOWING_MODAL
+    };
+}

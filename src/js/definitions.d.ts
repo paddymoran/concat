@@ -174,6 +174,8 @@ declare namespace Sign.Actions {
         SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'SET_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
         GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
         SET_ACTIVE_PAGE = 'SET_ACTIVE_PAGE',
+        
+        CLOSE_SHOWING_MODAL = "CLOSE_SHOWING_MODAL",
     }
 
     interface ActionCreator<T> {
@@ -346,6 +348,8 @@ declare namespace Sign.Actions {
     interface RequestSignatures extends Action {}
     interface SetSignatureIds extends ActionCreator<SetSignatureIdsPayload> {}
     interface SetActivePage extends ActionCreator<SetActivePagePayload> {}
+
+    interface CloseShowingModal extends Action {}
 }
 
 declare module 'pdfjs-dist/webpack' {

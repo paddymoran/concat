@@ -44,6 +44,18 @@ COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 SET search_path = public, pg_catalog;
 
 --
+-- Name: signature_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE signature_type AS ENUM (
+    'signature',
+    'date',
+    'initial',
+    'text'
+);
+
+
+--
 -- Name: delete_document(integer, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -217,7 +229,8 @@ CREATE TABLE signatures (
     user_id integer NOT NULL,
     signature bytea NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    deleted boolean DEFAULT false NOT NULL
+    deleted boolean DEFAULT false NOT NULL,
+    type signature_type DEFAULT 'signature'::signature_type
 );
 
 

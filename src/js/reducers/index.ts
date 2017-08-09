@@ -11,9 +11,6 @@ const modals = (state: Sign.Modals = {}, action: any) => {
     switch (action.type) {
         case Sign.Actions.Types.SHOW_SIGNATURE_SELECTION:
             return Object.assign({}, state, {showing: 'selectSignature'});
-        
-        case Sign.Actions.Types.HIDE_SIGNATURE_SELECTION:
-            return Object.assign({}, state, {showing: null});
 
         case Sign.Actions.Types.CLOSE_SHOWING_MODAL:
             return { ...state, showing: undefined };

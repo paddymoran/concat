@@ -78,10 +78,6 @@ export function showSignatureSelection() {
     return { type: Sign.Actions.Types.SHOW_SIGNATURE_SELECTION };
 }
 
-export function hideSignatureSelection() {
-    return { type: Sign.Actions.Types.HIDE_SIGNATURE_SELECTION };
-}
-
 export function deleteSignature(signatureId: number): Sign.Actions.DeleteSignature {
     return {
         type: Sign.Actions.Types.DELETE_SIGNATURE,

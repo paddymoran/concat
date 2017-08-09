@@ -1,7 +1,7 @@
 import * as React from "react";
 import Header from './header';
 import { CSSTransitionGroup } from 'react-transition-group';
-
+import Modals from './modals'
 
 interface AppProps {
     location:  Location,
@@ -23,6 +23,7 @@ export default class App extends React.PureComponent<AppProps, {}> {
                      {children}
                       </div>
                 </CSSTransitionGroup>
+                <Modals />
             </div>
         );
     }

@@ -14,15 +14,13 @@ const modals = (state: Sign.Modals = {
     switch (action.type) {
         case Sign.Actions.Types.SHOW_SIGNATURE_SELECTION:
             return Object.assign({}, state, {showing: 'selectSignature'});
-<<<<<<< HEAD
+
         case Sign.Actions.Types.SHOW_RESULTS:
             return Object.assign({}, state, {showing: 'results', results: action.payload});
-=======
 
         case Sign.Actions.Types.SHOW_INITIAL_SELECTION_MODAL:
             return { ...state, showing: 'selectInitial' };
 
->>>>>>> ca37707bd98229f6176d3c8596ce2316452ae4ed
         case Sign.Actions.Types.CLOSE_SHOWING_MODAL:
             return { ...state, showing: undefined };
 

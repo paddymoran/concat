@@ -4,6 +4,7 @@ DROP FUNCTION IF EXISTS  delete_document(user_id integer, document_id uuid);
 DROP FUNCTION IF EXISTS  document_set_json(uuid);
 DROP FUNCTION IF EXISTS  delete_document(user_id integer, document_id uuid);
 
+DROP TYPE IF EXISTS signature_type CASCADE;
 
 DROP TABLE IF EXISTS public.signatures;
 

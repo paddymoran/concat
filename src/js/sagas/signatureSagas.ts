@@ -12,7 +12,8 @@ interface SignaturesUploadResponse extends Axios.AxiosResponse {
 
 interface SignaturesResponse extends Axios.AxiosResponse {
     data: {
-        id: number
+        signature_id: number;
+        type: string;
     }[];
 }
 
@@ -42,10 +43,13 @@ function *requestSignaturesSaga() {
 
     function *requestSignatures(action: Sign.Actions.RequestSignatures) {
         const response: SignaturesResponse = yield call(axios.get, '/api/signatures');
-        const signatureIds = response.data.map((signature) => signature.id);
+
+        const signatureIds = response.data.filter(d => d.type === 'signature').map((signature) => signature.signature_id);
+        const initialIds = response.data.filter(d => d.type === 'initial').map((signature) => signature.signature_id);
 
         yield put(setSignatureIds({
             signatureIds,
+            initialIds,
             status: Sign.DownloadStatus.Complete
         }));
     }

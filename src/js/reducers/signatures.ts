@@ -26,6 +26,7 @@ function setSignatureIds(state: Sign.Signatures, action: Sign.Actions.SetSignatu
     return {
         ...state,
         status: Sign.DownloadStatus.Complete,
-        signatureIds: action.payload.signatureIds
+        signatureIds: action.payload.signatureIds,
+        initialIds: action.payload.initialIds
     };
 }

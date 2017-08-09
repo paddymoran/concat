@@ -88,6 +88,7 @@ declare namespace Sign {
     interface Signatures {
         status: DownloadStatus;
         signatureIds?: number[];
+        initialIds?: number[];
     }
 
     interface State {
@@ -307,6 +308,7 @@ declare namespace Sign.Actions {
 
     interface SetSignatureIdsPayload {
         signatureIds: number[];
+        initialIds: number[];
         status?: Sign.DownloadStatus;
     }
 

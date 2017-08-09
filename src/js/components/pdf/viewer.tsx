@@ -64,7 +64,6 @@ const PDFPreviewDimensions = Dimensions()(PDFPreview);
 
 
 class PDFViewer extends React.Component<PDFViewerProps> {
-
     constructor(props: PDFViewerProps) {
         super(props);
         this.onSelectPage = this.onSelectPage.bind(this);
@@ -77,8 +76,6 @@ class PDFViewer extends React.Component<PDFViewerProps> {
 
 
     sign() {
-        // Hardcoded for now
-
         // For each signature: onvert pixel values to ratios (of the page) and add page number
         const signatures: Sign.Actions.SignDocumentPayloadSignature[] = Object.keys(this.props.signatures).map(key => {
             const signature = this.props.signatures[key];
@@ -166,21 +163,21 @@ class PDFViewer extends React.Component<PDFViewerProps> {
 interface AddSignatureControlProps {
     signatureId: number;
     connectDragSource: Function;
+    connectDragPreview: Function;
     isDragging: boolean;
 }
 
 class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> {
+    componentDidMount() {
+        const img = new Image(Sign.DefaultSignatureSize.WIDTH, Sign.DefaultSignatureSize.HEIGHT);
+        img.src = signatureUrl(this.props.signatureId);
+        img.onload = () => this.props.connectDragPreview(img);
+    }
+
     render() {
-        const classes = 'signature-icon' + (this.props.isDragging ? ' dragging' : '');
-
-        const dragStyles = {
-            // width: Sign.DefaultSignatureSize.WIDTH,
-            // height: Sign.DefaultSignatureSize.HEIGHT,
-        };
-
         return this.props.connectDragSource(
-            <div className={classes}>
-                <img src={signatureUrl(this.props.signatureId)} style={this.props.isDragging ? dragStyles : {}}/>
+            <div className="signature-icon">
+                <img src={signatureUrl(this.props.signatureId)} />
             </div>
         );
     }
@@ -252,6 +249,7 @@ const DraggableAddSignatureControl = DragSource(
     signatureSource,
     (connect, monitor) => ({
         connectDragSource: connect.dragSource(),
+        connectDragPreview: connect.dragPreview(),
         isDragging: monitor.isDragging()
     })
 )(AddSignatureControl);

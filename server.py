@@ -78,10 +78,11 @@ def save_temp_signature(signature_id, user_id):
     return signature_filepath
 
 
-def upload_signature(base64Image):
+def upload_signature(base64Image, signature_type):
     signature_id = db.add_signature(
         session['user_id'],
-        b64decode(base64Image.split(",")[1])
+        b64decode(base64Image.split(",")[1]),
+        signature_type
     )
     return {'signature_id': signature_id}
 
@@ -197,7 +198,8 @@ Signatures
 def signature_upload():
     try:
         base64Image = request.get_json()['base64Image']
-        return jsonify(upload_signature(base64Image))
+        signature_type = request.get_json()['type']
+        return jsonify(upload_signature(base64Image, signature_type))
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)
@@ -208,7 +210,7 @@ def signature_delete(id):
         return jsonify(delete_signature(id))
     except Exception as e:
         print(e)
-        raise InvalidUsage(e.message, status_code=500)
+        raise InvalidUsage('Failed', status_code=500)
 
 
 @app.route('/api/signatures', methods=['GET'])
@@ -218,7 +220,7 @@ def signatures_list():
         return jsonify(signatures)
     except Exception as e:
         print(e)
-        raise InvalidUsage(e.message, status_code=500)
+        raise InvalidUsage('Failed', status_code=500)
 
 
 @app.route('/api/signatures/<id>', methods=['GET'])
@@ -233,7 +235,7 @@ def signature(id):
         return send_file(signature_file, attachment_filename='signature.png')
     except Exception as e:
         print(e)
-        raise InvalidUsage(e.message, status_code=500)
+        raise InvalidUsage('Failed', status_code=500)
 
 '''
 Sign

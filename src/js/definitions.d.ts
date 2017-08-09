@@ -131,7 +131,15 @@ declare namespace Sign {
 
     const enum DefaultSignatureSize {
         WIDTH = 200,
-        HEIGHT = 100
+        HEIGHT = 100,
+    }
+
+    // These types match the database enum: signature_type
+    const enum SignatureType {
+        SIGNATURE = 'signature',
+        INITIAL = 'initial',
+        DATE = 'date',
+        TEXT = 'text',
     }
 }
 
@@ -177,7 +185,7 @@ declare namespace Sign.Actions {
         GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
         SET_ACTIVE_PAGE = 'SET_ACTIVE_PAGE',
         
-        CLOSE_SHOWING_MODAL = "CLOSE_SHOWING_MODAL",
+        CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
     }
 
     interface ActionCreator<T> {
@@ -256,7 +264,9 @@ declare namespace Sign.Actions {
 
     interface UploadSignaturePayload {
         data: string;
+        type: SignatureType;
     }
+
     interface DeleteSignaturePayload {
        signatureId: number
     }

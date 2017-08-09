@@ -38,21 +38,22 @@ def connect_db_config(config):
     return connection
 
 
-def add_signature(user_id, binary_file_data):
+def add_signature(user_id, binary_file_data, signature_type):
     """
     Add a signature to the database
     """
     database = get_db()
     with database.cursor() as cursor:
         query = """
-            INSERT INTO signatures (user_id, signature)
-            VALUES (%(user_id)s, %(blob)s)
+            INSERT INTO signatures (user_id, signature, type)
+            VALUES (%(user_id)s, %(blob)s, %(signature_type)s)
             RETURNING signature_id
         """
 
         cursor.execute(query, {
             'user_id': user_id,
-            'blob': psycopg2.Binary(binary_file_data)
+            'blob': psycopg2.Binary(binary_file_data),
+            'signature_type': signature_type
         })
         database.commit()
         return cursor.fetchone()[0]

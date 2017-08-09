@@ -11,9 +11,10 @@ interface SignatureSelectorProps {
     loadStatus: Sign.DownloadStatus;
     ids: number[];
     selectedId: number;
+    title: string;
     closeModal: () => void;
     selectSignature: (signatureId: number) => void;
-    uploadSignature: (payload: Sign.Actions.UploadSignaturePayload) => void;
+    uploadSignature: (data: string) => void;
     deleteSignature: (signatureId: number) => void;
     addSignatureToDocument: (payload: Sign.Actions.AddSignatureToDocumentPayload) => void;
     requestSignatures: () => void;
@@ -66,22 +67,18 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
         if (this.state.currentTab == UPLOAD_SIGNATURE_TAB) {
             const signature = this.signatureCanvas.toDataURL();
             if (signature === null) {
-                this.setState({ signatureUploaderErrors: 'Please upload a signature' });
+                this.setState({ signatureUploaderErrors: 'Please upload a file' });
             }
             else {
-                this.uploadSignature(signature);
+                this.props.uploadSignature(signature);
             }
         }
         else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
             const signature = this.signatureCanvas.getTrimmedCanvas().toDataURL();
-            this.uploadSignature(signature);
+            this.props.uploadSignature(signature);
         }
 
         this.props.closeModal();
-    }
-
-    uploadSignature(base64Image: string) {
-        this.props.uploadSignature({ data: base64Image });
     }
 
     render() {
@@ -90,9 +87,9 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
             height: 200
         };
         return  (
-            <Modal  show={true} onHide={() => this.props.closeModal()}>
+            <Modal show={true} onHide={() => this.props.closeModal()}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Select Signature</Modal.Title>
+                    <Modal.Title>Select {this.props.title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Tabs activeKey={this.state.currentTab} onSelect={this.changeTab.bind(this)} animation={false} id='select-signature-tabs'>
@@ -144,7 +141,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                     </Tabs>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button bsStyle="warning" disabled={!this.props.selectedId} onClick={() => this.deleteSignature()}>Delete Signature</Button>
+                    <Button bsStyle="warning" disabled={!this.props.selectedId} onClick={() => this.deleteSignature()}>Delete {this.props.title}</Button>
                     <Button onClick={() => this.props.closeModal()}>Close</Button>
                     <Button bsStyle='primary' onClick={this.select.bind(this)} >Select</Button>
                 </Modal.Footer>
@@ -153,7 +150,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
     }
 }
 
-class Signature extends React.Component<any> {
+class ModalButton extends React.Component<any> {
     render(){
         return (
             <div>
@@ -172,7 +169,7 @@ export const SignatureButton = connect(
     {
         showModal: showSignatureSelection
     }
-)(Signature);
+)(ModalButton);
 
 export const InitialButton = connect(
     (state) => ({
@@ -181,7 +178,7 @@ export const InitialButton = connect(
     {
         showModal: showInitialSelectionModal
     }
-)(Signature);
+)(ModalButton);
 
 export const SignatureModal = connect(
     (state: Sign.State) => ({
@@ -189,9 +186,10 @@ export const SignatureModal = connect(
         loadStatus: state.signatures.status,
         ids: state.signatures.signatureIds,
         selectedId: state.documentViewer.selectedSignatureId,
+        title: 'Signature',
     }),
     {
-        uploadSignature,
+        uploadSignature: (data: string) => uploadSignature({ data, type: Sign.SignatureType.SIGNATURE }),
         selectSignature,
         deleteSignature,
         addSignatureToDocument,
@@ -206,9 +204,10 @@ export const InitialsModal = connect(
         loadStatus: state.signatures.status,
         ids: state.signatures.initialIds,
         selectedId: state.documentViewer.selectedInitialId,
+        title: 'Initial',
     }),
     {
-        uploadSignature,
+        uploadSignature: (data: string) => uploadSignature({ data, type: Sign.SignatureType.INITIAL }),
         selectSignature,
         deleteSignature,
         addSignatureToDocument,

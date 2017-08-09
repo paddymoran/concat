@@ -53,6 +53,13 @@ export function selectSignature(signatureId: number): Sign.Actions.SelectSignatu
     };
 }
 
+export function selectInitial(payload: Sign.Actions.SelectInitialPayload): Sign.Actions.SelectInitial {
+    return {
+        type: Sign.Actions.Types.SELECT_INITITAL,
+        payload
+    };
+}
+
 export function moveSignature(payload: Sign.Actions.MoveSignaturePayload): Sign.Actions.MoveSignature {
     return {
         type: Sign.Actions.Types.MOVE_SIGNATURE,

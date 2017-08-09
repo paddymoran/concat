@@ -185,7 +185,8 @@ declare namespace Sign.Actions {
         GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
         SET_ACTIVE_PAGE = 'SET_ACTIVE_PAGE',
         
-        CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
+        SHOW_RESULTS = 'SHOW_RESULTS',
+        CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL'
     }
 
     interface ActionCreator<T> {
@@ -335,6 +336,10 @@ declare namespace Sign.Actions {
         pageNumber: number;
     }
 
+    interface ShowResultsPayload {
+        resultDocumentId: string;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -366,6 +371,7 @@ declare namespace Sign.Actions {
     interface SetSignatureIds extends ActionCreator<SetSignatureIdsPayload> {}
     interface SetActivePage extends ActionCreator<SetActivePagePayload> {}
 
+    interface ShowResults extends ActionCreator<ShowResultsPayload> {}
     interface CloseShowingModal extends Action {}
     interface ShowInitialSelectionModal extends Action {}
 }

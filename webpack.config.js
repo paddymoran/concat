@@ -12,7 +12,7 @@ var WebpackNotifierPlugin = require('webpack-notifier');
 module.exports = {
     entry: './src/js/main.tsx',
     output: {
-        filename: 'app.js',
+        filename: DEV ?  'app.js' : 'app.[hash].js',
         path:  path.resolve(__dirname, 'public'),
         publicPath: '/'
 
@@ -95,7 +95,7 @@ module.exports = {
                 to: './'
             }
         ]),
-        new ExtractTextPlugin('[name].css'),
+        new ExtractTextPlugin(DEV ? '[name].css' : '[name].[hash].css'),
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
         function() {
             if (!DEV) {

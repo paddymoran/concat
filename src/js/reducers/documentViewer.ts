@@ -26,7 +26,6 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
 
         case Sign.Actions.Types.SET_ACTIVE_PAGE:
             return setActivePage(state, action);
-        
         default:
             return state;
     }

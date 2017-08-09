@@ -73,6 +73,12 @@ export function removeSignatureFromDocument(payload: Sign.Actions.RemoveSignatur
         payload
     }
 }
+export function showResults(payload: Sign.Actions.ShowResultsPayload): Sign.Actions.ShowResults {
+    return {
+        type: Sign.Actions.Types.SHOW_RESULTS,
+        payload
+    };
+}
 
 export function showSignatureSelection() {
     return {

@@ -33,7 +33,7 @@ function *deleteSignature() {
     yield takeEvery(Sign.Actions.Types.DELETE_SIGNATURE, task);
 
     function *task(action: Sign.Actions.DeleteSignature) {
-        yield axios.delete(`/api/signatures/${action.payload}`);
+        yield axios.delete(`/api/signatures/${action.payload.signatureId}`);
     }
 }
 

@@ -1,0 +1,15 @@
+.document-set .document{
+    background: $gray-lighter;
+    margin: 10px;
+    padding: 10px 0;
+    min-height:150px;
+    border-radius: 4px;
+
+    h3 {
+        margin-top: 5px;
+    }
+
+    .preview {
+        width: 120px;
+    }
+}

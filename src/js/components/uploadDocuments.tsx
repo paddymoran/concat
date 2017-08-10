@@ -5,6 +5,7 @@ import DocumentList from './documentList';
 import { addDocument, requestDocumentSet, createDocumentSet } from '../actions';
 import { generateUUID } from './uuid';
 import  { Link } from 'react-router';
+import HorizontalDocumentList from './horizontalDocumentList';
 
 interface UploadDocumentsProps {
     documentIds: string[];
@@ -49,7 +50,7 @@ class DocumentSet extends React.PureComponent<DocumentSetProps> {
                 <div className='page-heading'>
                     <h1 className="title question">{this.props.documentSet.title ? this.props.documentSet.title : 'New Document Set'}</h1>
                 </div>
-                <DocumentList documentSetId={this.props.documentSetId} showRemove={false} />
+                <HorizontalDocumentList documentSetId={this.props.documentSetId} />
             </div>
         );
     }

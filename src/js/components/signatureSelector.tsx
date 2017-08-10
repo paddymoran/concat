@@ -5,6 +5,8 @@ import SignatureUpload from './signatureUpload';
 import { uploadSignature, selectSignature, selectInitial, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures, closeShowingModal, showInitialSelectionModal } from '../actions/index';
 import { connect } from 'react-redux';
 import Loading from './loading';
+import { signatureUrl } from '../utils';
+
 
 interface SignatureSelectorProps {
     uploading: boolean;
@@ -111,7 +113,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
 
                                 {this.props.loadStatus === Sign.DownloadStatus.Complete && this.props.ids.length == 0 &&
                                     <div className="col-xs-12">
-                                        <p>No saved signatures</p>
+                                        <p className="alert alert-warning">No saved signatures</p>
                                     </div>
                                 }
                             </div>
@@ -151,12 +153,14 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
 }
 
 class ModalButton extends React.Component<any> {
+    componentWillMount() {
+        this.props.requestSignatures();
+    }
     render(){
         return (
-            <div>
-                <Button  onClick={() => this.props.showModal()}>
-                    {this.props.text}
-                </Button>
+            <div className="signature-button" onClick={() => this.props.showModal()}>
+                        { this.props.selectedId && <img src={signatureUrl(this.props.selectedId)} /> }
+                        <span>{this.props.text}</span>
             </div>
         )
     }
@@ -164,21 +168,26 @@ class ModalButton extends React.Component<any> {
 
 export const SignatureButton = connect(
     (state) => ({
-        text: 'Add Signature'
+        text: 'Signature',
+        selectedId: state.documentViewer.selectedSignatureId,
     }),
     {
-        showModal: showSignatureSelection
+        showModal: showSignatureSelection,
+        requestSignatures,
     }
 )(ModalButton);
 
 export const InitialButton = connect(
     (state) => ({
-        text: 'Add Initial'
+        text: 'Initial',
+        selectedId: state.documentViewer.selectedInitialId,
     }),
     {
-        showModal: showInitialSelectionModal
+        showModal: showInitialSelectionModal,
+        requestSignatures,
     }
 )(ModalButton);
+
 
 export const SignatureModal = connect(
     (state: Sign.State) => ({

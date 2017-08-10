@@ -119,16 +119,26 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
                     <div className="controls">
                         <div className="container">
-                            {!!this.props.selectedSignatureId && <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId} />}
-
-                            <SignatureButton />
-                            <InitialButton />
-
+                        <Row>
+                            <Col xs={3}>
+                            <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}>
+                                    <div> <SignatureButton /></div>
+                            </DraggableAddSignatureControl>
+                            </Col>
+                            <Col xs={3}>
+                            <DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
+                                    <div> <InitialButton /></div>
+                            </DraggableAddSignatureControl>
+                            </Col>
+                            <Col xs={3}>
                             <div><Button>Add Date</Button></div>
-
+                            </Col>
+                            <Col xs={3}>
                             <div>
                                 <Button onClick={this.sign.bind(this)} disabled={this.props.signRequestStatus === Sign.DownloadStatus.InProgress}>Sign Document</Button>
                             </div>
+                            </Col>
+                            </Row>
                         </div>
                     </div>
                 </AutoAffix>
@@ -179,29 +189,29 @@ interface AddSignatureControlProps {
 
 class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> {
     componentDidMount() {
-        //this.preview();
+        if(this.props.signatureId){
+            this.preview(this.props.signatureId);
+        }
     }
 
-    preview() {
-        // disable previews for now
+    preview(signatureId) {
+       // this.props.connectDragPreview(<div><img width="100px" src={signatureUrl(this.props.signatureId)} /></div>);
         const img = new Image();
-        img.src = signatureUrl(this.props.signatureId);
-        img.onload = () => {
-            this.props.connectDragPreview(img);
-        }
+        img.onload = () => { this.props.connectDragPreview(img); }
+        img.src = signatureUrl(signatureId);
+
+
     }
 
     componentWillUpdate(newProps : AddSignatureControlProps) {
         if(this.props.signatureId !== newProps.signatureId && newProps.signatureId){
-           // this.preview();
+            this.preview(newProps.signatureId);
         }
     }
 
     render() {
         return this.props.connectDragSource(
-            <div className="signature-icon">
-                <img src={signatureUrl(this.props.signatureId)} />
-            </div>
+            this.props.children
         );
     }
 }
@@ -328,7 +338,8 @@ const ConnectedPDFViewer = connect(
         pageViewports: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageViewports || [] : [],
         signatures: state.documentViewer.signatures,
         signRequestStatus: state.documentViewer.signRequestStatus,
-        selectedSignatureId: state.documentViewer.selectedSignatureId
+        selectedSignatureId: state.documentViewer.selectedSignatureId,
+        selectedInitialId: state.documentViewer.selectedInitialId
     }),
     { signDocument, moveSignature, addSignatureToDocument, setActivePage }
 )(PDFViewer)

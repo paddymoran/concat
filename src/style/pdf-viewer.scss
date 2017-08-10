@@ -12,13 +12,31 @@ $background: #fff;
 
     .container{
         text-align:center;
-        & > div{
-            display:inline-block;
-                padding: 6px 20px;
-            button{
-            }
+        padding-top: 5px;
+    }
+
+    $button-height: #{$control-height - 10px};
+    .signature-button {
+        height: $button-height;
+        border: 1px solid $gray;
+        border-bottom: 4px solid $gray;
+        background-color: white;
+        padding: 4px;
+            cursor: move;
+        max-width: 200px;
+    margin: 0 auto;
+        span{
+            margin: 0 10px;
+        }
+        img{
+            height: 100%;
+            margin: 0 10px;
+            object-fit: contain;
+             max-width: 40%;
         }
     }
+
+
 }
 .drag-container{
 

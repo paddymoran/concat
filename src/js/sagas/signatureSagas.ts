@@ -1,4 +1,4 @@
-import { takeEvery, put, call, all } from 'redux-saga/effects';
+import { takeEvery, put, call, all, select } from 'redux-saga/effects';
 import * as Axios from 'axios';
 import axios from 'axios';
 import { selectSignature, setSignatureIds, closeShowingModal, selectInitial } from '../actions/index'
@@ -47,12 +47,20 @@ function *requestSignaturesSaga() {
 
         const signatureIds = response.data.filter(d => d.type === 'signature').map((signature) => signature.signature_id);
         const initialIds = response.data.filter(d => d.type === 'initial').map((signature) => signature.signature_id);
-
         yield put(setSignatureIds({
             signatureIds,
             initialIds,
             status: Sign.DownloadStatus.Complete
         }));
+        const selectedSignature = yield select((state: Sign.State) => state.documentViewer.selectedSignatureId);
+        if(signatureIds.length && !selectedSignature) {
+            yield put(selectSignature(signatureIds[0]));
+        }
+        const selectedIntials = yield select((state: Sign.State) => state.documentViewer.selectedInitialId);
+        if(initialIds.length && !selectedIntials) {
+            yield put(selectSignature(initialIds[0]));
+        }
+
     }
 }
 

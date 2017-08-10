@@ -51,15 +51,16 @@ declare namespace Sign {
 
     interface Modals {
         showing?: string;
+        [key: string]: any;
     }
 
     interface DocumentSignature {
         signatureId: number;
         pageNumber: number;
-        xRatio: number;
-        yRatio: number;
-        widthRatio?: number;
-        heightRatio?: number;
+        offsetX: number;
+        offsetY: number;
+        ratioX?: number;
+        ratioY?: number;
     }
 
     interface DocumentSignatures {
@@ -141,6 +142,10 @@ declare namespace Sign {
         DATE = 'date',
         TEXT = 'text',
     }
+
+    const enum ModalType {
+        SIGN_CONFIRMATION = 'SIGN_CONFIRMATION',
+    }
 }
 
 
@@ -165,7 +170,7 @@ declare namespace Sign.Actions {
         DELETE_SIGNATURE = 'DELETE_SIGNATURE',
 
         SELECT_SIGNATURE = 'SELECT_SIGNATURE',
-        SELECT_INITITAL = 'SELECT_INITITAL',
+        SELECT_INITIAL = 'SELECT_INITITAL',
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
         MOVE_SIGNATURE = 'MOVE_SIGNATURE',
         REMOVE_SIGNATURE_FROM_DOCUMENT = 'REMOVE_SIGNATURE_FROM_DOCUMENT',
@@ -186,12 +191,14 @@ declare namespace Sign.Actions {
         SET_ACTIVE_PAGE = 'SET_ACTIVE_PAGE',
         
         SHOW_RESULTS = 'SHOW_RESULTS',
-        CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL'
+        CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
+
+        SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
     }
 
     interface ActionCreator<T> {
         type: Sign.Actions.Types;
-        payload: T
+        payload: T;
     }
 
     interface Action {
@@ -295,25 +302,16 @@ declare namespace Sign.Actions {
     interface MoveSignaturePayload {
         signatureIndex: string;
         pageNumber?: number;
-        xRatio?: number;
-        yRatio?: number;
-        widthRatio?: number;
-        heightRatio?: number;
-    }
-
-    interface SignDocumentPayloadSignature {
-        signatureId: number;
-        pageNumber: number;
-        offsetX: number;
-        offsetY: number;
-        ratioX: number;
-        ratioY: number;
+        offsetX?: number;
+        offsetY?: number;
+        ratioX?: number;
+        ratioY?: number;
     }
 
     interface SignDocumentPayload {
         documentSetId: string;
         documentId: string;
-        signatures: SignDocumentPayloadSignature[];
+        signatures: Sign.DocumentSignatures;
     }
 
     interface SetSignRequestStatusPayload {
@@ -338,6 +336,15 @@ declare namespace Sign.Actions {
 
     interface ShowResultsPayload {
         resultDocumentId: string;
+    }
+
+    interface CloseModalPayload {
+        modalName: string;
+    }
+
+    interface ShowSignConfirmationModalPayload {
+        documentId: string;
+        documentSetId: string;
     }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
@@ -372,8 +379,10 @@ declare namespace Sign.Actions {
     interface SetActivePage extends ActionCreator<SetActivePagePayload> {}
 
     interface ShowResults extends ActionCreator<ShowResultsPayload> {}
-    interface CloseShowingModal extends Action {}
+    
+    interface CloseModal extends ActionCreator<CloseModalPayload> {}
     interface ShowInitialSelectionModal extends Action {}
+    interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
 }
 
 declare module 'pdfjs-dist/webpack' {

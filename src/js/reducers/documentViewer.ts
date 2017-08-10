@@ -1,7 +1,7 @@
 const DEFAULT_STATE: Sign.DocumentViewer = {
     signatures: {},
     signRequestStatus: Sign.DownloadStatus.NotStarted,
-    documents: {}
+    documents: {},
 };
 
 export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STATE, action: any): Sign.DocumentViewer {
@@ -9,7 +9,7 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
         case Sign.Actions.Types.SELECT_SIGNATURE:
             return selectSignature(state, action);
 
-        case Sign.Actions.Types.SELECT_INITITAL:
+        case Sign.Actions.Types.SELECT_INITIAL:
             return selectInitial(state, action);
 
         case Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT:
@@ -26,6 +26,7 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
 
         case Sign.Actions.Types.SET_ACTIVE_PAGE:
             return setActivePage(state, action);
+
         default:
             return state;
     }
@@ -46,8 +47,8 @@ function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions
     const newSignature: Sign.DocumentSignature = {
         signatureId: action.payload.signatureId,
         pageNumber: action.payload.pageNumber,
-        xRatio: action.payload.xOffset || 0,
-        yRatio: action.payload.yOffset || 0
+        offsetX: action.payload.xOffset || 0,
+        offsetY: action.payload.yOffset || 0
     };
 
     return {

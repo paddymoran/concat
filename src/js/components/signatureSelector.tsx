@@ -2,7 +2,7 @@ import  * as React from "react";
 import SignatureCanvas from 'react-signature-canvas';
 import { Alert, Button, Modal, Tab, Tabs } from 'react-bootstrap';
 import SignatureUpload from './signatureUpload';
-import { uploadSignature, selectSignature, selectInitial, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures, closeShowingModal, showInitialSelectionModal } from '../actions/index';
+import { uploadSignature, selectSignature, selectInitial, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures, closeModal, showInitialSelectionModal } from '../actions/index';
 import { connect } from 'react-redux';
 import Loading from './loading';
 
@@ -194,7 +194,7 @@ export const SignatureModal = connect(
         deleteSignature,
         addSignatureToDocument,
         requestSignatures,
-        closeModal: closeShowingModal
+        closeModal: () => closeModal({ modalName: 'selectSignature' })
     }
 )(SignatureSelector);
 
@@ -212,6 +212,6 @@ export const InitialsModal = connect(
         deleteSignature,
         addSignatureToDocument,
         requestSignatures,
-        closeModal: closeShowingModal
+        closeModal: () => closeModal({ modalName: 'selectInitial' })
     }
 )(SignatureSelector);

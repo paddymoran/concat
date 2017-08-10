@@ -139,7 +139,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
             const newYPosition = oldYPosition + (oldHeight - newHeight);
 
             // Add the new Y ratio to the move signature action
-            moveData.ratioY = boundNumber(newYPosition / pageSize.height);
+            moveData.offsetY = boundNumber(newYPosition / pageSize.height);
         }
 
         // If the signature has been sized from the left, it now has a new X position
@@ -152,7 +152,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
             const newXPosition = oldXPosition + (oldWidth - newWidth);
 
             // Add the new X ratio to the move signature action
-            moveData.ratioX = boundNumber(newXPosition / pageSize.width);
+            moveData.offsetX = boundNumber(newXPosition / pageSize.width);
         }
 
         // Move that bus! (eeer.... I mean that signature)

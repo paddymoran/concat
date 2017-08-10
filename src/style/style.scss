@@ -156,3 +156,23 @@ a {
   background: transparent;
   font-size: inherit;
 }
+
+.icon-modal .modal-body {
+    text-align: center;
+
+    .fa {
+        font-size: 5em;
+        margin: 5px auto 15px;
+    }
+
+    p {
+        text-align: center;
+        font-size: 1.25em;
+        font-weight: 300;
+    }
+
+    .btn {
+        margin: 15px auto 5px;
+        width: 145px;
+    }
+}

@@ -6,28 +6,7 @@ import documents from './documents';
 import documentSets from './documentSets';
 import documentViewer from './documentViewer';
 import signatures from './signatures';
-
-const modals = (state: Sign.Modals = {
-    results: {}
-
-}, action: any) => {
-    switch (action.type) {
-        case Sign.Actions.Types.SHOW_SIGNATURE_SELECTION:
-            return Object.assign({}, state, {showing: 'selectSignature'});
-
-        case Sign.Actions.Types.SHOW_RESULTS:
-            return Object.assign({}, state, {showing: 'results', results: action.payload});
-
-        case Sign.Actions.Types.SHOW_INITIAL_SELECTION_MODAL:
-            return { ...state, showing: 'selectInitial' };
-
-        case Sign.Actions.Types.CLOSE_SHOWING_MODAL:
-            return { ...state, showing: undefined };
-
-        default:
-            return state;
-    }
-}
+import modals from './modals';
 
 const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     routing,

@@ -1,6 +1,8 @@
-import { takeEvery, put, call } from 'redux-saga/effects';
+import { all, takeEvery, put, call, select } from 'redux-saga/effects';
 import axios from 'axios';
-import { setSignRequestStatus, showResults } from '../actions';
+import { setSignRequestStatus, showResults, closeModal } from '../actions';
+import { push } from 'react-router-redux';
+import { findSetForDocument } from '../utils';
 
 function *signDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.SIGN_DOCUMENT, signDocument);
@@ -8,17 +10,29 @@ function *signDocumentSaga() {
     function *signDocument(action: Sign.Actions.SignDocument) {
         yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
 
+        const signatures = Object.keys(action.payload.signatures).map(key => action.payload.signatures[key]);
+
+        const postPayload = {
+            ...action.payload,
+            signatures
+        };
+
         try {
-            const response = yield call(axios.post, '/api/sign', action.payload);
+            const response = yield call(axios.post, '/api/sign', postPayload);
 
-            //const signedPDFLink = window.location.origin + '/api/document/' + response.data.document_id;
-            //window.open(signedPDFLink, '_blank');
+            yield all([
+                put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
 
-            yield put(setSignRequestStatus(Sign.DownloadStatus.Complete));
-            yield put(showResults({ resultDocumentId: response.data.document_id}));
+                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
+
+                put(push(`/documents/${action.payload.documentSetId}`)),
+            ]);
         }
         catch (e) {
-            yield put(setSignRequestStatus(Sign.DownloadStatus.Failed));
+            yield all([
+                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
+                put(setSignRequestStatus(Sign.DownloadStatus.Failed))
+            ]);
         }
     }
 }

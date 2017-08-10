@@ -56,7 +56,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
         super(props);
 
         this.state = {
-            yOffset: (props.signature.heightRatio / 2) + 1
+            yOffset: (props.signature.ratioY / 2) + 1
         };
 
         this.onMove = this.onMove.bind(this);
@@ -74,8 +74,8 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
 
         this.props.moveSignature({
             signatureIndex: this.props.signatureIndex,
-            widthRatio: boundNumber(signatureDOMNode.clientWidth / pageSize.width),
-            heightRatio: boundNumber(signatureDOMNode.clientHeight / pageSize.height)
+            ratioX: boundNumber(signatureDOMNode.clientWidth / pageSize.width),
+            ratioY: boundNumber(signatureDOMNode.clientHeight / pageSize.height)
         });
     }
 
@@ -86,13 +86,13 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
         const pageSize = this.getPageSize();
 
         this.signature.updateSize({
-            width: this.props.signature.widthRatio * pageSize.width,
-            height: this.props.signature.heightRatio * pageSize.height
+            width: this.props.signature.ratioX * pageSize.width,
+            height: this.props.signature.ratioY * pageSize.height
         });
 
         this.signature.updatePosition({
-            x: this.props.signature.xRatio * pageSize.width,
-            y: this.props.signature.yRatio * pageSize.height
+            x: this.props.signature.offsetX * pageSize.width,
+            y: this.props.signature.offsetY * pageSize.height
         });
     }
 
@@ -112,8 +112,8 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
 
         this.props.moveSignature({
             signatureIndex: this.props.signatureIndex,
-            xRatio: boundNumber(resizeData.x / pageSize.width),
-            yRatio: boundNumber(resizeData.y / pageSize.height)
+            offsetX: boundNumber(resizeData.x / pageSize.width),
+            offsetY: boundNumber(resizeData.y / pageSize.height)
         });
     }
 
@@ -125,34 +125,34 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
 
         let moveData: Sign.Actions.MoveSignaturePayload = {
             signatureIndex: this.props.signatureIndex,
-            widthRatio: boundNumber(newWidth / pageSize.width),
-            heightRatio: boundNumber(newHeight / pageSize.height)
+            ratioX: boundNumber(newWidth / pageSize.width),
+            ratioY: boundNumber(newHeight / pageSize.height)
         };
 
         // If the signature has been resized from the top, it now has a new Y position
         if (resizeDirection === 'top' || resizeDirection === 'topLeft' || resizeDirection === 'topRight') {
             // Get the old height and Y position
-            const oldHeight = this.props.signature.heightRatio * pageSize.height;
-            const oldYPosition = this.props.signature.yRatio * pageSize.height;
+            const oldHeight = this.props.signature.ratioY * pageSize.height;
+            const oldYPosition = this.props.signature.offsetY * pageSize.height;
 
             // Figure out the new Y position === <old Y position> + <change in height>
             const newYPosition = oldYPosition + (oldHeight - newHeight);
 
             // Add the new Y ratio to the move signature action
-            moveData.yRatio = boundNumber(newYPosition / pageSize.height);
+            moveData.offsetY = boundNumber(newYPosition / pageSize.height);
         }
 
         // If the signature has been sized from the left, it now has a new X position
         if (resizeDirection === 'left' || resizeDirection === 'topLeft' || resizeDirection === 'bottomLeft') {
             // Get the old width and X position
-            const oldWidth = this.props.signature.widthRatio * pageSize.width;
-            const oldXPosition = this.props.signature.xRatio * pageSize.width;
+            const oldWidth = this.props.signature.ratioX * pageSize.width;
+            const oldXPosition = this.props.signature.offsetX * pageSize.width;
 
             // Figure out the new X position === <old X position> + <change in width>
             const newXPosition = oldXPosition + (oldWidth - newWidth);
 
             // Add the new X ratio to the move signature action
-            moveData.xRatio = boundNumber(newXPosition / pageSize.width);
+            moveData.offsetX = boundNumber(newXPosition / pageSize.width);
         }
 
         // Move that bus! (eeer.... I mean that signature)

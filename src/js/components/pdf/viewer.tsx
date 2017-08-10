@@ -7,7 +7,7 @@ import PDFPage from './page';
 import { SignatureButton, InitialButton } from '../signatureSelector';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import { signDocument, moveSignature, addSignatureToDocument, setActivePage } from '../../actions';
+import { signDocument, moveSignature, addSignatureToDocument, setActivePage, showSignConfirmationModal } from '../../actions';
 import Signature from '../signature';
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
@@ -23,12 +23,12 @@ Promise.config({ cancellation: true });
 
 interface ConnectedPDFViewerProps {
     documentId: string;
+    documentSetId: string;
 }
 
 interface PDFViewerProps extends ConnectedPDFViewerProps {
     pageCount: number;
     pageViewports: Sign.Viewport[];
-    documentSetId: string;
     signatures: Sign.DocumentSignatures;
     signRequestStatus: Sign.DownloadStatus;
     selectedSignatureId?: number;
@@ -36,6 +36,7 @@ interface PDFViewerProps extends ConnectedPDFViewerProps {
     moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
     setActivePage: (payload: Sign.Actions.SetActivePagePayload) => void;
+    showSignConfirmationModal: (payload: Sign.Actions.ShowSignConfirmationModalPayload) => void;
 }
 
 interface PDFPageWrapperProps {
@@ -84,38 +85,9 @@ class PDFViewer extends React.Component<PDFViewerProps> {
         })
     }
 
-
-    sign() {
-        // For each signature: onvert pixel values to ratios (of the page) and add page number
-        const signatures: Sign.Actions.SignDocumentPayloadSignature[] = Object.keys(this.props.signatures).map(key => {
-            const signature = this.props.signatures[key];
-            return {
-                signatureId: signature.signatureId,
-                pageNumber: signature.pageNumber,
-                offsetX: signature.xRatio,
-                offsetY: signature.yRatio,
-                ratioX: signature.widthRatio,
-                ratioY: signature.heightRatio
-            };
-        });
-
-        this.props.signDocument({
-            documentSetId: this.props.documentSetId,
-            documentId: this.props.documentId,
-            signatures
-        });
-    }
-
     render() {
         return (
-            <div className='pdf-viewer' >
-                <Modal show={this.props.signRequestStatus === Sign.DownloadStatus.InProgress} onHide={() => {}}>
-                    <Modal.Body>
-                        <div className='loading' />
-                        <div className='text-center'>Signing document, please wait.</div>
-                    </Modal.Body>
-                </Modal>
-
+            <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
                     <div className="controls">
                         <div className="container">
@@ -135,7 +107,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                             </Col>
                             <Col xs={3}>
                             <div>
-                                <Button onClick={this.sign.bind(this)} disabled={this.props.signRequestStatus === Sign.DownloadStatus.InProgress}>Sign Document</Button>
+                                <Button onClick={() => this.props.showSignConfirmationModal({ documentId: this.props.documentId, documentSetId: this.props.documentSetId })} disabled={this.props.signRequestStatus === Sign.DownloadStatus.InProgress}>Sign Document</Button>
                             </div>
                             </Col>
                             </Row>
@@ -333,7 +305,6 @@ const DropTargetSignaturesPageWrapper = DropTarget(
 
 const ConnectedPDFViewer = connect(
     (state: Sign.State, ownProps: ConnectedPDFViewerProps) => ({
-        documentSetId: findSetForDocument(state.documentSets, ownProps.documentId),
         pageCount: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageCount : 1,
         pageViewports: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageViewports || [] : [],
         signatures: state.documentViewer.signatures,
@@ -341,7 +312,7 @@ const ConnectedPDFViewer = connect(
         selectedSignatureId: state.documentViewer.selectedSignatureId,
         selectedInitialId: state.documentViewer.selectedInitialId
     }),
-    { signDocument, moveSignature, addSignatureToDocument, setActivePage }
+    { signDocument, moveSignature, addSignatureToDocument, setActivePage, showSignConfirmationModal }
 )(PDFViewer)
 
 export default ConnectedPDFViewer;

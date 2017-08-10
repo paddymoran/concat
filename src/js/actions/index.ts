@@ -55,7 +55,7 @@ export function selectSignature(signatureId: number): Sign.Actions.SelectSignatu
 
 export function selectInitial(payload: Sign.Actions.SelectInitialPayload): Sign.Actions.SelectInitial {
     return {
-        type: Sign.Actions.Types.SELECT_INITITAL,
+        type: Sign.Actions.Types.SELECT_INITIAL,
         payload
     };
 }
@@ -169,8 +169,16 @@ export function setActivePage(payload: Sign.Actions.SetActivePagePayload): Sign.
     };
 }
 
-export function closeShowingModal(): Sign.Actions.CloseShowingModal {
+export function closeModal(payload: Sign.Actions.CloseModalPayload): Sign.Actions.CloseModal {
     return {
-        type: Sign.Actions.Types.CLOSE_SHOWING_MODAL
+        type: Sign.Actions.Types.CLOSE_SHOWING_MODAL,
+        payload
+    };
+}
+
+export function showSignConfirmationModal(payload: Sign.Actions.ShowSignConfirmationModalPayload): Sign.Actions.ShowSignConfirmationModal {
+    return {
+        type: Sign.Actions.Types.SHOW_SIGN_CONFIRMATION_MODAL,
+        payload
     };
 }

@@ -250,7 +250,6 @@ def sign_document():
     document_id = args['documentId']
     document =  BytesIO(document_db['data'])
     filename = document_db['filename']
-    document_set_id = document_db['document_set_id']
     for signature in args['signatures']:
         signature['signature'] = BytesIO(db.get_signature(signature['signatureId'], session['user_id']))
 

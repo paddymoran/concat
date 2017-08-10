@@ -1,4 +1,4 @@
-import { takeEvery, put, call, all, select } from 'redux-saga/effects';
+import { takeEvery, takeLatest, put, call, all, select } from 'redux-saga/effects';
 import * as Axios from 'axios';
 import axios from 'axios';
 import { selectSignature, setSignatureIds, closeModal, selectInitial } from '../actions/index'
@@ -39,29 +39,29 @@ function *deleteSignature() {
     }
 }
 
-function *requestSignaturesSaga() {
-    yield takeEvery(Sign.Actions.Types.REQUEST_SIGNATURES, requestSignatures);
-
-    function *requestSignatures(action: Sign.Actions.RequestSignatures) {
-        const response: SignaturesResponse = yield call(axios.get, '/api/signatures');
-
-        const signatureIds = response.data.filter(d => d.type === 'signature').map((signature) => signature.signature_id);
-        const initialIds = response.data.filter(d => d.type === 'initial').map((signature) => signature.signature_id);
-        yield put(setSignatureIds({
-            signatureIds,
-            initialIds,
-            status: Sign.DownloadStatus.Complete
-        }));
-        const selectedSignature = yield select((state: Sign.State) => state.documentViewer.selectedSignatureId);
-        if(signatureIds.length && !selectedSignature) {
-            yield put(selectSignature(signatureIds[0]));
-        }
-        const selectedIntials = yield select((state: Sign.State) => state.documentViewer.selectedInitialId);
-        if(initialIds.length && !selectedIntials) {
-            yield put(selectSignature(initialIds[0]));
-        }
-
+function *requestSignatures(action: Sign.Actions.RequestSignatures) {
+    const response: SignaturesResponse = yield call(axios.get, '/api/signatures');
+    const signatureIds = response.data.filter(d => d.type === 'signature').map((signature) => signature.signature_id);
+    const initialIds = response.data.filter(d => d.type === 'initial').map((signature) => signature.signature_id);
+    yield put(setSignatureIds({
+        signatureIds,
+        initialIds,
+        status: Sign.DownloadStatus.Complete
+    }));
+    const selectedSignature = yield select((state: Sign.State) => state.documentViewer.selectedSignatureId);
+    if(signatureIds.length && !selectedSignature) {
+        yield put(selectSignature(signatureIds[0]));
     }
+    const selectedInitials = yield select((state: Sign.State) => state.documentViewer.selectedInitialId);
+    if(initialIds.length && !selectedInitials) {
+        yield put(selectInitial({initialId: initialIds[0]}));
+    }
+}
+
+
+function *requestSignaturesSaga() {
+    yield takeLatest(Sign.Actions.Types.REQUEST_SIGNATURES, requestSignatures);
+
 }
 
 export default [

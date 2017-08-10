@@ -159,8 +159,8 @@ class ModalButton extends React.Component<any> {
     render(){
         return (
             <div className="signature-button" onClick={() => this.props.showModal()}>
-                        { this.props.selectedId && <img src={signatureUrl(this.props.selectedId)} /> }
-                        <span>{this.props.text}</span>
+                <span>{ this.props.selectedId && <img src={signatureUrl(this.props.selectedId)} /> }</span>
+                <span>{this.props.text}</span>
             </div>
         )
     }

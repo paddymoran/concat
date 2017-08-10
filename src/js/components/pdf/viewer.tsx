@@ -76,6 +76,7 @@ class PDFViewer extends React.Component<PDFViewerProps> {
     constructor(props: PDFViewerProps) {
         super(props);
         this.setActivePage = this.setActivePage.bind(this);
+        this.sign = this.sign.bind(this);
     }
 
     setActivePage(pageNumber: number) {
@@ -83,6 +84,10 @@ class PDFViewer extends React.Component<PDFViewerProps> {
             documentId: this.props.documentId,
             pageNumber
         })
+    }
+
+    sign() {
+        this.props.showSignConfirmationModal({ documentId: this.props.documentId, documentSetId: this.props.documentSetId })
     }
 
     render() {
@@ -103,12 +108,19 @@ class PDFViewer extends React.Component<PDFViewerProps> {
                             </DraggableAddSignatureControl>
                             </Col>
                             <Col xs={3}>
-                            <div><Button>Add Date</Button></div>
+                            <div className="signature-button">
+                                        <span className="fa fa-calendar" />
+                                        <span>Add Date</span>
+                            </div>
+
                             </Col>
                             <Col xs={3}>
-                            <div>
-                                <Button onClick={() => this.props.showSignConfirmationModal({ documentId: this.props.documentId, documentSetId: this.props.documentSetId })} disabled={this.props.signRequestStatus === Sign.DownloadStatus.InProgress}>Sign Document</Button>
+
+                            <div className="signature-button" onClick={ this.sign }>
+                                        <span className="fa fa-pencil" />
+                                        <span>Sign Document</span>
                             </div>
+
                             </Col>
                             </Row>
                         </div>
@@ -171,8 +183,6 @@ class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> 
         const img = new Image();
         img.onload = () => { this.props.connectDragPreview(img); }
         img.src = signatureUrl(signatureId);
-
-
     }
 
     componentWillUpdate(newProps : AddSignatureControlProps) {
@@ -182,9 +192,9 @@ class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> 
     }
 
     render() {
-        return this.props.connectDragSource(
+        return this.props.signatureId ? this.props.connectDragSource(
             this.props.children
-        );
+        ) : this.props.children;
     }
 }
 

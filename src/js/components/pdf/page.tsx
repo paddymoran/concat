@@ -14,6 +14,7 @@ interface PDFPageConnectProps {
     documentId: string;
     pageNumber: number;
     showLoading?: boolean;
+    className?: string;
 }
 
 interface PDFPageProps extends PDFPageConnectProps {
@@ -66,7 +67,7 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
             return <Loading />;
         }
 
-        return <span>
+        return <span className={this.props.className || ''}>
             <div ref="loading" className="loading-container"><Loading /></div>
             <canvas style={{display: 'none'}} key={this._count++}  ref={(ref) => {
                   if (!ref) return;

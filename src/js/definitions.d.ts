@@ -394,6 +394,7 @@ declare module 'pdfjs-dist/webpack' {
             progressCallback?: (progressData: PDFProgressData) => void)
             : PDFPromise<PDFDocumentProxy>;
    }
+   export { PDFJS } ;
 }
 
 declare module 'react-signature-canvas' {

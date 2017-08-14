@@ -38,7 +38,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
 
     constructor(props: SignatureSelectorProps) {
         super(props);
-
+        this.deleteSignature = this.deleteSignature.bind(this);
         this.state = {
             currentTab: SELECT_SIGNATURE_TAB
         };
@@ -89,7 +89,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
             height: 200
         };
         return  (
-            <Modal show={true} onHide={() => this.props.closeModal()}>
+            <Modal show={true} onHide={this.props.closeModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Select {this.props.title}</Modal.Title>
                 </Modal.Header>
@@ -143,8 +143,8 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                     </Tabs>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button bsStyle="warning" disabled={!this.props.selectedId} onClick={() => this.deleteSignature()}>Delete {this.props.title}</Button>
-                    <Button onClick={() => this.props.closeModal()}>Close</Button>
+                    <Button bsStyle="warning" disabled={!this.props.selectedId} onClick={this.deleteSignature}>Delete {this.props.title}</Button>
+                    <Button onClick={this.props.closeModal}>Close</Button>
                     <Button bsStyle='primary' onClick={this.select.bind(this)} >Select</Button>
                 </Modal.Footer>
             </Modal>

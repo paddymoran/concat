@@ -72,7 +72,7 @@ const ConnectedDocumentSet = connect(
 )(DocumentSet);
 
 
-class UploadDocuments extends React.Component<UploadDocumentsProps> {
+class UploadDocuments extends React.PureComponent<UploadDocumentsProps> {
     _fileInput: HTMLInputElement;
 
     constructor(props: UploadDocumentsProps) {

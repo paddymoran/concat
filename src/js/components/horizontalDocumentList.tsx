@@ -9,27 +9,27 @@ import { findSetForDocument } from '../utils';
 import { DragSource, DropTarget } from 'react-dnd';
 import { Col, Button } from 'react-bootstrap';
 
-interface ConnectedDocumentViewProps {
+interface DocumentViewProps {
     documentId: string;
 }
 
-interface DocumentViewProps extends ConnectedDocumentViewProps {
+interface ConnectedDocumentViewProps extends DocumentViewProps {
     document: Sign.Document;
     documentSetId: string;
 }
 
-interface ConnectedDocumentListProps {
+interface DocumentListProps {
     documentSetId: string;
 }
 
-interface DocumentListProps {
+interface ConnectedDocumentListProps extends DocumentListProps{
     documentIds: string[];
 };
 
 const THUMBNAIL_WIDTH = 150;
 
 
-class DocumentView extends React.PureComponent<DocumentViewProps> {
+class DocumentView extends React.PureComponent<ConnectedDocumentViewProps> {
     render() {
         return (
             <div className="document row">
@@ -51,13 +51,14 @@ class DocumentView extends React.PureComponent<DocumentViewProps> {
 }
 
 const ConnectedDocumentView = connect(
-    (state: Sign.State, ownProps: ConnectedDocumentViewProps) => ({
+    (state: Sign.State, ownProps: DocumentViewProps) => ({
         document: state.documents[ownProps.documentId],
         documentSetId: findSetForDocument(state.documentSets, ownProps.documentId)
     })
 )(DocumentView);
 
-class DocumentList extends React.Component<DocumentListProps> {
+
+class DocumentList extends React.PureComponent<ConnectedDocumentListProps> {
     render() {
         return (
             <div className="document-set">
@@ -68,7 +69,7 @@ class DocumentList extends React.Component<DocumentListProps> {
 }
 
 export default connect(
-    (state: Sign.State, ownProps: ConnectedDocumentListProps) => ({
+    (state: Sign.State, ownProps: DocumentListProps) => ({
         documentIds: state.documentSets[ownProps.documentSetId].documentIds
     })
 )(DocumentList);

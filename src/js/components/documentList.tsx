@@ -8,32 +8,40 @@ import { Link } from 'react-router';
 import { findSetForDocument } from '../utils';
 import { DragSource, DropTarget } from 'react-dnd';
 
-interface ConnectedDocumentViewProps {
+interface DocumentViewProps {
     documentId: string;
-    showRemove: boolean;
+    showRemove?: boolean;
     index: number;
-}
-
-interface DocumentViewProps extends ConnectedDocumentViewProps {
-    document: Sign.Document;
-    documentSetId: string;
-    removeDocument: Function;
-    connectDragSource: Function;
-    connectDropTarget: Function;
     reorderDocuments: (payload: Sign.Actions.ReorderDocumentsPayload) => void;
 }
 
+interface ConnectedDocumentViewProps extends DocumentViewProps {
+    document: Sign.Document;
+    removeDocument: Function;
+    connectDragSource: Function;
+    connectDropTarget: Function;
+}
+
 interface DocumentListProps {
-    documentIds: string[];
-    showRemove: boolean;
-    reorderable: boolean;
+    documentSetId: string;
 };
+
+interface ConnectedDocumentListProps extends DocumentListProps{
+    showRemove?: boolean;
+    reorderable?: boolean;
+    documentSetId: string;
+    documentIds: string[];
+    reorderDocuments: (payload: Sign.Actions.ReorderDocumentsPayload) => void;
+};
+
+
 
 const THUMBNAIL_WIDTH = 150;
 
 
-class DocumentView extends React.PureComponent<DocumentViewProps> {
-    constructor(props: DocumentViewProps) {
+class DocumentView extends React.PureComponent<ConnectedDocumentViewProps> {
+
+    constructor(props: ConnectedDocumentViewProps) {
         super(props);
         this.removeDocument = this.removeDocument.bind(this);
     }
@@ -67,15 +75,14 @@ class DocumentView extends React.PureComponent<DocumentViewProps> {
 }
 
 const ConnectedDocumentView = connect(
-    (state: Sign.State, ownProps: ConnectedDocumentViewProps) => ({
+    (state: Sign.State, ownProps: DocumentViewProps) => ({
         document: state.documents[ownProps.documentId],
-        documentSetId: findSetForDocument(state.documentSets, ownProps.documentId)
     }),
     { removeDocument }
 )(DocumentView);
 
 
-const documentDragSource: __ReactDnd.DragSourceSpec<ConnectedDocumentViewProps> = {
+const documentDragSource: __ReactDnd.DragSourceSpec<DocumentViewProps> = {
     beginDrag(props) {
         return {
             documentId: props.documentId,
@@ -85,8 +92,8 @@ const documentDragSource: __ReactDnd.DragSourceSpec<ConnectedDocumentViewProps> 
 };
 
 
-const documentDragTarget: __ReactDnd.DropTargetSpec<ConnectedDocumentViewProps> = {
-    hover(dropTargetProps : DocumentViewProps, monitor, component) {
+const documentDragTarget: __ReactDnd.DropTargetSpec<DocumentViewProps> = {
+    hover(dropTargetProps : ConnectedDocumentViewProps, monitor, component) {
         const dragItem : any = monitor.getItem();
 
         // Don't replace items with themselves
@@ -136,31 +143,22 @@ const DraggableDroppableDocumentView = DropTarget(
     })
 )(DraggableDocumentView);
 
-const ConnectedDraggableDroppableDocumentView = connect(
-    undefined,
-    { reorderDocuments }
-)(DraggableDroppableDocumentView);
 
-class DocumentList extends React.Component<DocumentListProps> {
+
+class DocumentList extends React.PureComponent<ConnectedDocumentListProps> {
     render() {
         return (
             <div className="document-list clearfix">
-                {this.props.documentIds.map((documentId, index) => <ConnectedDraggableDroppableDocumentView showRemove={this.props.showRemove} key={documentId} index={index} documentId={documentId} />)}
+                { this.props.documentIds.map((documentId, index) => <DraggableDroppableDocumentView reorderDocuments={this.props.reorderDocuments} showRemove={this.props.showRemove} key={documentId} index={index} documentId={documentId} />) }
             </div>
         );
     }
 }
 
-interface ConnectedDocumentListProps {
-    documentSetId: string;
-    showRemove?: boolean;
-    reorderable?: boolean;
-}
+
 
 export default connect(
-    (state: Sign.State, ownProps: ConnectedDocumentListProps) => ({
-        documentIds: state.documentSets[ownProps.documentSetId].documentIds,
-        showRemove: ownProps.showRemove !== undefined ? ownProps.showRemove : true,
-        reorderable: ownProps.reorderable !== undefined ? ownProps.reorderable : true
-    })
+    (state: Sign.State, ownProps: DocumentListProps) => ({
+        documentIds: state.documentSets[ownProps.documentSetId].documentIds
+    }),  { reorderDocuments }
 )(DocumentList);

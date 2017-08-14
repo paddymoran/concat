@@ -7,26 +7,24 @@ import SignConfirmation from './signConfirmation';
 
 interface ModalsProps {
     showing: string;
-    closeModal: (payload: Sign.Actions.CloseModalPayload) => void;
+    //closeModal: (payload: Sign.Actions.CloseModalPayload) => void;
 }
 
 class Modals extends React.PureComponent<ModalsProps>{
     render() {
-        const hideModal = () => this.props.closeModal({ modalName: this.props.showing });
-
         switch(this.props.showing){
             case 'selectSignature':
-                return <SignatureModal hideModal={hideModal} />;
-            
+                return <SignatureModal />;
+
             case 'results':
-                return <ResultsModal hideModal={hideModal} />;
-            
+                return <ResultsModal  />;
+
             case 'selectInitial':
-                return <InitialsModal hideModal={hideModal} />;
+                return <InitialsModal />;
 
             case Sign.ModalType.SIGN_CONFIRMATION:
-                return <SignConfirmation hideModal={hideModal} />
-            
+                return <SignConfirmation />
+
             default:
                 return false;
         }
@@ -37,8 +35,5 @@ class Modals extends React.PureComponent<ModalsProps>{
 export default connect(
     (state: Sign.State) => ({
         showing: state.modals.showing
-    }),
-    {
-        closeModal: closeModal,
-    }
+    })
 )(Modals)

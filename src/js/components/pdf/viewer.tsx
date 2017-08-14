@@ -32,6 +32,7 @@ interface PDFViewerProps extends ConnectedPDFViewerProps {
     signatures: Sign.DocumentSignatures;
     signRequestStatus: Sign.DownloadStatus;
     selectedSignatureId?: number;
+    selectedInitialId?: number;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
     moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
@@ -178,7 +179,7 @@ class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> 
         }
     }
 
-    preview(signatureId) {
+    preview(signatureId: number) {
        // this.props.connectDragPreview(<div><img width="100px" src={signatureUrl(this.props.signatureId)} /></div>);
         const img = new Image();
         img.onload = () => { this.props.connectDragPreview(img); }

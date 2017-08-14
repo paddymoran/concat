@@ -7,12 +7,21 @@ interface SignConfirmationProps {
     signRequestStatus: Sign.DownloadStatus;
     documentId: string;
     documentSetId: string;
-    signatures: Sign.Signatures;
+    signatures: Sign.DocumentSignatures;
     hideModal: () => void;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
 }
 
 class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
+    constructor(props: SignConfirmationProps) {
+        super(props);
+        this.sign = this.sign.bind(this);
+    }
+
+    sign() {
+        this.props.signDocument({ documentId: this.props.documentId, signatures: this.props.signatures, documentSetId: this.props.documentSetId });
+    }
+
     renderLoading() {
         return (
             <div>
@@ -26,10 +35,10 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
         return (
             <div>
                 <i className="fa fa-pencil modal-icon" aria-hidden="true"></i>
-                
+
                 <p className='text-center'>Are you sure you want to sign this document?</p>
-                
-                <Button bsStyle='primary' bsSize="lg" onClick={() => this.props.signDocument({ documentId: this.props.documentId, signatures: this.props.signatures, documentSetId: this.props.documentSetId })}>Sign</Button>
+
+                <Button bsStyle='primary' bsSize="lg" onClick={this.sign}>Sign</Button>
             </div>
         );
     }

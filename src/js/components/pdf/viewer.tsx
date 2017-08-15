@@ -163,7 +163,7 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
     };
 }
 
-const PDFPageWrapperDimensions = Dimensions()(PDFPageWrapper);
+
 
 const PDFPreviewDimensions = Dimensions()(PDFPreview);
 
@@ -240,7 +240,8 @@ class PDFViewer extends React.Component<ConnectedPDFViewerProps> {
                                                                                                     this.props.signatures[signatureIndex].documentId === this.props.documentId);
 
                                 return (
-                                    <DropTargetSignaturesPageWrapper
+                                        <div className="page-separator">
+                                    <DimensionedDropTargetSignaturesPageWrapper
                                         key={index}
                                         pageNumber={index}
                                         documentId={this.props.documentId}
@@ -249,8 +250,9 @@ class PDFViewer extends React.Component<ConnectedPDFViewerProps> {
                                         selectedSignatureId={this.props.selectedSignatureId}
                                         viewport={this.props.pageViewports[index] || {height: 1, width: 1}}
                                     >
-                                        <PDFPageWrapperDimensions ref="pdf-page" documentId={this.props.documentId} pageNumber={index}  setActivePage={this.setActivePage} viewport={this.props.pageViewports[index] || {height: 1, width: 1}}/>
-                                    </DropTargetSignaturesPageWrapper>
+                                        <PDFPageWrapper ref="pdf-page" documentId={this.props.documentId} pageNumber={index}  setActivePage={this.setActivePage} viewport={this.props.pageViewports[index] || {height: 1, width: 1}}/>
+                                    </DimensionedDropTargetSignaturesPageWrapper>
+                                    </div>
                                 );
                             })}
                        </Col>
@@ -302,18 +304,17 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
     }
 
     render() {
-        const child = React.cloneElement(React.Children.only(this.props.children), { ref: 'pdf-page' });
+        const child = React.cloneElement(React.Children.only(this.props.children), { ref: 'pdf-page', containerWidth: this.props.containerWidth, containerHeight: this.props.containerHeight });
         let className = "signature-wrapper ";
         if(this.props.isOver){
             className += 'over'
         }
         const body = (
-            <div className={className}>
-                {this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
-                {child}
+            <div className={className} style={{position: 'relative'}}>
+               {  this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={this.props.containerHeight}/>)}
+                { child }
             </div>
         );
-
         return this.props.connectDropTarget(body);
     }
 }
@@ -327,6 +328,7 @@ const DropTargetSignaturesPageWrapper = DropTarget(
     })
 )(SignaturesPageWrapper);
 
+const DimensionedDropTargetSignaturesPageWrapper = Dimensions({elementResize: true, debounce: 100})(DropTargetSignaturesPageWrapper)
 
 const ConnectedPDFViewer = connect(
     (state: Sign.State, ownProps: PDFViewerProps) => {

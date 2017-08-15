@@ -135,11 +135,13 @@ $background: #fff;
     height: 36px;
 }
 .signature-wrapper{
-     margin-bottom: 30px;
      &.over {
         animation: page-hover 1.5s ease-in-out infinite alternate;
-
      }
+}
+
+.page-separator{
+    margin-bottom:30px;
 }
 
 .loading-container{

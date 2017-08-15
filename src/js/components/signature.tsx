@@ -8,6 +8,8 @@ import { signatureUrl } from '../utils';
 interface ConnectedSignatureProps {
     signatureIndex: string;
     page: React.ReactInstance;
+    containerHeight: number;
+    containerWidth: number;
 }
 
 interface SignatureProps extends ConnectedSignatureProps {
@@ -69,13 +71,12 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
      * We don't know it in the reducer when the signature is created, so we have to set it here.
      */
     componentDidMount() {
-        const pageSize = this.getPageSize();
-        const signatureDOMNode = findDOMNode(this.signature);
 
+        const signatureDOMNode = findDOMNode(this.signature);
         this.props.moveSignature({
             signatureIndex: this.props.signatureIndex,
-            ratioX: boundNumber(signatureDOMNode.clientWidth / pageSize.width),
-            ratioY: boundNumber(signatureDOMNode.clientHeight / pageSize.height)
+            ratioX: boundNumber(signatureDOMNode.clientWidth / this.props.containerWidth),
+            ratioY: boundNumber(signatureDOMNode.clientHeight / this.props.containerHeight)
         });
     }
 
@@ -83,81 +84,67 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
      * Move signature to where we think it should be, everytime the component updates.
      */
     componentDidUpdate() {
-        const pageSize = this.getPageSize();
 
         this.signature.updateSize({
-            width: this.props.signature.ratioX * pageSize.width,
-            height: this.props.signature.ratioY * pageSize.height
+            width: this.props.signature.ratioX * this.props.containerWidth,
+            height: this.props.signature.ratioY * this.props.containerHeight
         });
 
         this.signature.updatePosition({
-            x: this.props.signature.offsetX * pageSize.width,
-            y: this.props.signature.offsetY * pageSize.height
+            x: this.props.signature.offsetX * this.props.containerWidth,
+            y: this.props.signature.offsetY * this.props.containerHeight
         });
     }
 
-    getPageSize() {
-        const pageDOMNode = findDOMNode(this.props.page);
-        if(pageDOMNode) {
-            return {
-                width: pageDOMNode.clientWidth,
-                height: pageDOMNode.clientHeight
-            };
-        }
-        return {
-            width: 0,
-            height: 0
-        }
-    }
+
 
     onMove(event: ReactRnd.DraggableData, resizeData: ReactRnd.ResizeData) {
-        const pageSize = this.getPageSize();
 
-        const xRatio = resizeData.x / pageSize.width;
+        const xRatio = resizeData.x / this.props.containerWidth;
 
         this.props.moveSignature({
             signatureIndex: this.props.signatureIndex,
-            offsetX: boundNumber(resizeData.x / pageSize.width),
-            offsetY: boundNumber(resizeData.y / pageSize.height)
+            offsetX: boundNumber(resizeData.x / this.props.containerWidth),
+            offsetY: boundNumber(resizeData.y / this.props.containerHeight)
         });
     }
 
     onResize(event: any, resizeDirection: string, element: any) {
-        const pageSize = this.getPageSize();
+
 
         const newWidth = element.clientWidth;
         const newHeight = element.clientHeight;
 
         let moveData: Sign.Actions.MoveSignaturePayload = {
             signatureIndex: this.props.signatureIndex,
-            ratioX: boundNumber(newWidth / pageSize.width),
-            ratioY: boundNumber(newHeight / pageSize.height)
+            ratioX: boundNumber(newWidth / this.props.containerWidth),
+            ratioY: boundNumber(newHeight / this.props.containerHeight)
         };
 
         // If the signature has been resized from the top, it now has a new Y position
         if (resizeDirection === 'top' || resizeDirection === 'topLeft' || resizeDirection === 'topRight') {
             // Get the old height and Y position
-            const oldHeight = this.props.signature.ratioY * pageSize.height;
-            const oldYPosition = this.props.signature.offsetY * pageSize.height;
+            const oldHeight = this.props.signature.ratioY * this.props.containerHeight;
+            const oldYPosition = this.props.signature.offsetY * this.props.containerHeight;
 
             // Figure out the new Y position === <old Y position> + <change in height>
             const newYPosition = oldYPosition + (oldHeight - newHeight);
 
             // Add the new Y ratio to the move signature action
-            moveData.offsetY = boundNumber(newYPosition / pageSize.height);
+            moveData.offsetY = boundNumber(newYPosition / this.props.containerHeight);
         }
 
         // If the signature has been sized from the left, it now has a new X position
         if (resizeDirection === 'left' || resizeDirection === 'topLeft' || resizeDirection === 'bottomLeft') {
             // Get the old width and X position
-            const oldWidth = this.props.signature.ratioX * pageSize.width;
-            const oldXPosition = this.props.signature.offsetX * pageSize.width;
+            const oldWidth = this.props.signature.ratioX * this.props.containerWidth;
+            const oldXPosition = this.props.signature.offsetX * this.props.containerWidth;
 
             // Figure out the new X position === <old X position> + <change in width>
             const newXPosition = oldXPosition + (oldWidth - newWidth);
 
             // Add the new X ratio to the move signature action
-            moveData.offsetX = boundNumber(newXPosition / pageSize.width);
+            moveData.offsetX = boundNumber(newXPosition / this.props.containerWidth);
         }
 
         // Move that bus! (eeer.... I mean that signature)

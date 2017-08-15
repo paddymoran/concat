@@ -37,9 +37,7 @@ interface DragLayerProps {
 
 export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
 
-  renderItem(type, item) {
 
-  }
 
   render() {
     const { item, itemType, isDragging } = this.props;

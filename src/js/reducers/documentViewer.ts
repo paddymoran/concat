@@ -49,7 +49,8 @@ function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions
         documentId: action.payload.documentId,
         pageNumber: action.payload.pageNumber,
         offsetX: action.payload.xOffset || 0,
-        offsetY: action.payload.yOffset || 0
+        offsetY: action.payload.yOffset || 0,
+        xyRatio: action.payload.xyRatio
     };
 
     return {

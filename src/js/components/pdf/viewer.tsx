@@ -13,11 +13,13 @@ import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
 import * as Dimensions from 'react-dimensions';
-import { signatureUrl, boundNumber } from '../../utils';
+import { signatureUrl, boundNumber, imageRatio } from '../../utils';
 import { generateUUID } from '../uuid';
 import { DragSource, DropTarget } from 'react-dnd';
 import * as Waypoint from 'react-waypoint';
 import { getEmptyImage } from 'react-dnd-html5-backend';
+
+
 
 Promise.config({ cancellation: true });
 
@@ -93,33 +95,6 @@ class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> 
 
 
 
-class AddSignatureControlX extends React.PureComponent<AddSignatureControlProps> {
-    componentDidMount() {
-        if(this.props.signatureId){
-            this.preview(this.props.signatureId);
-        }
-    }
-
-    preview(signatureId: number) {
-        this.props.connectDragPreview(<div><img width="100px" src={signatureUrl(this.props.signatureId)} /></div>);
-        const img = new Image();
-        img.onload = () => { this.props.connectDragPreview(img); }
-        img.src = signatureUrl(signatureId);
-    }
-
-    componentWillUpdate(newProps : AddSignatureControlProps) {
-        if(this.props.signatureId !== newProps.signatureId && newProps.signatureId){
-            this.preview(newProps.signatureId);
-        }
-    }
-
-    render() {
-        return this.props.signatureId ? this.props.connectDragSource(
-            this.props.children
-        ) : this.props.children;
-    }
-}
-
 const DraggableAddSignatureControl = DragSource(
     Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT,
     signatureSource,
@@ -133,7 +108,7 @@ const DraggableAddSignatureControl = DragSource(
 const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
     drop(props, monitor, pageComponent) {
         const item : any = monitor.getItem();
-        const { signatureId,} = item;
+        const { signatureId } = item;
 
         const pageBounds = findDOMNode(pageComponent).getBoundingClientRect()
         const dropTargetBounds = monitor.getClientOffset();
@@ -154,10 +129,12 @@ const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps>
         const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
         const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
 
-        generateUUID().then(signatureIndex =>
+        Promise.all([imageRatio(signatureUrl(signatureId)), generateUUID()])
+           .spread((xyRatio, signatureIndex) =>
             props.addSignatureToDocument({
                 signatureIndex,
                 signatureId,
+                xyRatio,
                 documentId: props.documentId,
                 pageNumber: props.pageNumber,
                 xOffset: signatureXOffset,
@@ -317,7 +294,8 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
                         signatureId: this.props.selectedSignatureId,
                         pageNumber: this.props.pageNumber,
                         xOffset: offsetX / rect.width,
-                        yOffset: offsetY / rect.height
+                        yOffset: offsetY / rect.height,
+                        xyRatio: 1
                     })
             })
         }

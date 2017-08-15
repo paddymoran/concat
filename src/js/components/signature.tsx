@@ -56,7 +56,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
         super(props);
 
         this.state = {
-            yOffset: (props.signature.ratioY / 2) + 1
+            yOffset: (props.signature.ratioY / 2) + 1,
         };
 
         this.onMove = this.onMove.bind(this);
@@ -174,7 +174,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
             x: 0,
             y: 0,
             width: Sign.DefaultSignatureSize.WIDTH,
-            height: Sign.DefaultSignatureSize.HEIGHT
+            height: Sign.DefaultSignatureSize.WIDTH / this.props.signature.xyRatio
         };
 
         const stylesWithbackground = {
@@ -192,6 +192,7 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
                 bounds="parent"
                 minWidth={Signature.MIN_WIDTH}
                 minHeight={Signature.MIN_HEIGHT}
+                lockAspectRatio={true}
                 resizeHandlerClasses={Signature.HANDLER_STYLES}
             ><button className="button-no-style signature-destroy" onClick={this.onDelete}><span className="fa fa-trash-o"/></button></ReactRnd>
         );

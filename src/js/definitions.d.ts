@@ -62,6 +62,7 @@ declare namespace Sign {
         offsetY: number;
         ratioX?: number;
         ratioY?: number;
+        xyRatio: number;
     }
 
     interface DocumentSignatures {
@@ -295,6 +296,7 @@ declare namespace Sign.Actions {
         pageNumber: number;
         xOffset?: number;
         yOffset?: number;
+        xyRatio: number;
     }
 
     interface RemoveSignatureFromDocumentPayload {

@@ -17,7 +17,7 @@ import { signatureUrl, boundNumber } from '../../utils';
 import { generateUUID } from '../uuid';
 import { DragSource, DropTarget } from 'react-dnd';
 import * as Waypoint from 'react-waypoint';
-
+import { getEmptyImage } from 'react-dnd-html5-backend';
 
 Promise.config({ cancellation: true });
 
@@ -61,9 +61,10 @@ interface AddSignatureControlProps {
 }
 
 const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {
-    beginDrag(props) {
+    beginDrag(props, monitor) {
+        const { signatureId } = props;
         return {
-            signatureId: props.signatureId
+            signatureId
         };
     }
 };
@@ -72,13 +73,35 @@ const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {
 
 class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> {
     componentDidMount() {
+        // Use empty image as a drag preview so browsers don't draw it
+        // and we can draw whatever we want on the custom drag layer instead.
+        this.props.connectDragPreview(getEmptyImage(), {
+          // IE fallback: specify that we'd rather screenshot the node
+          // when it already knows it's being dragged so we can hide it with CSS.
+          captureDraggingState: true,
+        });
+
+    }
+
+    render() {
+        const { isDragging } = this.props;
+        return this.props.signatureId ? this.props.connectDragSource(
+            this.props.children
+        ) : this.props.children;
+    }
+}
+
+
+
+class AddSignatureControlX extends React.PureComponent<AddSignatureControlProps> {
+    componentDidMount() {
         if(this.props.signatureId){
             this.preview(this.props.signatureId);
         }
     }
 
     preview(signatureId: number) {
-       // this.props.connectDragPreview(<div><img width="100px" src={signatureUrl(this.props.signatureId)} /></div>);
+        this.props.connectDragPreview(<div><img width="100px" src={signatureUrl(this.props.signatureId)} /></div>);
         const img = new Image();
         img.onload = () => { this.props.connectDragPreview(img); }
         img.src = signatureUrl(signatureId);
@@ -270,6 +293,7 @@ interface SignaturesPageWrapperProps {
     selectedSignatureId?: number;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
     connectDropTarget?: Function;
+    isOver?: boolean;
 }
 
 class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperProps> {
@@ -301,9 +325,12 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
 
     render() {
         const child = React.cloneElement(React.Children.only(this.props.children), { ref: 'pdf-page' });
-
+        let className = "signature-wrapper ";
+        if(this.props.isOver){
+            className += 'over'
+        }
         const body = (
-            <div className="signature-wrapper">
+            <div className={className}>
                 {this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} />)}
                 {child}
             </div>
@@ -316,8 +343,9 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
 const DropTargetSignaturesPageWrapper = DropTarget(
     Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT,
     signatureDropTarget,
-    connect => ({
-        connectDropTarget: connect.dropTarget()
+    (connect, monitor) => ({
+        connectDropTarget: connect.dropTarget(),
+        isOver: monitor.isOver()
     })
 )(SignaturesPageWrapper);
 

@@ -117,3 +117,14 @@
     box-shadow: 0 0 0 4px $gray-lighter;
   }
 }
+
+
+
+@keyframes page-hover {
+  from {
+    box-shadow: 0 0 10px $deep-red ;
+  }
+  to {
+    box-shadow: 0 0 50px $deep-red;
+  }
+}

@@ -2,6 +2,8 @@ import * as React from "react";
 import Header from './header';
 import { CSSTransitionGroup } from 'react-transition-group';
 import Modals from './modals'
+import CustomDragLayer from './dragLayer';
+
 
 interface AppProps {
     location:  Location,
@@ -13,6 +15,7 @@ export default class App extends React.PureComponent<AppProps, {}> {
         const { children, location: { pathname } } = this.props;
         return (
             <div>
+                <CustomDragLayer />
                 <Header />
                   <CSSTransitionGroup style={{position: 'relative', display:'block'}}
                           transitionName={'slideInRight'}
@@ -20,7 +23,7 @@ export default class App extends React.PureComponent<AppProps, {}> {
                           transitionLeaveTimeout={400}
                         >
                         <div  key={pathname}>
-                     {children}
+                             {children}
                       </div>
                 </CSSTransitionGroup>
                 <Modals />

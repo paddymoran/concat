@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { signDocument } from '../../actions';
+import { signDocument, closeModal } from '../../actions';
 
 interface SignConfirmationProps {
     signRequestStatus: Sign.DownloadStatus;
@@ -65,5 +65,5 @@ export default connect(
         documentSetId: state.modals.documentSetId,
         signatures: state.documentViewer.signatures
     }),
-    { signDocument },
+    { signDocument, hideModal: () => closeModal({modalName: Sign.ModalType.SIGN_CONFIRMATION})  },
 )(SignConfirmation);

@@ -136,11 +136,26 @@ $background: #fff;
 }
 .signature-wrapper{
      margin-bottom: 30px;
+     &.over {
+        animation: page-hover 1.5s ease-in-out infinite alternate;
+
+     }
 }
+
 .loading-container{
    position:absolute;
     left:50%;
     top:50%;
     transform: translate(-50%,-50%);
     overflow:hidden;
+}
+
+.custom-drag{
+  position: fixed;
+  pointer-events: none;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
 }

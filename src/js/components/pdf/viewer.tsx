@@ -95,6 +95,8 @@ class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> 
 
 
 
+
+
 const DraggableAddSignatureControl = DragSource(
     Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT,
     signatureSource,
@@ -109,37 +111,40 @@ const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps>
     drop(props, monitor, pageComponent) {
         const item : any = monitor.getItem();
         const { signatureId } = item;
-
-        const pageBounds = findDOMNode(pageComponent).getBoundingClientRect()
         const dropTargetBounds = monitor.getClientOffset();
 
-        // Get the top left position of the signature on the page
-        const sigantureX = dropTargetBounds.x - pageBounds.left;
-        const sigantureY = dropTargetBounds.y - pageBounds.top;
-
-        // Find the centered position of the signature on the page
-        const centeredSignatureX = sigantureX - (Sign.DefaultSignatureSize.WIDTH / 2);
-        const centeredSignatureY = sigantureY - (Sign.DefaultSignatureSize.HEIGHT / 2);
-
-        // Keep signature offsets within an expecptable bounds
-        const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - Sign.DefaultSignatureSize.WIDTH);
-        const boundCenteredSignatureY = boundNumber(centeredSignatureY, 0, pageBounds.height - Sign.DefaultSignatureSize.HEIGHT);
-
-        // Convert the centered signature position to ratios
-        const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
-        const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
-
         Promise.all([imageRatio(signatureUrl(signatureId)), generateUUID()])
-           .spread((xyRatio: number, signatureIndex: string) =>
-            props.addSignatureToDocument({
-                signatureIndex,
-                signatureId,
-                xyRatio,
-                documentId: props.documentId,
-                pageNumber: props.pageNumber,
-                xOffset: signatureXOffset,
-                yOffset: signatureYOffset,
-            }))
+           .spread((xyRatio: number, signatureIndex: string) => {
+
+                const pageBounds = findDOMNode(pageComponent).getBoundingClientRect()
+
+                // Get the top left position of the signature on the page
+                const sigantureX = dropTargetBounds.x - pageBounds.left;
+                const sigantureY = dropTargetBounds.y - pageBounds.top;
+
+                // Find the centered position of the signature on the page
+                const width = Sign.DefaultSignatureSize.WIDTH;
+                const centeredSignatureX = sigantureX - (width / 2);
+                const centeredSignatureY = sigantureY - ((width / xyRatio) / 2);
+
+                // Keep signature offsets within an expecptable bounds
+                const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - Sign.DefaultSignatureSize.WIDTH);
+                const boundCenteredSignatureY = boundNumber(centeredSignatureY, 0, pageBounds.height - Sign.DefaultSignatureSize.HEIGHT);
+
+                // Convert the centered signature position to ratios
+                const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
+                const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
+
+                props.addSignatureToDocument({
+                    signatureIndex,
+                    signatureId,
+                    xyRatio,
+                    documentId: props.documentId,
+                    pageNumber: props.pageNumber,
+                    xOffset: signatureXOffset,
+                    yOffset: signatureYOffset,
+                })
+       })
     }
 };
 

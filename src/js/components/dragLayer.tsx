@@ -1,8 +1,10 @@
 import * as React from 'react';
 import {  DragLayer } from 'react-dnd';
+import { Button, Modal } from 'react-bootstrap';
+import { signatureUrl, imageRatio } from '../utils';
 
 
-function getItemStyles(props: DragLayerProps) {
+function getItemStyles(props: SigProps, width: number, height: number) {
 
   const { clientOffset } = props;
   if (!clientOffset) {
@@ -12,13 +14,12 @@ function getItemStyles(props: DragLayerProps) {
   }
 
   let { x, y } = clientOffset;
-  const transform = `translate(${x}px, ${y}px)`;
+  const transform = `translate(${x-(width/2)}px, ${y-(height/2)}px)`;
   return {
     transform,
     WebkitTransform: transform,
-     backgroundColor: 'red',
-    width: 100,
-    height: 100,
+    width,
+    height
   };
 }
 
@@ -29,10 +30,44 @@ interface DragLayerProps {
         y: number,
     }
     itemType: string
-    item: React.Component
+    item:  {
+        signatureId?: number
+    }
     isDragging: boolean
 }
 
+interface SigProps {
+    clientOffset: {
+        x: number,
+        y: number,
+    }
+    signatureId?: number
+}
+
+interface SigState {
+    xyRatio?: number
+}
+
+
+class SignatureGetSize extends React.PureComponent<SigProps, SigState> {
+    constructor(props : SigProps) {
+        super(props);
+        this.state = {};
+
+    }
+    componentDidMount() {
+
+        return imageRatio(signatureUrl(this.props.signatureId))
+            .then((xyRatio: number) => {
+                return this.setState({ xyRatio })
+            })
+    }
+    render() {
+        const width = Sign.DefaultSignatureSize.WIDTH;
+        const height = this.state.xyRatio ? width / this.state.xyRatio : Sign.DefaultSignatureSize.HEIGHT
+        return <div style={getItemStyles(this.props, width, height )}><img src={signatureUrl(this.props.signatureId)}/></div>
+    }
+}
 
 
 export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
@@ -40,17 +75,14 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
   render() {
     const { item, itemType, isDragging } = this.props;
 
-    console.log(this.props)
     if(!isDragging){
         return false;
     }
 
     return (
       <div className="custom-drag">
-     { isDragging  && <div style={getItemStyles(this.props)} /> }
-
-      </div>
-
+         { isDragging  && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} /> }
+     </div>
     );
   }
 }

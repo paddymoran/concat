@@ -56,6 +56,7 @@ declare namespace Sign {
 
     interface DocumentSignature {
         signatureId: number;
+        documentId: string;
         pageNumber: number;
         offsetX: number;
         offsetY: number;
@@ -288,6 +289,7 @@ declare namespace Sign.Actions {
     }
 
     interface AddSignatureToDocumentPayload {
+        documentId: string;
         signatureIndex: string;
         signatureId: number;
         pageNumber: number;

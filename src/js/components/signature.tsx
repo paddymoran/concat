@@ -98,11 +98,16 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
 
     getPageSize() {
         const pageDOMNode = findDOMNode(this.props.page);
-
+        if(pageDOMNode) {
+            return {
+                width: pageDOMNode.clientWidth,
+                height: pageDOMNode.clientHeight
+            };
+        }
         return {
-            width: pageDOMNode.clientWidth,
-            height: pageDOMNode.clientHeight
-        };
+            width: 0,
+            height: 0
+        }
     }
 
     onMove(event: ReactRnd.DraggableData, resizeData: ReactRnd.ResizeData) {

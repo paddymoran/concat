@@ -46,6 +46,7 @@ function selectInitial(state: Sign.DocumentViewer, action: Sign.Actions.SelectIn
 function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions.AddSignatureToDocument): Sign.DocumentViewer {
     const newSignature: Sign.DocumentSignature = {
         signatureId: action.payload.signatureId,
+        documentId: action.payload.documentId,
         pageNumber: action.payload.pageNumber,
         offsetX: action.payload.xOffset || 0,
         offsetY: action.payload.yOffset || 0

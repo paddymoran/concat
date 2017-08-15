@@ -110,7 +110,7 @@ const DraggableAddSignatureControl = DragSource(
 const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
     drop(props, monitor, pageComponent) {
         const item : any = monitor.getItem();
-        const { signatureId } = item;
+        const { signatureId,} = item;
 
         const pageBounds = findDOMNode(pageComponent).getBoundingClientRect()
         const dropTargetBounds = monitor.getClientOffset();
@@ -135,6 +135,7 @@ const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps>
             props.addSignatureToDocument({
                 signatureIndex,
                 signatureId,
+                documentId: props.documentId,
                 pageNumber: props.pageNumber,
                 xOffset: signatureXOffset,
                 yOffset: signatureYOffset,
@@ -235,12 +236,14 @@ class PDFViewer extends React.Component<ConnectedPDFViewerProps> {
                         <Col lg={10} md={12} className="page-list">
 
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
-                                const signaturesIndexes = Object.keys(this.props.signatures).filter(signatureIndex => this.props.signatures[signatureIndex].pageNumber === index);
+                                const signaturesIndexes = Object.keys(this.props.signatures).filter(signatureIndex => this.props.signatures[signatureIndex].pageNumber === index &&
+                                                                                                    this.props.signatures[signatureIndex].documentId === this.props.documentId);
 
                                 return (
                                     <DropTargetSignaturesPageWrapper
                                         key={index}
                                         pageNumber={index}
+                                        documentId={this.props.documentId}
                                         signaturesIndexes={signaturesIndexes}
                                         addSignatureToDocument={this.props.addSignatureToDocument}
                                         selectedSignatureId={this.props.selectedSignatureId}
@@ -262,6 +265,7 @@ class PDFViewer extends React.Component<ConnectedPDFViewerProps> {
 
 interface SignaturesPageWrapperProps {
     pageNumber: number;
+    documentId: string;
     signaturesIndexes: string[];
     selectedSignatureId?: number;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
@@ -280,12 +284,12 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
         const rect = target.getBoundingClientRect();
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
-
         if (this.props.selectedSignatureId && target.tagName==='CANVAS') { // lolololol
             return generateUUID()
                 .then((id) => {
                     this.props.addSignatureToDocument({
                         signatureIndex: id,
+                        documentId: this.props.documentId,
                         signatureId: this.props.selectedSignatureId,
                         pageNumber: this.props.pageNumber,
                         xOffset: offsetX / rect.width,
@@ -319,14 +323,16 @@ const DropTargetSignaturesPageWrapper = DropTarget(
 
 
 const ConnectedPDFViewer = connect(
-    (state: Sign.State, ownProps: PDFViewerProps) => ({
-        pageCount: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageCount : 1,
-        pageViewports: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageViewports || [] : [],
-        signatures: state.documentViewer.signatures,
-        signRequestStatus: state.documentViewer.signRequestStatus,
-        selectedSignatureId: state.documentViewer.selectedSignatureId,
-        selectedInitialId: state.documentViewer.selectedInitialId
-    }),
+    (state: Sign.State, ownProps: PDFViewerProps) => {
+        return {
+            pageCount: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageCount : 1,
+            pageViewports: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageViewports || [] : [],
+            signatures: state.documentViewer.signatures,
+            signRequestStatus: state.documentViewer.signRequestStatus,
+            selectedSignatureId: state.documentViewer.selectedSignatureId,
+            selectedInitialId: state.documentViewer.selectedInitialId
+    };
+},
     { signDocument, moveSignature, addSignatureToDocument, setActivePage, showSignConfirmationModal }
 )(PDFViewer)
 

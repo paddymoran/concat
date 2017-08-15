@@ -503,36 +503,30 @@ declare module 'react-scroll/modules/mixins/scroller' {
     export function scrollTo(to: string, props: any): void;
 }
 
-
-/*
-
-declare module 'react-dimensions' {
-  import * as React from 'react'
-
-  interface Dimensions {
-    <P extends React.Props<any>>(options?: Options): (component: React.ComponentClass<P>) => React.ComponentClass<P>
-  }
-
-  const Dimensions: Dimensions
-  export default Dimensions
-
-  export interface Options {
-    getHeight?: (element: Element) => number
-    getWidth?: (element: Element) => number
-    debounce?: number
-    debounceOpts?: {
-      leading?: boolean
-      maxWait?: number
-      trailing?: boolean
+declare namespace SizeMe {
+    interface Props {
+        refreshRate: number;
+        monitorHeight?: boolean;
     }
-    containerStyle?: Object
-    className?: string
-    elementResize?: boolean
-  }
 
-  export interface ExtendedProps {
-    containerWidth: number
-    containerHeight: number
-  }
+
+}
+/*
+declare module 'react-sizeme' {
+
+
+    import { ComponentClass, StatelessComponent } from "react";
+
+    interface Options {
+        refreshRate?: number;
+        monitorHeight?: boolean;
+    }
+    interface ComponentDecorator<P> {
+        (component: StatelessComponent): ComponentClass<P>;
+    }
+
+    export default function sizeMe<P>(options?: Options): ComponentDecorator<P>
+
+
 }
 */

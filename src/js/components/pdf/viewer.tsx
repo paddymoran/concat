@@ -47,6 +47,7 @@ interface PDFPageWrapperProps {
     viewport: Sign.Viewport;
     pageNumber: number;
     containerWidth?: number;
+    containerHeight?: number;
     setActivePage: Function;
 }
 
@@ -123,7 +124,7 @@ const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps>
                 const sigantureY = dropTargetBounds.y - pageBounds.top;
 
                 // Find the centered position of the signature on the page
-                const width = Sign.DefaultSignatureSize.WIDTH;
+                const width = Sign.DefaultSignatureSize.WIDTH_RATIO * props.containerWidth;
                 const centeredSignatureX = sigantureX - (width / 2);
                 const centeredSignatureY = sigantureY - ((width / xyRatio) / 2);
 
@@ -135,14 +136,20 @@ const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps>
                 const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
                 const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
 
+                const ratioX = Sign.DefaultSignatureSize.WIDTH_RATIO;
+
+                const ratioY =  (props.viewport.width / props.viewport.height) / xyRatio * ratioX;
+
                 props.addSignatureToDocument({
                     signatureIndex,
                     signatureId,
                     xyRatio,
                     documentId: props.documentId,
                     pageNumber: props.pageNumber,
-                    xOffset: signatureXOffset,
-                    yOffset: signatureYOffset,
+                    offsetX: signatureXOffset,
+                    offsetY: signatureYOffset,
+                    ratioX,
+                    ratioY
                 })
        })
     }
@@ -152,7 +159,7 @@ const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps>
 class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 
     render() {
-        const height = ((this.props.containerWidth / this.props.viewport.width) * this.props.viewport.height) | 0;
+        const height = this.props.containerHeight;
         let className = "pdf-page-wrapper ";
         if(height) {
             className += "loaded"
@@ -277,10 +284,8 @@ interface SignaturesPageWrapperProps {
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
     connectDropTarget?: Function;
     isOver?: boolean;
-    size: {
-        width: number;
-        height: number;
-    }
+    containerWidth: number;
+    viewport: Sign.Viewport;
 }
 
 class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperProps> {
@@ -312,15 +317,16 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
     }
 
     render() {
-        const height = this.props.size.height;
-        const child = React.cloneElement(React.Children.only(this.props.children), { ref: 'pdf-page', containerWidth: this.props.size.width, containerHeight: height});
+        const width = this.props.containerWidth;
+        const height = ((width / this.props.viewport.width) * this.props.viewport.height) | 0;
+        const child = React.cloneElement(React.Children.only(this.props.children), { ref: 'pdf-page', containerWidth: width, containerHeight: height});
         let className = "signature-wrapper ";
         if(this.props.isOver){
             className += 'over'
         }
         const body = (
             <div className={className} style={{position: 'relative'}}>
-               {  this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} containerWidth={this.props.size.width}  containerHeight={height}/>)}
+               {  this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
                 { child }
             </div>
         );
@@ -337,7 +343,11 @@ const DropTargetSignaturesPageWrapper = DropTarget(
     })
 )(SignaturesPageWrapper);
 
-const DimensionedDropTargetSignaturesPageWrapper = sizeMe({monitorHeight: true, refreshRate: 300})(DropTargetSignaturesPageWrapper)
+
+const DimensionedDropTargetSignaturesPageWrapper = connect((state : Sign.State) => ({
+    containerWidth: state.dimensions.width
+}))(DropTargetSignaturesPageWrapper)
+
 
 const ConnectedPDFViewer = connect(
     (state: Sign.State, ownProps: PDFViewerProps) => {

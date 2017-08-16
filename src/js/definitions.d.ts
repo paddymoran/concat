@@ -107,6 +107,7 @@ declare namespace Sign {
         documentViewer: DocumentViewer;
         modals: Modals;
         signatures: Signatures;
+        dimensions: Dimensions;
     }
 
     interface Action<T> {
@@ -139,6 +140,7 @@ declare namespace Sign {
     const enum DefaultSignatureSize {
         WIDTH = 200,
         HEIGHT = 100,
+        WIDTH_RATIO = 0.2
     }
 
     // These types match the database enum: signature_type
@@ -300,8 +302,10 @@ declare namespace Sign.Actions {
         signatureIndex: string;
         signatureId: number;
         pageNumber: number;
-        xOffset?: number;
-        yOffset?: number;
+        offsetX: number;
+        offsetY: number;
+        ratioX: number;
+        ratioY: number;
         xyRatio: number;
     }
 

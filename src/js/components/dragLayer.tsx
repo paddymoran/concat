@@ -2,7 +2,7 @@ import * as React from 'react';
 import {  DragLayer } from 'react-dnd';
 import { Button, Modal } from 'react-bootstrap';
 import { signatureUrl, imageRatio } from '../utils';
-
+import { connect } from 'react-redux';
 
 function getItemStyles(props: SigProps, width: number, height: number) {
 
@@ -24,6 +24,8 @@ function getItemStyles(props: SigProps, width: number, height: number) {
 }
 
 
+const IMG_STYLE = {width: '100%', height: '100%'};
+
 interface DragLayerProps {
     clientOffset: {
         x: number,
@@ -34,6 +36,7 @@ interface DragLayerProps {
         signatureId?: number
     }
     isDragging: boolean
+    containerWidth: number;
 }
 
 interface SigProps {
@@ -41,7 +44,8 @@ interface SigProps {
         x: number,
         y: number,
     }
-    signatureId?: number
+    signatureId?: number;
+     containerWidth: number;
 }
 
 interface SigState {
@@ -56,16 +60,15 @@ class SignatureGetSize extends React.PureComponent<SigProps, SigState> {
 
     }
     componentDidMount() {
-
         return imageRatio(signatureUrl(this.props.signatureId))
             .then((xyRatio: number) => {
                 return this.setState({ xyRatio })
             })
     }
     render() {
-        const width = Sign.DefaultSignatureSize.WIDTH;
+        const width = Sign.DefaultSignatureSize.WIDTH_RATIO * this.props.containerWidth;
         const height = this.state.xyRatio ? width / this.state.xyRatio : Sign.DefaultSignatureSize.HEIGHT
-        return <div style={getItemStyles(this.props, width, height )}><img src={signatureUrl(this.props.signatureId)}/></div>
+        return <div style={getItemStyles(this.props, width, height )}><img style={IMG_STYLE} src={signatureUrl(this.props.signatureId)}/></div>
     }
 }
 
@@ -81,7 +84,7 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
 
     return (
       <div className="custom-drag">
-         { isDragging  && itemType === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} /> }
+         { isDragging  && itemType === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} containerWidth={this.props.containerWidth}/> }
      </div>
     );
   }
@@ -94,4 +97,9 @@ const ConnectedDragLayer = DragLayer(monitor => ({
   isDragging: monitor.isDragging(),
 }))(CustomDragLayer);
 
-export default ConnectedDragLayer;
+
+const DimensionedConnectedDragLayer = connect((state : Sign.State) => ({
+    containerWidth: state.dimensions.width
+}))(ConnectedDragLayer)
+
+export default DimensionedConnectedDragLayer;

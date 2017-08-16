@@ -66,19 +66,6 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
         this.onDelete = this.onDelete.bind(this);
     }
 
-    /**
-     * On mount, save the size of the signature.
-     * We don't know it in the reducer when the signature is created, so we have to set it here.
-     */
-    componentDidMount() {
-
-        const signatureDOMNode = findDOMNode(this.signature);
-        this.props.moveSignature({
-            signatureIndex: this.props.signatureIndex,
-            ratioX: boundNumber(signatureDOMNode.clientWidth / this.props.containerWidth),
-            ratioY: boundNumber(signatureDOMNode.clientHeight / this.props.containerHeight)
-        });
-    }
 
     /**
      * Move signature to where we think it should be, everytime the component updates.
@@ -156,12 +143,13 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
     }
 
     render() {
-        const { signature } = this.props;
+
+        const { signature, containerWidth, containerHeight } = this.props;
         const defaults = {
-            x: 0,
-            y: 0,
-            width: Sign.DefaultSignatureSize.WIDTH,
-            height: Sign.DefaultSignatureSize.WIDTH / this.props.signature.xyRatio
+            x: containerWidth * signature.offsetX,
+            y: containerHeight * signature.offsetY,
+            width: containerWidth * signature.ratioX,
+            height: containerHeight * signature.ratioY
         };
 
         const stylesWithbackground = {

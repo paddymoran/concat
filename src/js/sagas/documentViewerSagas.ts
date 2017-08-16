@@ -10,7 +10,7 @@ function *signDocumentSaga() {
     function *signDocument(action: Sign.Actions.SignDocument) {
         yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
 
-        const signatures = Object.keys(action.payload.signatures).map(key => action.payload.signatures[key]);
+        const signatures = Object.keys(action.payload.signatures).map(key => action.payload.signatures[key]).filter(signature => signature.documentId === action.payload.documentId);
 
         const postPayload = {
             ...action.payload,

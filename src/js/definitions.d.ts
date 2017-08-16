@@ -135,6 +135,8 @@ declare namespace Sign {
 
     const enum DragAndDropTypes {
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
+        ADD_DATE_TO_DOCUMENT = 'ADD_DATE_TO_DOCUMENT',
+        ADD_TEXT_TO_DOCUMENT = 'ADD_TEXT_TO_DOCUMENT'
     }
 
     const enum DefaultSignatureSize {

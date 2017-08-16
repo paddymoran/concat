@@ -5,6 +5,7 @@ import { Button, Modal } from 'react-bootstrap';
 import PDFPreview from './preview';
 import PDFPage from './page';
 import { SignatureButton, InitialButton } from '../signatureSelector';
+import { DateButton } from '../textSelector';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
 import { signDocument, moveSignature, addSignatureToDocument, setActivePage, showSignConfirmationModal } from '../../actions';
@@ -56,18 +57,36 @@ interface SignatureDragSourceProps {
     signatureId: number;
 }
 
-interface AddSignatureControlProps {
-    signatureId: number;
+interface DragProps {
     connectDragSource?: Function;
     connectDragPreview?: Function;
     isDragging?: boolean;
 }
+
+
+interface AddSignatureControlProps extends DragProps {
+    signatureId: number;
+}
+
+interface AddDateControlProps extends DragProps {
+
+}
+
 
 const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {
     beginDrag(props, monitor) {
         const { signatureId } = props;
         return {
             signatureId
+        };
+    }
+};
+
+const dateSource: __ReactDnd.DragSourceSpec<AddDateControlProps> = {
+    beginDrag(props, monitor) {
+       // const { } = props;
+        return {
+
         };
     }
 };
@@ -83,14 +102,33 @@ class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> 
           // when it already knows it's being dragged so we can hide it with CSS.
           captureDraggingState: true,
         });
+    }
+
+    render() {
+        const { isDragging } = this.props;
+        if(this.props.signatureId){
+            return this.props.connectDragSource(this.props.children);
+        }
+        return this.props.children;
+    }
+}
+
+
+class AddDateControl extends React.PureComponent<AddDateControlProps> {
+    componentDidMount() {
+        // Use empty image as a drag preview so browsers don't draw it
+        // and we can draw whatever we want on the custom drag layer instead.
+        this.props.connectDragPreview(getEmptyImage(), {
+          // IE fallback: specify that we'd rather screenshot the node
+          // when it already knows it's being dragged so we can hide it with CSS.
+          captureDraggingState: true,
+        });
 
     }
 
     render() {
         const { isDragging } = this.props;
-        return this.props.signatureId ? this.props.connectDragSource(
-            this.props.children
-        ) : this.props.children;
+        return this.props.connectDragSource(this.props.children);
     }
 }
 
@@ -107,6 +145,18 @@ const DraggableAddSignatureControl = DragSource(
         isDragging: monitor.isDragging()
     })
 )(AddSignatureControl);
+
+
+const DraggableAddDateControl = DragSource(
+    Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT,
+    dateSource,
+    (connect, monitor) => ({
+        connectDragSource: connect.dragSource(),
+        connectDragPreview: connect.dragPreview(),
+        isDragging: monitor.isDragging()
+    })
+)(AddDateControl);
+
 
 const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
     drop(props, monitor, pageComponent) {
@@ -218,10 +268,10 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                             </DraggableAddSignatureControl>
                             </Col>
                             <Col xs={3}>
-                            <div className="signature-button">
-                                        <span className="fa fa-calendar" />
-                                        <span>Add Date</span>
-                            </div>
+
+                            <DraggableAddDateControl >
+                                    <div> <DateButton /></div>
+                            </DraggableAddDateControl>
 
                             </Col>
                             <Col xs={3}>

@@ -3,6 +3,7 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 from reportlab.lib.utils import ImageReader
 from collections import defaultdict
+from PIL import Image
 # Get all the filenames
 
 def sign(input_file, signatures):
@@ -11,7 +12,10 @@ def sign(input_file, signatures):
     # group by page
     page_map = defaultdict(list)
     for signature in signatures:
+        image = Image.open(signature['signature'])
+        signature['signature'] = image.resize((image.size[0] * 4, image.size[1] * 4), Image.BICUBIC)
         page_map[signature['pageNumber']].append(signature)
+
     for page_number, signatures in page_map.items():
         page = pdf.pages[page_number]
         mbox = tuple(float(x) for x in page.MediaBox)

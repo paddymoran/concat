@@ -3,6 +3,8 @@ import {  DragLayer } from 'react-dnd';
 import { Button, Modal } from 'react-bootstrap';
 import { signatureUrl, imageRatio } from '../utils';
 import { connect } from 'react-redux';
+import Moment from 'moment';
+
 
 function getItemStyles(props: SigProps, width: number, height: number) {
 
@@ -72,6 +74,13 @@ class SignatureGetSize extends React.PureComponent<SigProps, SigState> {
     }
 }
 
+class DateDragger extends React.PureComponent<SigProps, SigState> {
+    render() {
+        const width = 150;
+        const height = 40;
+        return <div style={getItemStyles(this.props, width, height )}>Hi</div>
+    }
+}
 
 export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
 
@@ -85,6 +94,7 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
     return (
       <div className="custom-drag">
          { isDragging  && itemType === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} containerWidth={this.props.containerWidth}/> }
+         { isDragging  && itemType === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT && <DateDragger  clientOffset={this.props.clientOffset} containerWidth={this.props.containerWidth}/> }
      </div>
     );
   }

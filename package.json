@@ -9,6 +9,7 @@
   "main": "index.js",
   "scripts": {},
   "dependencies": {
+    "@types/moment": "^2.13.0",
     "@types/react-router": "^3.0.12",
     "autoprefixer": "^7.1.2",
     "axios": "^0.16.0",
@@ -20,6 +21,7 @@
     "extract-text-webpack-plugin": "^2.1.0",
     "font-awesome": "^4.7.0",
     "history": "^4.6.3",
+    "moment": "^2.18.1",
     "pdfjs-dist": "^1.8.593",
     "react": "^15.3.2",
     "react-bootstrap": "^0.31.0",

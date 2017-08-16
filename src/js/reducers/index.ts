@@ -7,6 +7,8 @@ import documentSets from './documentSets';
 import documentViewer from './documentViewer';
 import signatures from './signatures';
 import modals from './modals';
+import dimensions from './dimensions';
+
 
 const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     routing,
@@ -16,6 +18,7 @@ const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     modals,
     documentViewer,
     signatures,
+    dimensions,
 });
 
 export default rootReducer;

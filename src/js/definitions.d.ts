@@ -54,6 +54,10 @@ declare namespace Sign {
         [key: string]: any;
     }
 
+    interface Dimensions {
+        width: number;
+    }
+
     interface DocumentSignature {
         signatureId: number;
         documentId: string;
@@ -196,6 +200,8 @@ declare namespace Sign.Actions {
         CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
 
         SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
+
+        UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH'
     }
 
     interface ActionCreator<T> {
@@ -351,6 +357,10 @@ declare namespace Sign.Actions {
         documentSetId: string;
     }
 
+    interface UpdateDocumentWidthPayload {
+        width: number
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -387,6 +397,10 @@ declare namespace Sign.Actions {
     interface CloseModal extends ActionCreator<CloseModalPayload> {}
     interface ShowInitialSelectionModal extends Action {}
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
+
+    interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
+
+
 }
 /*
 declare module 'pdfjs-dist/webpack' {

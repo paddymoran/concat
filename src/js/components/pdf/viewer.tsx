@@ -18,7 +18,7 @@ import { generateUUID } from '../uuid';
 import { DragSource, DropTarget } from 'react-dnd';
 import * as Waypoint from 'react-waypoint';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-
+import WidthSpy from '../widthSpy'
 
 
 Promise.config({ cancellation: true });
@@ -240,7 +240,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
 
                         </Col>
                         <Col lg={10} md={12} className="page-list">
-
+                            <WidthSpy />
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
                                 const signaturesIndexes = Object.keys(this.props.signatures).filter(signatureIndex => this.props.signatures[signatureIndex].pageNumber === index &&
                                                                                                     this.props.signatures[signatureIndex].documentId === this.props.documentId);

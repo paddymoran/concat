@@ -125,12 +125,13 @@ const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps>
 
                 // Find the centered position of the signature on the page
                 const width = Sign.DefaultSignatureSize.WIDTH_RATIO * props.containerWidth;
+                const height = width / xyRatio;
                 const centeredSignatureX = sigantureX - (width / 2);
-                const centeredSignatureY = sigantureY - ((width / xyRatio) / 2);
+                const centeredSignatureY = sigantureY - (height / 2);
 
                 // Keep signature offsets within an expecptable bounds
-                const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - Sign.DefaultSignatureSize.WIDTH);
-                const boundCenteredSignatureY = boundNumber(centeredSignatureY, 0, pageBounds.height - Sign.DefaultSignatureSize.HEIGHT);
+                const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - width);
+                const boundCenteredSignatureY = boundNumber(centeredSignatureY, 0, pageBounds.height - height);
 
                 // Convert the centered signature position to ratios
                 const signatureXOffset = boundCenteredSignatureX / pageBounds.width;

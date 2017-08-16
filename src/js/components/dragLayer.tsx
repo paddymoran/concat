@@ -3,7 +3,7 @@ import {  DragLayer } from 'react-dnd';
 import { Button, Modal } from 'react-bootstrap';
 import { signatureUrl, imageRatio } from '../utils';
 import { connect } from 'react-redux';
-import Moment from 'moment';
+import * as Moment from 'moment';
 
 
 function getItemStyles(props: SigProps, width: number, height: number) {
@@ -78,7 +78,8 @@ class DateDragger extends React.PureComponent<SigProps, SigState> {
     render() {
         const width = 150;
         const height = 40;
-        return <div style={getItemStyles(this.props, width, height )}>Hi</div>
+        const string = Moment().format('DD MMMM YYYY');
+        return <div style={getItemStyles(this.props, width, height )}><strong>{ string }</strong></div>
     }
 }
 

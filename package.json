@@ -9,7 +9,6 @@
   "main": "index.js",
   "scripts": {},
   "dependencies": {
-    "@types/history": "^4.6.0",
     "autoprefixer": "^7.1.2",
     "axios": "^0.16.0",
     "babel-polyfill": "^6.3.14",
@@ -48,6 +47,7 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
+    "@types/history": "^4.6.0",
     "@types/bluebird": "^3.5.2",
     "@types/pdfjs-dist": "0.0.0",
     "@types/react": "^15.0.21",

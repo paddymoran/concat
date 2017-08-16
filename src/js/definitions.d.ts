@@ -388,7 +388,7 @@ declare namespace Sign.Actions {
     interface ShowInitialSelectionModal extends Action {}
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
 }
-
+/*
 declare module 'pdfjs-dist/webpack' {
    interface PDFJS {
            getDocument(
@@ -399,7 +399,7 @@ declare module 'pdfjs-dist/webpack' {
             : PDFPromise<PDFDocumentProxy>;
    }
    export { PDFJS } ;
-}
+}*/
 
 declare module 'react-signature-canvas' {
     class SignatureCanvas extends React.Component<any, any> {

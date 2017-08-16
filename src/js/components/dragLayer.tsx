@@ -81,7 +81,7 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
 
     return (
       <div className="custom-drag">
-         { isDragging  && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} /> }
+         { isDragging  && itemType === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} /> }
      </div>
     );
   }

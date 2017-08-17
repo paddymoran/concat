@@ -8,18 +8,19 @@ import { SignatureButton, InitialButton } from '../signatureSelector';
 import { DateButton } from '../textSelector';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import { signDocument, moveSignature, addSignatureToDocument, setActivePage, showSignConfirmationModal } from '../../actions';
-import Signature from '../signature';
+import { signDocument, moveSignature, addSignatureToDocument, addDateToDocument, setActivePage, showSignConfirmationModal } from '../../actions';
+import { SignaturePositionable, DatePositionable } from '../signature';
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
 import sizeMe from 'react-sizeme';
-import { signatureUrl, boundNumber, imageRatio } from '../../utils';
+import { signatureUrl, boundNumber, imageRatio, stringToCanvas } from '../../utils';
 import { generateUUID } from '../uuid';
 import { DragSource, DropTarget } from 'react-dnd';
 import * as Waypoint from 'react-waypoint';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import WidthSpy from '../widthSpy'
+import * as Moment from 'moment';
 
 
 Promise.config({ cancellation: true });
@@ -37,8 +38,9 @@ interface ConnectedPDFViewerProps extends PDFViewerProps {
     selectedSignatureId: number;
     selectedInitialId: number;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
-    moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
+    //moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
+    addDateToDocument: (data: Sign.Actions.AddDateToDocumentPayload) => void;
     setActivePage: (payload: Sign.Actions.SetActivePagePayload) => void;
     showSignConfirmationModal: (payload: Sign.Actions.ShowSignConfirmationModalPayload) => void;
 }
@@ -77,16 +79,17 @@ const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {
     beginDrag(props, monitor) {
         const { signatureId } = props;
         return {
-            signatureId
+            signatureId,
+            type: Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT
         };
     }
 };
 
 const dateSource: __ReactDnd.DragSourceSpec<AddDateControlProps> = {
     beginDrag(props, monitor) {
-       // const { } = props;
         return {
-
+            type: Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT,
+            value: Moment().format('DD MMMM YYYY')
         };
     }
 };
@@ -158,51 +161,88 @@ const DraggableAddDateControl = DragSource(
 )(AddDateControl);
 
 
-const signatureDropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
+const dropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
     drop(props, monitor, pageComponent) {
         const item : any = monitor.getItem();
-        const { signatureId } = item;
         const dropTargetBounds = monitor.getClientOffset();
+        const pageBounds = findDOMNode(pageComponent).getBoundingClientRect()
 
-        Promise.all([imageRatio(signatureUrl(signatureId)), generateUUID()])
-           .spread((xyRatio: number, signatureIndex: string) => {
+        // Get the top left position of the signature on the page
+        const sigantureX = dropTargetBounds.x - pageBounds.left;
+        const sigantureY = dropTargetBounds.y - pageBounds.top;
 
-                const pageBounds = findDOMNode(pageComponent).getBoundingClientRect()
+        if(item.type === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT){
+            const { signatureId } = item;
+            Promise.all([imageRatio(signatureUrl(signatureId)), generateUUID()])
+               .spread((xyRatio: number, signatureIndex: string) => {
+                    // Find the centered position of the signature on the page
+                    const width = Sign.DefaultSignatureSize.WIDTH_RATIO * props.containerWidth;
+                    const height = width / xyRatio;
+                    const centeredSignatureX = sigantureX - (width / 2);
+                    const centeredSignatureY = sigantureY - (height / 2);
 
-                // Get the top left position of the signature on the page
-                const sigantureX = dropTargetBounds.x - pageBounds.left;
-                const sigantureY = dropTargetBounds.y - pageBounds.top;
+                    // Keep signature offsets within an expecptable bounds
+                    const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - width);
+                    const boundCenteredSignatureY = boundNumber(centeredSignatureY, 0, pageBounds.height - height);
 
-                // Find the centered position of the signature on the page
-                const width = Sign.DefaultSignatureSize.WIDTH_RATIO * props.containerWidth;
-                const height = width / xyRatio;
-                const centeredSignatureX = sigantureX - (width / 2);
-                const centeredSignatureY = sigantureY - (height / 2);
+                    // Convert the centered signature position to ratios
+                    const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
+                    const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
 
-                // Keep signature offsets within an expecptable bounds
-                const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - width);
-                const boundCenteredSignatureY = boundNumber(centeredSignatureY, 0, pageBounds.height - height);
+                    const ratioX = Sign.DefaultSignatureSize.WIDTH_RATIO;
 
-                // Convert the centered signature position to ratios
-                const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
-                const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
+                    const ratioY = (props.viewport.width / props.viewport.height) / xyRatio * ratioX;
 
-                const ratioX = Sign.DefaultSignatureSize.WIDTH_RATIO;
+                    props.addSignatureToDocument({
+                        signatureIndex,
+                        signatureId,
+                        xyRatio,
+                        documentId: props.documentId,
+                        pageNumber: props.pageNumber,
+                        offsetX: signatureXOffset,
+                        offsetY: signatureYOffset,
+                        ratioX,
+                        ratioY
+                    })
+           })
+       }
+       else if(item.type === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT){
+           generateUUID()
+               .then((dateIndex) => {
+                    const height = Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * props.containerWidth;
+                    const canvas = stringToCanvas(height, item.value);
+                    const width = canvas.width;
+                    const xyRatio = width / height;
+                    const dataUrl = canvas.toDataURL();
+                    const centeredSignatureX = sigantureX - (width / 2);
+                    const centeredSignatureY = sigantureY - (height / 2);
 
-                const ratioY =  (props.viewport.width / props.viewport.height) / xyRatio * ratioX;
+                    // Keep signature offsets within an expecptable bounds
+                    const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - width);
+                    const boundCenteredSignatureY = boundNumber(centeredSignatureY, 0, pageBounds.height - height);
 
-                props.addSignatureToDocument({
-                    signatureIndex,
-                    signatureId,
-                    xyRatio,
-                    documentId: props.documentId,
-                    pageNumber: props.pageNumber,
-                    offsetX: signatureXOffset,
-                    offsetY: signatureYOffset,
-                    ratioX,
-                    ratioY
-                })
-       })
+                    // Convert the centered signature position to ratios
+                    const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
+                    const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
+
+                    const ratioX = width / props.containerWidth;
+                    const ratioY = (props.viewport.width / props.viewport.height) / xyRatio * ratioX;
+
+
+                    props.addDateToDocument({
+                        dateIndex,
+                        value: item.value,
+                        dataUrl,
+                        documentId: props.documentId,
+                        pageNumber: props.pageNumber,
+                        offsetX: signatureXOffset,
+                        offsetY: signatureYOffset,
+                        ratioX,
+                        ratioY
+                    })
+
+               })
+       }
     }
 };
 
@@ -302,6 +342,8 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
                                 const signaturesIndexes = Object.keys(this.props.signatures).filter(signatureIndex => this.props.signatures[signatureIndex].pageNumber === index &&
                                                                                                     this.props.signatures[signatureIndex].documentId === this.props.documentId);
+                                const dateIndexes = Object.keys(this.props.dates).filter(dateIndex => this.props.dates[dateIndex].pageNumber === index &&
+                                                                                                    this.props.dates[dateIndex].documentId === this.props.documentId);
 
                                 return (
                                         <div className="page-separator" key={index}>
@@ -309,7 +351,9 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                         pageNumber={index}
                                         documentId={this.props.documentId}
                                         signaturesIndexes={signaturesIndexes}
+                                        dateIndexes={dateIndexes}
                                         addSignatureToDocument={this.props.addSignatureToDocument}
+                                        addDateToDocument={this.props.addDateToDocument}
                                         selectedSignatureId={this.props.selectedSignatureId}
                                         viewport={this.props.pageViewports[index] || {height: 1, width: 1}}>
                                         <PDFPageWrapper documentId={this.props.documentId} pageNumber={index}  setActivePage={this.setActivePage} viewport={this.props.pageViewports[index] || {height: 1, width: 1}}/>
@@ -333,6 +377,7 @@ interface SignaturesPageWrapperProps {
     signaturesIndexes: string[];
     selectedSignatureId?: number;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
+    addDateToDocument: (data: Sign.Actions.AddDateToDocumentPayload) => void;
     connectDropTarget?: Function;
     isOver?: boolean;
     containerWidth: number;
@@ -377,7 +422,8 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
         }
         const body = (
             <div className={className} style={{position: 'relative'}}>
-               {  this.props.signaturesIndexes.map(signatureIndex => <Signature key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
+               {  this.props.signaturesIndexes.map(signatureIndex => <SignaturePositionable key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
+               {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} dateIndex={dateIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
                 { child }
             </div>
         );
@@ -386,8 +432,13 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
 }
 
 const DropTargetSignaturesPageWrapper = DropTarget(
-    Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT,
-    signatureDropTarget,
+    [
+        Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT,
+        Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT,
+        Sign.DragAndDropTypes.ADD_TEXT_TO_DOCUMENT,
+        Sign.DragAndDropTypes.ADD_PROMPT_TO_DOCUMENT
+     ],
+    dropTarget,
     (connect, monitor) => ({
         connectDropTarget: connect.dropTarget(),
         isOver: monitor.isOver()
@@ -406,11 +457,12 @@ const ConnectedPDFViewer = connect(
             pageCount: state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageCount : 1,
             pageViewports: (state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageViewports || [] : []) as Sign.Viewport[],
             signatures: state.documentViewer.signatures,
+            dates: state.documentViewer.dates,
             signRequestStatus: state.documentViewer.signRequestStatus,
             selectedSignatureId: state.documentViewer.selectedSignatureId,
             selectedInitialId: state.documentViewer.selectedInitialId
     };
-}, { signDocument, moveSignature, addSignatureToDocument, setActivePage, showSignConfirmationModal }
+}, { signDocument, addSignatureToDocument, addDateToDocument, setActivePage, showSignConfirmationModal }
 )(PDFViewer);
 
 

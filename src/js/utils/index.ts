@@ -28,7 +28,30 @@ export function imageRatio(url: string) {
         };
         img.onerror = () => {
             resolve(1);
-        }
+        };
         img.src = url;
     });
 }
+
+
+export function stringToCanvas(height: number, string: string) {
+    const canvas = document.createElement('canvas');
+    const canvasHeight = height;
+    canvas.height = canvasHeight;
+    canvas.width = 10;
+    const margin = canvasHeight / 8;
+    const ctx = canvas.getContext('2d');
+    const font = `bold ${canvas.height-(margin*2)}px san serif`;
+    ctx.font = font;
+    const textLength = ctx.measureText(string).width;
+    canvas.width = textLength + (margin * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2)
+    ctx.font = font;
+    ctx.fillStyle = '#000'
+    ctx.textBaseline="top";
+    ctx.fillText(string, margin, margin);
+    return canvas;
+}
+
+

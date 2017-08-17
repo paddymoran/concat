@@ -1,28 +1,27 @@
 import * as React from 'react';
+import { findDOMNode } from 'react-dom';
 import {  DragLayer } from 'react-dnd';
 import { Button, Modal } from 'react-bootstrap';
-import { signatureUrl, imageRatio } from '../utils';
+import { signatureUrl, imageRatio, stringToCanvas } from '../utils';
 import { connect } from 'react-redux';
-import * as Moment from 'moment';
 
 
-function getItemStyles(props: SigProps, width: number, height: number) {
-
+function getItemStyles(props: DragProps, width: number, height: number) {
   const { clientOffset } = props;
   if (!clientOffset) {
     return {
       display: 'none',
     };
   }
-
   let { x, y } = clientOffset;
   const transform = `translate(${x-(width/2)}px, ${y-(height/2)}px)`;
-  return {
-    transform,
-    WebkitTransform: transform,
-    width,
-    height
-  };
+  const style = {
+        transform,
+        WebkitTransform: transform,
+        width,
+        height
+      }
+  return style;
 }
 
 
@@ -35,23 +34,38 @@ interface DragLayerProps {
     }
     itemType: string
     item:  {
-        signatureId?: number
+        signatureId?: number,
+        value?: string
     }
     isDragging: boolean
     containerWidth: number;
 }
 
-interface SigProps {
+interface DragProps {
     clientOffset: {
         x: number,
         y: number,
     }
-    signatureId?: number;
-     containerWidth: number;
+    containerWidth: number;
+}
+
+interface SigProps extends DragProps{
+    signatureId: number;
+}
+
+interface DateProps extends DragProps{
+    value: string;
 }
 
 interface SigState {
     xyRatio?: number
+}
+
+interface DateState {
+    value: string;
+    height: number;
+    width: number;
+    dataUrl: string;
 }
 
 
@@ -70,16 +84,28 @@ class SignatureGetSize extends React.PureComponent<SigProps, SigState> {
     render() {
         const width = Sign.DefaultSignatureSize.WIDTH_RATIO * this.props.containerWidth;
         const height = this.state.xyRatio ? width / this.state.xyRatio : Sign.DefaultSignatureSize.HEIGHT
-        return <div style={getItemStyles(this.props, width, height )}><img style={IMG_STYLE} src={signatureUrl(this.props.signatureId)}/></div>
+        return <div className="signature-drag" style={getItemStyles(this.props, width, height )}><img style={IMG_STYLE} src={signatureUrl(this.props.signatureId)}/></div>
     }
 }
 
-class DateDragger extends React.PureComponent<SigProps, SigState> {
+class DateDragger extends React.PureComponent<DateProps, DateState> {
+    constructor(props: DateProps){
+        super(props);
+        const height = Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * this.props.containerWidth;
+        this.state = {value: this.props.value, height, width: 1, dataUrl: null};
+    }
+
+
+    componentDidMount() {
+        const canvas = stringToCanvas(this.state.height, this.state.value);
+        this.setState({width: this.state.height * (canvas.width / canvas.height), dataUrl: canvas.toDataURL()});
+
+    }
+
     render() {
-        const width = 150;
-        const height = 40;
-        const string = Moment().format('DD MMMM YYYY');
-        return <div style={getItemStyles(this.props, width, height )}><strong>{ string }</strong></div>
+        const width = this.state.width;
+        const height = this.state.height;
+        return <div className="date-drag" style={getItemStyles(this.props, width, height )}>{ this.state.dataUrl ? <img src={this.state.dataUrl}/> : null }</div>
     }
 }
 
@@ -87,15 +113,13 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
 
   render() {
     const { item, itemType, isDragging } = this.props;
-
     if(!isDragging){
         return false;
     }
-
     return (
       <div className="custom-drag">
-         { isDragging  && itemType === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} containerWidth={this.props.containerWidth}/> }
-         { isDragging  && itemType === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT && <DateDragger  clientOffset={this.props.clientOffset} containerWidth={this.props.containerWidth}/> }
+         {  itemType === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} containerWidth={this.props.containerWidth}/> }
+         {  itemType === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT && <DateDragger  clientOffset={this.props.clientOffset} value={this.props.item.value} containerWidth={this.props.containerWidth}/> }
      </div>
     );
   }

@@ -5,20 +5,20 @@ import { moveSignature, removeSignatureFromDocument } from '../actions';
 import { connect } from 'react-redux';
 import { signatureUrl } from '../utils';
 
-interface ConnectedSignatureProps {
-    signatureIndex: string;
+interface ConnectedPositionableProps {
+    [this.props.indexKey]: string;
     page: React.ReactInstance;
     containerHeight: number;
     containerWidth: number;
 }
 
-interface SignatureProps extends ConnectedSignatureProps {
-    signature: Sign.DocumentSignature;
+interface PositionableProps extends ConnectedPositionableProps {
+    positionable: Sign.DocumentSignature;
     removeSignatureFromDocument: (payload: Sign.Actions.RemoveSignatureFromDocumentPayload) => void;
     moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
 }
 
-interface SignatureState {
+interface PositionableState {
     yOffset: number;
 }
 
@@ -36,8 +36,8 @@ const boundNumber = (number: number) => {
     return number;
 }
 
-class Signature extends React.PureComponent<SignatureProps, SignatureState> {
-    private signature: ReactRnd;
+class Positionable extends React.PureComponent<PositionableProps, PositionableState> {
+    private positionable: ReactRnd;
 
     public static MIN_WIDTH = 50;
     public static MIN_HEIGHT = 25;
@@ -54,11 +54,10 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
     } ;
 
 
-    constructor(props: SignatureProps) {
+    constructor(props: PositionableProps) {
         super(props);
-
         this.state = {
-            yOffset: (props.signature.ratioY / 2) + 1,
+            yOffset: (props.positionable.ratioY / 2) + 1,
         };
 
         this.onMove = this.onMove.bind(this);
@@ -68,29 +67,28 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
 
 
     /**
-     * Move signature to where we think it should be, everytime the component updates.
+     * Move positionable to where we think it should be, everytime the component updates.
      */
     componentDidUpdate() {
 
-        this.signature.updateSize({
-            width: this.props.signature.ratioX * this.props.containerWidth,
-            height: this.props.signature.ratioY * this.props.containerHeight
+        this.positionable.updateSize({
+            width: this.props.positionable.ratioX * this.props.containerWidth,
+            height: this.props.positionable.ratioY * this.props.containerHeight
         });
 
-        this.signature.updatePosition({
-            x: this.props.signature.offsetX * this.props.containerWidth,
-            y: this.props.signature.offsetY * this.props.containerHeight
+        this.positionable.updatePosition({
+            x: this.props.positionable.offsetX * this.props.containerWidth,
+            y: this.props.positionable.offsetY * this.props.containerHeight
         });
     }
-
 
 
     onMove(event: ReactRnd.DraggableData, resizeData: ReactRnd.ResizeData) {
 
         const xRatio = resizeData.x / this.props.containerWidth;
 
-        this.props.moveSignature({
-            signatureIndex: this.props.signatureIndex,
+        this.props.movePositionable({
+            [this.props.indexKey]: this.props[this.props.indexKey],
             offsetX: boundNumber(resizeData.x / this.props.containerWidth),
             offsetY: boundNumber(resizeData.y / this.props.containerHeight)
         });
@@ -102,8 +100,8 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
         const newWidth = element.clientWidth;
         const newHeight = element.clientHeight;
 
-        let moveData: Sign.Actions.MoveSignaturePayload = {
-            signatureIndex: this.props.signatureIndex,
+        let moveData: Sign.Actions.MovePositionablePayload = {
+            [this.props.indexKey]: this.props[this.props.indexKey],
             ratioX: boundNumber(newWidth / this.props.containerWidth),
             ratioY: boundNumber(newHeight / this.props.containerHeight)
         };
@@ -112,71 +110,81 @@ class Signature extends React.PureComponent<SignatureProps, SignatureState> {
         if (resizeDirection === 'top' || resizeDirection === 'topLeft' || resizeDirection === 'topRight') {
             // Get the old height and Y position
             const oldHeight = this.props.signature.ratioY * this.props.containerHeight;
-            const oldYPosition = this.props.signature.offsetY * this.props.containerHeight;
+            const oldYPosition = this.props.positionable.offsetY * this.props.containerHeight;
 
             // Figure out the new Y position === <old Y position> + <change in height>
             const newYPosition = oldYPosition + (oldHeight - newHeight);
 
-            // Add the new Y ratio to the move signature action
+            // Add the new Y ratio to the move positionable action
             moveData.offsetY = boundNumber(newYPosition / this.props.containerHeight);
         }
 
-        // If the signature has been sized from the left, it now has a new X position
+        // If the positionable has been sized from the left, it now has a new X position
         if (resizeDirection === 'left' || resizeDirection === 'topLeft' || resizeDirection === 'bottomLeft') {
             // Get the old width and X position
-            const oldWidth = this.props.signature.ratioX * this.props.containerWidth;
-            const oldXPosition = this.props.signature.offsetX * this.props.containerWidth;
+            const oldWidth = this.props.positionable.ratioX * this.props.containerWidth;
+            const oldXPosition = this.props.positionable.offsetX * this.props.containerWidth;
 
             // Figure out the new X position === <old X position> + <change in width>
             const newXPosition = oldXPosition + (oldWidth - newWidth);
 
-            // Add the new X ratio to the move signature action
+            // Add the new X ratio to the move positionable action
             moveData.offsetX = boundNumber(newXPosition / this.props.containerWidth);
         }
 
-        // Move that bus! (eeer.... I mean that signature)
-        this.props.moveSignature(moveData);
+        // Move that bus! (eeer.... I mean that positionable)
+        this.props.movePositionable(moveData);
     }
 
     onDelete() {
-        this.props.removeSignatureFromDocument({ signatureIndex: this.props.signatureIndex })
+        this.props.removePositionableFromDocument({ [this.props.indexKey]: this.props[this.props.indexKey] })
     }
 
     render() {
 
-        const { signature, containerWidth, containerHeight } = this.props;
+        const { positionable, containerWidth, containerHeight } = this.props;
         const defaults = {
-            x: containerWidth * signature.offsetX,
-            y: containerHeight * signature.offsetY,
-            width: containerWidth * signature.ratioX,
-            height: containerHeight * signature.ratioY
+            x: containerWidth * positionable.offsetX,
+            y: containerHeight * positionable.offsetY,
+            width: containerWidth * positionable.ratioX,
+            height: containerHeight * positionable.ratioY
         };
 
         const stylesWithbackground = {
-            background: `url("${signatureUrl(this.props.signature.signatureId)}"`,
+            background: `url("${signatureUrl(this.props.positionable.signatureId)}"`,
             backgroundSize: '100% 100%', // Must come after background
         };
 
         return (
             <ReactRnd
-                ref={(ref: ReactRnd) => this.signature = ref as ReactRnd}
+                ref={(ref: ReactRnd) => this.positionable = ref as ReactRnd}
                 default={defaults}
                 style={stylesWithbackground}
                 onDragStop={this.onMove}
                 onResizeStop={this.onResize}
                 bounds="parent"
-                minWidth={Signature.MIN_WIDTH}
-                minHeight={Signature.MIN_HEIGHT}
+                minWidth={Positionable.MIN_WIDTH}
+                minHeight={Positionable.MIN_HEIGHT}
                 lockAspectRatio={true}
-                resizeHandlerClasses={Signature.HANDLER_STYLES}
+                resizeHandlerClasses={Positionable.HANDLER_STYLES}
             ><button className="button-no-style signature-destroy" onClick={this.onDelete}><span className="fa fa-trash-o"/></button></ReactRnd>
         );
     }
 }
 
-export default connect(
+export const SignaturePositionable = connect(
     (state: Sign.State, ownProps: ConnectedSignatureProps) => ({
-        signature: state.documentViewer.signatures[ownProps.signatureIndex]
+        positionable: state.documentViewer.signatures[ownProps[this.props.indexKey]],
+        indexKey: '[this.props.indexKey]'
     }),
-    { removeSignatureFromDocument, moveSignature }
-)(Signature);
+    { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
+)(Positionable);
+
+
+export const DatePositionable = connect(
+    (state: Sign.State, ownProps: ConnectedSignatureProps) => ({
+        positionable: state.documentViewer.date[ownProps.dateIndex]
+        indexKey: 'dateIndex'
+    }),
+    { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
+)(Positionable);

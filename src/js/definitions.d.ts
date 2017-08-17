@@ -69,8 +69,24 @@ declare namespace Sign {
         xyRatio: number;
     }
 
+    interface DocumentDate {
+        dateIndex: number;
+        documentId: string;
+        pageNumber: number;
+        offsetX: number;
+        offsetY: number;
+        ratioX?: number;
+        ratioY?: number;
+        value: string;
+        dataUrl: string;
+    }
+
     interface DocumentSignatures {
         [key: string]: DocumentSignature;
+    }
+
+    interface DocumentDates {
+        [key: string]: DocumentDate
     }
 
     interface DocumentViewer {
@@ -78,6 +94,7 @@ declare namespace Sign {
         selectedSignatureId?: number;
         selectedInitialId?: number;
         signatures: DocumentSignatures;
+        dates: DocumentDates;
         documents?: {
             [documentId: string] : {
                 activePage: number;
@@ -136,13 +153,15 @@ declare namespace Sign {
     const enum DragAndDropTypes {
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
         ADD_DATE_TO_DOCUMENT = 'ADD_DATE_TO_DOCUMENT',
-        ADD_TEXT_TO_DOCUMENT = 'ADD_TEXT_TO_DOCUMENT'
+        ADD_TEXT_TO_DOCUMENT = 'ADD_TEXT_TO_DOCUMENT',
+        ADD_PROMPT_TO_DOCUMENT = 'ADD_PROMPT_TO_DOCUMENT'
     }
 
     const enum DefaultSignatureSize {
         WIDTH = 200,
         HEIGHT = 100,
-        WIDTH_RATIO = 0.2
+        WIDTH_RATIO = 0.2,
+        TEXT_WIDTH_RATIO = 0.025
     }
 
     // These types match the database enum: signature_type
@@ -182,8 +201,17 @@ declare namespace Sign.Actions {
         SELECT_SIGNATURE = 'SELECT_SIGNATURE',
         SELECT_INITIAL = 'SELECT_INITITAL',
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
+        ADD_DATE_TO_DOCUMENT = 'ADD_DATE_TO_DOCUMENT',
+        ADD_TEXT_TO_DOCUMENT = 'ADD_TEXT_TO_DOCUMENT',
+        ADD_PROMPT_TO_DOCUMENT = 'ADD_PROMPT_TO_DOCUMENT',
         MOVE_SIGNATURE = 'MOVE_SIGNATURE',
+        MOVE_DATE = 'MOVE_DATE',
+        MOVE_TEXT = 'MOVE_TEXT',
+        MOVE_PROMPT = 'MOVE_PROMPT',
         REMOVE_SIGNATURE_FROM_DOCUMENT = 'REMOVE_SIGNATURE_FROM_DOCUMENT',
+        REMOVE_DATE_FROM_DOCUMENT = 'REMOVE_DATE_FROM_DOCUMENT',
+        REMOVE_TEXT_FROM_DOCUMENT = 'REMOVE_TEXT_FROM_DOCUMENT',
+        REMOVE_PROMPT_FROM_DOCUMENT = 'REMOVE_PROMPT_FROM_DOCUMENT',
 
         SIGN_DOCUMENT = "SIGN_DOCUMENT",
         SET_SIGN_REQUEST_STATUS = "SET_SIGN_REQUEST_STATUS",
@@ -299,24 +327,46 @@ declare namespace Sign.Actions {
         initialId: number;
     }
 
-    interface AddSignatureToDocumentPayload {
+    interface Positionable {
         documentId: string;
-        signatureIndex: string;
-        signatureId: number;
         pageNumber: number;
         offsetX: number;
         offsetY: number;
         ratioX: number;
         ratioY: number;
+    }
+
+    interface AddSignatureToDocumentPayload extends Positionable{
+        signatureIndex: string;
+        signatureId: number;
         xyRatio: number;
+    }
+
+    interface AddDateToDocumentPayload extends Positionable{
+        dateIndex: string;
+        value: string,
+        dataUrl: string,
     }
 
     interface RemoveSignatureFromDocumentPayload {
         signatureIndex: string;
     }
 
+    interface RemoveDateFromDocumentPayload {
+        dateIndex: string;
+    }
+
     interface MoveSignaturePayload {
         signatureIndex: string;
+        pageNumber?: number;
+        offsetX?: number;
+        offsetY?: number;
+        ratioX?: number;
+        ratioY?: number;
+    }
+
+    interface MoveDatePayload {
+        dateIndex: string;
         pageNumber?: number;
         offsetX?: number;
         offsetY?: number;
@@ -383,8 +433,11 @@ declare namespace Sign.Actions {
     interface SelectSignature extends ActionCreator<SelectSignaturePayload> {}
     interface SelectInitial extends ActionCreator<SelectInitialPayload> {}
     interface AddSignatureToDocument extends ActionCreator<AddSignatureToDocumentPayload> {}
+    interface AddDateToDocument extends ActionCreator<AddDateToDocumentPayload> {}
     interface MoveSignature extends ActionCreator<MoveSignaturePayload> {}
+    interface MoveDate extends ActionCreator<MoveDatePayload> {}
     interface RemoveSignatureFromDocument extends ActionCreator<RemoveSignatureFromDocumentPayload> {}
+    interface RemoveDateFromDocument extends ActionCreator<RemoveDateFromDocumentPayload> {}
 
     interface CreateDocumentSet extends ActionCreator<DocumentSetPayload> {}
     interface UpdateDocumentSet extends ActionCreator<DocumentSetPayload> {}

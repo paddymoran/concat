@@ -74,6 +74,13 @@ export function addSignatureToDocument(payload: Sign.Actions.AddSignatureToDocum
     };
 }
 
+export function addDateToDocument(payload: Sign.Actions.AddDateToDocumentPayload): Sign.Actions.AddDateToDocument {
+    return {
+        type: Sign.Actions.Types.ADD_DATE_TO_DOCUMENT,
+        payload
+    };
+}
+
 export function removeSignatureFromDocument(payload: Sign.Actions.RemoveSignatureFromDocumentPayload): Sign.Actions.RemoveSignatureFromDocument {
     return {
         type: Sign.Actions.Types.REMOVE_SIGNATURE_FROM_DOCUMENT,

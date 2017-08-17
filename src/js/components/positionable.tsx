@@ -176,7 +176,7 @@ export const SignaturePositionable = connect(
     (state: Sign.State, ownProps: PositionableProps) => ({
         positionable: state.documentViewer.signatures[ownProps.index] as Sign.Positionable,
         indexKey: 'signatureIndex',
-        background: `url("${signatureUrl(ownProps.positionable.signatureId)}"`
+        background: `url("${signatureUrl(state.documentViewer.signatures[ownProps.index].signatureId)}"`
     }),
     { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
 )(Positionable);

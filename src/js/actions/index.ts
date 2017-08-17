@@ -60,16 +60,24 @@ export function selectInitial(payload: Sign.Actions.SelectInitialPayload): Sign.
     };
 }
 
-export function moveSignature(payload: Sign.Actions.MoveSignaturePayload): Sign.Actions.MoveSignature {
-    return {
-        type: Sign.Actions.Types.MOVE_SIGNATURE,
-        payload
-    };
-}
 
 export function addSignatureToDocument(payload: Sign.Actions.AddSignatureToDocumentPayload): Sign.Actions.AddSignatureToDocument {
     return {
         type: Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT,
+        payload
+    };
+}
+
+export function removeSignatureFromDocument(payload: Sign.Actions.RemoveSignatureFromDocumentPayload): Sign.Actions.RemoveSignatureFromDocument {
+    return {
+        type: Sign.Actions.Types.REMOVE_SIGNATURE_FROM_DOCUMENT,
+        payload
+    }
+}
+
+export function moveSignature(payload: Sign.Actions.MoveSignaturePayload): Sign.Actions.MoveSignature {
+    return {
+        type: Sign.Actions.Types.MOVE_SIGNATURE,
         payload
     };
 }
@@ -81,12 +89,20 @@ export function addDateToDocument(payload: Sign.Actions.AddDateToDocumentPayload
     };
 }
 
-export function removeSignatureFromDocument(payload: Sign.Actions.RemoveSignatureFromDocumentPayload): Sign.Actions.RemoveSignatureFromDocument {
+export function removeDateFromDocument(payload: Sign.Actions.RemoveDateFromDocumentPayload): Sign.Actions.RemoveDateFromDocument {
     return {
-        type: Sign.Actions.Types.REMOVE_SIGNATURE_FROM_DOCUMENT,
+        type: Sign.Actions.Types.REMOVE_DATE_FROM_DOCUMENT,
         payload
     }
 }
+
+export function moveDate(payload: Sign.Actions.MoveSignaturePayload): Sign.Actions.MoveDate {
+    return {
+        type: Sign.Actions.Types.MOVE_DATE,
+        payload
+    };
+}
+
 export function showResults(payload: Sign.Actions.ShowResultsPayload): Sign.Actions.ShowResults {
     return {
         type: Sign.Actions.Types.SHOW_RESULTS,

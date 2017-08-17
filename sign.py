@@ -6,15 +6,20 @@ from collections import defaultdict
 from PIL import Image
 # Get all the filenames
 
-def sign(input_file, signatures):
+def sign(input_file, signatures, overlays):
 
     pdf = PdfReader(input_file)
     # group by page
     page_map = defaultdict(list)
     for signature in signatures:
-        image = Image.open(signature['signature'])
-        signature['signature'] = image.resize((image.size[0] * 4, image.size[1] * 4), Image.BICUBIC)
+        image = Image.open(signature['imgData'])
+        signature['image'] = image.resize((image.size[0] * 4, image.size[1] * 4), Image.BICUBIC)
         page_map[signature['pageNumber']].append(signature)
+
+    for overlay in overlays:
+        image = Image.open(overlay['imgData'])
+        overlay['image'] = image
+        page_map[overlay['pageNumber']].append(overlay)
 
     for page_number, signatures in page_map.items():
         page = pdf.pages[page_number]
@@ -22,7 +27,7 @@ def sign(input_file, signatures):
         signature_data = BytesIO()
         signature_page = canvas.Canvas(signature_data, tuple(mbox[2:]))
         for signature in signatures:
-            image = ImageReader(signature['signature'])
+            image = ImageReader(signature['image'])
             offsetY = mbox[3] - (mbox[3] * signature['offsetY']) - mbox[3] * signature['ratioY']
 
             signature_page.drawImage(image, mbox[2] * signature['offsetX'], offsetY, mbox[2] * signature['ratioX'], mbox[3] * signature['ratioY'], mask='auto')

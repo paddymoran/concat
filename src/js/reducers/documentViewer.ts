@@ -94,7 +94,7 @@ function moveDate(state: Sign.DocumentDates, action: Sign.Actions.MoveDate): Sig
 
     return {
             ...state,
-            [dateIndex]: { ...state.signatures[dateIndex], ...rest }
+            [dateIndex]: { ...state[dateIndex], ...rest }
     };
 }
 

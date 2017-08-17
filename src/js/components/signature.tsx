@@ -1,9 +1,12 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import ReactRnd from 'react-rnd';
-import { moveSignature, removeSignatureFromDocument } from '../actions';
+import {
+    moveSignature, removeSignatureFromDocument,
+    moveDate, removeDateFromDocument
+ } from '../actions';
 import { connect } from 'react-redux';
-import { signatureUrl } from '../utils';
+import { signatureUrl, stringToCanvas } from '../utils';
 
 interface ConnectedPositionableProps {
     [this.props.indexKey]: string;
@@ -109,7 +112,7 @@ class Positionable extends React.PureComponent<PositionableProps, PositionableSt
         // If the signature has been resized from the top, it now has a new Y position
         if (resizeDirection === 'top' || resizeDirection === 'topLeft' || resizeDirection === 'topRight') {
             // Get the old height and Y position
-            const oldHeight = this.props.signature.ratioY * this.props.containerHeight;
+            const oldHeight = this.props.positionable.ratioY * this.props.containerHeight;
             const oldYPosition = this.props.positionable.offsetY * this.props.containerHeight;
 
             // Figure out the new Y position === <old Y position> + <change in height>
@@ -131,7 +134,9 @@ class Positionable extends React.PureComponent<PositionableProps, PositionableSt
             // Add the new X ratio to the move positionable action
             moveData.offsetX = boundNumber(newXPosition / this.props.containerWidth);
         }
-
+        if(this.props.resize) {
+            moveData = {...moveData, ...this.props.resize(this.props.positionable, newWidth, newHeight)}
+        }
         // Move that bus! (eeer.... I mean that positionable)
         this.props.movePositionable(moveData);
     }
@@ -151,7 +156,7 @@ class Positionable extends React.PureComponent<PositionableProps, PositionableSt
         };
 
         const stylesWithbackground = {
-            background: `url("${signatureUrl(this.props.positionable.signatureId)}"`,
+            backgroundImage: this.props.background,
             backgroundSize: '100% 100%', // Must come after background
         };
 
@@ -174,8 +179,9 @@ class Positionable extends React.PureComponent<PositionableProps, PositionableSt
 
 export const SignaturePositionable = connect(
     (state: Sign.State, ownProps: ConnectedSignatureProps) => ({
-        positionable: state.documentViewer.signatures[ownProps[this.props.indexKey]],
-        indexKey: '[this.props.indexKey]'
+        positionable: state.documentViewer.signatures[ownProps.signatureIndex],
+        indexKey: 'signatureIndex',
+        background: `url("${signatureUrl(ownProps.positionable.signatureId)}"`
     }),
     { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
 )(Positionable);
@@ -183,8 +189,13 @@ export const SignaturePositionable = connect(
 
 export const DatePositionable = connect(
     (state: Sign.State, ownProps: ConnectedSignatureProps) => ({
-        positionable: state.documentViewer.date[ownProps.dateIndex]
-        indexKey: 'dateIndex'
+        positionable: state.documentViewer.dates[ownProps.dateIndex]
+        indexKey: 'dateIndex',
+        background: `url("${state.documentViewer.dates[ownProps.dateIndex].dataUrl}")`,
+        resize: (positionable, width, height) => {
+            const canvas = stringToCanvas(height, positionable.value);
+            return {dataUrl: canvas.toDataURL()}
+        }
     }),
-    { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
+    { removePositionableFromDocument: removeDateFromDocument, movePositionable: moveDate }
 )(Positionable);

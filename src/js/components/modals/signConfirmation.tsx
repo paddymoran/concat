@@ -19,7 +19,7 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
     }
 
     sign() {
-        this.props.signDocument({ documentId: this.props.documentId, signatures: this.props.signatures, documentSetId: this.props.documentSetId });
+        this.props.signDocument({ documentId: this.props.documentId, documentSetId: this.props.documentSetId });
     }
 
     renderLoading() {
@@ -63,7 +63,6 @@ export default connect(
         signRequestStatus: state.documentViewer.signRequestStatus,
         documentId: state.modals.documentId,
         documentSetId: state.modals.documentSetId,
-        signatures: state.documentViewer.signatures
     }),
     { signDocument, hideModal: () => closeModal({modalName: Sign.ModalType.SIGN_CONFIRMATION})  },
 )(SignConfirmation);

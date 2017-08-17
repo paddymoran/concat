@@ -372,6 +372,7 @@ declare namespace Sign.Actions {
         offsetY?: number;
         ratioX?: number;
         ratioY?: number;
+        dataUrl?: string;
     }
 
     interface SignDocumentPayload {

@@ -10,11 +10,18 @@ function *signDocumentSaga() {
     function *signDocument(action: Sign.Actions.SignDocument) {
         yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
 
-        const signatures = Object.keys(action.payload.signatures).map(key => action.payload.signatures[key]).filter(signature => signature.documentId === action.payload.documentId);
+        const documentViewer = yield select((state: Sign.State) => state.documentViewer);
+
+        const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === action.payload.documentId);
+
+        const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === action.payload.documentId);
+
+        const overlays = [...dates];
 
         const postPayload = {
             ...action.payload,
-            signatures
+            signatures,
+            overlays
         };
 
         try {

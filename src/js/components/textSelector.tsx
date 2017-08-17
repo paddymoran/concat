@@ -7,7 +7,7 @@ export class DateButton extends React.Component<{}> {
 
     render(){
         return (
-            <div className="signature-button" onClick={() => this.props.showModal()}>
+            <div className="signature-button" >
                 <span className="fa fa-calendar "></span>
                 <span>Add Date</span>
             </div>

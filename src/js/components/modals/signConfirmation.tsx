@@ -7,7 +7,6 @@ interface SignConfirmationProps {
     signRequestStatus: Sign.DownloadStatus;
     documentId: string;
     documentSetId: string;
-    signatures: Sign.DocumentSignatures;
     hideModal: () => void;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
 }

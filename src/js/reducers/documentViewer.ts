@@ -2,6 +2,7 @@ const DEFAULT_STATE: Sign.DocumentViewer = {
     signatures: {},
     dates: {},
     texts: {},
+    prompts: {},
     signRequestStatus: Sign.DownloadStatus.NotStarted,
     documents: {},
 };

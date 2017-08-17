@@ -9,7 +9,7 @@ import { DateButton } from '../textSelector';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
 import { signDocument, moveSignature, addSignatureToDocument, addDateToDocument, setActivePage, showSignConfirmationModal } from '../../actions';
-import { SignaturePositionable, DatePositionable } from '../signature';
+import { SignaturePositionable, DatePositionable } from '../positionable';
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
@@ -34,11 +34,11 @@ interface ConnectedPDFViewerProps extends PDFViewerProps {
     pageCount: number;
     pageViewports: Sign.Viewport[];
     signatures: Sign.DocumentSignatures;
+    dates: Sign.DocumentDates;
     signRequestStatus: Sign.DownloadStatus;
     selectedSignatureId: number;
     selectedInitialId: number;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
-    //moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
     addDateToDocument: (data: Sign.Actions.AddDateToDocumentPayload) => void;
     setActivePage: (payload: Sign.Actions.SetActivePagePayload) => void;
@@ -352,6 +352,8 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                         documentId={this.props.documentId}
                                         signaturesIndexes={signaturesIndexes}
                                         dateIndexes={dateIndexes}
+                                        textIndexes={[]}
+                                        promptIndexes={[]}
                                         addSignatureToDocument={this.props.addSignatureToDocument}
                                         addDateToDocument={this.props.addDateToDocument}
                                         selectedSignatureId={this.props.selectedSignatureId}
@@ -375,6 +377,9 @@ interface SignaturesPageWrapperProps {
     pageNumber: number;
     documentId: string;
     signaturesIndexes: string[];
+    dateIndexes: string[];
+    textIndexes: string[];
+    promptIndexes: string[];
     selectedSignatureId?: number;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
     addDateToDocument: (data: Sign.Actions.AddDateToDocumentPayload) => void;
@@ -387,11 +392,11 @@ interface SignaturesPageWrapperProps {
 class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperProps> {
     constructor(props: SignaturesPageWrapperProps) {
         super(props);
-        this.addSelected = this.addSelected.bind(this);
+        //this.addSelected = this.addSelected.bind(this);
     }
 
     // TODO: Remove when we no longer want click to add
-    addSelected(e: React.MouseEvent<HTMLElement>) {
+    /*addSelected(e: React.MouseEvent<HTMLElement>) {
         const target = e.target as HTMLElement;
         const rect = target.getBoundingClientRect();
         const offsetX = e.clientX - rect.left;
@@ -410,7 +415,7 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
                     })
             })
         }
-    }
+    }*/
 
     render() {
         const width = this.props.containerWidth;
@@ -422,8 +427,8 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
         }
         const body = (
             <div className={className} style={{position: 'relative'}}>
-               {  this.props.signaturesIndexes.map(signatureIndex => <SignaturePositionable key={signatureIndex} signatureIndex={signatureIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
-               {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} dateIndex={dateIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
+               {  this.props.signaturesIndexes.map(signatureIndex => <SignaturePositionable key={signatureIndex} index={signatureIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
+               {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} index={dateIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
                 { child }
             </div>
         );

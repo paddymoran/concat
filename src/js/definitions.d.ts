@@ -58,25 +58,31 @@ declare namespace Sign {
         width: number;
     }
 
-    interface DocumentSignature {
-        signatureId: number;
+    interface Positionable {
         documentId: string;
         pageNumber: number;
         offsetX: number;
         offsetY: number;
         ratioX?: number;
         ratioY?: number;
+    }
+
+    interface DocumentSignature extends Positionable{
+        signatureId: number;
         xyRatio: number;
     }
 
-    interface DocumentDate {
-        dateIndex: number;
-        documentId: string;
-        pageNumber: number;
-        offsetX: number;
-        offsetY: number;
-        ratioX?: number;
-        ratioY?: number;
+    interface DocumentDate  extends Positionable{
+        value: string;
+        dataUrl: string;
+    }
+
+    interface DocumentText  extends Positionable{
+        value: string;
+        dataUrl: string;
+    }
+
+    interface DocumentPrompt extends Positionable{
         value: string;
         dataUrl: string;
     }
@@ -89,12 +95,22 @@ declare namespace Sign {
         [key: string]: DocumentDate
     }
 
+    interface DocumentTexts {
+        [key: string]: DocumentTexts
+    }
+
+    interface DocumentPrompts {
+        [key: string]: DocumentPrompt
+    }
+
     interface DocumentViewer {
         signRequestStatus: DownloadStatus;
         selectedSignatureId?: number;
         selectedInitialId?: number;
         signatures: DocumentSignatures;
         dates: DocumentDates;
+        texts: DocumentTexts;
+        prompts: DocumentPrompts;
         documents?: {
             [documentId: string] : {
                 activePage: number;
@@ -348,6 +364,10 @@ declare namespace Sign.Actions {
         dataUrl: string,
     }
 
+    interface RemovePositionableFromDocumentPayload {
+        [indexKey: string]: string;
+    }
+
     interface RemoveSignatureFromDocumentPayload {
         signatureIndex: string;
     }
@@ -356,29 +376,30 @@ declare namespace Sign.Actions {
         dateIndex: string;
     }
 
-    interface MoveSignaturePayload {
-        signatureIndex: string;
+    interface MovePositionablePayload {
         pageNumber?: number;
         offsetX?: number;
         offsetY?: number;
         ratioX?: number;
         ratioY?: number;
     }
+    interface MoveSignaturePayload extends MovePositionablePayload {
+        signatureIndex: string;
+    }
 
-    interface MoveDatePayload {
+    interface MoveDatePayload extends MovePositionablePayload {
         dateIndex: string;
-        pageNumber?: number;
-        offsetX?: number;
-        offsetY?: number;
-        ratioX?: number;
-        ratioY?: number;
+        dataUrl?: string;
+    }
+
+    interface MoveTextPayload extends MovePositionablePayload {
+        textIndex: string;
         dataUrl?: string;
     }
 
     interface SignDocumentPayload {
         documentSetId: string;
         documentId: string;
-        signatures: Sign.DocumentSignatures;
     }
 
     interface SetSignRequestStatusPayload {

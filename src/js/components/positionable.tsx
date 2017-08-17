@@ -8,21 +8,20 @@ import {
 import { connect } from 'react-redux';
 import { signatureUrl, stringToCanvas } from '../utils';
 
-interface ConnectedPositionableProps {
-    [this.props.indexKey]: string;
+interface PositionableProps {
     page: React.ReactInstance;
     containerHeight: number;
     containerWidth: number;
+    index: string;
 }
 
-interface PositionableProps extends ConnectedPositionableProps {
-    positionable: Sign.DocumentSignature;
-    removeSignatureFromDocument: (payload: Sign.Actions.RemoveSignatureFromDocumentPayload) => void;
-    moveSignature: (payload: Sign.Actions.MoveSignaturePayload) => void;
-}
-
-interface PositionableState {
-    yOffset: number;
+interface ConnectedPositionableProps extends PositionableProps {
+    indexKey: string;
+    positionable: Sign.Positionable,
+    removePositionableFromDocument: (payload: Sign.Actions.RemovePositionableFromDocumentPayload) => void;
+    movePositionable: (payload: Sign.Actions.MovePositionablePayload) => void;
+    resize?: (positionable: Sign.Positionable, width: number, height: number) => any;
+    background?: string;
 }
 
 
@@ -39,7 +38,7 @@ const boundNumber = (number: number) => {
     return number;
 }
 
-class Positionable extends React.PureComponent<PositionableProps, PositionableState> {
+class Positionable extends React.PureComponent<ConnectedPositionableProps> {
     private positionable: ReactRnd;
 
     public static MIN_WIDTH = 50;
@@ -57,12 +56,8 @@ class Positionable extends React.PureComponent<PositionableProps, PositionableSt
     } ;
 
 
-    constructor(props: PositionableProps) {
+    constructor(props: ConnectedPositionableProps) {
         super(props);
-        this.state = {
-            yOffset: (props.positionable.ratioY / 2) + 1,
-        };
-
         this.onMove = this.onMove.bind(this);
         this.onResize = this.onResize.bind(this);
         this.onDelete = this.onDelete.bind(this);
@@ -91,7 +86,7 @@ class Positionable extends React.PureComponent<PositionableProps, PositionableSt
         const xRatio = resizeData.x / this.props.containerWidth;
 
         this.props.movePositionable({
-            [this.props.indexKey]: this.props[this.props.indexKey],
+            [this.props.indexKey]: this.props.index,
             offsetX: boundNumber(resizeData.x / this.props.containerWidth),
             offsetY: boundNumber(resizeData.y / this.props.containerHeight)
         });
@@ -104,7 +99,7 @@ class Positionable extends React.PureComponent<PositionableProps, PositionableSt
         const newHeight = element.clientHeight;
 
         let moveData: Sign.Actions.MovePositionablePayload = {
-            [this.props.indexKey]: this.props[this.props.indexKey],
+            [this.props.indexKey]: this.props.index,
             ratioX: boundNumber(newWidth / this.props.containerWidth),
             ratioY: boundNumber(newHeight / this.props.containerHeight)
         };
@@ -142,7 +137,7 @@ class Positionable extends React.PureComponent<PositionableProps, PositionableSt
     }
 
     onDelete() {
-        this.props.removePositionableFromDocument({ [this.props.indexKey]: this.props[this.props.indexKey] })
+        this.props.removePositionableFromDocument({ [this.props.indexKey]: this.props.index })
     }
 
     render() {
@@ -157,7 +152,7 @@ class Positionable extends React.PureComponent<PositionableProps, PositionableSt
 
         const stylesWithbackground = {
             backgroundImage: this.props.background,
-            backgroundSize: '100% 100%', // Must come after background
+            backgroundSize: '100% 100%',
         };
 
         return (
@@ -178,8 +173,8 @@ class Positionable extends React.PureComponent<PositionableProps, PositionableSt
 }
 
 export const SignaturePositionable = connect(
-    (state: Sign.State, ownProps: ConnectedSignatureProps) => ({
-        positionable: state.documentViewer.signatures[ownProps.signatureIndex],
+    (state: Sign.State, ownProps: PositionableProps) => ({
+        positionable: state.documentViewer.signatures[ownProps.index] as Sign.Positionable,
         indexKey: 'signatureIndex',
         background: `url("${signatureUrl(ownProps.positionable.signatureId)}"`
     }),
@@ -188,11 +183,11 @@ export const SignaturePositionable = connect(
 
 
 export const DatePositionable = connect(
-    (state: Sign.State, ownProps: ConnectedSignatureProps) => ({
-        positionable: state.documentViewer.dates[ownProps.dateIndex]
+    (state: Sign.State, ownProps: PositionableProps) => ({
+        positionable: state.documentViewer.dates[ownProps.index]  as Sign.Positionable,
         indexKey: 'dateIndex',
-        background: `url("${state.documentViewer.dates[ownProps.dateIndex].dataUrl}")`,
-        resize: (positionable, width, height) => {
+        background: `url("${state.documentViewer.dates[ownProps.index].dataUrl}")`,
+        resize: (positionable : Sign.DocumentDate, width: number, height: number) : any => {
             const canvas = stringToCanvas(height, positionable.value);
             return {dataUrl: canvas.toDataURL()}
         }

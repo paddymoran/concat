@@ -96,7 +96,7 @@ export function removeDateFromDocument(payload: Sign.Actions.RemoveDateFromDocum
     }
 }
 
-export function moveDate(payload: Sign.Actions.MoveSignaturePayload): Sign.Actions.MoveDate {
+export function moveDate(payload: Sign.Actions.MoveDatePayload): Sign.Actions.MoveDate {
     return {
         type: Sign.Actions.Types.MOVE_DATE,
         payload

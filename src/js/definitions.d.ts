@@ -74,6 +74,8 @@ declare namespace Sign {
 
     interface DocumentDate  extends Positionable{
         value: string;
+        timestamp: number;
+        format?: string;
         dataUrl: string;
     }
 
@@ -596,6 +598,10 @@ declare module 'react-scroll/modules/mixins/scroller' {
     export function setActiveLink(link: string): void;
     export function getActiveLink(): string;
     export function scrollTo(to: string, props: any): void;
+}
+
+declare module 'react-widgets/lib/localizers/moment' {
+    export default function momentLocalizer(input : any): void;
 }
 
 declare namespace SizeMe {

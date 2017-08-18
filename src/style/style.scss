@@ -29,6 +29,7 @@ $navbar-margin-bottom: 0px;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/modals";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/close";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/navs";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/popovers";
 // @import "~bootstrap-sass/assets/stylesheets/bootstrap/input-groups";
 // @import "~bootstrap-sass/assets/stylesheets/bootstrap/list-group";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/navbar";
@@ -60,6 +61,7 @@ $fa-font-path: '~font-awesome/fonts';
 @import "dropzone";
 @import "signatures";
 @import "document-set";
+@import "react-widgets";
 
 html {
   position: relative;

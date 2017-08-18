@@ -87,9 +87,12 @@ const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {
 
 const dateSource: __ReactDnd.DragSourceSpec<AddDateControlProps> = {
     beginDrag(props, monitor) {
+        const format = 'DD MMMM YYYY', timestamp = (new Date()).getTime();
         return {
             type: Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT,
-            value: Moment().format('DD MMMM YYYY')
+            format,
+            value: Moment(timestamp).format(format),
+            timestamp
         };
     }
 };
@@ -230,8 +233,10 @@ const dropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
 
 
                     props.addDateToDocument({
-                        dateIndex,
                         value: item.value,
+                        timestamp: item.timestamp,
+                        format: item.format,
+                        dateIndex,
                         dataUrl,
                         documentId: props.documentId,
                         pageNumber: props.pageNumber,

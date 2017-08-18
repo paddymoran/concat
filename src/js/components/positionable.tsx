@@ -7,6 +7,11 @@ import {
  } from '../actions';
 import { connect } from 'react-redux';
 import { signatureUrl, stringToCanvas } from '../utils';
+import * as Calendar from 'react-widgets/lib/Calendar';
+import * as Popover from 'react-bootstrap/lib/Popover'
+import * as OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
+import * as Moment from 'moment';
+
 
 interface PositionableProps {
     page: React.ReactInstance;
@@ -15,6 +20,16 @@ interface PositionableProps {
     index: string;
 }
 
+interface ControlProps {
+    index: string;
+    onDelete: () => void;
+    element: () => React.Component;
+}
+
+interface DateControlProps extends ControlProps{
+    date: Sign.DocumentDate,
+    updateDate: (payload: Sign.Actions.MovePositionablePayload) => void;
+}
 interface ConnectedPositionableProps extends PositionableProps {
     indexKey: string;
     positionable: Sign.Positionable,
@@ -22,6 +37,52 @@ interface ConnectedPositionableProps extends PositionableProps {
     movePositionable: (payload: Sign.Actions.MovePositionablePayload) => void;
     resize?: (positionable: Sign.Positionable, width: number, height: number) => any;
     background?: string;
+    controls: React.ComponentClass<ControlProps>
+}
+
+
+class SimpleControls extends React.PureComponent<ControlProps> {
+    render(){
+        return <div className="positionable-controls">
+            <button className="button-no-style signature-destroy" onClick={this.props.onDelete}><span className="fa fa-trash-o"/></button>
+        </div>
+    }
+}
+
+@connect((state, ownProps: ControlProps) => ({
+    date: state.documentViewer.dates[ownProps.index]  as Sign.DocumentDate,
+}), {
+    updateDate: moveDate
+})
+class DateControls extends React.PureComponent<DateControlProps> {
+    constructor(props: DateControlProps){
+        super(props);
+        this.onChange = this.onChange.bind(this);
+    }
+    onChange(newValue : any) {
+        const timestamp = newValue.getTime();
+        const value = Moment(newValue).format(this.props.date.format);
+        const height = findDOMNode(this.props.element() as React.Component).clientHeight;
+        const canvas = stringToCanvas(height, value);
+        this.props.updateDate({
+            ...this.props.date,
+            timestamp,
+            value,
+            dataUrl: canvas.toDataURL()
+        })
+    }
+    render(){
+        return <div className="positionable-controls">
+             <OverlayTrigger container={this} trigger="click" rootClose placement="top" overlay={
+                <Popover id={`popover-for-${this.props.index}`} >
+                    <Calendar value={new Date(this.props.date.timestamp)} onChange={this.onChange}/>
+                </Popover>
+             }>
+            <button className="button-no-style "><span className="fa fa-calendar"/></button>
+            </OverlayTrigger>
+            <button className="button-no-style" onClick={this.props.onDelete}><span className="fa fa-trash-o"/></button>
+        </div>
+    }
 }
 
 
@@ -41,8 +102,8 @@ const boundNumber = (number: number) => {
 class Positionable extends React.PureComponent<ConnectedPositionableProps> {
     private positionable: ReactRnd;
 
-    public static MIN_WIDTH = 50;
-    public static MIN_HEIGHT = 25;
+    public static MIN_WIDTH = 40;
+    public static MIN_HEIGHT = 20;
 
     private static HANDLER_STYLES = {
       bottom: 'handler',
@@ -154,7 +215,7 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
             backgroundImage: this.props.background,
             backgroundSize: '100% 100%',
         };
-
+        const Controls = this.props.controls as React.ComponentClass<ControlProps>;
         return (
             <ReactRnd
                 ref={(ref: ReactRnd) => this.positionable = ref as ReactRnd}
@@ -167,7 +228,7 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
                 minHeight={Positionable.MIN_HEIGHT}
                 lockAspectRatio={true}
                 resizeHandlerClasses={Positionable.HANDLER_STYLES}
-            ><button className="button-no-style signature-destroy" onClick={this.onDelete}><span className="fa fa-trash-o"/></button></ReactRnd>
+            ><Controls onDelete={this.onDelete} index={this.props.index} element={() => this.positionable}/></ReactRnd>
         );
     }
 }
@@ -176,7 +237,8 @@ export const SignaturePositionable = connect(
     (state: Sign.State, ownProps: PositionableProps) => ({
         positionable: state.documentViewer.signatures[ownProps.index] as Sign.Positionable,
         indexKey: 'signatureIndex',
-        background: `url("${signatureUrl(state.documentViewer.signatures[ownProps.index].signatureId)}"`
+        background: `url("${signatureUrl(state.documentViewer.signatures[ownProps.index].signatureId)}"`,
+        controls: SimpleControls
     }),
     { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
 )(Positionable);
@@ -187,6 +249,7 @@ export const DatePositionable = connect(
         positionable: state.documentViewer.dates[ownProps.index]  as Sign.Positionable,
         indexKey: 'dateIndex',
         background: `url("${state.documentViewer.dates[ownProps.index].dataUrl}")`,
+        controls: DateControls,
         resize: (positionable : Sign.DocumentDate, width: number, height: number) : any => {
             const canvas = stringToCanvas(height, positionable.value);
             return {dataUrl: canvas.toDataURL()}

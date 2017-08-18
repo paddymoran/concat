@@ -81,7 +81,7 @@ module.exports = {
         extensions: ['.ts', '.tsx', '.js', '.json']
     },
     plugins: [
-
+        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
         new WebpackNotifierPlugin({ title: 'CataLex Sign' }),
         new webpack.DefinePlugin({
             'process.env': {

@@ -3,6 +3,10 @@ import Header from './header';
 import { CSSTransitionGroup } from 'react-transition-group';
 import Modals from './modals'
 import CustomDragLayer from './dragLayer';
+import * as Moment from 'moment';
+import * as MomentLocalizer from 'react-widgets/lib/localizers/moment';
+
+MomentLocalizer(Moment);
 
 
 interface AppProps {

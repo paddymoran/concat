@@ -117,7 +117,7 @@ class UploadDocuments extends React.PureComponent<UploadDocumentsProps> {
                     </div>
 
 
-                    <DocumentList documentSetId={this.props.documentSetId} />
+                    <DocumentList documentSetId={this.props.documentSetId} showRemove={true}/>
 
                     { !!this.props.documentIds && !!this.props.documentIds.length && <div className="button-bar">
                         <Link to={`/documents/${this.props.documentSetId}/${this.props.documentIds[0]}`} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>Sign Documents</Link>

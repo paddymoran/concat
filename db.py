@@ -136,14 +136,16 @@ def add_document(set_id, document_id, filename, binary_file_data):
         }
 
 
-def remove_document_from_set(set_id, document_id, uesr_id):
+def remove_document_from_set(document_id, user_id):
     database = get_db()
     with database.cursor() as cursor:
         # Create the document data record
         delete_query = """
-            SELECT delete_document(%(document_id)s, %(user_id)s)
+            SELECT delete_document(%(user_id)s, %(document_id)s)
         """
-        db.commit()
+        cursor.execute(delete_query, {'user_id': user_id, 'document_id': document_id})
+        cursor.fetchone()
+        database.commit()
 
 
 

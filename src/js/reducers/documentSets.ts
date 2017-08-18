@@ -2,7 +2,7 @@ const DEFAULT_STATE = {};
 
 export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, action: any): Sign.DocumentSets {
     let setId, documents, i;
-    
+
     switch(action.type) {
         case Sign.Actions.Types.CREATE_DOCUMENT_SET:
             {
@@ -30,7 +30,6 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
                 };
             }
 
-
         case Sign.Actions.Types.ADD_DOCUMENT:
             // dedupe
             const documentIds = [...state[action.payload.documentSetId].documentIds, action.payload.documentId];
@@ -45,16 +44,18 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
             i = state[documentSetId].documentIds.findIndex(doc => doc === action.payload.documentId);
 
             if (i > -1) {
+                const list = [...state[documentSetId].documentIds];
+                list.splice(i, 1);
                 return {
                     ...state,
                     [documentSetId]: {
                         ...state[documentSetId],
-                        documentIds: state[documentSetId].documentIds.splice(i, 1)
+                        documentIds: list
                     }
                 };
             }
             return state;
-        
+
         case Sign.Actions.Types.REORDER_DOCUMENTS:
             return reorderDocuments(state, action);
 

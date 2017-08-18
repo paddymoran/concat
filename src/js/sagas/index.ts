@@ -16,6 +16,7 @@ export default function *rootSaga(): any {
         uploadDocumentSaga(),
         requestDocumentSaga(),
         requestDocumentSetSaga(),
+        deleteDocumentSaga(),
         ...pdfStoreSagas,
         ...signatureSagas,
         ...documentViewerSagas,
@@ -99,6 +100,18 @@ function *requestDocumentSaga() {
      }
 }
 
+function *deleteDocumentSaga() {
+    yield takeEvery(Sign.Actions.Types.REMOVE_DOCUMENT, removeDocument);
+     function *removeDocument(action: Sign.Actions.RemoveDocument) {
+        try{
+            const response = yield call(axios.delete, `/api/document/${action.payload.documentId}`);
+         }catch(e){
+             //swallow
+         }
+     }
+}
+
+
 function *requestDocumentSetSaga() {
     yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT_SET, requestDocumentSet);
 
@@ -128,7 +141,7 @@ function *requestDocumentSetSaga() {
         yield put(updateDocumentSet({
             documentSetId: action.payload.documentSetId,
             downloadStatus: Sign.DownloadStatus.Complete,
-            documentIds: data.documents.map((d: any) => d.document_id)
+            documentIds: (data.documents || []).map((d: any) => d.document_id)
         }));
      }
 }

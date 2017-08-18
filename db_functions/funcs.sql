@@ -48,10 +48,15 @@ $$ LANGUAGE sql;
 
 
 
-CREATE OR REPLACE FUNCTION delete_document(user_id integer, document_id uuid)
-RETURNS VOID as
-$$
+CREATE OR REPLACE FUNCTION delete_document(
+    user_id integer,
+    document_id uuid)
+  RETURNS void AS
+$BODY$
+DELETE FROM document_data dd
+USING documents d
+JOIN document_sets ds ON ds.document_set_id = d.document_set_id
+WHERE d.document_data_id = dd.document_data_id and user_id = $1 AND document_id = $2 ;
 
-
-
-$$ LANGUAGE sql;
+$BODY$
+  LANGUAGE sql VOLATILE;

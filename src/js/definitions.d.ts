@@ -77,11 +77,13 @@ declare namespace Sign {
         timestamp: number;
         format?: string;
         dataUrl: string;
+        height: number;
     }
 
     interface DocumentText  extends Positionable{
         value: string;
         dataUrl: string;
+        height: number;
     }
 
     interface DocumentPrompt extends Positionable{
@@ -362,8 +364,11 @@ declare namespace Sign.Actions {
 
     interface AddDateToDocumentPayload extends Positionable{
         dateIndex: string;
-        value: string,
-        dataUrl: string,
+        value: string;
+        timestamp: number;
+        format: string;
+        dataUrl: string;
+        height: number;
     }
 
     interface RemovePositionableFromDocumentPayload {
@@ -385,18 +390,25 @@ declare namespace Sign.Actions {
         ratioX?: number;
         ratioY?: number;
     }
+
     interface MoveSignaturePayload extends MovePositionablePayload {
         signatureIndex: string;
     }
 
     interface MoveDatePayload extends MovePositionablePayload {
+        value: string;
         dateIndex: string;
         dataUrl?: string;
+        timestamp: number;
+        format: string;
+        height: number;
     }
 
     interface MoveTextPayload extends MovePositionablePayload {
         textIndex: string;
         dataUrl?: string;
+        height: number;
+        value: string;
     }
 
     interface SignDocumentPayload {
@@ -485,18 +497,11 @@ declare namespace Sign.Actions {
 
 
 }
-/*
+
 declare module 'pdfjs-dist/webpack' {
-   interface PDFJS {
-           getDocument(
-            source: Uint8Array,
-            pdfDataRangeTransport?: any,
-            passwordCallback?: (fn: (password: string) => void, reason: string) => string,
-            progressCallback?: (progressData: PDFProgressData) => void)
-            : PDFPromise<PDFDocumentProxy>;
-   }
-   export { PDFJS } ;
-}*/
+   var PDFJS: PDFJSStatic;
+   export = PDFJS;
+}
 
 declare module 'react-signature-canvas' {
     class SignatureCanvas extends React.Component<any, any> {
@@ -600,34 +605,37 @@ declare module 'react-scroll/modules/mixins/scroller' {
     export function scrollTo(to: string, props: any): void;
 }
 
-declare module 'react-widgets/lib/localizers/moment' {
-    export default function momentLocalizer(input : any): void;
+
+declare module 'react-bootstrap/lib/Popover' {
+    export = ReactBootstrap.Popover;
 }
 
-declare namespace SizeMe {
-    interface Props {
-        refreshRate: number;
-        monitorHeight?: boolean;
-    }
 
 
+declare module 'react-bootstrap/lib/OverlayTrigger' {
+    export = ReactBootstrap.OverlayTrigger;
 }
+
 /*
+declare module 'react-widgets/lib/localizers/moment' {
+    function MomentLocalizer(moment : any): void;
+    export default MomentLocalizer;
+}
+*/
+
 declare module 'react-sizeme' {
-
-
     import { ComponentClass, StatelessComponent } from "react";
 
     interface Options {
         refreshRate?: number;
+        refreshMode?: string;
         monitorHeight?: boolean;
+        monitorWidth?: boolean;
     }
     interface ComponentDecorator<P> {
-        (component: StatelessComponent): ComponentClass<P>;
+        (component: ComponentClass<P>): ComponentClass<P>;
     }
 
     export default function sizeMe<P>(options?: Options): ComponentDecorator<P>
-
-
 }
-*/
+

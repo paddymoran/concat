@@ -125,16 +125,17 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
   }
 }
 
-const ConnectedDragLayer = DragLayer(monitor => ({
+const DimensionedDragLayer = connect((state : Sign.State) => ({
+    containerWidth: state.dimensions.width
+}))(CustomDragLayer)
+
+const DimensionedConnectedDragLayer = DragLayer(monitor => ({
   item: monitor.getItem(),
   itemType: monitor.getItemType(),
   clientOffset: monitor.getClientOffset(),
   isDragging: monitor.isDragging(),
-}))(CustomDragLayer);
+}))(DimensionedDragLayer);
 
 
-const DimensionedConnectedDragLayer = connect((state : Sign.State) => ({
-    containerWidth: state.dimensions.width
-}))(ConnectedDragLayer)
 
 export default DimensionedConnectedDragLayer;

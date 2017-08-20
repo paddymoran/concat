@@ -236,6 +236,7 @@ const dropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
                         value: item.value,
                         timestamp: item.timestamp,
                         format: item.format,
+                        height,
                         dateIndex,
                         dataUrl,
                         documentId: props.documentId,

@@ -20,6 +20,17 @@ interface PositionableProps {
     index: string;
 }
 
+interface ConnectedPositionableProps extends PositionableProps {
+    indexKey: string;
+    positionable: Sign.Positionable,
+    removePositionableFromDocument: (payload: Sign.Actions.RemovePositionableFromDocumentPayload) => void;
+    movePositionable: (payload: Sign.Actions.MovePositionablePayload | Sign.Actions.MoveDatePayload) => void;
+    resize?: (positionable: Sign.Positionable, width: number, height: number) => any;
+    background?: string;
+    controls: React.ComponentClass<ControlProps>
+}
+
+
 interface ControlProps {
     index: string;
     onDelete: () => void;
@@ -28,16 +39,7 @@ interface ControlProps {
 
 interface DateControlProps extends ControlProps{
     date: Sign.DocumentDate,
-    updateDate: (payload: Sign.Actions.MovePositionablePayload) => void;
-}
-interface ConnectedPositionableProps extends PositionableProps {
-    indexKey: string;
-    positionable: Sign.Positionable,
-    removePositionableFromDocument: (payload: Sign.Actions.RemovePositionableFromDocumentPayload) => void;
-    movePositionable: (payload: Sign.Actions.MovePositionablePayload) => void;
-    resize?: (positionable: Sign.Positionable, width: number, height: number) => any;
-    background?: string;
-    controls: React.ComponentClass<ControlProps>
+    updateDate: (payload: Sign.Actions.MoveDatePayload) => void;
 }
 
 
@@ -49,28 +51,29 @@ class SimpleControls extends React.PureComponent<ControlProps> {
     }
 }
 
-@connect((state, ownProps: ControlProps) => ({
-    date: state.documentViewer.dates[ownProps.index]  as Sign.DocumentDate,
-}), {
-    updateDate: moveDate
-})
+
 class DateControls extends React.PureComponent<DateControlProps> {
     constructor(props: DateControlProps){
         super(props);
         this.onChange = this.onChange.bind(this);
     }
+
     onChange(newValue : any) {
         const timestamp = newValue.getTime();
         const value = Moment(newValue).format(this.props.date.format);
         const height = findDOMNode(this.props.element() as React.Component).clientHeight;
         const canvas = stringToCanvas(height, value);
+        const { documentId, format } = this.props.date;
         this.props.updateDate({
-            ...this.props.date,
+            dateIndex: this.props.index,
+            format,
             timestamp,
+            height,
             value,
             dataUrl: canvas.toDataURL()
         })
     }
+
     render(){
         return <div className="positionable-controls">
              <OverlayTrigger container={this} trigger="click" rootClose placement="top" overlay={
@@ -85,6 +88,12 @@ class DateControls extends React.PureComponent<DateControlProps> {
     }
 }
 
+
+const ConnectedDateControls = connect((state, ownProps: ControlProps) => ({
+    date: state.documentViewer.dates[ownProps.index]  as Sign.DocumentDate,
+}), {
+    updateDate: moveDate
+})(DateControls)
 
 
 // Keep numbers between 0 and 1
@@ -246,10 +255,10 @@ export const SignaturePositionable = connect(
 
 export const DatePositionable = connect(
     (state: Sign.State, ownProps: PositionableProps) => ({
-        positionable: state.documentViewer.dates[ownProps.index]  as Sign.Positionable,
+        positionable: state.documentViewer.dates[ownProps.index] as Sign.Positionable,
         indexKey: 'dateIndex',
         background: `url("${state.documentViewer.dates[ownProps.index].dataUrl}")`,
-        controls: DateControls,
+        controls: ConnectedDateControls,
         resize: (positionable : Sign.DocumentDate, width: number, height: number) : any => {
             const canvas = stringToCanvas(height, positionable.value);
             return {dataUrl: canvas.toDataURL()}

@@ -24,10 +24,10 @@ interface ConnectedDocumentViewProps extends DocumentViewProps {
 
 interface DocumentListProps {
     documentSetId: string;
+    showRemove?: boolean;
 };
 
 interface ConnectedDocumentListProps extends DocumentListProps{
-    showRemove?: boolean;
     reorderable?: boolean;
     documentSetId: string;
     documentIds: string[];

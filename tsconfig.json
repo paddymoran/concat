@@ -8,7 +8,8 @@
     "jsx": "react",
     "lib": ["es7", "dom"],
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["./src/js/**/*"],
     "typeRoots": [

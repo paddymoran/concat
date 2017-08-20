@@ -23,10 +23,10 @@ interface PositionableProps {
 interface ConnectedPositionableProps extends PositionableProps {
     indexKey: string;
     positionable: Sign.Positionable,
-    removePositionableFromDocument: (payload: Sign.Actions.RemovePositionableFromDocumentPayload) => void;
-    movePositionable: (payload: Sign.Actions.MovePositionablePayload | Sign.Actions.MoveDatePayload) => void;
-    resize?: (positionable: Sign.Positionable, width: number, height: number) => any;
     background?: string;
+    removePositionableFromDocument?: (payload: Sign.Actions.RemovePositionableFromDocumentPayload) => void;
+    movePositionable?: (payload: Sign.Actions.MovePositionablePayload | Sign.Actions.MoveDatePayload) => void;
+    resize?: (positionable: Sign.Positionable, width: number, height: number) => any;
     controls: React.ComponentClass<ControlProps>
 }
 
@@ -246,10 +246,10 @@ export const SignaturePositionable = connect(
     (state: Sign.State, ownProps: PositionableProps) => ({
         positionable: state.documentViewer.signatures[ownProps.index] as Sign.Positionable,
         indexKey: 'signatureIndex',
-        background: `url("${signatureUrl(state.documentViewer.signatures[ownProps.index].signatureId)}"`,
+        background: `url("${signatureUrl(state.documentViewer.signatures[ownProps.index].signatureId)}"` as string,
         controls: SimpleControls
     }),
-    { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
+   // { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
 )(Positionable);
 
 

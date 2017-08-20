@@ -249,7 +249,7 @@ export const SignaturePositionable = connect(
         background: `url("${signatureUrl(state.documentViewer.signatures[ownProps.index].signatureId)}"` as string,
         controls: SimpleControls
     }),
-   // { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
+    { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
 )(Positionable);
 
 

@@ -103,6 +103,50 @@ export function moveDate(payload: Sign.Actions.MoveDatePayload): Sign.Actions.Mo
     };
 }
 
+export function addTextToDocument(payload: Sign.Actions.AddTextToDocumentPayload): Sign.Actions.AddTextToDocument {
+    return {
+        type: Sign.Actions.Types.ADD_TEXT_TO_DOCUMENT,
+        payload
+    };
+}
+
+export function removeTextFromDocument(payload: Sign.Actions.RemoveTextFromDocumentPayload): Sign.Actions.RemoveTextFromDocument {
+    return {
+        type: Sign.Actions.Types.REMOVE_TEXT_FROM_DOCUMENT,
+        payload
+    }
+}
+
+export function moveText(payload: Sign.Actions.MoveTextPayload): Sign.Actions.MoveText {
+    return {
+        type: Sign.Actions.Types.MOVE_TEXT,
+        payload
+    };
+}
+
+export function addPromptToDocument(payload: Sign.Actions.AddPromptToDocumentPayload): Sign.Actions.AddPromptToDocument {
+    return {
+        type: Sign.Actions.Types.ADD_PROMPT_TO_DOCUMENT,
+        payload
+    };
+}
+
+export function removePromptFromDocument(payload: Sign.Actions.RemovePromptFromDocumentPayload): Sign.Actions.RemovePromptFromDocument {
+    return {
+        type: Sign.Actions.Types.REMOVE_PROMPT_FROM_DOCUMENT,
+        payload
+    }
+}
+
+export function movePrompt(payload: Sign.Actions.MovePromptPayload): Sign.Actions.MovePrompt {
+    return {
+        type: Sign.Actions.Types.MOVE_PROMPT,
+        payload
+    };
+}
+
+
+
 export function showResults(payload: Sign.Actions.ShowResultsPayload): Sign.Actions.ShowResults {
     return {
         type: Sign.Actions.Types.SHOW_RESULTS,

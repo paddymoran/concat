@@ -16,6 +16,9 @@
             border-radius: 10px;
             color: $gray-light;
             padding: 0 2px;
+            &:focus{
+                 outline: none;
+            }
         }
     }
 

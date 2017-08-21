@@ -3,7 +3,8 @@ import { findDOMNode } from 'react-dom';
 import ReactRnd from 'react-rnd';
 import {
     moveSignature, removeSignatureFromDocument,
-    moveDate, removeDateFromDocument
+    moveDate, removeDateFromDocument,
+    moveText, removeTextFromDocument
  } from '../actions';
 import { connect } from 'react-redux';
 import { signatureUrl, stringToCanvas } from '../utils';
@@ -11,6 +12,15 @@ import * as Calendar from 'react-widgets/lib/Calendar';
 import * as Popover from 'react-bootstrap/lib/Popover'
 import * as OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
 import * as Moment from 'moment';
+import { debounce } from '../utils';
+
+const DATE_FORMATS = [
+    'DD MMMM YYYY',
+    'DD-MM-YY',
+    'DD/MM/YY',
+    'YYYY/MM/DD'
+
+]
 
 
 interface PositionableProps {
@@ -35,11 +45,17 @@ interface ControlProps {
     index: string;
     onDelete: () => void;
     element: () => React.Component;
+    containerWidth: number;
 }
 
 interface DateControlProps extends ControlProps{
     date: Sign.DocumentDate,
     updateDate: (payload: Sign.Actions.MoveDatePayload) => void;
+}
+
+interface TextControlProps extends ControlProps{
+    text: Sign.DocumentText,
+    updateText: (payload: Sign.Actions.MoveTextPayload) => void;
 }
 
 
@@ -55,30 +71,57 @@ class SimpleControls extends React.PureComponent<ControlProps> {
 class DateControls extends React.PureComponent<DateControlProps> {
     constructor(props: DateControlProps){
         super(props);
-        this.onChange = this.onChange.bind(this);
+        this.onChangeDate = this.onChangeDate.bind(this);
+        this.onChangeFormat= this.onChangeFormat.bind(this);
     }
 
-    onChange(newValue : any) {
+    onChangeDate(newValue : Date) {
         const timestamp = newValue.getTime();
         const value = Moment(newValue).format(this.props.date.format);
         const height = findDOMNode(this.props.element() as React.Component).clientHeight;
         const canvas = stringToCanvas(height, value);
         const { documentId, format } = this.props.date;
+        const width = canvas.width;
+        const ratioX = width / this.props.containerWidth;
         this.props.updateDate({
             dateIndex: this.props.index,
             format,
             timestamp,
             height,
             value,
+            ratioX,
             dataUrl: canvas.toDataURL()
         })
+    }
+    onChangeFormat(event : React.FormEvent<HTMLSelectElement>) {
+        const { documentId, timestamp } = this.props.date;
+        const format = event.currentTarget.value;
+        const value = Moment(this.props.date.timestamp).format(format);
+        const height = findDOMNode(this.props.element() as React.Component).clientHeight;
+        const canvas = stringToCanvas(height, value);
+        const width = canvas.width;
+        const ratioX = width / this.props.containerWidth;
+        this.props.updateDate({
+            dateIndex: this.props.index,
+            format,
+            timestamp,
+            height,
+            value,
+            ratioX,
+            dataUrl: canvas.toDataURL()
+        });
     }
 
     render(){
         return <div className="positionable-controls">
-             <OverlayTrigger container={this} trigger="click" rootClose placement="top" overlay={
+             <OverlayTrigger  trigger="click" rootClose placement="top" overlay={
                 <Popover id={`popover-for-${this.props.index}`} >
-                    <Calendar value={new Date(this.props.date.timestamp)} onChange={this.onChange}/>
+                    <Calendar value={new Date(this.props.date.timestamp)} onChange={this.onChangeDate}/>
+                    <select className="form-control" value={this.props.date.format} onChange={this.onChangeFormat}>
+                        { DATE_FORMATS.map((d, i) => {
+                            return <option key={i} value={d}>{ d }</option>
+                        }) }
+                    </select>
                 </Popover>
              }>
             <button className="button-no-style "><span className="fa fa-calendar"/></button>
@@ -94,6 +137,50 @@ const ConnectedDateControls = connect((state, ownProps: ControlProps) => ({
 }), {
     updateDate: moveDate
 })(DateControls)
+
+class TextControls extends React.PureComponent<TextControlProps> {
+    constructor(props: TextControlProps){
+        super(props);
+        this.onChangeValue = this.onChangeValue.bind(this);
+    }
+
+    onChangeValue(event : React.FormEvent<HTMLTextAreaElement>) {
+        const value = event.currentTarget.value;
+        const height = findDOMNode(this.props.element() as React.Component).clientHeight;
+        const canvas = stringToCanvas(height, value, Positionable.MIN_WIDTH);
+        const width = canvas.width;
+        const ratioX = width / this.props.containerWidth;
+        this.props.updateText({
+            textIndex: this.props.index,
+            height,
+            value,
+            ratioX,
+            dataUrl: canvas.toDataURL()
+        })
+    }
+
+    render(){
+        return <div className="positionable-controls">
+             <OverlayTrigger  trigger="click" rootClose placement="top" overlay={
+                    <Popover id={`popover-for-${this.props.index}`} >
+                        <div className="form-group">
+                            <textarea className="form-control" rows={2} value={this.props.text.value} onChange={this.onChangeValue}></textarea>
+                        </div>
+                    </Popover>
+                 }>
+                <button className="button-no-style "><span className="fa fa-font"/></button>
+            </OverlayTrigger>
+            <button className="button-no-style" onClick={this.props.onDelete}><span className="fa fa-trash-o"/></button>
+        </div>
+    }
+}
+
+
+const ConnectedTextControls = connect((state, ownProps: ControlProps) => ({
+    text: state.documentViewer.texts[ownProps.index]  as Sign.DocumentText,
+}), {
+    updateText: moveText
+})(TextControls)
 
 
 // Keep numbers between 0 and 1
@@ -111,7 +198,7 @@ const boundNumber = (number: number) => {
 class Positionable extends React.PureComponent<ConnectedPositionableProps> {
     private positionable: ReactRnd;
 
-    public static MIN_WIDTH = 40;
+    public static MIN_WIDTH = 65;
     public static MIN_HEIGHT = 20;
 
     private static HANDLER_STYLES = {
@@ -237,7 +324,7 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
                 minHeight={Positionable.MIN_HEIGHT}
                 lockAspectRatio={true}
                 resizeHandlerClasses={Positionable.HANDLER_STYLES}
-            ><Controls onDelete={this.onDelete} index={this.props.index} element={() => this.positionable}/></ReactRnd>
+            ><Controls onDelete={this.onDelete} index={this.props.index} element={() => this.positionable} containerWidth={containerWidth}/></ReactRnd>
         );
     }
 }
@@ -265,4 +352,20 @@ export const DatePositionable = connect(
         }
     }),
     { removePositionableFromDocument: removeDateFromDocument, movePositionable: moveDate }
+)(Positionable);
+
+
+
+export const TextPositionable = connect(
+    (state: Sign.State, ownProps: PositionableProps) => ({
+        positionable: state.documentViewer.texts[ownProps.index] as Sign.Positionable,
+        indexKey: 'textIndex',
+        background: `url("${state.documentViewer.texts[ownProps.index].dataUrl}")`,
+        controls: ConnectedTextControls,
+        resize: (positionable : Sign.DocumentText, width: number, height: number) : any => {
+            const canvas = stringToCanvas(height, positionable.value);
+            return {dataUrl: canvas.toDataURL()}
+        }
+    }),
+    { removePositionableFromDocument: removeTextFromDocument, movePositionable: moveText }
 )(Positionable);

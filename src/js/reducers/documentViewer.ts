@@ -33,6 +33,24 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
         case Sign.Actions.Types.REMOVE_DATE_FROM_DOCUMENT:
             return {...state, dates: removeDateFromDocument(state.dates, action)};
 
+        case Sign.Actions.Types.ADD_TEXT_TO_DOCUMENT:
+            return {...state, texts: addTextToDocument(state.texts, action)};
+
+        case Sign.Actions.Types.MOVE_TEXT:
+            return {...state, texts: moveText(state.texts, action)};
+
+        case Sign.Actions.Types.REMOVE_TEXT_FROM_DOCUMENT:
+            return {...state, texts: removeTextFromDocument(state.texts, action)};
+
+        case Sign.Actions.Types.ADD_PROMPT_TO_DOCUMENT:
+            return {...state, prompts: addPromptToDocument(state.prompts, action)};
+
+        case Sign.Actions.Types.MOVE_PROMPT:
+            return {...state, prompts: movePrompt(state.prompts, action)};
+
+        case Sign.Actions.Types.REMOVE_PROMPT_FROM_DOCUMENT:
+            return {...state, prompts: removePromptFromDocument(state.prompts, action)};
+
         case Sign.Actions.Types.SET_SIGN_REQUEST_STATUS:
             return setSignRequestStatus(state, action);
 
@@ -104,6 +122,56 @@ function removeDateFromDocument(state: Sign.DocumentDates, action: Sign.Actions.
     delete state[action.payload.dateIndex];
     return state;
 }
+
+
+
+function addTextToDocument(state: Sign.DocumentTexts, action: Sign.Actions.AddTextToDocument): Sign.DocumentTexts {
+    return {
+        ...state,
+        [action.payload.textIndex]: action.payload
+    };
+}
+
+function moveText(state: Sign.DocumentTexts, action: Sign.Actions.MoveText): Sign.DocumentTexts {
+    const { textIndex, ...rest } = action.payload;
+
+    return {
+            ...state,
+            [textIndex]: { ...state[textIndex], ...rest }
+    };
+}
+
+function removeTextFromDocument(state: Sign.DocumentTexts, action: Sign.Actions.RemoveTextFromDocument): Sign.DocumentTexts {
+    state = {...state};
+    delete state[action.payload.textIndex];
+    return state;
+}
+
+
+function addPromptToDocument(state: Sign.DocumentPrompts, action: Sign.Actions.AddPromptToDocument): Sign.DocumentPrompts {
+    return {
+        ...state,
+        [action.payload.promptIndex]: action.payload
+    };
+}
+
+function movePrompt(state: Sign.DocumentPrompts, action: Sign.Actions.MovePrompt): Sign.DocumentPrompts {
+    const { promptIndex, ...rest } = action.payload;
+
+    return {
+            ...state,
+            [promptIndex]: { ...state[promptIndex], ...rest }
+    };
+}
+
+function removePromptFromDocument(state: Sign.DocumentPrompts, action: Sign.Actions.RemovePromptFromDocument): Sign.DocumentPrompts {
+    state = {...state};
+    delete state[action.payload.promptIndex];
+    return state;
+}
+
+
+
 
 function setSignRequestStatus(state: Sign.DocumentViewer, action: Sign.Actions.SetSignRequestStatus): Sign.DocumentViewer {
     return {

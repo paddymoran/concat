@@ -4,23 +4,21 @@ import * as Promise from 'bluebird';
 import { Button, Modal } from 'react-bootstrap';
 import PDFPreview from './preview';
 import PDFPage from './page';
-import { SignatureButton, InitialButton } from '../signatureSelector';
-import { DateButton } from '../textSelector';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import { signDocument, moveSignature, addSignatureToDocument, addDateToDocument, setActivePage, showSignConfirmationModal } from '../../actions';
-import { SignaturePositionable, DatePositionable } from '../positionable';
+import { signDocument, moveSignature, addSignatureToDocument, addDateToDocument, addTextToDocument, setActivePage, showSignConfirmationModal } from '../../actions';
+import { SignaturePositionable, DatePositionable, TextPositionable } from '../positionable';
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
 import sizeMe from 'react-sizeme';
 import { signatureUrl, boundNumber, imageRatio, stringToCanvas } from '../../utils';
 import { generateUUID } from '../uuid';
-import { DragSource, DropTarget } from 'react-dnd';
+import { Controls } from '../controls'
+import { DropTarget } from 'react-dnd';
 import * as Waypoint from 'react-waypoint';
-import { getEmptyImage } from 'react-dnd-html5-backend';
 import WidthSpy from '../widthSpy'
-import * as Moment from 'moment';
+
 
 
 Promise.config({ cancellation: true });
@@ -35,12 +33,14 @@ interface ConnectedPDFViewerProps extends PDFViewerProps {
     pageViewports: Sign.Viewport[];
     signatures: Sign.DocumentSignatures;
     dates: Sign.DocumentDates;
+    texts: Sign.DocumentTexts;
     signRequestStatus: Sign.DownloadStatus;
     selectedSignatureId: number;
     selectedInitialId: number;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
     addDateToDocument: (data: Sign.Actions.AddDateToDocumentPayload) => void;
+    addTextToDocument: (data: Sign.Actions.AddTextToDocumentPayload) => void;
     setActivePage: (payload: Sign.Actions.SetActivePagePayload) => void;
     showSignConfirmationModal: (payload: Sign.Actions.ShowSignConfirmationModalPayload) => void;
 }
@@ -54,114 +54,6 @@ interface PDFPageWrapperProps {
     setActivePage: Function;
 }
 
-
-interface SignatureDragSourceProps {
-    signatureId: number;
-}
-
-interface DragProps {
-    connectDragSource?: Function;
-    connectDragPreview?: Function;
-    isDragging?: boolean;
-}
-
-
-interface AddSignatureControlProps extends DragProps {
-    signatureId: number;
-}
-
-interface AddDateControlProps extends DragProps {
-
-}
-
-
-const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {
-    beginDrag(props, monitor) {
-        const { signatureId } = props;
-        return {
-            signatureId,
-            type: Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT
-        };
-    }
-};
-
-const dateSource: __ReactDnd.DragSourceSpec<AddDateControlProps> = {
-    beginDrag(props, monitor) {
-        const format = 'DD MMMM YYYY', timestamp = (new Date()).getTime();
-        return {
-            type: Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT,
-            format,
-            value: Moment(timestamp).format(format),
-            timestamp
-        };
-    }
-};
-
-
-
-class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> {
-    componentDidMount() {
-        // Use empty image as a drag preview so browsers don't draw it
-        // and we can draw whatever we want on the custom drag layer instead.
-        this.props.connectDragPreview(getEmptyImage(), {
-          // IE fallback: specify that we'd rather screenshot the node
-          // when it already knows it's being dragged so we can hide it with CSS.
-          captureDraggingState: true,
-        });
-    }
-
-    render() {
-        const { isDragging } = this.props;
-        if(this.props.signatureId){
-            return this.props.connectDragSource(this.props.children);
-        }
-        return this.props.children;
-    }
-}
-
-
-class AddDateControl extends React.PureComponent<AddDateControlProps> {
-    componentDidMount() {
-        // Use empty image as a drag preview so browsers don't draw it
-        // and we can draw whatever we want on the custom drag layer instead.
-        this.props.connectDragPreview(getEmptyImage(), {
-          // IE fallback: specify that we'd rather screenshot the node
-          // when it already knows it's being dragged so we can hide it with CSS.
-          captureDraggingState: true,
-        });
-
-    }
-
-    render() {
-        const { isDragging } = this.props;
-        return this.props.connectDragSource(this.props.children);
-    }
-}
-
-
-
-
-
-const DraggableAddSignatureControl = DragSource(
-    Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT,
-    signatureSource,
-    (connect, monitor) => ({
-        connectDragSource: connect.dragSource(),
-        connectDragPreview: connect.dragPreview(),
-        isDragging: monitor.isDragging()
-    })
-)(AddSignatureControl);
-
-
-const DraggableAddDateControl = DragSource(
-    Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT,
-    dateSource,
-    (connect, monitor) => ({
-        connectDragSource: connect.dragSource(),
-        connectDragPreview: connect.dragPreview(),
-        isDragging: monitor.isDragging()
-    })
-)(AddDateControl);
 
 
 const dropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
@@ -209,10 +101,10 @@ const dropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
                     })
            })
        }
-       else if(item.type === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT){
+       else if(item.type === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT || item.type === Sign.DragAndDropTypes.ADD_TEXT_TO_DOCUMENT){
            generateUUID()
-               .then((dateIndex) => {
-                    const height = Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * props.containerWidth;
+               .then((index) => {
+                    const height = Math.round(Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * props.containerWidth);
                     const canvas = stringToCanvas(height, item.value);
                     const width = canvas.width;
                     const xyRatio = width / height;
@@ -230,22 +122,36 @@ const dropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
 
                     const ratioX = width / props.containerWidth;
                     const ratioY = (props.viewport.width / props.viewport.height) / xyRatio * ratioX;
-
-
-                    props.addDateToDocument({
-                        value: item.value,
-                        timestamp: item.timestamp,
-                        format: item.format,
-                        height,
-                        dateIndex,
-                        dataUrl,
-                        documentId: props.documentId,
-                        pageNumber: props.pageNumber,
-                        offsetX: signatureXOffset,
-                        offsetY: signatureYOffset,
-                        ratioX,
-                        ratioY
-                    })
+                    if(item.type === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT){
+                         props.addDateToDocument({
+                            value: item.value,
+                            timestamp: item.timestamp,
+                            format: item.format,
+                            height,
+                            dateIndex: index,
+                            dataUrl,
+                            documentId: props.documentId,
+                            pageNumber: props.pageNumber,
+                            offsetX: signatureXOffset,
+                            offsetY: signatureYOffset,
+                            ratioX,
+                            ratioY
+                        });
+                     }
+                    else{
+                        props.addTextToDocument({
+                            value: item.value,
+                            height,
+                            textIndex: index,
+                            dataUrl,
+                            documentId: props.documentId,
+                            pageNumber: props.pageNumber,
+                            offsetX: signatureXOffset,
+                            offsetY: signatureYOffset,
+                            ratioX,
+                            ratioY
+                        });
+                    }
 
                })
        }
@@ -300,37 +206,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         return (
             <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
-                    <div className="controls">
-                        <div className="container">
-                        <Row>
-                            <Col xs={3}>
-                            <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}>
-                                    <div> <SignatureButton /></div>
-                            </DraggableAddSignatureControl>
-                            </Col>
-                            <Col xs={3}>
-                            <DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
-                                    <div> <InitialButton /></div>
-                            </DraggableAddSignatureControl>
-                            </Col>
-                            <Col xs={3}>
-
-                            <DraggableAddDateControl >
-                                    <div> <DateButton /></div>
-                            </DraggableAddDateControl>
-
-                            </Col>
-                            <Col xs={3}>
-
-                            <div className="signature-button" onClick={ this.sign }>
-                                        <span className="fa fa-pencil" />
-                                        <span>Sign Document</span>
-                            </div>
-
-                            </Col>
-                            </Row>
-                        </div>
-                    </div>
+                    <Controls sign={this.sign} selectedSignatureId={this.props.selectedSignatureId} selectedInitialId={this.props.selectedInitialId} />
                 </AutoAffix>
 
                 <div className='pdf-container container'>
@@ -350,7 +226,8 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                                                                                     this.props.signatures[signatureIndex].documentId === this.props.documentId);
                                 const dateIndexes = Object.keys(this.props.dates).filter(dateIndex => this.props.dates[dateIndex].pageNumber === index &&
                                                                                                     this.props.dates[dateIndex].documentId === this.props.documentId);
-
+                                const textIndexes = Object.keys(this.props.texts).filter(textIndex => this.props.texts[textIndex].pageNumber === index &&
+                                                                                                    this.props.texts[textIndex].documentId === this.props.documentId);
                                 return (
                                         <div className="page-separator" key={index}>
                                     <DimensionedDropTargetSignaturesPageWrapper
@@ -358,11 +235,11 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                         documentId={this.props.documentId}
                                         signaturesIndexes={signaturesIndexes}
                                         dateIndexes={dateIndexes}
-                                        textIndexes={[]}
+                                        textIndexes={textIndexes}
                                         promptIndexes={[]}
                                         addSignatureToDocument={this.props.addSignatureToDocument}
                                         addDateToDocument={this.props.addDateToDocument}
-                                        selectedSignatureId={this.props.selectedSignatureId}
+                                        addTextToDocument={this.props.addTextToDocument}
                                         viewport={this.props.pageViewports[index] || {height: 1, width: 1}}>
                                         <PDFPageWrapper documentId={this.props.documentId} pageNumber={index}  setActivePage={this.setActivePage} viewport={this.props.pageViewports[index] || {height: 1, width: 1}}/>
                                     </DimensionedDropTargetSignaturesPageWrapper>
@@ -389,6 +266,7 @@ interface SignaturesPageWrapperProps {
     selectedSignatureId?: number;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
     addDateToDocument: (data: Sign.Actions.AddDateToDocumentPayload) => void;
+    addTextToDocument: (data: Sign.Actions.AddTextToDocumentPayload) => void;
     connectDropTarget?: Function;
     isOver?: boolean;
     containerWidth: number;
@@ -435,6 +313,7 @@ class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperPro
             <div className={className} style={{position: 'relative'}}>
                {  this.props.signaturesIndexes.map(signatureIndex => <SignaturePositionable key={signatureIndex} index={signatureIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
                {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} index={dateIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
+               {  this.props.textIndexes.map(dateIndex => <TextPositionable key={dateIndex} index={dateIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
                 { child }
             </div>
         );
@@ -469,11 +348,12 @@ const ConnectedPDFViewer = connect(
             pageViewports: (state.documents[ownProps.documentId] ? state.documents[ownProps.documentId].pageViewports || [] : []) as Sign.Viewport[],
             signatures: state.documentViewer.signatures,
             dates: state.documentViewer.dates,
+            texts: state.documentViewer.texts,
             signRequestStatus: state.documentViewer.signRequestStatus,
             selectedSignatureId: state.documentViewer.selectedSignatureId,
             selectedInitialId: state.documentViewer.selectedInitialId
     };
-}, { signDocument, addSignatureToDocument, addDateToDocument, setActivePage, showSignConfirmationModal }
+}, { signDocument, addSignatureToDocument, addDateToDocument, addTextToDocument, setActivePage, showSignConfirmationModal }
 )(PDFViewer);
 
 

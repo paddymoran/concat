@@ -2,7 +2,7 @@ import { all, takeEvery, put, call, select } from 'redux-saga/effects';
 import axios from 'axios';
 import { setSignRequestStatus, showResults, closeModal } from '../actions';
 import { push } from 'react-router-redux';
-import { findSetForDocument } from '../utils';
+import { findSetForDocument, stringToCanvas } from '../utils';
 
 function *signDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.SIGN_DOCUMENT, signDocument);
@@ -15,8 +15,15 @@ function *signDocumentSaga() {
         const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === action.payload.documentId);
 
         const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === action.payload.documentId);
+        const texts = Object.keys(documentViewer.texts).map(key => documentViewer.texts[key]).filter(text => text.documentId === action.payload.documentId);
 
-        const overlays = [...dates];
+        const overlays = [...dates, ...texts].map(o => {
+            const canvas = stringToCanvas(o.height * 4, o.value);
+            const dataUrl = canvas.toDataURL();
+            return {...o, dataUrl}
+        });
+
+
 
         const postPayload = {
             ...action.payload,

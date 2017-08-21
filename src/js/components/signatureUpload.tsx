@@ -31,7 +31,6 @@ const removeImageBackground = (canvas: HTMLCanvasElement, file: File, finished: 
                     data[i + 3] = 0;
                 }
             }
-
             finished(imageData);
         }
     }

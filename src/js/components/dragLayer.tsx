@@ -53,7 +53,7 @@ interface SigProps extends DragProps{
     signatureId: number;
 }
 
-interface DateProps extends DragProps{
+interface TextProps extends DragProps{
     value: string;
 }
 
@@ -61,7 +61,7 @@ interface SigState {
     xyRatio?: number
 }
 
-interface DateState {
+interface TextState {
     value: string;
     height: number;
     width: number;
@@ -88,13 +88,12 @@ class SignatureGetSize extends React.PureComponent<SigProps, SigState> {
     }
 }
 
-class DateDragger extends React.PureComponent<DateProps, DateState> {
-    constructor(props: DateProps){
+class TextDragger extends React.PureComponent<TextProps, TextState> {
+    constructor(props: TextProps){
         super(props);
-        const height = Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * this.props.containerWidth;
+        const height = Math.round(Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * this.props.containerWidth);
         this.state = {value: this.props.value, height, width: 1, dataUrl: null};
     }
-
 
     componentDidMount() {
         const canvas = stringToCanvas(this.state.height, this.state.value);
@@ -109,6 +108,7 @@ class DateDragger extends React.PureComponent<DateProps, DateState> {
     }
 }
 
+
 export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
 
   render() {
@@ -119,7 +119,8 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
     return (
       <div className="custom-drag">
          {  itemType === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} containerWidth={this.props.containerWidth}/> }
-         {  itemType === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT && <DateDragger  clientOffset={this.props.clientOffset} value={this.props.item.value} containerWidth={this.props.containerWidth}/> }
+         {  itemType === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT && <TextDragger clientOffset={this.props.clientOffset} value={this.props.item.value} containerWidth={this.props.containerWidth}/> }
+         {  itemType === Sign.DragAndDropTypes.ADD_TEXT_TO_DOCUMENT && <TextDragger clientOffset={this.props.clientOffset} value={this.props.item.value} containerWidth={this.props.containerWidth}/> }
      </div>
     );
   }

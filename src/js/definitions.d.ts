@@ -87,8 +87,7 @@ declare namespace Sign {
     }
 
     interface DocumentPrompt extends Positionable{
-        value: string;
-        dataUrl: string;
+        value: any;
     }
 
     interface DocumentSignatures {
@@ -100,7 +99,7 @@ declare namespace Sign {
     }
 
     interface DocumentTexts {
-        [key: string]: DocumentTexts
+        [key: string]: DocumentText
     }
 
     interface DocumentPrompts {
@@ -183,6 +182,9 @@ declare namespace Sign {
         WIDTH_RATIO = 0.2,
         TEXT_WIDTH_RATIO = 0.025
     }
+
+    const DEFAULT_DATE_FORMAT = 'DD MMMM YYYY';
+
 
     // These types match the database enum: signature_type
     const enum SignatureType {
@@ -371,6 +373,18 @@ declare namespace Sign.Actions {
         height: number;
     }
 
+    interface AddTextToDocumentPayload extends Positionable{
+        textIndex: string;
+        value: string;
+        dataUrl: string;
+        height: number;
+    }
+
+    interface AddPromptToDocumentPayload extends Positionable{
+        promptIndex: string;
+        value: any;
+    }
+
     interface RemovePositionableFromDocumentPayload {
         [indexKey: string]: string;
     }
@@ -381,6 +395,14 @@ declare namespace Sign.Actions {
 
     interface RemoveDateFromDocumentPayload {
         dateIndex: string;
+    }
+
+    interface RemoveTextFromDocumentPayload {
+        textIndex: string;
+    }
+
+    interface RemovePromptFromDocumentPayload {
+        promptIndex: string;
     }
 
     interface MovePositionablePayload {
@@ -409,6 +431,10 @@ declare namespace Sign.Actions {
         dataUrl?: string;
         height: number;
         value: string;
+    }
+
+    interface MovePromptPayload extends MovePositionablePayload {
+        promptIndex: string;
     }
 
     interface SignDocumentPayload {
@@ -470,10 +496,16 @@ declare namespace Sign.Actions {
     interface SelectInitial extends ActionCreator<SelectInitialPayload> {}
     interface AddSignatureToDocument extends ActionCreator<AddSignatureToDocumentPayload> {}
     interface AddDateToDocument extends ActionCreator<AddDateToDocumentPayload> {}
+    interface AddTextToDocument extends ActionCreator<AddTextToDocumentPayload> {}
+    interface AddPromptToDocument extends ActionCreator<AddPromptToDocumentPayload> {}
     interface MoveSignature extends ActionCreator<MoveSignaturePayload> {}
     interface MoveDate extends ActionCreator<MoveDatePayload> {}
+    interface MoveText extends ActionCreator<MoveTextPayload> {}
+    interface MovePrompt extends ActionCreator<MovePromptPayload> {}
     interface RemoveSignatureFromDocument extends ActionCreator<RemoveSignatureFromDocumentPayload> {}
     interface RemoveDateFromDocument extends ActionCreator<RemoveDateFromDocumentPayload> {}
+    interface RemoveTextFromDocument extends ActionCreator<RemoveTextFromDocumentPayload> {}
+    interface RemovePromptFromDocument extends ActionCreator<RemovePromptFromDocumentPayload> {}
 
     interface CreateDocumentSet extends ActionCreator<DocumentSetPayload> {}
     interface UpdateDocumentSet extends ActionCreator<DocumentSetPayload> {}

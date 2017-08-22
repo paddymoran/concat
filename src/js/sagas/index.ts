@@ -124,7 +124,7 @@ function *requestDocumentSetSaga() {
 
         documentSet = yield select((state: Sign.State) => state.documentSets[action.payload.documentSetId]);
 
-        if(documentSet.downloadStatus !== Sign.DownloadStatus.NotStarted){
+        if(documentSet.downloadStatus === Sign.DownloadStatus.InProgress){
             return;
         }
 

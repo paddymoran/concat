@@ -160,7 +160,7 @@ class ModalButton extends React.Component<any> {
         this.props.requestSignatures();
     }
     render(){
-        const style = {};
+        const style : any = {};
         if(this.props.selectedId){
             style['backgroundImage'] = `url(${signatureUrl(this.props.selectedId)})`;
         }

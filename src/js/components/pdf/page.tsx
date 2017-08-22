@@ -79,8 +79,11 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
                     canvas.height = viewport.height;
                     this.props.page.render({ canvasContext: context, viewport })
                     .then(() => {
-                        (findDOMNode(this.refs.loading) as HTMLElement).style.display = 'none';
-                        canvas.style.display= 'block';
+                        const element = (findDOMNode(this.refs.loading) as HTMLElement);
+                        if(element){
+                            (findDOMNode(this.refs.loading) as HTMLElement).style.display = 'none';
+                            canvas.style.display= 'block';
+                        }
                     });
         }}/>
         </span>;

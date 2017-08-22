@@ -648,6 +648,13 @@ declare module 'react-bootstrap/lib/OverlayTrigger' {
     export = ReactBootstrap.OverlayTrigger;
 }
 
+declare module 'react-bootstrap/lib/ButtonGroup' {
+    export = ReactBootstrap.ButtonGroup;
+}
+
+declare module 'react-bootstrap/lib/Button' {
+    export = ReactBootstrap.Button;
+}
 /*
 declare module 'react-widgets/lib/localizers/moment' {
     function MomentLocalizer(moment : any): void;

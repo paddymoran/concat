@@ -67,7 +67,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
 
     select() {
         if (this.state.currentTab == UPLOAD_SIGNATURE_TAB) {
-            const signature = this.signatureCanvas.toDataURL();
+            const signature = this.refs['signature-uploader'].state.signatureDataURL;
             if (signature === null) {
                 this.setState({ signatureUploaderErrors: 'Please upload a file' });
             }
@@ -82,6 +82,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
 
         this.props.closeModal();
     }
+
 
     render() {
         const signatureCanvasOptions = {
@@ -120,7 +121,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                         </Tab>
 
                         <Tab eventKey={DRAW_SIGNATURE_TAB} title="Draw Signature">
-                            <div className='signature-canvas-conatiner clearfix'>
+                            <div className='signature-canvas-container clearfix'>
                                 { this.props.uploading && <Loading />}
                                 { !this.props.uploading &&
                                     <div className='signature-display'>
@@ -132,6 +133,7 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                         </Tab>
 
                         <Tab eventKey={UPLOAD_SIGNATURE_TAB} title="Upload Signature">
+                            <div className='signature-upload-container clearfix'>
                             { this.state.signatureUploaderErrors &&
                                 <Alert bsStyle='danger'>
                                     { this.state.signatureUploaderErrors }
@@ -139,11 +141,12 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
                             }
                             {this.props.uploading && <Loading />}
                             {!this.props.uploading && <SignatureUpload ref='signature-uploader' />}
+                            </div>
                         </Tab>
                     </Tabs>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button bsStyle="warning" disabled={!this.props.selectedId} onClick={this.deleteSignature}>Delete {this.props.title}</Button>
+                    { this.state.currentTab === SELECT_SIGNATURE_TAB && <Button bsStyle="warning" className="delete-signature" disabled={!this.props.selectedId} onClick={this.deleteSignature}>Delete {this.props.title}</Button> }
                     <Button onClick={this.props.closeModal}>Close</Button>
                     <Button bsStyle='primary' onClick={this.select.bind(this)} >Select</Button>
                 </Modal.Footer>
@@ -157,9 +160,13 @@ class ModalButton extends React.Component<any> {
         this.props.requestSignatures();
     }
     render(){
+        const style = {};
+        if(this.props.selectedId){
+            style['backgroundImage'] = `url(${signatureUrl(this.props.selectedId)})`;
+        }
         return (
             <div className="signature-button" onClick={() => this.props.showModal()}>
-                <span>{ this.props.selectedId && <img src={signatureUrl(this.props.selectedId)} /> }</span>
+                <span className="signature-image" style={style}></span>
                 <span>{this.props.text}</span>
             </div>
         )

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { DragSource } from 'react-dnd';
 import { SignatureButton, InitialButton } from './signatureSelector';
-import { Col, Row } from 'react-bootstrap';
+
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { DateButton, TextButton } from './textSelector';
 import * as Moment from 'moment';
@@ -165,43 +165,45 @@ export class Controls extends React.PureComponent<ControlProps> {
     render() {
         return <div className="controls">
           <div className="container">
-            <Row>
-                <Col xs={2}>
+
+                <div className="control-row">
+                <div className="control">
                     <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}>
-                          <div> <SignatureButton /></div>
+                          <div className="draggable"> <SignatureButton /></div>
                     </DraggableAddSignatureControl>
-                </Col>
-
-                <Col xs={2}>
-                    <DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
-                            <div> <InitialButton /></div>
-                    </DraggableAddSignatureControl>
-                </Col>
-
-                <Col xs={2}>
-
-                    <DraggableAddDateControl >
-                            <div> <DateButton /></div>
-                    </DraggableAddDateControl>
-
-                </Col>
-                <Col xs={2}>
-
-                    <DraggableAddTextControl >
-                            <div> <TextButton /></div>
-                    </DraggableAddTextControl>
-
-                </Col>
-
-                <Col xs={2}>
-
-                <div className="signature-button" onClick={ this.props.sign }>
-                            <span className="fa fa-pencil" />
-                            <span>Sign Document</span>
                 </div>
 
-                </Col>
-                </Row>
+                <div className="control">
+                    <DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
+                            <div className="draggable"> <InitialButton /></div>
+                    </DraggableAddSignatureControl>
+               </div>
+
+                <div className="control">
+
+                    <DraggableAddDateControl >
+                            <div className="draggable"> <DateButton /></div>
+                    </DraggableAddDateControl>
+
+                </div>
+                <div className="control">
+
+                    <DraggableAddTextControl >
+                            <div className="draggable"> <TextButton /></div>
+                    </DraggableAddTextControl>
+
+                </div>
+
+                <div className="control">
+
+                <div className="submit-button" onClick={ this.props.sign }>
+                            <span className="fa fa-pencil" />
+                            <span>Sign</span>
+                </div>
+
+                </div>
+                </div>
+
             </div>
         </div>
     }

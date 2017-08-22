@@ -1,5 +1,8 @@
 import * as React from 'react';
 import { DropTarget } from 'react-dnd';
+import ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
+import Button from 'react-bootstrap/lib/Button';
+
 
 class FileDropZone extends React.Component<Sign.FileDropZoneProps, {}> {
     render() {
@@ -17,7 +20,7 @@ interface MonitorItem {
     files: File[]
 }
 
-const fileTarget = {
+const PDFFileTarget = {
     drop(props: any, monitor: any) {
         const item = monitor.getItem() as MonitorItem;
         props.onDrop(item.files.filter(f => f.type === 'application/pdf'));
@@ -29,7 +32,27 @@ const fileTarget = {
     }
 };
 
-export default DropTarget("__NATIVE_FILE__", fileTarget, (connect, monitor) => ({
+export default DropTarget("__NATIVE_FILE__", PDFFileTarget, (connect, monitor) => ({
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver(),
+    canDrop: monitor.canDrop()
+}))(FileDropZone);
+
+
+
+const ImageFileTarget = {
+    drop(props: any, monitor: any) {
+        const item = monitor.getItem() as MonitorItem;
+        props.onDrop(item.files.filter(f => f.type.indexOf('image/') === 0));
+    },
+    hover(props: any) {
+       if(props.onOver){
+            props.onOver()
+       }
+    }
+};
+
+export const ImageDropZone = DropTarget("__NATIVE_FILE__", ImageFileTarget, (connect, monitor) => ({
     connectDropTarget: connect.dropTarget(),
     isOver: monitor.isOver(),
     canDrop: monitor.canDrop()

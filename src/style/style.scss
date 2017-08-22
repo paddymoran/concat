@@ -19,11 +19,14 @@ $navbar-height: $header-height;
 $header-height-sml: $header-height;
 $navbar-margin-bottom: 0px;
  $btn-font-weight: 300;
+$grid-float-breakpoint: 1px;
+$grid-float-breakpoint-max: 1px;
 
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/grid";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/scaffolding";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/buttons";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/button-groups";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/forms";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/dropdowns";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/modals";
@@ -38,7 +41,7 @@ $navbar-margin-bottom: 0px;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/type";
 
 
-// @import "~bootstrap-sass/assets/stylesheets/bootstrap/utilities";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/utilities";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities";
 @import "~font-awesome/scss/variables";
 $fa-font-path: '~font-awesome/fonts';

@@ -3,52 +3,88 @@
 }
 $control-height:50px;
 $background: #fff;
+.controls-affix{
+    z-index: 20;
+}
 .controls{
     width:100%;
     background-color:$gray-lighter;
     height: $control-height;
-    z-index: 20;
-        box-shadow: 0 4px 2px -2px $gray-light;
-
+    box-shadow: 0 4px 2px -2px $gray-light;
     .container{
         text-align:center;
-        padding-top: 5px;
     }
 
-    $button-height: #{$control-height - 10px};
-    .signature-button {
-        height: $button-height;
-        border: 1px solid $gray;
-        border-bottom: 4px solid $gray;
-        background-color: white;
-
-            cursor: move;
-        max-width: 180px;
-         margin: 0 auto;
-            display: table;
+    $button-margin: 6px;
+    $button-height: ($control-height - $button-margin - $button-margin);
+    $button-max-width: 180px;
+    $table-padding: 8px;
+    $button-line-height: ($button-height - $table-padding - $table-padding);
+    .control-row{
+       display:table;
+       width: 100%;
+       height: $control-height;
+       table-layout: fixed;
+       .control{
+        display:table-cell;
+        padding:$button-margin 0 ;
         width: 100%;
+       }
+    }
+
+    .draggable{
+         cursor: move;
+    }
+    .submit-button,  .signature-button {
+        padding: $table-padding;
+        max-width: $button-max-width;
+        margin: 0 auto;
+        width: 100%;
+        border-radius: 2px;
+        display:table;
+        & > span{
+            display:table-cell;
+        }
+        & > span:first-child{
+            width: 30%;
+        }
+    }
+    .signature-button {
+        //height: $button-line-height;
+        //line-height: $button-line-height;
+        border: 1px solid $gray-light;
+        border-radius: 2px;
+        &.active{
+            border-bottom: 4px solid $gray;
+        }
+        background-color: white;
         transition: all 300ms ease-in-out;
+
         &:hover{
             background-color: $gray-lighter;
         }
-
-
-        span{
-            padding: 0 10px;
-            display: table-cell;
-            vertical-align: middle;
-        }
-        img{
-             max-width: 100%;
-             max-height: 30px;
+        .signature-image{
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center center;
         }
     }
+    .submit-button{
+        background-color: $deep-red;
+        border: 1px solid $deep-red;
+        color: white;
+        //height: $button-line-height;
+        //line-height: $button-line-height;
+        cursor: pointer;
 
+
+    }
 
 }
-.drag-container{
 
-}
+
+
+
 
 .pdf-screen{
     background: $background;

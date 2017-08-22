@@ -1,4 +1,5 @@
 
+
 nav {
     background-color: $deep-red;
     background-image: $header-image;
@@ -8,6 +9,9 @@ nav {
     text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
     height: $header-height-sml;
     min-height:auto;
+}
+.navbar-brand {
+    padding: 0 15px;
 }
 .navbar{
     border: none;
@@ -21,3 +25,11 @@ nav {
         text-shadow: none;
     }
 }
+/*
+.navbar-header{
+    float:left;
+}
+.navbar-right{
+    float:right;
+    margin: 0;
+}*/

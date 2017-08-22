@@ -11,6 +11,9 @@ interface UploadDocumentsProps {
     documentIds: string[];
     addDocument: (payload: Sign.Actions.AddDocumentPayload) => void;
     createDocumentSet: (payload: Sign.Actions.DocumentSetPayload) => void;
+    requestDocumentSet: (documentSetId: string) => void;
+    nextLink: string;
+    linkText: string;
     documentSetId: string;
 }
 
@@ -72,7 +75,7 @@ const ConnectedDocumentSet = connect(
 )(DocumentSet);
 
 
-class UploadDocuments extends React.PureComponent<UploadDocumentsProps> {
+class Upload extends React.PureComponent<UploadDocumentsProps> {
     _fileInput: HTMLInputElement;
 
     constructor(props: UploadDocumentsProps) {
@@ -83,7 +86,7 @@ class UploadDocuments extends React.PureComponent<UploadDocumentsProps> {
     }
 
     componentWillMount() {
-        this.props.createDocumentSet({ documentSetId: this.props.documentSetId });
+        this.props.requestDocumentSet(this.props.documentSetId);
     }
 
     fileDrop(files: File[]) {
@@ -120,7 +123,7 @@ class UploadDocuments extends React.PureComponent<UploadDocumentsProps> {
                     <DocumentList documentSetId={this.props.documentSetId} showRemove={true}/>
 
                     { !!this.props.documentIds && !!this.props.documentIds.length && <div className="button-bar">
-                        <Link to={`/documents/${this.props.documentSetId}/${this.props.documentIds[0]}`} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>Sign Documents</Link>
+                        <Link to={this.props.nextLink} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>{ this.props.linkText }</Link>
                     </div> }
                 </div>
             </FileDropZone>
@@ -128,14 +131,31 @@ class UploadDocuments extends React.PureComponent<UploadDocumentsProps> {
     }
 }
 
-export default connect(
+export const UploadDocuments = connect(
     (state: Sign.State, ownProps: any) => {
         const { documentSetId } = ownProps.params;
-
+        const documentSet = state.documentSets[documentSetId];
         return {
-            documentIds: state.documentSets[documentSetId] ? state.documentSets[documentSetId].documentIds : null,
-            documentSetId
+            documentIds: documentSet ? documentSet.documentIds : null,
+            documentSetId,
+            nextLink: documentSet ? `/documents/${documentSetId}/${documentSet.documentIds[0]}` : null,
+            linkText: 'Sign Documents'
         };
     },
-    { addDocument, createDocumentSet }
-)(UploadDocuments);
+    { addDocument, createDocumentSet,  requestDocumentSet }
+)(Upload);
+
+
+export const UploadDocumentsOthers = connect(
+    (state: Sign.State, ownProps: any) => {
+        const { documentSetId } = ownProps.params;
+        const documentSet = state.documentSets[documentSetId];
+        return {
+            documentIds: documentSet ? documentSet.documentIds : null,
+            documentSetId,
+            nextLink: documentSet ? `/select_recipients/${documentSetId}` : null,
+            linkText: 'Select Recipients'
+        };
+    },
+    { addDocument, createDocumentSet,  requestDocumentSet }
+)(Upload);

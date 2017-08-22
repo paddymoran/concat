@@ -206,7 +206,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         return (
             <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
-                    <Controls sign={this.sign} selectedSignatureId={this.props.selectedSignatureId} selectedInitialId={this.props.selectedInitialId} />
+               <div  className="controls-affix"><Controls sign={this.sign} selectedSignatureId={this.props.selectedSignatureId} selectedInitialId={this.props.selectedInitialId} /></div>
                 </AutoAffix>
 
                 <div className='pdf-container container'>

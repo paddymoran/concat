@@ -6,6 +6,7 @@ import { generateUUID } from './uuid';
 
 interface SelectWorkflowProps {
     openSelfSign: () => void;
+    openOthersSign: () => void;
 }
 
 class SelectWorkflow extends React.Component<SelectWorkflowProps> {
@@ -17,7 +18,7 @@ class SelectWorkflow extends React.Component<SelectWorkflowProps> {
                     <div className="sub-title step-count">Step 1</div>
                 </div>
                 <Row>
-                    <Col md={4}>
+                    <Col sm={4}>
                         <a className='workflow-option-wrapper enabled' onClick={() => generateUUID().then(this.props.openSelfSign)}>
                             <span className='workflow-option'>
                                 <span className='fa fa-user icon' aria-hidden='true'></span>
@@ -25,8 +26,8 @@ class SelectWorkflow extends React.Component<SelectWorkflowProps> {
                             </span>
                         </a>
                     </Col>
-                    
-                    <Col md={4}>
+
+                    <Col sm={4}>
                         <a className='workflow-option-wrapper disabled'>
                             <span className='workflow-option'>
                                 <span className='fa fa-user-plus icon' aria-hidden='true'></span>
@@ -35,8 +36,8 @@ class SelectWorkflow extends React.Component<SelectWorkflowProps> {
                         </a>
                     </Col>
 
-                    <Col md={4}>
-                        <a className='workflow-option-wrapper disabled'>
+                    <Col sm={4}>
+                        <a className='workflow-option-wrapper enabled' onClick={() => generateUUID().then(this.props.openOthersSign)}>
                             <span className='workflow-option'>
                                 <span className='fa fa-users icon' aria-hidden='true'></span>
                                 <h2>Only others</h2>
@@ -51,5 +52,8 @@ class SelectWorkflow extends React.Component<SelectWorkflowProps> {
 
 export default connect(
     undefined,
-    { openSelfSign: (uuid: string) => push(`/selfsign/${uuid}`) }
+    {
+        openSelfSign: (uuid: string) => push(`/self_sign/${uuid}`),
+        openOthersSign: (uuid: string) => push(`/others_sign/${uuid}`),
+    }
 )(SelectWorkflow);

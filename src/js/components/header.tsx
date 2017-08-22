@@ -35,11 +35,13 @@ export default class Header extends React.Component {
     render() {
         return (<Navbar collapseOnSelect>
                <Navbar.Header>
-
-                        <Link to="/" className='navbar-header'>
+                   <Navbar.Brand>
+                        <Link to="/" >
                             <img src="/images/catalex-sign-sml.png" alt="CataLex Sign"/>
                         </Link>
+                        </Navbar.Brand>
                 </Navbar.Header>
+
 
                         <Nav pullRight>
                                <AccountControls />

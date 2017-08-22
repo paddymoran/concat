@@ -23,8 +23,6 @@ function *signDocumentSaga() {
             return {...o, dataUrl}
         });
 
-
-
         const postPayload = {
             ...action.payload,
             signatures,

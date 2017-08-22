@@ -6,16 +6,6 @@ import LazyLoad from 'react-lazy-load';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
 
-
-interface PDFPreviewProps {
-    size: {
-        width: number;
-    };
-    documentId: string;
-    pageViewports: Sign.Viewport[];
-    pageCount: number
-}
-
 interface ThumbProps {
     width: number;
     height: number;
@@ -66,7 +56,7 @@ const ConnectedThumb = connect(
 
 
 
-export default class PDFPreview extends React.PureComponent<PDFPreviewProps> {
+export default class PDFPreview extends React.PureComponent<Sign.Components.SizedPDFPreviewProps> {
 
     render() {
         return (

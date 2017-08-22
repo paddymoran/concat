@@ -213,6 +213,20 @@ declare namespace Sign {
     }
 }
 
+declare namespace Sign.Components {
+
+    interface PDFPreviewProps {
+        documentId: string;
+        pageViewports: Sign.Viewport[];
+        pageCount: number;
+        width: number;
+    }
+    interface SizedPDFPreviewProps extends PDFPreviewProps {
+        size: {
+            width: number;
+        };
+    }
+}
 
 declare namespace Sign.Actions {
     const enum Types {
@@ -679,12 +693,13 @@ declare module 'react-bootstrap/lib/ControlLabel' {
 declare module 'react-bootstrap/lib/FormGroup' {
     export = ReactBootstrap.FormGroup;
 }
-/*
+
 declare module 'react-widgets/lib/localizers/moment' {
-    function MomentLocalizer(moment : any): void;
-    export default MomentLocalizer;
+    function momentLocalizer(moment : any): void;
+    namespace momentLocalizer {}
+    export = momentLocalizer;
 }
-*/
+
 
 declare module 'react-sizeme' {
     import { ComponentClass, StatelessComponent } from "react";

@@ -1,16 +1,17 @@
 import * as React from 'react';
-import { Field, GenericField, FieldArray, reduxForm } from 'redux-form'
+import { Field, FieldArray, reduxForm, FormErrors, BaseFieldProps,  InjectedFormProps, WrappedFieldProps } from 'redux-form'
 import * as FormControl from 'react-bootstrap/lib/FormControl'
 import { ControlLabel, FormGroup } from 'react-bootstrap';
 import * as Button from 'react-bootstrap/lib/Button'
 
+type FormProps = {
 
-const MyField = Field as new () => GenericField<any>;
+} & InjectedFormProps
 
 const FormInput = (props : any) => {
     const validationState = props.meta.valid ? 'success' : 'error';
     return <FormGroup validationState={validationState} >
-        <ControlLabel>{ props.label }</ControlLabel>
+        <ControlLabel>{ props.title }</ControlLabel>
          <FormControl type={props.type} {...props.input}  />
          <FormControl.Feedback />
          </FormGroup>
@@ -29,17 +30,17 @@ const renderRecipients = (props: any) => {
         <h4>
           Recipient #{index + 1}
         </h4>
-        <MyField
+        <Field
           name={`${recipient}.name`}
           type="text"
           component={FormInput}
-          label="Name"
+          title="Name"
         />
-        <MyField
+        <Field
           name={`${recipient}.email`}
           type="email"
           component={FormInput }
-          label="Email"
+          title="Email"
         />
       </li>
     )}
@@ -56,31 +57,32 @@ const renderRecipients = (props: any) => {
   </ul>)
 }
 
-const FieldArraysForm = props => {
-  const { handleSubmit, pristine, reset, submitting } = props
-  return (
-    <form onSubmit={handleSubmit}>
+class FieldArraysForm extends React.PureComponent<FormProps, {}> {
+    render() {
+      const { handleSubmit, pristine, reset, submitting } = this.props
+      return (
+        <form onSubmit={handleSubmit}>
 
-      <FieldArray name="recipients" component={renderRecipients} />
-      <div>
-        <Button type="submit" disabled={submitting}>
-          Submit
-        </Button>
-        <Button disabled={pristine || submitting} onClick={reset}>
-          Clear Values
-        </Button>
-      </div>
-    </form>
-  )
+          <FieldArray name="recipients" component={renderRecipients} />
+          <div>
+            <Button type="submit" disabled={submitting}>
+              Submit
+            </Button>
+            <Button disabled={pristine || submitting} onClick={reset}>
+              Clear Values
+            </Button>
+          </div>
+        </form>
+      )
+      }
 }
 
-
-const validate = (values : Sign.Recipients) => {
-    const errors = {} as any;
+const validate = (values : Readonly<Sign.Recipients>) : FormErrors<Sign.Recipients> => {
+    const errors : FormErrors<Sign.Recipients> = {};
     if (!values.recipients || !values.recipients.length) {
-        errors.recipients = { _error: 'At least one recipient must be entered' }
+        errors.recipients = { _error: 'At least one recipient must be entered' } as any;
     }
-    const recipientsArrayErrors = [] as any[];
+    const recipientsArrayErrors : FormErrors<Sign.Recipient>[] = [];
     values.recipients.forEach((recipient : Sign.Recipient, recipientIndex: number) => {
         const recipientErrors = {} as any;
         if (!recipient || !recipient.name) {
@@ -93,19 +95,19 @@ const validate = (values : Sign.Recipients) => {
         }
     })
     if (recipientsArrayErrors.length) {
-      errors.recipients = recipientsArrayErrors
+      errors.recipients = recipientsArrayErrors as any;
     }
     return errors
 }
 
 
-const Form = reduxForm({
+const Form = reduxForm<Sign.Recipients>({
   form: 'selectRecipients', // a unique identifier for this form
  validate
 })(FieldArraysForm)
 
 
-export default class SelectRecipients extends React.Component<any>  {
+export default class SelectRecipients extends React.Component<{}>  {
     render() {
         return (<div className="container">
                 <div className='page-heading'>

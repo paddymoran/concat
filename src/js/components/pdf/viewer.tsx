@@ -180,7 +180,7 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 
 
 
-const PDFPreviewDimensions = sizeMe({refreshRate: 300})(PDFPreview);
+const PDFPreviewDimensions = sizeMe<Sign.Components.PDFPreviewProps>({refreshRate: 300})(PDFPreview);
 
 
 class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
@@ -338,7 +338,7 @@ const DropTargetSignaturesPageWrapper = DropTarget(
 
 const DimensionedDropTargetSignaturesPageWrapper = connect((state : Sign.State) => ({
     containerWidth: state.dimensions.width
-}))(DropTargetSignaturesPageWrapper)
+}))(DropTargetSignaturesPageWrapper) as any; // hack to remove errors
 
 
 const ConnectedPDFViewer = connect(

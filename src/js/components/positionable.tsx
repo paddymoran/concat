@@ -31,13 +31,13 @@ interface PositionableProps {
 }
 
 interface ConnectedPositionableProps extends PositionableProps {
-    indexKey: string;
-    positionable: Sign.Positionable,
+    indexKey?: string;
+    positionable?: Sign.Positionable,
     background?: string;
     removePositionableFromDocument?: (payload: Sign.Actions.RemovePositionableFromDocumentPayload) => void;
     movePositionable?: (payload: Sign.Actions.MovePositionablePayload | Sign.Actions.MoveDatePayload) => void;
     resize?: (positionable: Sign.Positionable, width: number, height: number) => any;
-    controls: React.ComponentClass<ControlProps>
+    controls?: React.ComponentClass<ControlProps>
 }
 
 
@@ -329,18 +329,21 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
     }
 }
 
-export const SignaturePositionable = connect(
+
+
+
+export const SignaturePositionable = connect<{}, {}, ConnectedPositionableProps>(
     (state: Sign.State, ownProps: PositionableProps) => ({
         positionable: state.documentViewer.signatures[ownProps.index] as Sign.Positionable,
         indexKey: 'signatureIndex',
-        background: `url("${signatureUrl(state.documentViewer.signatures[ownProps.index].signatureId)}"` as string,
+       background: `url("${signatureUrl(state.documentViewer.signatures[ownProps.index].signatureId)}"`,
         controls: SimpleControls
     }),
     { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
 )(Positionable);
 
 
-export const DatePositionable = connect(
+export const DatePositionable = connect<{}, {}, ConnectedPositionableProps>(
     (state: Sign.State, ownProps: PositionableProps) => ({
         positionable: state.documentViewer.dates[ownProps.index] as Sign.Positionable,
         indexKey: 'dateIndex',
@@ -356,7 +359,7 @@ export const DatePositionable = connect(
 
 
 
-export const TextPositionable = connect(
+export const TextPositionable = connect<{}, {}, ConnectedPositionableProps>(
     (state: Sign.State, ownProps: PositionableProps) => ({
         positionable: state.documentViewer.texts[ownProps.index] as Sign.Positionable,
         indexKey: 'textIndex',

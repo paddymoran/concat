@@ -57,7 +57,8 @@ export function stringToCanvas(height: number, string: string, minWidth = 0) {
 export function debounce(func: () => void, wait = 50) {
     let h: number;
     return () => {
-        clearTimeout(h);
-        h = setTimeout(() => func(), wait);
+        // use window so TS knows its not node
+        window.clearTimeout(h);
+        h = window.setTimeout(() => func(), wait);
     };
 }

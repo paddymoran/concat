@@ -169,6 +169,20 @@ declare namespace Sign {
         isOver: boolean
     }
 
+    interface FormError {
+        _error: string;
+    }
+
+    interface Recipient {
+        name?: string;
+        email?: string;
+    }
+
+    interface Recipients {
+        recipients: Recipient[]
+    }
+
+
     const enum DragAndDropTypes {
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
         ADD_DATE_TO_DOCUMENT = 'ADD_DATE_TO_DOCUMENT',
@@ -642,8 +656,6 @@ declare module 'react-bootstrap/lib/Popover' {
     export = ReactBootstrap.Popover;
 }
 
-
-
 declare module 'react-bootstrap/lib/OverlayTrigger' {
     export = ReactBootstrap.OverlayTrigger;
 }
@@ -654,6 +666,18 @@ declare module 'react-bootstrap/lib/ButtonGroup' {
 
 declare module 'react-bootstrap/lib/Button' {
     export = ReactBootstrap.Button;
+}
+
+declare module 'react-bootstrap/lib/FormControl' {
+    export = ReactBootstrap.FormControl;
+}
+
+declare module 'react-bootstrap/lib/ControlLabel' {
+    export = ReactBootstrap.ControlLabel;
+}
+
+declare module 'react-bootstrap/lib/FormGroup' {
+    export = ReactBootstrap.FormGroup;
 }
 /*
 declare module 'react-widgets/lib/localizers/moment' {

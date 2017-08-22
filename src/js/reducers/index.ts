@@ -1,6 +1,6 @@
 import { combineReducers, Reducer } from 'redux';
 import { routerReducer as routing } from 'react-router-redux';
-
+import { reducer as form } from 'redux-form'
 import pdfStore from './pdfStore';
 import documents from './documents';
 import documentSets from './documentSets';
@@ -19,6 +19,7 @@ const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     documentViewer,
     signatures,
     dimensions,
+    form
 });
 
 export default rootReducer;

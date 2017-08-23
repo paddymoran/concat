@@ -3,6 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { generateUUID } from './uuid';
+import { showSubmitConfirmationModal } from '../actions'
 
 interface SelectWorkflowProps {
     openSelfSign: () => void;
@@ -51,12 +52,23 @@ export const SelectWorkflow = connect(
 
 
 
-interface SelectWorkflowProps {
-    openSelfSign: () => void;
-    openOthersSign: () => void;
+interface SelectAnnotationProps {
+
+    documentSetId: string;
+    showConfirmation: (documentSetId : string) => void;
 }
 
-class UnconnectedSelectAnnotation extends React.Component<SelectWorkflowProps> {
+class UnconnectedSelectAnnotation extends React.Component<SelectAnnotationProps> {
+
+    constructor(props : SelectAnnotationProps){
+        super(props);
+        this.selectNoAnnotation = this.selectNoAnnotation.bind(this);
+    }
+
+    selectNoAnnotation() {
+        this.props.showConfirmation(this.props.documentSetId);
+    }
+
     render() {
         return (
             <div>
@@ -66,7 +78,7 @@ class UnconnectedSelectAnnotation extends React.Component<SelectWorkflowProps> {
                 </div>
                 <Row>
                     <Col sm={6}>
-                        <a className='workflow-option-wrapper disabled' onClick={() => generateUUID().then(this.props.openSelfSign)}>
+                        <a className='workflow-option-wrapper disabled' onClick={() => {}}>
                             <span className='workflow-option'>
                                 <span className='fa fa-clipboard icon' aria-hidden='true'></span>
                                 <h2>Yes, I will select who needs to sign and where</h2>
@@ -75,7 +87,7 @@ class UnconnectedSelectAnnotation extends React.Component<SelectWorkflowProps> {
                     </Col>
 
                     <Col sm={6}>
-                        <a className='workflow-option-wrapper enabled' onClick={() => generateUUID().then(this.props.openOthersSign)}>
+                        <a className='workflow-option-wrapper enabled' onClick={this.selectNoAnnotation}>
                             <span className='workflow-option'>
                                 <span className='fa fa-send icon' aria-hidden='true'></span>
                                 <h2>No, just inform the recipients</h2>
@@ -89,9 +101,13 @@ class UnconnectedSelectAnnotation extends React.Component<SelectWorkflowProps> {
 }
 
 export const SelectAnnotation = connect(
-    undefined,
+    (state: Sign.State, ownProps: any) => {
+        const { documentSetId } = ownProps.params;
+        return {
+            documentSetId,
+        };
+    },
     {
-        openSelfSign: (uuid: string) => push(`/self_sign/${uuid}`),
-        openOthersSign: (uuid: string) => push(`/others_sign/${uuid}`),
+        showConfirmation: (documentSetId : string) => showSubmitConfirmationModal({documentSetId}),
     }
 )(UnconnectedSelectAnnotation);

@@ -19,6 +19,7 @@ from sign import sign
 import codecs
 from copy import deepcopy
 from base64 import b64decode
+from urllib.parse import urlparse
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -123,6 +124,23 @@ class InvalidUsage(Exception):
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
+
+
+def invite_users(users, link, sender):
+    for user in users:
+        user['link'] = link
+    params = {
+        'client_id': app.config.get('OAUTH_CLIENT_ID'),
+        'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
+        'sender_name': sender,
+        'users': json.dumps(users)
+    }
+    response = requests.post(
+        app.config.get('AUTH_SERVER') + '/api/user/invite-users',
+        params=params
+    )
+    results = response.json()
+    return {user['email']: user for user in results}
 
 '''
 Documents
@@ -267,6 +285,19 @@ def sign_document():
 
 
 
+@app.route('/api/request_signatures', methods=['POST'])
+def request_signatures():
+    args = request.get_json()
+    url = urlparse(request.url)
+    link = """%s//%s/sign/%s""" % (url.scheme, url.netloc, args['documentSetId'])
+    users = invite_users([s['recipient'] for s in args['signatureRequests']], link, sender=session.get('name', 'User'))
+    for req in args['signatureRequests']:
+        req['recipient']['user_id'] =  users[req['recipient']['email']]['id']
+    db.add_signature_requests(args['documentSetId'], args['signatureRequests'])
+    return jsonify({'document_id': saved_document_id})
+
+
+
 @app.route('/login', methods=['GET'])
 def login():
     try:
@@ -299,7 +330,6 @@ def login():
             )
             access_data = response.json()
 
-
             response = requests.get(
                 app.config.get('AUTH_SERVER') + '/api/user',
                 params={'access_token': access_data['access_token']}
@@ -307,11 +337,11 @@ def login():
 
             user_data = response.json()
             user_data['user_id'] = user_data['id']
-
-
+            user_data['name'] = user_data['name']
 
         db.upsert_user(user_data)
         session['user_id'] = user_data['user_id']
+        session['name'] = user['name']
         return redirect(url_for('catch_all'))
     except Exception as e:
         print(e)

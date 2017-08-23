@@ -159,6 +159,6 @@ class DocumentList extends React.PureComponent<ConnectedDocumentListProps> {
 
 export default connect(
     (state: Sign.State, ownProps: DocumentListProps) => ({
-        documentIds: state.documentSets[ownProps.documentSetId].documentIds
+        documentIds: state.documentSets[ownProps.documentSetId].documentIds || []
     }),  { reorderDocuments }
 )(DocumentList);

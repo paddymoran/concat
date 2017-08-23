@@ -18,6 +18,9 @@ type FieldProps = {
     placeholder?: string;
 } &  WrappedFieldProps
 
+interface RecipientList {
+    recipients: Sign.Recipients;
+}
 
 const FormInput = (props : FieldProps) => {
     const formProps : FormGroupProps = {};
@@ -96,8 +99,8 @@ class FieldArraysForm extends React.PureComponent<FormProps, {}> {
       }
 }
 
-const validate = (values : Readonly<Sign.Recipients>) : FormErrors<Sign.Recipients> => {
-    const errors : FormErrors<Sign.Recipients> = {};
+const validate = (values : Readonly<RecipientList>) : FormErrors<RecipientList> => {
+    const errors : FormErrors<RecipientList> = {};
     if (!values.recipients || !values.recipients.length) {
         errors.recipients = { _error: 'At least one recipient must be entered' } as any;
     }
@@ -125,7 +128,7 @@ const validate = (values : Readonly<Sign.Recipients>) : FormErrors<Sign.Recipien
 }
 
 
-const Form = reduxForm<Sign.Recipients>({
+const Form = reduxForm<RecipientList>({
     form: 'selectRecipients', // a unique identifier for this form
     validate
 })(FieldArraysForm)
@@ -141,8 +144,8 @@ export class SelectRecipients extends React.Component<SelectRecipientsProps>  {
         super(props);
         this.onSubmit = this.onSubmit.bind(this);
     }
-    onSubmit(values: Sign.Recipients) {
-        this.props.defineRecipients({documentSetId: this.props.params.documentSetId, recipients: values});
+    onSubmit(values: RecipientList) {
+        this.props.defineRecipients({documentSetId: this.props.params.documentSetId, recipients: values.recipients});
         this.props.push(`/others_sign/select_annotation/${this.props.params.documentSetId}`);
     }
     render() {

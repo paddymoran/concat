@@ -179,10 +179,7 @@ declare namespace Sign {
         email?: string;
     }
 
-    interface Recipients {
-        recipients: Recipient[]
-    }
-
+    type Recipients = Recipient[];
 
     const enum DragAndDropTypes {
         ADD_SIGNATURE_TO_DOCUMENT = 'ADD_SIGNATURE_TO_DOCUMENT',
@@ -211,11 +208,13 @@ declare namespace Sign {
 
     const enum ModalType {
         SIGN_CONFIRMATION = 'SIGN_CONFIRMATION',
+        SUBMIT_CONFIRMATION = 'SUBMIT_CONFIRMATION'
     }
 
     interface SignatureRequest {
         recipient: Recipient;
-        prompts: DocumentPrompt[],
+        prompts?: DocumentPrompt[],
+        documentIds?: string[];
     }
 
 
@@ -295,6 +294,7 @@ declare namespace Sign.Actions {
         CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
 
         SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
+        SHOW_SUBMIT_CONFIRMATION_MODAL = 'SHOW_SUBMIT_CONFIRMATION_MODAL',
 
         UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
 
@@ -520,6 +520,10 @@ declare namespace Sign.Actions {
         documentSetId: string;
     }
 
+    interface ShowSubmitConfirmationModalPayload {
+        documentSetId: string;
+    }
+
     interface UpdateDocumentWidthPayload {
         width: number
     }
@@ -531,7 +535,7 @@ declare namespace Sign.Actions {
 
     interface SubmitSignRequestsPayload {
         documentSetId: string;
-        signatureRequests: SignatureRequest;
+        signatureRequests: SignatureRequest[];
     }
 
 
@@ -580,6 +584,7 @@ declare namespace Sign.Actions {
     interface CloseModal extends ActionCreator<CloseModalPayload> {}
     interface ShowInitialSelectionModal extends Action {}
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
+    interface ShowSubmitConfirmationModal extends ActionCreator<ShowSubmitConfirmationModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}

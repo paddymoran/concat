@@ -8,6 +8,10 @@ function *signDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.SIGN_DOCUMENT, signDocument);
 
     function *signDocument(action: Sign.Actions.SignDocument) {
+        const status = yield select((state: Sign.State) => state.documentViewer.signRequestStatus);
+        if(status === Sign.DownloadStatus.InProgress){
+            return;
+        }
         yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
 
         const documentViewer = yield select((state: Sign.State) => state.documentViewer);
@@ -49,4 +53,32 @@ function *signDocumentSaga() {
     }
 }
 
-export default [signDocumentSaga()];
+function *submitSignRequests() {
+    yield takeEvery(Sign.Actions.Types.SUBMIT_SIGN_REQUESTS, submit);
+
+    function *submit(action: Sign.Actions.SubmitSignRequests) {
+        const status = yield select((state: Sign.State) => state.documentViewer.signRequestStatus);
+        if(status === Sign.DownloadStatus.InProgress){
+            return;
+        }
+        yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
+
+        try {
+            const response = yield call(axios.post, '/api/request_signatures', action.payload);
+
+            yield all([
+                put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
+                put(closeModal({ modalName: Sign.ModalType.SUBMIT_CONFIRMATION })),
+                put(push(`/documents/${action.payload.documentSetId}`)),
+            ]);
+        }
+        catch (e) {
+            yield all([
+                put(closeModal({ modalName: Sign.ModalType.SUBMIT_CONFIRMATION })),
+                put(setSignRequestStatus(Sign.DownloadStatus.Failed))
+            ]);
+        }
+    }
+}
+
+export default [signDocumentSaga(), submitSignRequests()];

@@ -332,3 +332,11 @@ def get_document_set(user_id, set_id):
         })
         data = cursor.fetchone()[0]
         return data
+
+
+def add_signature_requests(document_set_id, requests):
+    print(document_set_id)
+    print(requests)
+
+
+

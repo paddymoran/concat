@@ -59,6 +59,12 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
         case Sign.Actions.Types.REORDER_DOCUMENTS:
             return reorderDocuments(state, action);
 
+        case Sign.Actions.Types.DEFINE_RECIPIENTS:
+            return {
+                ...state,
+                [action.payload.documentSetId]: { ...state[action.payload.documentSetId], recipients: action.payload.recipients }
+            };
+
         default:
             return state;
     }

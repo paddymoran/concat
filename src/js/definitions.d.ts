@@ -212,6 +212,13 @@ declare namespace Sign {
     const enum ModalType {
         SIGN_CONFIRMATION = 'SIGN_CONFIRMATION',
     }
+
+    interface SignatureRequest {
+        recipient: Recipient;
+        prompts: DocumentPrompt[],
+    }
+
+
 }
 
 declare namespace Sign.Components {
@@ -292,6 +299,8 @@ declare namespace Sign.Actions {
         UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
 
         DEFINE_RECIPIENTS = 'DEFINE_RECIPIENTS',
+
+        SUBMIT_SIGN_REQUESTS = 'SUBMIT_SIGN_REQUESTS'
     }
 
     interface ActionCreator<T> {
@@ -520,6 +529,12 @@ declare namespace Sign.Actions {
         recipients: Recipients;
     }
 
+    interface SubmitSignRequestsPayload {
+        documentSetId: string;
+        signatureRequests: SignatureRequest;
+    }
+
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -568,6 +583,7 @@ declare namespace Sign.Actions {
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}
+    interface SubmitSignRequests extends ActionCreator<SubmitSignRequestsPayload> {}
 
 
 }

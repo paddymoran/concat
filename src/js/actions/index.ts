@@ -264,3 +264,11 @@ export function defineRecipients(payload: Sign.Actions.DefineRecipientsPayload) 
         payload
     }
 }
+
+
+export function submitSignRequests(payload: Sign.Actions.SubmitSignRequestsPayload) : Sign.Actions.SubmitSignRequests {
+    return {
+        type: Sign.Actions.Types.SUBMIT_SIGN_REQUESTS,
+        payload
+    }
+}

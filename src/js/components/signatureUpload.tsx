@@ -36,7 +36,7 @@ const removeImageBackground = (file: File) => {
                     data[i + 3] = 0;
                 }
             }
-
+            context.putImageData(imageData, 0, 0);
             resolve(canvas);
             }
         }
@@ -54,7 +54,7 @@ function rotate(imageURL: string, width: number, height: number, angle: number) 
             canvas.height = width;
             ctx.translate(canvas.width/2,canvas.height/2);
             ctx.rotate(angle);
-             ctx.drawImage(image, -canvas.width*0.5, -canvas.height*0.5);
+             ctx.drawImage(image, -canvas.height*0.5, -canvas.width*0.5);
              return resolve(canvas);
          };
         image.src = imageURL;

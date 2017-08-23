@@ -256,3 +256,11 @@ export function updateDocumentWidth(payload: Sign.Actions.UpdateDocumentWidthPay
         payload
     }
 }
+
+
+export function defineRecipients(payload: Sign.Actions.DefineRecipientsPayload) : Sign.Actions.DefineRecipients {
+    return {
+        type: Sign.Actions.Types.DEFINE_RECIPIENTS,
+        payload
+    }
+}

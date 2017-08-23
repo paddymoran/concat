@@ -39,6 +39,7 @@ declare namespace Sign {
         documentIds: string[];
         downloadStatus: DownloadStatus;
         title?: string;
+        recipients?: Recipients;
     }
 
     interface DocumentSets {
@@ -226,6 +227,11 @@ declare namespace Sign.Components {
             width: number;
         };
     }
+
+    interface RouteDocumentSet {
+        params: { documentSetId: string; };
+    }
+
 }
 
 declare namespace Sign.Actions {
@@ -283,7 +289,9 @@ declare namespace Sign.Actions {
 
         SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
 
-        UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH'
+        UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
+
+        DEFINE_RECIPIENTS = 'DEFINE_RECIPIENTS',
     }
 
     interface ActionCreator<T> {
@@ -507,6 +515,11 @@ declare namespace Sign.Actions {
         width: number
     }
 
+    interface DefineRecipientsPayload {
+        documentSetId: string;
+        recipients: Recipients;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -554,6 +567,7 @@ declare namespace Sign.Actions {
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
+    interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}
 
 
 }

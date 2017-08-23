@@ -21,8 +21,8 @@ interface ConnectedDocumentSetProps {
     documentSetId: string;
 }
 
-interface DocumentSetViewProps {
-    params: { documentSetId: string; };
+interface DocumentSetViewProps extends Sign.Components.RouteDocumentSet {
+
 }
 
 interface DocumentSetProps extends ConnectedDocumentSetProps {
@@ -107,7 +107,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps> {
     render() {
         return (
             <FileDropZone onDrop={this.fileDrop}>
-                <div className="container">
+                <div>
                 <div className='page-heading'>
                 <h1 className="title question">Upload Documents</h1>
                 <div className="sub-title step-count">Step 2</div>
@@ -153,7 +153,7 @@ export const UploadDocumentsOthers = connect(
         return {
             documentIds: documentSet ? documentSet.documentIds : null,
             documentSetId,
-            nextLink: documentSet ? `/select_recipients/${documentSetId}` : null,
+            nextLink: documentSet ? `/others_sign/select_recipients/${documentSetId}` : null,
             linkText: 'Select Recipients'
         };
     },

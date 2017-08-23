@@ -1,0 +1,15 @@
+.centered-button-row{
+    text-align: center;
+    .btn-toolbar{
+        display: inline-block;
+    }
+}
+
+form{
+    ul{
+        padding: 0;
+        li {
+            list-style:none;
+        }
+    }
+}

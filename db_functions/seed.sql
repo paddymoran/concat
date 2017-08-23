@@ -184,11 +184,23 @@ CREATE TABLE migrations (
 
 
 --
+-- Name: sign_requests_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE sign_requests_id_seq
+    START WITH 10
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
 -- Name: sign_requests; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE sign_requests (
-    sign_request_id integer NOT NULL,
+    sign_request_id integer DEFAULT nextval('sign_requests_id_seq'::regclass) NOT NULL,
     document_id uuid,
     user_id integer,
     field_data jsonb
@@ -430,6 +442,16 @@ ALTER TABLE ONLY sign_results
 
 ALTER TABLE ONLY signatures
     ADD CONSTRAINT signatures_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: -
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM josh;
+GRANT ALL ON SCHEMA public TO josh;
+GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --

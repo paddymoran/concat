@@ -139,8 +139,8 @@ def invite_users(users, link, sender):
         app.config.get('AUTH_SERVER') + '/api/user/invite-users',
         params=params
     )
-    results = response.json()
-    return {user['email']: user for user in results}
+    return response.json()
+
 
 '''
 Documents
@@ -291,10 +291,12 @@ def request_signatures():
     url = urlparse(request.url)
     link = """%s//%s/sign/%s""" % (url.scheme, url.netloc, args['documentSetId'])
     users = invite_users([s['recipient'] for s in args['signatureRequests']], link, sender=session.get('name', 'User'))
+    [db.upsert_user({'name': user['name'], 'email': user['email'], 'user_id': user['id']}) for user in users]
+    users = {user['email']: user for user in users}
     for req in args['signatureRequests']:
         req['recipient']['user_id'] =  users[req['recipient']['email']]['id']
     db.add_signature_requests(args['documentSetId'], args['signatureRequests'])
-    return jsonify({'document_id': saved_document_id})
+    return jsonify({'message': 'Requests sent'})
 
 
 

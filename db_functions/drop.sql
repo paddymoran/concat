@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS  public.document_sets;
 DROP TABLE IF EXISTS public.document_data;
 DROP SEQUENCE IF EXISTS public.signatures_id_seq;
 DROP SEQUENCE IF EXISTS public.sign_results_id_seq;
+DROP SEQUENCE IF EXISTS public.sign_requests_id_seq;
 
 DROP TABLE IF EXISTS public.users;
 

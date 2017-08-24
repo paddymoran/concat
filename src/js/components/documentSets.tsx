@@ -21,3 +21,16 @@ export class PendingDocumentSets extends React.Component<DocumentSets>  {
         );
     }
 }
+
+
+
+
+export class AllDocumentSets extends React.Component<DocumentSets>  {
+    render() {
+        return (<div>
+            <PendingDocumentSets />
+            <CompletedDocumentSets />
+            </div>
+        );
+    }
+}

@@ -6,7 +6,7 @@ import DocumentView from '../components/documentView';
 import { DocumentSetView, UploadDocuments, UploadDocumentsOthers } from '../components/uploadDocuments';
 import SelectRecipients from '../components/selectRecipients';
 import Help from '../components/help';
-import { CompletedDocumentSets, PendingDocumentSets } from '../components/documentSets';
+import { CompletedDocumentSets, PendingDocumentSets, AllDocumentSets } from '../components/documentSets';
 
 
 export default () => {
@@ -20,6 +20,7 @@ export default () => {
                 <Route path='others_sign/select_recipients/:documentSetId' component={ SelectRecipients } />
                 <Route path='others_sign/select_annotation/:documentSetId' component={ SelectAnnotation} />
                 <Route path='help' component={ Help } />
+                <Route path='all' component={ PendingDocumentSets } />
                 <Route path='pending' component={ PendingDocumentSets } />
                 <Route path='completed' component={ CompletedDocumentSets  } />
             </Route>

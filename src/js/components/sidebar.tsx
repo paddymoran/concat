@@ -14,7 +14,7 @@ class Sidebar extends React.PureComponent<any> {
                     <li><a>Invite Others</a></li>
                 </ul>
             </li>
-            <li><a>Documents</a>
+            <li><Link to='/all' activeClassName="active">Documents</Link>
                 <ul>
                     <li><Link to='/pending' activeClassName="active">To Sign</Link></li>
                     <li><Link to='/completed' activeClassName="active">Signed</Link></li>

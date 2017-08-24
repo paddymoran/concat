@@ -30,7 +30,7 @@ export  class ContainerWithSideBar extends React.PureComponent<AppProps , {}> {
                           transitionEnterTimeout={400}
                           transitionLeaveTimeout={400}
                         >
-                            <div  key={pathname}>
+                            <div  key={pathname} className="main-content">
                         { children }
                         </div>
                       </CSSTransitionGroup>

@@ -387,7 +387,7 @@ def handle_invalid_usage(error):
 
 @app.before_request
 def before_request():
-    if 'user_id' not in session and request.endpoint is not 'login':
+    if 'user_id' not in session and request.endpoint not in ['login', 'logout']:
         return redirect(url_for('login', next=request.url))
 
 

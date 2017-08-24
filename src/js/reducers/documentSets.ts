@@ -1,4 +1,6 @@
-const DEFAULT_STATE = {};
+const DEFAULT_STATE = {
+
+};
 
 export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, action: any): Sign.DocumentSets {
     let setId, documents, i;
@@ -27,6 +29,18 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
                 return {
                     ...state,
                     [documentSetId]: { ...state[documentSetId], ...rest }
+                };
+            }
+        case Sign.Actions.Types.UPDATE_DOCUMENT_SETS:
+            {
+                const { documentSets } = action.payload;
+                return {
+                    ...state,
+                    ...documentSets.reduce((acc : any, set : any) => {
+                        acc = {...acc};
+                        acc[set.documentSetId] = {documentIds: set.documents.map((d: any) => d.documentId), downloadStatus: Sign.DownloadStatus.Complete, title: set.title}
+                        return acc;
+                    }, state)
                 };
             }
 

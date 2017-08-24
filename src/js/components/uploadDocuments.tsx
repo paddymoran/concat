@@ -49,7 +49,7 @@ class DocumentSet extends React.PureComponent<DocumentSetProps> {
         }
 
         return (
-            <div className="container">
+            <div >
                 <div className='page-heading'>
                     <h1 className="title question">{this.props.documentSet.title ? this.props.documentSet.title : 'New Document Set'}</h1>
                 </div>

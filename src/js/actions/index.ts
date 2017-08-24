@@ -180,6 +180,13 @@ export function updateDocumentSet(payload: Sign.Actions.DocumentSetPayload): Sig
     };
 }
 
+export function updateDocumentSets(payload: Sign.Actions.DocumentSetsPayload): Sign.Actions.UpdateDocumentSets {
+    return {
+        type: Sign.Actions.Types.UPDATE_DOCUMENT_SETS,
+        payload
+    };
+}
+
 export function createDocumentSet(payload: Sign.Actions.DocumentSetPayload): Sign.Actions.CreateDocumentSet {
     return {
         type: Sign.Actions.Types.CREATE_DOCUMENT_SET,
@@ -191,6 +198,13 @@ export function requestDocumentSet(documentSetId: string): Sign.Actions.RequestD
     return {
         type: Sign.Actions.Types.REQUEST_DOCUMENT_SET,
         payload: { documentSetId }
+    };
+}
+
+export function requestDocumentSets(): Sign.Actions.RequestDocumentSets {
+    return {
+        type: Sign.Actions.Types.REQUEST_DOCUMENT_SETS,
+        payload: {  }
     };
 }
 

@@ -7,7 +7,7 @@ import { DocumentSetView, UploadDocuments, UploadDocumentsOthers } from '../comp
 import SelectRecipients from '../components/selectRecipients';
 import Help from '../components/help';
 import { CompletedDocumentSets, PendingDocumentSets, AllDocumentSets } from '../components/documentSets';
-
+import NotFound from '../components/notFound';
 
 export default () => {
     return (
@@ -20,11 +20,12 @@ export default () => {
                 <Route path='others_sign/select_recipients/:documentSetId' component={ SelectRecipients } />
                 <Route path='others_sign/select_annotation/:documentSetId' component={ SelectAnnotation} />
                 <Route path='help' component={ Help } />
-                <Route path='all' component={ PendingDocumentSets } />
+                <Route path='all' component={ AllDocumentSets } />
                 <Route path='pending' component={ PendingDocumentSets } />
                 <Route path='completed' component={ CompletedDocumentSets  } />
+                <Route path='documents/:documentSetId' component={ DocumentSetView } />
+                <Route path='*' component={ NotFound } />
             </Route>
-            <Route path='documents/:documentSetId' component={ DocumentSetView } />
             <Route path='documents/:documentSetId/:documentId' component={ DocumentView } />
         </Route>
     );

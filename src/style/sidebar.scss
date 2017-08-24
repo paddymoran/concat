@@ -6,7 +6,7 @@
     ul{
         padding:0;
         ul{
-            padding-left:12px;
+            padding-left:16px;
             li{
                 a{
                 padding: 6px 0;
@@ -17,10 +17,13 @@
         li{
             list-style:none;
             a{
-            padding:  12px 0;
+                padding:  12px 0;
                 display:inline-block;
                 color: $gray;
             }
         }
+    }
+    a.active{
+        font-weight: bold;
     }
 }

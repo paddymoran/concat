@@ -284,7 +284,6 @@ def sign_document():
     return jsonify({'document_id': saved_document_id})
 
 
-
 @app.route('/api/request_signatures', methods=['POST'])
 def request_signatures():
     args = request.get_json()
@@ -297,7 +296,6 @@ def request_signatures():
         req['recipient']['user_id'] =  users[req['recipient']['email']]['id']
     db.add_signature_requests(args['documentSetId'], args['signatureRequests'])
     return jsonify({'message': 'Requests sent'})
-
 
 
 @app.route('/login', methods=['GET'])

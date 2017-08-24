@@ -301,6 +301,7 @@ def request_signatures():
 @app.route('/login', methods=['GET'])
 def login():
     try:
+        args = request.args.to_dict()
         user_data = {}
 
         if app.config.get('DEV_USER_ID'):
@@ -310,24 +311,34 @@ def login():
                 'email': 'dev@user.com'
             }
         else:
-            args = request.args.to_dict()
+            code = args.get('code')
 
-            provided_code = args.get('code')
-            if not all([provided_code]):
-                return redirect(app.config.get('OAUTH_URL'))
+            # If the is no code, redirect to the users site to get a code
+            if not all([code]):
+                next = args.get('next')
+                oauthUrl = app.config.get('OAUTH_URL')
 
+                # include the next url if there is one
+                if next is not None:
+                    oauthUrl += '?next=' + args.get('next')
+
+                return redirect(oauthUrl)
+            
+            # We have a code, so use it to get and access token
             params = {
-                'code': provided_code,
+                'code': code,
                 'grant_type': 'authorization_code',
                 'client_id': app.config.get('OAUTH_CLIENT_ID'),
                 'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
-                'redirect_uri': app.config.get('LOGIN_URL')
+                'redirect_uri': app.config.get('LOGIN_URL'),
+                'next': args.get('next')
             }
 
             response = requests.post(
                 app.config.get('AUTH_SERVER') + '/oauth/access_token',
                 data=params
             )
+
             access_data = response.json()
 
             response = requests.get(
@@ -341,8 +352,10 @@ def login():
 
         db.upsert_user(user_data)
         session['user_id'] = user_data['user_id']
-        session['name'] = user['name']
-        return redirect(url_for('catch_all'))
+        session['name'] = user_data['name']
+
+        redirect_uri = request.args.get('next', url_for('catch_all'))
+        return redirect(redirect_uri)
     except Exception as e:
         print(e)
         raise InvalidUsage('Could not log in', status_code=500)
@@ -375,7 +388,7 @@ def handle_invalid_usage(error):
 @app.before_request
 def before_request():
     if 'user_id' not in session and request.endpoint is not 'login':
-        return redirect(url_for('login'))
+        return redirect(url_for('login', next=request.url))
 
 
 try:

@@ -341,7 +341,7 @@ def login():
 
         db.upsert_user(user_data)
         session['user_id'] = user_data['user_id']
-        session['name'] = user['name']
+        session['name'] = user_data['name']
         return redirect(url_for('catch_all'))
     except Exception as e:
         print(e)
@@ -374,7 +374,7 @@ def handle_invalid_usage(error):
 
 @app.before_request
 def before_request():
-    if 'user_id' not in session and request.endpoint is not 'login':
+    if 'user_id' not in session and request.endpoint not in ['login', 'logout']:
         return redirect(url_for('login'))
 
 

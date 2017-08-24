@@ -7,7 +7,7 @@ LOGIN_URL = 'http://localhost:5669/login'
 AUTH_SERVER = 'http://192.168.0.153:8000'
 OAUTH_URL = 'http://192.168.0.153:8000/sign-login'
 
-USER_LOGOUT_URL = '192.168.0.153:8000/auth/logout'
+USER_LOGOUT_URL = 'http://192.168.0.153:8000/auth/logout'
 
 OAUTH_CLIENT_ID = 'sign'
 OAUTH_CLIENT_SECRET = 'test'

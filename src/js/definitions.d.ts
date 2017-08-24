@@ -33,6 +33,7 @@ declare namespace Sign {
         InProgress,
         Complete,
         Failed,
+        Stale
     }
 
     interface DocumentSet {
@@ -40,11 +41,14 @@ declare namespace Sign {
         downloadStatus: DownloadStatus;
         title?: string;
         recipients?: Recipients;
+        createdAt?: string;
     }
 
     interface DocumentSets {
         [documentSetId: string]: DocumentSet;
     }
+
+    type DocumentSetsStatus = DownloadStatus;
 
     interface Documents {
         [documentId: string]: Document;
@@ -139,6 +143,7 @@ declare namespace Sign {
     interface State {
         routing: any;
         documentSets: DocumentSets;
+        documentSetsStatus: DocumentSetsStatus;
         documents: Documents;
         pdfStore: PDFStore;
         documentViewer: DocumentViewer;
@@ -279,8 +284,10 @@ declare namespace Sign.Actions {
         SET_SIGN_REQUEST_STATUS = "SET_SIGN_REQUEST_STATUS",
 
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
+        REQUEST_DOCUMENT_SETS = 'REQUEST_DOCUMENT_SETS',
         CREATE_DOCUMENT_SET = 'CREATE_DOCUMENT_SET',
         UPDATE_DOCUMENT_SET = 'UPDATE_DOCUMENT_SET',
+        UPDATE_DOCUMENT_SETS = 'UPDATE_DOCUMENT_SETS',
 
         REQUEST_SIGNATURES = 'REQUEST_SIGNATURES',
         SET_SIGNATURES_REQUEST_STATUS = 'SET_SIGNATURES_REQUEST_STATUS',
@@ -366,11 +373,20 @@ declare namespace Sign.Actions {
         documentSetId: string;
     }
 
+    interface RequestDocumentSetsPayload {
+    }
+
     interface DocumentSetPayload {
         documentSetId: string;
         title?: string;
+        createdAt?: string;
         documentIds?: string[];
         downloadStatus?: Sign.DownloadStatus;
+    }
+
+    interface DocumentSetsPayload {
+        documentSets: DocumentSetPayload[]
+        downloadStatus: Sign.DownloadStatus;
     }
 
     interface RequestDocumentSetPayload {
@@ -569,8 +585,10 @@ declare namespace Sign.Actions {
 
     interface CreateDocumentSet extends ActionCreator<DocumentSetPayload> {}
     interface UpdateDocumentSet extends ActionCreator<DocumentSetPayload> {}
+    interface UpdateDocumentSets extends ActionCreator<DocumentSetsPayload> {}
 
     interface RequestDocumentSet extends ActionCreator<RequestDocumentSetPayload> {}
+    interface RequestDocumentSets extends ActionCreator<RequestDocumentSetsPayload> {}
 
     interface SignDocument extends ActionCreator<SignDocumentPayload> {}
     interface SetSignRequestStatus extends ActionCreator<SetSignRequestStatusPayload> {}

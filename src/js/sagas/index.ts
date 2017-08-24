@@ -1,7 +1,7 @@
 import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
 import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import axios from 'axios';
-import { updateDocument, updateDocumentSet, createDocumentSet } from '../actions';
+import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -16,6 +16,7 @@ export default function *rootSaga(): any {
         uploadDocumentSaga(),
         requestDocumentSaga(),
         requestDocumentSetSaga(),
+        requestDocumentSetsSaga(),
         deleteDocumentSaga(),
         ...pdfStoreSagas,
         ...signatureSagas,
@@ -136,12 +137,37 @@ function *requestDocumentSetSaga() {
         const response = yield call(axios.get, `/api/documents/${action.payload.documentSetId}`);
         const data = response.data;
 
-
-
         yield put(updateDocumentSet({
             documentSetId: action.payload.documentSetId,
             downloadStatus: Sign.DownloadStatus.Complete,
             documentIds: (data.documents || []).map((d: any) => d.document_id)
+        }));
+     }
+}
+
+
+function *requestDocumentSetsSaga() {
+    yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT_SETS, requestDocumentSets);
+
+     function *requestDocumentSets(action: Sign.Actions.RequestDocumentSet) {
+         const status = yield select((state : Sign.State) => state.documentSetsStatus);
+         if(status !== Sign.DownloadStatus.NotStarted && status !== Sign.DownloadStatus.Stale){
+             return;
+         }
+         yield put(updateDocumentSets({
+             downloadStatus: Sign.DownloadStatus.InProgress,
+             documentSets: []
+         }));
+        const response = yield call(axios.get, `/api/documents`);
+
+        const data = response.data.map((d : any) => {
+            return {createdAt: d.created_at, title: d.name, documentSetId: d.documents_sets.document_set_id,
+                documents: (d.documents_sets.documents || [])
+                .map((d : any) => ({documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions})) }
+        });
+        yield put(updateDocumentSets({
+            downloadStatus: Sign.DownloadStatus.Complete,
+            documentSets: data
         }));
      }
 }

@@ -12,3 +12,5 @@
 /include/
 .Python
 pip-selfcheck.json
+
+config_local.py

@@ -136,7 +136,7 @@ function *requestDocumentSetSaga() {
         }));
 
         const response = yield call(axios.get, `/api/documents/${action.payload.documentSetId}`);
-        const data = response.data;
+        const data = response.data || {};
 
         yield put(updateDocumentSet({
             documentSetId: action.payload.documentSetId,

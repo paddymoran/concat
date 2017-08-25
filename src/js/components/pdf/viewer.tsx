@@ -271,35 +271,41 @@ interface OverlayPageWrapperProps {
     isOver?: boolean;
     containerWidth: number;
     viewport: Sign.Viewport;
+    activeSignControl: Sign.ActiveSignControl;
 }
 
-class OverlayPageWrapper extends React.PureComponent<OverlayPageWrapperProps> {
+class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapperProps> {
     constructor(props: OverlayPageWrapperProps) {
         super(props);
-        //this.addSelected = this.addSelected.bind(this);
+        this.addSelected = this.addSelected.bind(this);
     }
 
-    // TODO: Remove when we no longer want click to add
-    /*addSelected(e: React.MouseEvent<HTMLElement>) {
-        const target = e.target as HTMLElement;
-        const rect = target.getBoundingClientRect();
-        const offsetX = e.clientX - rect.left;
-        const offsetY = e.clientY - rect.top;
-        if (this.props.selectedSignatureId && target.tagName==='CANVAS') { // lolololol
-            return generateUUID()
-                .then((id) => {
-                    this.props.addSignatureToDocument({
-                        signatureIndex: id,
-                        documentId: this.props.documentId,
-                        signatureId: this.props.selectedSignatureId,
-                        pageNumber: this.props.pageNumber,
-                        xOffset: offsetX / rect.width,
-                        yOffset: offsetY / rect.height,
-                        xyRatio: 1
-                    })
-            })
-        }
-    }*/
+    addSelected(e: React.MouseEvent<HTMLElement>) {
+        // if (this.props.activeSignControl === Sign.ActiveSignControl.NONE) {
+        //     return;
+        // }
+
+        // const target = e.target as HTMLElement;
+        // const rect = target.getBoundingClientRect();
+        // const offsetX = e.clientX - rect.left;
+        // const offsetY = e.clientY - rect.top;
+        // if (this.props.selectedSignatureId && target.tagName==='CANVAS') { // lolololol
+        //     return generateUUID()
+        //         .then((signatureIndex) => {
+        //             this.props.addSignatureToDocument({
+        //                 signatureIndex,
+        //                 signatureId: this.props.selectedSignatureId,
+        //                 xyRatio: 1,
+        //                 documentId: this.props.documentId,
+        //                 pageNumber: this.props.pageNumber,
+        //                 offsetX: 0,
+        //                 offsetY: 0,
+        //                 ratioX: 1,
+        //                 ratioY: 1
+        //             })
+        //     })
+        // }
+    }
 
     render() {
         const width = this.props.containerWidth;
@@ -310,7 +316,7 @@ class OverlayPageWrapper extends React.PureComponent<OverlayPageWrapperProps> {
             className += 'over'
         }
         const body = (
-            <div className={className} style={{position: 'relative'}}>
+            <div className={className} style={{position: 'relative'}} onClick={this.addSelected}>
                {  this.props.signaturesIndexes.map(signatureIndex => <SignaturePositionable key={signatureIndex} index={signatureIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
                {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} index={dateIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
                {  this.props.textIndexes.map(dateIndex => <TextPositionable key={dateIndex} index={dateIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
@@ -320,6 +326,15 @@ class OverlayPageWrapper extends React.PureComponent<OverlayPageWrapperProps> {
         return this.props.connectDropTarget(body);
     }
 }
+
+
+const OverlayPageWrapper = connect(
+    (state: Sign.State) => ({
+        selectedSignatureId: state.documentViewer.selectedSignatureId,
+        selectedInitialId: state.documentViewer.selectedInitialId,
+        activeSignControl: state.documentViewer.activeSignControl
+    })
+)(UnconnectedOverlayPageWrapper);
 
 const DropTargetSignaturesPageWrapper = DropTarget(
     [

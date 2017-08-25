@@ -302,7 +302,6 @@ def request_signatures():
 
 @app.route('/api/requested_signatures', methods=['GET'])
 def get_signature_requests():
-    print(session['user_id'])
     return jsonify(db.get_signature_requests(session['user_id']))
 
 
@@ -331,7 +330,7 @@ def login():
                     oauthUrl += '?next=' + args.get('next')
 
                 return redirect(oauthUrl)
-            
+
             # We have a code, so use it to get and access token
             params = {
                 'code': code,

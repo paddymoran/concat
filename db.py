@@ -364,7 +364,7 @@ def get_signature_requests(user_id):
         cursor.execute(query, {
             'user_id': user_id
         })
-        data = list(filter(lambda x: x is not None, cursor.fetchone()[0]))
-        return list(data)
+        data = cursor.fetchone()
+        return data[0] or []
 
 

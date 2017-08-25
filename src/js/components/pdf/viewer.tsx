@@ -56,7 +56,7 @@ interface PDFPageWrapperProps {
 
 
 
-const dropTarget: __ReactDnd.DropTargetSpec<SignaturesPageWrapperProps> = {
+const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
     drop(props, monitor, pageComponent) {
         const item : any = monitor.getItem();
         const dropTargetBounds = monitor.getClientOffset();
@@ -206,7 +206,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         return (
             <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
-               <div  className="controls-affix"><Controls sign={this.sign} selectedSignatureId={this.props.selectedSignatureId} selectedInitialId={this.props.selectedInitialId} /></div>
+               <div  className="controls-affix"><Controls sign={this.sign} /></div>
                 </AutoAffix>
 
                 <div className='pdf-container container'>
@@ -256,7 +256,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
 
 
 
-interface SignaturesPageWrapperProps {
+interface OverlayPageWrapperProps {
     pageNumber: number;
     documentId: string;
     signaturesIndexes: string[];
@@ -273,8 +273,8 @@ interface SignaturesPageWrapperProps {
     viewport: Sign.Viewport;
 }
 
-class SignaturesPageWrapper extends React.PureComponent<SignaturesPageWrapperProps> {
-    constructor(props: SignaturesPageWrapperProps) {
+class OverlayPageWrapper extends React.PureComponent<OverlayPageWrapperProps> {
+    constructor(props: OverlayPageWrapperProps) {
         super(props);
         //this.addSelected = this.addSelected.bind(this);
     }
@@ -333,7 +333,7 @@ const DropTargetSignaturesPageWrapper = DropTarget(
         connectDropTarget: connect.dropTarget(),
         isOver: monitor.isOver()
     })
-)(SignaturesPageWrapper);
+)(OverlayPageWrapper);
 
 
 const DimensionedDropTargetSignaturesPageWrapper = connect((state : Sign.State) => ({

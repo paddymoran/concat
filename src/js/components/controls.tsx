@@ -158,14 +158,17 @@ const DraggableAddTextControl = DragSource(
 )(AddTextControl);
 
 interface ControlProps {
+    sign: () => void;
+}
+
+interface ConnectedControlProps extends ControlProps{
     selectedSignatureId?: number;
     selectedInitialId?: number;
-    sign: () => void;
     setActiveSignControl: (payload: Sign.Actions.SetActiveSignControlPayload) => void;
     activeSignControl: Sign.ActiveSignControl;
 }
 
-class UnconnectedControls extends React.PureComponent<ControlProps> {
+class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
     setActiveSignControl(activeSignControl: Sign.ActiveSignControl) {
         this.props.setActiveSignControl({ activeSignControl });
     }
@@ -198,7 +201,7 @@ class UnconnectedControls extends React.PureComponent<ControlProps> {
 
                         <div className="control">
                             <DraggableAddDateControl >
-                                <div className="draggable">    
+                                <div className="draggable">
                                     <DateButton
                                         active={this.props.activeSignControl === Sign.ActiveSignControl.DATE}
                                         setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.DATE)} />
@@ -230,7 +233,7 @@ class UnconnectedControls extends React.PureComponent<ControlProps> {
     }
 }
 
-export const Controls = connect(
+export const Controls = connect<void, void, ControlProps>(
     (state: Sign.State) => ({
         selectedSignatureId: state.documentViewer.selectedSignatureId,
         selectedInitialId: state.documentViewer.selectedInitialId,

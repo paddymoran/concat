@@ -155,17 +155,19 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
         );
     }
 }
-
 interface ModalButtonProps {
-    selectedId: number;
-    text: string;
     active: boolean;
-    showModal: () => void;
-    requestSignatures: () => void;
     setActive: () => void;
 }
 
-class ModalButton extends React.Component<ModalButtonProps> {
+interface ConnectedModalButtonProps extends ModalButtonProps{
+    selectedId: number;
+    text: string;
+    showModal: () => void;
+    requestSignatures: () => void;
+}
+
+class ModalButton extends React.Component<ConnectedModalButtonProps> {
     componentWillMount() {
         this.props.requestSignatures();
     }
@@ -175,7 +177,7 @@ class ModalButton extends React.Component<ModalButtonProps> {
             style['backgroundImage'] = `url(${signatureUrl(this.props.selectedId)})`;
         }
         return (
-            <div className={`signature-button ${this.props.active ? 'active' : ''}`} onClick={() => this.props.setActive()}>
+            <div className={`signature-button ${this.props.active ? 'active' : ''}`} onClick={() => {this.props.setActive(); this.props.showModal();} }>
                 <span className="signature-image" style={style}></span>
                 <span>{this.props.text}</span>
             </div>
@@ -183,7 +185,9 @@ class ModalButton extends React.Component<ModalButtonProps> {
     }
 }
 
-export const SignatureButton = connect(
+
+
+export const SignatureButton = connect<{}, {}, ModalButtonProps>(
     (state: Sign.State) => ({
         text: 'Signature',
         selectedId: state.documentViewer.selectedSignatureId,
@@ -194,7 +198,7 @@ export const SignatureButton = connect(
     }
 )(ModalButton);
 
-export const InitialButton = connect(
+export const InitialButton = connect<{}, {}, ModalButtonProps>(
     (state: Sign.State) => ({
         text: 'Initial',
         selectedId: state.documentViewer.selectedInitialId,

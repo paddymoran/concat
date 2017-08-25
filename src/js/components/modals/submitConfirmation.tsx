@@ -7,6 +7,7 @@ interface SignConfirmationProps {
     signRequestStatus: Sign.DownloadStatus;
     documentSetId: string;
     hideModal: () => void;
+    recipients: Sign.Recipients;
     submitPayload: Sign.Actions.SubmitSignRequestsPayload,
     submitSignRequests: (payload: Sign.Actions.SubmitSignRequestsPayload) => void;
 }
@@ -50,6 +51,14 @@ class SubmitConfirmation extends React.PureComponent<SignConfirmationProps> {
 
                 <p className='text-center'>Are you sure you send this document set to be signed?</p>
 
+                <h3>Recipients</h3>
+
+                {this.props.recipients.map((recipient, index) =>
+                    <p key={index}>
+                        <strong>{recipient.name}:</strong> {recipient.email}
+                    </p>
+                )}
+
                 <Button bsStyle='primary' bsSize="lg" onClick={this.submit}>Send</Button>
             </div>
         );
@@ -73,7 +82,8 @@ class SubmitConfirmation extends React.PureComponent<SignConfirmationProps> {
 export default connect(
     (state: Sign.State) => ({
         signRequestStatus: state.documentViewer.signRequestStatus,
-        submitPayload: prepareSubmitPayload(state.modals.documentSetId, state.documentSets[state.modals.documentSetId])
+        submitPayload: prepareSubmitPayload(state.modals.documentSetId, state.documentSets[state.modals.documentSetId]),
+        recipients: state.documentSets[state.modals.documentSetId].recipients,
     }),
     { submitSignRequests, hideModal: () => closeModal({modalName: Sign.ModalType.SUBMIT_CONFIRMATION})  },
 )(SubmitConfirmation);

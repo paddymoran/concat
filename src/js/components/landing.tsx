@@ -59,6 +59,9 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
     }
     render() {
         const keys : string[] = Object.keys(this.props.requestedSignatures.documentSets);
+        if(!keys.length){
+            return false;
+        }
         return (<div>
                      <div className="page-heading"><h1 className="title">Documents To Sign</h1></div>
                      { keys.map((documentSetId: string, index: number) => {

@@ -208,6 +208,20 @@ export function requestDocumentSets(): Sign.Actions.RequestDocumentSets {
     };
 }
 
+export function requestRequestedSignatures(): Sign.Actions.RequestRequestedSignatures {
+    return {
+        type: Sign.Actions.Types.REQUEST_REQUESTED_SIGNATURES,
+        payload: {  }
+    };
+}
+
+export function updateRequestedSignatures(payload: Sign.Actions.UpdateRequestedSignaturesPayload): Sign.Actions.UpdateRequestedSignatures {
+    return {
+        type: Sign.Actions.Types.UPDATE_REQUESTED_SIGNATURES,
+        payload
+    };
+}
+
 export function signDocument(payload: Sign.Actions.SignDocumentPayload): Sign.Actions.SignDocument {
     return {
         type: Sign.Actions.Types.SIGN_DOCUMENT,

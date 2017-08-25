@@ -32,13 +32,14 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
                 };
             }
         case Sign.Actions.Types.UPDATE_DOCUMENT_SETS:
+        case Sign.Actions.Types.UPDATE_REQUESTED_SIGNATURES:
             {
                 const { documentSets } = action.payload;
                 return {
                     ...state,
                     ...documentSets.reduce((acc : any, set : any) => {
                         acc = {...acc};
-                        acc[set.documentSetId] = {documentIds: set.documents.map((d: any) => d.documentId), downloadStatus: Sign.DownloadStatus.Complete, title: set.title}
+                        acc[set.documentSetId] = {documentIds: set.documents.map((d: any) => d.documentId), downloadStatus: Sign.DownloadStatus.Complete, title: set.title, owner: set.owner}
                         return acc;
                     }, state)
                 };

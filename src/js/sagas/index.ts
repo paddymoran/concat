@@ -1,7 +1,7 @@
 import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
 import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import axios from 'axios';
-import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet } from '../actions';
+import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -17,6 +17,7 @@ export default function *rootSaga(): any {
         requestDocumentSaga(),
         requestDocumentSetSaga(),
         requestDocumentSetsSaga(),
+        requestRequestedSignaturesSaga(),
         deleteDocumentSaga(),
         ...pdfStoreSagas,
         ...signatureSagas,
@@ -161,11 +162,38 @@ function *requestDocumentSetsSaga() {
         const response = yield call(axios.get, `/api/documents`);
 
         const data = response.data.map((d : any) => {
-            return {createdAt: d.created_at, title: d.name, documentSetId: d.documents_sets.document_set_id,
-                documents: (d.documents_sets.documents || [])
+            return {createdAt: d.created_at, title: d.name, documentSetId: d.document_set_id,
+                documents: (d.documents || [])
                 .map((d : any) => ({documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions})) }
         });
         yield put(updateDocumentSets({
+            downloadStatus: Sign.DownloadStatus.Complete,
+            documentSets: data
+        }));
+     }
+}
+
+function *requestRequestedSignaturesSaga() {
+    yield takeEvery(Sign.Actions.Types.REQUEST_REQUESTED_SIGNATURES, requestRequestedSignatures);
+
+     function *requestRequestedSignatures(action: Sign.Actions.RequestRequestedSignatures) {
+         const status = yield select((state : Sign.State) => state.requestedSignatures.downloadStatus);
+         if(status !== Sign.DownloadStatus.NotStarted && status !== Sign.DownloadStatus.Stale){
+             return;
+         }
+         yield put(updateRequestedSignatures({
+             downloadStatus: Sign.DownloadStatus.InProgress,
+             documentSets: []
+         }));
+        const response = yield call(axios.get, `/api/requested_signatures`);
+
+        const data = response.data.map((d : any) => {
+            return {createdAt: d.created_at, title: d.name, documentSetId: d.document_set_id, owner: {name: d.requester, user_id: d.user_id},
+                documents: (d.documents || [])
+                .map((d : any) => ({documentId: d.document_id, createdAt: d.created_at, filename: d.filename})) }
+        });
+
+        yield put(updateRequestedSignatures({
             downloadStatus: Sign.DownloadStatus.Complete,
             documentSets: data
         }));

@@ -182,7 +182,8 @@ def get_documents(doc_id):
         documents = db.get_document_set(session['user_id'], doc_id)
         return jsonify(documents)
     except Exception as e:
-        raise InvalidUsage(e.message, status_code=500)
+
+        raise InvalidUsage(e, status_code=500)
 
 
 @app.route('/api/document/<doc_id>', methods=['GET'])
@@ -296,6 +297,13 @@ def request_signatures():
         req['recipient']['user_id'] =  users[req['recipient']['email']]['id']
     db.add_signature_requests(args['documentSetId'], args['signatureRequests'])
     return jsonify({'message': 'Requests sent'})
+
+
+
+@app.route('/api/requested_signatures', methods=['GET'])
+def get_signature_requests():
+    print(session['user_id'])
+    return jsonify(db.get_signature_requests(session['user_id']))
 
 
 @app.route('/login', methods=['GET'])

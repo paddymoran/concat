@@ -9,6 +9,7 @@ import documentViewer from './documentViewer';
 import signatures from './signatures';
 import modals from './modals';
 import dimensions from './dimensions';
+import requestedSignatures from './requestedSignatures';
 
 
 const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
@@ -21,6 +22,7 @@ const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     documentViewer,
     signatures,
     dimensions,
+    requestedSignatures,
     form
 });
 

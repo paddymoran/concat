@@ -19,4 +19,4 @@ DB_USER = getpass.getuser()
 DB_PASS = ''
 DB_HOST = '127.0.0.1'
 
-DEV_USER_ID = 1
+#DEV_USER_ID = 1

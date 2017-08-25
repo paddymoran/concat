@@ -16,9 +16,13 @@ declare namespace Sign {
         Complete
     }
 
-    interface Document {
-        id: string;
+    interface DocumentData {
         filename: string;
+        createdAt?: string;
+    }
+
+    interface Document extends DocumentData{
+        id: string;
         file: File;
         data: ArrayBuffer;
         uploadStatus: DocumentUploadStatus;
@@ -28,6 +32,8 @@ declare namespace Sign {
         pageViewports?: Viewport[];
     }
 
+
+
     const enum DownloadStatus {
         NotStarted,
         InProgress,
@@ -36,12 +42,21 @@ declare namespace Sign {
         Stale
     }
 
+    interface User {
+        name: string;
+        user_id: number;
+    }
+
+    type SignStatus = 'Pending' | 'Signed' | 'Rejected' | 'Partial';
+    type DocumentSetSignStatus = 'Pending' | 'Complete' | 'Rejected' | 'Partial';
+
     interface DocumentSet {
         documentIds: string[];
         downloadStatus: DownloadStatus;
         title?: string;
         recipients?: Recipients;
         createdAt?: string;
+        owner?: User
     }
 
     interface DocumentSets {
@@ -140,6 +155,20 @@ declare namespace Sign {
         initialIds?: number[];
     }
 
+
+    interface RequestedSignatures {
+        documentSets: {
+            [documentSetId: string]: {
+                documents: {
+                    [documentId: string]: {
+                        prompts: DocumentPrompts;
+                    }
+                }
+            }
+        }
+        downloadStatus: DownloadStatus;
+    }
+
     interface State {
         routing: any;
         documentSets: DocumentSets;
@@ -150,6 +179,7 @@ declare namespace Sign {
         modals: Modals;
         signatures: Signatures;
         dimensions: Dimensions;
+        requestedSignatures: RequestedSignatures;
     }
 
     interface Action<T> {
@@ -289,6 +319,9 @@ declare namespace Sign.Actions {
         UPDATE_DOCUMENT_SET = 'UPDATE_DOCUMENT_SET',
         UPDATE_DOCUMENT_SETS = 'UPDATE_DOCUMENT_SETS',
 
+        REQUEST_REQUESTED_SIGNATURES = 'REQUEST_REQUESTED_SIGNATURES',
+        UPDATE_REQUESTED_SIGNATURES = 'UPDATE_REQUESTED_SIGNATURES',
+
         REQUEST_SIGNATURES = 'REQUEST_SIGNATURES',
         SET_SIGNATURES_REQUEST_STATUS = 'SET_SIGNATURES_REQUEST_STATUS',
         SET_SIGNATURE_IDS = 'SET_SIGNATURE_IDS',
@@ -381,6 +414,7 @@ declare namespace Sign.Actions {
         title?: string;
         createdAt?: string;
         documentIds?: string[];
+        documents?: Sign.Document[],
         downloadStatus?: Sign.DownloadStatus;
     }
 
@@ -391,6 +425,13 @@ declare namespace Sign.Actions {
 
     interface RequestDocumentSetPayload {
         documentSetId: string;
+    }
+
+    interface RequestRequestedSignaturesPayload {}
+
+    interface UpdateRequestedSignaturesPayload {
+        downloadStatus: Sign.DownloadStatus;
+        documentSets: DocumentSetPayload[]
     }
 
     interface UploadSignaturePayload {
@@ -589,6 +630,8 @@ declare namespace Sign.Actions {
 
     interface RequestDocumentSet extends ActionCreator<RequestDocumentSetPayload> {}
     interface RequestDocumentSets extends ActionCreator<RequestDocumentSetsPayload> {}
+    interface RequestRequestedSignatures extends ActionCreator<RequestRequestedSignaturesPayload> {}
+    interface UpdateRequestedSignatures extends ActionCreator<UpdateRequestedSignaturesPayload> {}
 
     interface SignDocument extends ActionCreator<SignDocumentPayload> {}
     interface SetSignRequestStatus extends ActionCreator<SetSignRequestStatusPayload> {}

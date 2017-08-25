@@ -266,14 +266,14 @@ def get_user_document_sets(user_id):
     """
     database = get_db()
     query = """
-        SELECT document_set_json(document_set_id) as documents_sets, name as name, created_at as created_at
+        SELECT document_set_json(document_set_id)
         FROM document_sets sets
         WHERE sets.user_id = %(user_id)s
     """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {'user_id': user_id})
         data = cursor.fetchall()
-        return [dict(x) for x in data]
+        return [x['document_set_json'] for x in data]
 
 
 def get_document(user_id, document_id):
@@ -351,5 +351,20 @@ def add_signature_requests(document_set_id, requests):
 
 
 
+def get_signature_requests(user_id):
+    """
+    Get outstanding signature requests
+    """
+    database = get_db()
+    query = """
+        SELECT signature_requests(%(user_id)s)
+    """
+
+    with database.cursor() as cursor:
+        cursor.execute(query, {
+            'user_id': user_id
+        })
+        data = list(filter(lambda x: x is not None, cursor.fetchone()[0]))
+        return list(data)
 
 

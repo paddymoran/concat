@@ -7,7 +7,7 @@ export default function documents(state: Sign.Documents = DEFAULT_STATE, action:
             const newDoc = {
                 ...rest,
                 uploadStatus: Sign.DocumentUploadStatus.NotStarted,
-                readStatus: Sign.DocumentReadStatus.NotStarted
+                readStatus: rest.file ? Sign.DocumentReadStatus.InProgress : Sign.DocumentReadStatus.NotStarted
             };
 
             return { ...state, [documentId]: newDoc };
@@ -33,6 +33,7 @@ export default function documents(state: Sign.Documents = DEFAULT_STATE, action:
             return { ...state, [action.payload.documentId]: undefined };
 
         case Sign.Actions.Types.UPDATE_DOCUMENT_SETS:
+        case Sign.Actions.Types.UPDATE_REQUESTED_SIGNATURES:
             {
                 const { documentSets } = action.payload;
                 return {
@@ -41,6 +42,9 @@ export default function documents(state: Sign.Documents = DEFAULT_STATE, action:
                         acc = {...acc, ...set.documents.reduce((acc: any, doc: any) => {
                             acc = {...acc};
                             acc[doc.documentId] = doc;
+                            if(acc[doc.documentId].readStatus === undefined){
+                                acc[doc.documentId] = {...acc[doc.documentId], readStatus: Sign.DocumentReadStatus.NotStarted}
+                            }
                             return acc;
                          }, acc)}
                         return acc;

@@ -93,7 +93,7 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
 export default connect(
     (state: Sign.State, ownProps: PDFPageConnectProps) => ({
         page: state.pdfStore[ownProps.documentId] ? state.pdfStore[ownProps.documentId].pages[ownProps.pageNumber] : null,
-        documentExists: !!state.documents[ownProps.documentId]
+        documentExists: !!state.documents[ownProps.documentId] && state.documents[ownProps.documentId].readStatus !== Sign.DocumentReadStatus.NotStarted
     }),
     {
         requestDocument , requestDocumentPage

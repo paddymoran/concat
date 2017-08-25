@@ -1,4 +1,7 @@
 import * as Promise from 'bluebird';
+import * as moment from 'moment';
+
+
 
 export function findSetForDocument(documentSets: Sign.DocumentSets, documentId: string) {
     return Object.keys(documentSets).find(key => documentSets[key].documentIds.includes(documentId));
@@ -61,4 +64,12 @@ export function debounce(func: () => void, wait = 50) {
         window.clearTimeout(h);
         h = window.setTimeout(() => func(), wait);
     };
+}
+
+
+
+export const datetimeFormat = "Do MMM, h:mm:ss a";
+
+export function stringToDateTime(string : string) : string {
+    return moment(string).format(datetimeFormat);
 }

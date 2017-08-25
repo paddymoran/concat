@@ -1,6 +1,6 @@
 import { all, takeEvery, put, call, select } from 'redux-saga/effects';
 import axios from 'axios';
-import { setSignRequestStatus, showResults, closeModal } from '../actions';
+import { setSignRequestStatus, showResults, closeModal, showFailureModal } from '../actions';
 import { push } from 'react-router-redux';
 import { findSetForDocument, stringToCanvas } from '../utils';
 
@@ -75,6 +75,7 @@ function *submitSignRequests() {
         catch (e) {
             yield all([
                 put(closeModal({ modalName: Sign.ModalType.SUBMIT_CONFIRMATION })),
+                put(showFailureModal({message: 'Sorry, we could not send invitations at this time.'})),
                 put(setSignRequestStatus(Sign.DownloadStatus.Failed))
             ]);
         }

@@ -314,3 +314,10 @@ export function submitSignRequests(payload: Sign.Actions.SubmitSignRequestsPaylo
         payload
     }
 }
+
+export function setActiveSignControl(payload: Sign.Actions.SetActiveSignControlPayload) : Sign.Actions.SetActiveSignControl {
+    return {
+        type: Sign.Actions.Types.SET_ACTIVE_SIGN_CONTROL,
+        payload
+    };
+}

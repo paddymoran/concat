@@ -5,6 +5,8 @@ import { SignatureButton, InitialButton } from './signatureSelector';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { DateButton, TextButton } from './textSelector';
 import * as Moment from 'moment';
+import { connect } from 'react-redux';
+import { setActiveSignControl } from '../actions';
 
 
 interface SignatureDragSourceProps {
@@ -159,52 +161,80 @@ interface ControlProps {
     selectedSignatureId?: number;
     selectedInitialId?: number;
     sign: () => void;
+    setActiveSignControl: (payload: Sign.Actions.SetActiveSignControlPayload) => void;
+    activeSignControl: Sign.ActiveSignControl;
 }
 
-export class Controls extends React.PureComponent<ControlProps> {
+class UnconnectedControls extends React.PureComponent<ControlProps> {
+    setActiveSignControl(activeSignControl: Sign.ActiveSignControl) {
+        this.props.setActiveSignControl({ activeSignControl });
+    }
+
     render() {
-        return <div className="controls">
-          <div className="container">
+        return (
+            <div className="controls">
+                <div className="container">
 
-                <div className="control-row">
-                <div className="control">
-                    <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}>
-                          <div className="draggable"> <SignatureButton /></div>
-                    </DraggableAddSignatureControl>
+                    <div className="control-row">
+                        <div className="control">
+                            <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}>
+                                <div className="draggable">
+                                    <SignatureButton
+                                        active={this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE}
+                                        setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.SIGNATURE)} />
+                                </div>
+                            </DraggableAddSignatureControl>
+                        </div>
+
+                        <div className="control">
+                            <DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
+                                <div className="draggable">
+                                    <InitialButton
+                                        active={this.props.activeSignControl === Sign.ActiveSignControl.INITIAL}
+                                        setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.INITIAL)} />
+                                </div>
+                            </DraggableAddSignatureControl>
+                        </div>
+
+                        <div className="control">
+                            <DraggableAddDateControl >
+                                <div className="draggable">    
+                                    <DateButton
+                                        active={this.props.activeSignControl === Sign.ActiveSignControl.DATE}
+                                        setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.DATE)} />
+                                </div>
+                            </DraggableAddDateControl>
+                        </div>
+
+                        <div className="control">
+                            <DraggableAddTextControl >
+                                <div className="draggable">
+                                    <TextButton
+                                        active={this.props.activeSignControl === Sign.ActiveSignControl.TEXT}
+                                        setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.TEXT)} />
+                                </div>
+                            </DraggableAddTextControl>
+                        </div>
+
+                        <div className="control">
+                            <div className="submit-button" onClick={ this.props.sign }>
+                                <span className="fa fa-pencil" />
+                                <span>Sign</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-
-                <div className="control">
-                    <DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
-                            <div className="draggable"> <InitialButton /></div>
-                    </DraggableAddSignatureControl>
-               </div>
-
-                <div className="control">
-
-                    <DraggableAddDateControl >
-                            <div className="draggable"> <DateButton /></div>
-                    </DraggableAddDateControl>
-
-                </div>
-                <div className="control">
-
-                    <DraggableAddTextControl >
-                            <div className="draggable"> <TextButton /></div>
-                    </DraggableAddTextControl>
-
-                </div>
-
-                <div className="control">
-
-                <div className="submit-button" onClick={ this.props.sign }>
-                            <span className="fa fa-pencil" />
-                            <span>Sign</span>
-                </div>
-
-                </div>
-                </div>
-
             </div>
-        </div>
+        );
     }
 }
+
+export const Controls = connect(
+    (state: Sign.State) => ({
+        selectedSignatureId: state.documentViewer.selectedSignatureId,
+        selectedInitialId: state.documentViewer.selectedInitialId,
+        activeSignControl: state.documentViewer.activeSignControl
+    }),
+    { setActiveSignControl }
+)(UnconnectedControls)

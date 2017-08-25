@@ -126,6 +126,15 @@ declare namespace Sign {
         [key: string]: DocumentPrompt
     }
 
+    const enum ActiveSignControl {
+        NONE,
+        SIGNATURE,
+        INITIAL,
+        DATE,
+        TEXT,
+        PROMPT,
+    }
+
     interface DocumentViewer {
         signRequestStatus: DownloadStatus;
         selectedSignatureId?: number;
@@ -134,6 +143,7 @@ declare namespace Sign {
         dates: DocumentDates;
         texts: DocumentTexts;
         prompts: DocumentPrompts;
+        activeSignControl: ActiveSignControl;
         documents?: {
             [documentId: string] : {
                 activePage: number;
@@ -310,6 +320,7 @@ declare namespace Sign.Actions {
         REMOVE_DATE_FROM_DOCUMENT = 'REMOVE_DATE_FROM_DOCUMENT',
         REMOVE_TEXT_FROM_DOCUMENT = 'REMOVE_TEXT_FROM_DOCUMENT',
         REMOVE_PROMPT_FROM_DOCUMENT = 'REMOVE_PROMPT_FROM_DOCUMENT',
+        SET_ACTIVE_SIGN_CONTROL = 'SET_ACTIVE_SIGN_CONTROL',
 
         SIGN_DOCUMENT = "SIGN_DOCUMENT",
         SET_SIGN_REQUEST_STATUS = "SET_SIGN_REQUEST_STATUS",
@@ -601,6 +612,10 @@ declare namespace Sign.Actions {
         signatureRequests: SignatureRequest[];
     }
 
+    interface SetActiveSignControlPayload {
+        activeSignControl: Sign.ActiveSignControl;
+    }
+
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
@@ -629,6 +644,7 @@ declare namespace Sign.Actions {
     interface RemoveDateFromDocument extends ActionCreator<RemoveDateFromDocumentPayload> {}
     interface RemoveTextFromDocument extends ActionCreator<RemoveTextFromDocumentPayload> {}
     interface RemovePromptFromDocument extends ActionCreator<RemovePromptFromDocumentPayload> {}
+    interface SetActiveSignControl extends ActionCreator<SetActiveSignControlPayload> {}
 
     interface CreateDocumentSet extends ActionCreator<DocumentSetPayload> {}
     interface UpdateDocumentSet extends ActionCreator<DocumentSetPayload> {}

@@ -3,6 +3,7 @@ const DEFAULT_STATE: Sign.DocumentViewer = {
     dates: {},
     texts: {},
     prompts: {},
+    activeSignControl: Sign.ActiveSignControl.NONE,
     signRequestStatus: Sign.DownloadStatus.NotStarted,
     documents: {},
 };
@@ -57,9 +58,22 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
         case Sign.Actions.Types.SET_ACTIVE_PAGE:
             return setActivePage(state, action);
 
+        case Sign.Actions.Types.SET_ACTIVE_SIGN_CONTROL:
+            return setActiveSignButton(state, action);
+
         default:
             return state;
     }
+}
+
+function setActiveSignButton(state: Sign.DocumentViewer, action: Sign.Actions.SetActiveSignControl): Sign.DocumentViewer {
+    const currentActive = state.activeSignControl;
+    const newActive = action.payload.activeSignControl;
+
+    return {
+        ...state,
+        activeSignControl: newActive === currentActive ? Sign.ActiveSignControl.NONE : newActive
+    };
 }
 
 function selectSignature(state: Sign.DocumentViewer, action: Sign.Actions.SelectSignature): Sign.DocumentViewer {

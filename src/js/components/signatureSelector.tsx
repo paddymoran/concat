@@ -2,7 +2,7 @@ import  * as React from "react";
 import SignatureCanvas from 'react-signature-canvas';
 import { Alert, Button, Modal, Tab, Tabs } from 'react-bootstrap';
 import SignatureUpload from './signatureUpload';
-import { uploadSignature, selectSignature, selectInitial, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures, closeModal, showInitialSelectionModal } from '../actions/index';
+import { uploadSignature, selectSignature, selectInitial, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures, closeModal, showInitialSelectionModal, setActiveSignControl } from '../actions/index';
 import { connect } from 'react-redux';
 import Loading from './loading';
 import { signatureUrl } from '../utils';
@@ -156,7 +156,16 @@ export class SignatureSelector extends React.Component<SignatureSelectorProps, S
     }
 }
 
-class ModalButton extends React.Component<any> {
+interface ModalButtonProps {
+    selectedId: number;
+    text: string;
+    active: boolean;
+    showModal: () => void;
+    requestSignatures: () => void;
+    setActive: () => void;
+}
+
+class ModalButton extends React.Component<ModalButtonProps> {
     componentWillMount() {
         this.props.requestSignatures();
     }
@@ -166,7 +175,7 @@ class ModalButton extends React.Component<any> {
             style['backgroundImage'] = `url(${signatureUrl(this.props.selectedId)})`;
         }
         return (
-            <div className="signature-button" onClick={() => this.props.showModal()}>
+            <div className={`signature-button ${this.props.active ? 'active' : ''}`} onClick={() => this.props.setActive()}>
                 <span className="signature-image" style={style}></span>
                 <span>{this.props.text}</span>
             </div>
@@ -175,24 +184,24 @@ class ModalButton extends React.Component<any> {
 }
 
 export const SignatureButton = connect(
-    (state) => ({
+    (state: Sign.State) => ({
         text: 'Signature',
         selectedId: state.documentViewer.selectedSignatureId,
     }),
     {
         showModal: showSignatureSelection,
-        requestSignatures,
+        requestSignatures
     }
 )(ModalButton);
 
 export const InitialButton = connect(
-    (state) => ({
+    (state: Sign.State) => ({
         text: 'Initial',
         selectedId: state.documentViewer.selectedInitialId,
     }),
     {
         showModal: showInitialSelectionModal,
-        requestSignatures,
+        requestSignatures
     }
 )(ModalButton);
 

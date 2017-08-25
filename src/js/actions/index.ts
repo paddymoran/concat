@@ -285,6 +285,13 @@ export function showSubmitConfirmationModal(payload: Sign.Actions.ShowSubmitConf
     };
 }
 
+export function showFailureModal(payload: Sign.Actions.ShowFailureModalPayload): Sign.Actions.ShowFailureModal {
+    return {
+        type: Sign.Actions.Types.SHOW_FAILURE_MODAL,
+        payload
+    };
+}
+
 export function updateDocumentWidth(payload: Sign.Actions.UpdateDocumentWidthPayload) : Sign.Actions.UpdateDocumentWidth {
     return {
         type: Sign.Actions.Types.UPDATE_DOCUMENT_WIDTH,

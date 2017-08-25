@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { closeModal } from '../../actions/index';
 import SignConfirmation from './signConfirmation';
 import SubmitConfirmation from './submitConfirmation';
+import Failure from './failure';
 
 interface ModalsProps {
     showing: string;
@@ -28,6 +29,9 @@ class Modals extends React.PureComponent<ModalsProps>{
 
             case Sign.ModalType.SUBMIT_CONFIRMATION:
                 return <SubmitConfirmation />
+
+            case Sign.ModalType.FAILURE:
+                return <Failure />
 
             default:
                 return false;

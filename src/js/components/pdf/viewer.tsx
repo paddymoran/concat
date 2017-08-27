@@ -328,7 +328,7 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
 }
 
 
-const OverlayPageWrapper = connect(
+const OverlayPageWrapper = connect<{}, {}, OverlayPageWrapperProps>(
     (state: Sign.State) => ({
         selectedSignatureId: state.documentViewer.selectedSignatureId,
         selectedInitialId: state.documentViewer.selectedInitialId,

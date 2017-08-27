@@ -233,7 +233,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
     }
 }
 
-export const Controls = connect<void, void, ControlProps>(
+export const Controls = connect<{}, {}, ControlProps>(
     (state: Sign.State) => ({
         selectedSignatureId: state.documentViewer.selectedSignatureId,
         selectedInitialId: state.documentViewer.selectedInitialId,

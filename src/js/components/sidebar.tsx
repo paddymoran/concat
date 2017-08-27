@@ -28,7 +28,7 @@ class Sidebar extends React.PureComponent<SidebarProps> {
                 </ul>
 
             </li>
-            <li><Link to='/help' activeClassName="active">Help</Link></li>
+            <li><Link to='/faq' activeClassName="active">FAQ</Link></li>
             </ul>
 
         </div>

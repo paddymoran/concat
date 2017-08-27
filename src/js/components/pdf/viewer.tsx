@@ -56,6 +56,7 @@ interface PDFPageWrapperProps {
 
 
 
+
 const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
     drop(props, monitor, pageComponent) {
         const item : any = monitor.getItem();
@@ -63,8 +64,8 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
         const pageBounds = findDOMNode(pageComponent).getBoundingClientRect()
 
         // Get the top left position of the signature on the page
-        const sigantureX = dropTargetBounds.x - pageBounds.left;
-        const sigantureY = dropTargetBounds.y - pageBounds.top;
+        const signatureX = dropTargetBounds.x - pageBounds.left;
+        const signatureY = dropTargetBounds.y - pageBounds.top;
 
         if(item.type === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT){
             const { signatureId } = item;
@@ -73,8 +74,8 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
                     // Find the centered position of the signature on the page
                     const width = Sign.DefaultSignatureSize.WIDTH_RATIO * props.containerWidth;
                     const height = width / xyRatio;
-                    const centeredSignatureX = sigantureX - (width / 2);
-                    const centeredSignatureY = sigantureY - (height / 2);
+                    const centeredSignatureX = signatureX - (width / 2);
+                    const centeredSignatureY = signatureY - (height / 2);
 
                     // Keep signature offsets within an expecptable bounds
                     const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - width);
@@ -98,7 +99,8 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
                         offsetY: signatureYOffset,
                         ratioX,
                         ratioY
-                    })
+                    });
+
            })
        }
        else if(item.type === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT || item.type === Sign.DragAndDropTypes.ADD_TEXT_TO_DOCUMENT){
@@ -109,8 +111,8 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
                     const width = canvas.width;
                     const xyRatio = width / height;
                     const dataUrl = canvas.toDataURL();
-                    const centeredSignatureX = sigantureX - (width / 2);
-                    const centeredSignatureY = sigantureY - (height / 2);
+                    const centeredSignatureX = signatureX - (width / 2);
+                    const centeredSignatureY = signatureY - (height / 2);
 
                     // Keep signature offsets within an expecptable bounds
                     const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - width);
@@ -274,6 +276,8 @@ interface OverlayPageWrapperProps {
     activeSignControl: Sign.ActiveSignControl;
 }
 
+
+
 class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapperProps> {
     constructor(props: OverlayPageWrapperProps) {
         super(props);
@@ -281,30 +285,58 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
     }
 
     addSelected(e: React.MouseEvent<HTMLElement>) {
-        // if (this.props.activeSignControl === Sign.ActiveSignControl.NONE) {
-        //     return;
-        // }
+        if (this.props.activeSignControl === Sign.ActiveSignControl.NONE) {
+            return;
+        }
 
-        // const target = e.target as HTMLElement;
-        // const rect = target.getBoundingClientRect();
-        // const offsetX = e.clientX - rect.left;
-        // const offsetY = e.clientY - rect.top;
-        // if (this.props.selectedSignatureId && target.tagName==='CANVAS') { // lolololol
-        //     return generateUUID()
-        //         .then((signatureIndex) => {
-        //             this.props.addSignatureToDocument({
-        //                 signatureIndex,
-        //                 signatureId: this.props.selectedSignatureId,
-        //                 xyRatio: 1,
-        //                 documentId: this.props.documentId,
-        //                 pageNumber: this.props.pageNumber,
-        //                 offsetX: 0,
-        //                 offsetY: 0,
-        //                 ratioX: 1,
-        //                 ratioY: 1
-        //             })
-        //     })
-        // }
+        const target = e.target as HTMLElement;
+        if (target.tagName==='CANVAS') { // lolololol
+            const pageBounds = target.getBoundingClientRect();
+            const signatureX = e.clientX - pageBounds.left;
+            const signatureY = e.clientY - pageBounds.top;
+            const { documentId, pageNumber, selectedSignatureId, selectedInitialId, containerWidth, viewport } = this.props;
+            return  generateUUID()
+                .then((id) => {
+                    switch(this.props.activeSignControl){
+                        case Sign.ActiveSignControl.SIGNATURE:
+                        case Sign.ActiveSignControl.INITIAL:
+                            const signatureId = this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE ? selectedSignatureId : selectedInitialId;
+
+
+                            return imageRatio(signatureUrl(signatureId))
+                                .then((xyRatio: number) => {
+                                    const width = Sign.DefaultSignatureSize.WIDTH_RATIO * containerWidth;
+                                    const height = width / xyRatio;
+                                    const centeredSignatureX = signatureX - (width / 2);
+                                    const centeredSignatureY = signatureY - (height / 2);
+
+                                    // Keep signature offsets within an expecptable bounds
+                                    const boundCenteredSignatureX = boundNumber(centeredSignatureX, 0, pageBounds.width - width);
+                                    const boundCenteredSignatureY = boundNumber(centeredSignatureY, 0, pageBounds.height - height);
+
+                                    // Convert the centered signature position to ratios
+                                    const signatureXOffset = boundCenteredSignatureX / pageBounds.width;
+                                    const signatureYOffset = boundCenteredSignatureY / pageBounds.height;
+                                    const ratioX = width / containerWidth;
+                                    const ratioY = (viewport.width / viewport.height) / xyRatio * ratioX;
+                                    this.props.addSignatureToDocument({
+                                        signatureIndex: id,
+                                        signatureId,
+                                        xyRatio,
+                                        documentId,
+                                        pageNumber,
+                                        offsetX: signatureXOffset,
+                                        offsetY: signatureYOffset,
+                                        ratioX,
+                                        ratioY
+                                    });
+                                })
+                        case Sign.ActiveSignControl.DATE:
+                        case Sign.ActiveSignControl.TEXT:
+                        case Sign.ActiveSignControl.PROMPT:
+                    }
+                });
+        }
     }
 
     render() {

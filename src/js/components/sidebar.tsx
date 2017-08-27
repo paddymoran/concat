@@ -23,7 +23,7 @@ class Sidebar extends React.PureComponent<SidebarProps> {
             </li>
             <li><Link to='/all' activeClassName="active">Documents</Link>
                 <ul>
-                    <li><Link to='/pending' activeClassName="active">To Sign</Link></li>
+                    <li><Link to='/pending' activeClassName="active">Pending</Link></li>
                     <li><Link to='/completed' activeClassName="active">Signed</Link></li>
                 </ul>
 

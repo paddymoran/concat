@@ -5,8 +5,9 @@ export default class Help extends React.Component<{}>  {
     render() {
         return (
                 <div >
-                    <div className="page-heading"><h1 className="title">FAW</h1></div>
-                    Help coming soon :)
+                    <div className="page-heading"><h1 className="title">FAQ</h1></div>
+                    <p><strong>Example question</strong></p>
+                    <p>Example answer</p>
                 </div>
         );
     }

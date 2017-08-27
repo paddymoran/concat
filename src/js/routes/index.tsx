@@ -22,7 +22,7 @@ export default () => {
                 <Route path='others_sign/:documentSetId' component={ UploadDocumentsOthers } />
                 <Route path='others_sign/select_recipients/:documentSetId' component={ SelectRecipients } />
                 <Route path='others_sign/select_annotation/:documentSetId' component={ SelectAnnotation} />
-                <Route path='help' component={ Help } />
+                <Route path='faq' component={ Help } />
                 <Route path='all' component={ AllDocumentSets } />
                 <Route path='pending' component={ PendingDocumentSets } />
                 <Route path='completed' component={ CompletedDocumentSets  } />

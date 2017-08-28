@@ -2,7 +2,7 @@ import * as React from 'react';
 import { DragSource } from 'react-dnd';
 import { SignatureButton, InitialButton } from './signatureSelector';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { DateButton, TextButton } from './textSelector';
+import { DateButton, TextButton, PromptButton } from './controlButtons';
 import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { OverlayTrigger,  Popover } from 'react-bootstrap';
@@ -14,7 +14,7 @@ const SignatureTooltip = () => {
 }
 
 const SignatureDragTooltip = () => {
-    return <Popover id="signature-tooltip" title="Signatures">Click to toggle Signature Mode, or drag the thumbnail onto the page.</Popover>;
+    return <Popover id="signature-tooltip" title="Signatures">Click to toggle Signature Mode, or drag the signature onto the page.</Popover>;
 }
 
 const InitialTooltip = () => {
@@ -22,7 +22,7 @@ const InitialTooltip = () => {
 }
 
 const InitialDragTooltip = () => {
-    return <Popover id="signature-tooltip" title="Initials">Click to toggle Initial Mode, or drag the thumbnail onto the page.</Popover>;
+    return <Popover id="signature-tooltip" title="Initials">Click to toggle Initial Mode, or drag the initial onto the page.</Popover>;
 }
 
 
@@ -35,6 +35,9 @@ const TextTooltip = () => {
     return <Popover id="signature-tooltip" title="Textbox">Click to toggle Textbox Mode, or drag the button onto the page.  You can edit the text once it was been placed.</Popover>;
 }
 
+const PromptTooltip = () => {
+    return <Popover id="signature-tooltip" title="Signature Request">Click to toggle Sign Here Mode, or drag the button onto the page.  You can edit who is prompt is intended for, and what they must enter, once it was been placed.</Popover>;
+}
 
 
 interface SignatureDragSourceProps {
@@ -58,6 +61,10 @@ interface AddDateControlProps extends DragProps {
 }
 interface AddTextControlProps extends DragProps {
     defaults?: Sign.DocumentText;
+}
+
+interface AddPromptControlProps extends DragProps {
+    defaults?: Sign.DocumentPrompt;
 }
 
 export function dateDefaults(){
@@ -123,6 +130,21 @@ const textSource: __ReactDnd.DragSourceSpec<AddTextControlProps> = {
     }
 };
 
+const promptSource: __ReactDnd.DragSourceSpec<AddPromptControlProps> = {
+    beginDrag(props, monitor) {
+        let { value } = textDefaults();
+        if(props.defaults){
+            if(props.defaults.value){
+                value = props.defaults.value;
+            }
+        }
+        return {
+            type: Sign.DragAndDropTypes.ADD_PROMPT_TO_DOCUMENT,
+            value
+        };
+    }
+};
+
 
 class AddSignatureControl extends React.PureComponent<AddSignatureControlProps> {
     componentDidMount() {
@@ -181,10 +203,25 @@ class AddTextControl extends React.PureComponent<AddTextControlProps> {
         const { isDragging } = this.props;
         return this.props.connectDragSource(this.props.children);
     }
-}
+};
 
-;
+class AddPromptControl extends React.PureComponent<AddPromptControlProps> {
+    componentDidMount() {
+        // Use empty image as a drag preview so browsers don't draw it
+        // and we can draw whatever we want on the custom drag layer instead.
+        this.props.connectDragPreview(getEmptyImage(), {
+          // IE fallback: specify that we'd rather screenshot the node
+          // when it already knows it's being dragged so we can hide it with CSS.
+          captureDraggingState: true,
+        });
 
+    }
+
+    render() {
+        const { isDragging } = this.props;
+        return this.props.connectDragSource(this.props.children);
+    }
+};
 
 const DraggableAddSignatureControl = DragSource(
     Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT,
@@ -217,8 +254,20 @@ const DraggableAddTextControl = DragSource(
     })
 )(AddTextControl);
 
+const DraggableAddPromptControl = DragSource(
+    Sign.DragAndDropTypes.ADD_PROMPT_TO_DOCUMENT,
+    promptSource,
+    (connect, monitor) => ({
+        connectDragSource: connect.dragSource(),
+        connectDragPreview: connect.dragPreview(),
+        isDragging: monitor.isDragging()
+    })
+)(AddPromptControl);
+
 interface ControlProps {
     sign: () => void;
+    showInvite: boolean;
+    showPrompts: boolean;
     documentSetId: string;
     documentId: string;
 }
@@ -232,11 +281,13 @@ interface ConnectedControlProps extends ControlProps{
     hasInitial: boolean;
     hasDate: boolean;
     hasText: boolean;
+    hasPrompt: boolean;
     showInviteModal: (payload: Sign.Actions.ShowInviteModalPayload) => void;
     overlayDefaults: Sign.OverlayDefaults;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
+
     constructor(props: ConnectedControlProps){
         super(props);
         this.activateNone = this.activateNone.bind(this);
@@ -244,22 +295,32 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         this.activateInitial = this.activateInitial.bind(this);
         this.activateDate = this.activateDate.bind(this);
         this.activateText = this.activateText.bind(this);
+        this.activatePrompt = this.activatePrompt.bind(this);
+        this.showInviteModal = this.showInviteModal.bind(this);
     }
 
     activateNone() {
         this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.NONE})
     }
+
     activateSignature() {
         this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.SIGNATURE})
     }
-     activateInitial() {
+
+    activateInitial() {
         this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.INITIAL})
     }
+
     activateDate() {
         this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.DATE})
     }
+
     activateText() {
         this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.TEXT})
+    }
+
+    activatePrompt() {
+        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.PROMPT})
     }
 
     signatureTooltip(children: JSX.Element){
@@ -284,18 +345,24 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
 
     dateTooltip(children: JSX.Element){
         if(!this.props.hasDate){
-            return this.tooltip(DateTooltip(), 750, children);
+            return this.tooltip(DateTooltip(), 0, children);
         }
         return children;
     }
 
     textTooltip(children: JSX.Element){
         if(!this.props.hasText){
-            return this.tooltip(TextTooltip(), 750, children);
+            return this.tooltip(TextTooltip(), 0, children);
         }
         return children;
     }
 
+    promptTooltip(children: JSX.Element){
+        if(!this.props.hasPrompt){
+            return this.tooltip(PromptTooltip(), 0, children);
+        }
+        return children;
+    }
 
     tooltip(tooltip: JSX.Element, delay:number, children: JSX.Element) {
         return <OverlayTrigger placement="bottom" overlay={tooltip} delayShow={delay}>
@@ -304,6 +371,11 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
              </div>
         </OverlayTrigger>
     }
+
+    showInviteModal() {
+        this.props.showInviteModal({ documentSetId: this.props.documentSetId });
+    }
+
 
     render() {
         return (
@@ -345,15 +417,24 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                                     setActive={this.activateText} />
                             </div>
                         </DraggableAddTextControl> ) }
+
+                        { this.props.showPrompts && this.promptTooltip(<DraggableAddPromptControl defaults={this.props.overlayDefaults.prompt}>
+                            <div className="draggable">
+                                <PromptButton
+                                    active={this.props.activeSignControl === Sign.ActiveSignControl.PROMPT}
+                                    setActive={this.activatePrompt} />
+                            </div>
+                        </DraggableAddPromptControl> ) }
+
                     </div>
 
                     <div className="controls-right">
-                        <div className="sign-control sign-control-wide" onClick={() => this.props.showInviteModal({ documentSetId: this.props.documentSetId })}>
-                            <i className="fa fa-envelope-o" />&nbsp;&nbsp;Invite
-                        </div>
+                        { this.props.showInvite && <div className="sign-control" onClick={this.showInviteModal}>
+                            <div className="button-text"><i className="fa fa-users" /><span className="label">Invite</span></div>
+                        </div> }
 
-                        <div className="submit-button sign-control sign-control-wide" onClick={this.props.sign}>
-                            <i className="fa fa-pencil" />&nbsp;&nbsp;Sign
+                        <div className="submit-button sign-control" onClick={this.props.sign}>
+                        <div  className="button-text"><i className="fa fa-pencil" /><span className="label">Sign</span></div>
                         </div>
                     </div>
                 </div>
@@ -371,6 +452,7 @@ export const Controls = connect<{}, {}, ControlProps>(
         hasInitial: !!Object.keys(state.documentViewer.signatures).length,
         hasDate: !!Object.keys(state.documentViewer.dates).length,
         hasText: !!Object.keys(state.documentViewer.texts).length,
+        hasPrompt: !!Object.keys(state.documentViewer.prompts).length,
         overlayDefaults: state.overlayDefaults,
     }),
     { setActiveSignControl, showInviteModal }

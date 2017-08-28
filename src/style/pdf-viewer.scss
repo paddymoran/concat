@@ -36,7 +36,7 @@ $sign-control-wide-width: $sign-control-width * 1.6;
             margin-left: 5px;
         }
     }
-    
+
     .controls-right > div:not(:last-child) {
         .sign-control, &.sign-control {
             margin-right: 5px;
@@ -47,16 +47,19 @@ $sign-control-wide-width: $sign-control-width * 1.6;
         @include clearfix();
         text-align: center;
         border-radius: 2px;
-        width: $sign-control-width;
         background: white;
         margin: 0 auto;
         border: 1px solid $gray-light;
         line-height: $sign-control-height;
         vertical-align: middle;
 
-        &.sign-control-wide {
-            width: $sign-control-wide-width;
+        .button-text{
+            margin: 0 16px;
+            .label{
+                margin-left:16px;
+            }
         }
+
 
         .activate-sign-control, .sign-control-dropdown {
             float: left;

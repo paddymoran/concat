@@ -7,16 +7,30 @@ interface ControlButtonProps {
 }
 
 export class DateButton extends React.Component<ControlButtonProps> {
-
+    constructor(props: ControlButtonProps) {
+        super(props);
+        this.setActive = this.setActive.bind(this);
+    }
+    setActive(e: React.MouseEvent<HTMLElement>){
+        e.stopPropagation();
+        this.props.setActive();
+    }
     render(){
-        return <Button label="Date" active={this.props.active} setActive={this.props.setActive} iconName="calendar" />;
+        return <Button label="Date" active={this.props.active} setActive={this.setActive} iconName="calendar" />;
     }
 }
 
 export class TextButton extends React.Component<ControlButtonProps> {
-
+    constructor(props: ControlButtonProps) {
+        super(props);
+        this.setActive = this.setActive.bind(this);
+    }
+    setActive(e: React.MouseEvent<HTMLElement>){
+        e.stopPropagation();
+        this.props.setActive();
+    }
     render(){
-        return <Button label="Custom Text" active={this.props.active} setActive={this.props.setActive} iconName="font" />;
+        return <Button label="Custom Text" active={this.props.active} setActive={this.setActive} iconName="font" />;
     }
 }
 

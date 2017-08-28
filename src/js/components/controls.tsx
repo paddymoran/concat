@@ -181,13 +181,34 @@ interface ConnectedControlProps extends ControlProps{
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
-    setActiveSignControl(activeSignControl: Sign.ActiveSignControl) {
-        this.props.setActiveSignControl({ activeSignControl });
+    constructor(props: ConnectedControlProps){
+        super(props);
+        this.activateNone = this.activateNone.bind(this);
+        this.activateSignature = this.activateSignature.bind(this);
+        this.activateInitial = this.activateInitial.bind(this);
+        this.activateDate = this.activateDate.bind(this);
+        this.activateText = this.activateText.bind(this);
+    }
+
+    activateNone() {
+        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.NONE})
+    }
+    activateSignature() {
+        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.SIGNATURE})
+    }
+     activateInitial() {
+        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.INITIAL})
+    }
+    activateDate() {
+        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.DATE})
+    }
+     activateText() {
+        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.TEXT})
     }
 
     render() {
         return (
-            <div className="controls">
+            <div className="controls" onClick={this.activateNone}>
                 <div className="container">
 
                     <div className="controls-left">
@@ -195,7 +216,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <div className="draggable">
                                 <SignatureButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE}
-                                    setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.SIGNATURE)} />
+                                    setActive={this.activateSignature} />
                             </div>
                         </DraggableAddSignatureControl>
 
@@ -203,7 +224,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <div className="draggable">
                                 <InitialButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.INITIAL}
-                                    setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.INITIAL)} />
+                                    setActive={this.activateInitial} />
                             </div>
                         </DraggableAddSignatureControl>
 
@@ -211,7 +232,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <div className="draggable">
                                 <DateButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.DATE}
-                                    setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.DATE)} />
+                                    setActive={this.activateDate} />
                             </div>
                         </DraggableAddDateControl>
 
@@ -219,14 +240,16 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <div className="draggable">
                                 <TextButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.TEXT}
-                                    setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.TEXT)} />
+                                    setActive={this.activateText} />
                             </div>
                         </DraggableAddTextControl>
                     </div>
 
                     <div className="controls-right">
                         <div className="submit-button sign-control" onClick={ this.props.sign }>
-                            <i className="fa fa-pencil" />&nbsp;&nbsp;Sign
+                            <div>
+                                <i className="fa fa-pencil" />&nbsp;&nbsp;Sign
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -52,7 +52,7 @@ $sign-control-wide-width: $sign-control-width * 1.6;
         .activate-sign-control {
             width: 100%;
             transition: all 150ms linear;
-
+            height:$sign-control-height;
             &.active{
                 height: $sign-control-height;
                 border-bottom: 4px solid $deep-red;
@@ -61,10 +61,18 @@ $sign-control-wide-width: $sign-control-width * 1.6;
 
         &.sign-control-with-dropdown {
             width: $sign-control-wide-width + $sign-control-dropdown-width;
-            
+
             .activate-sign-control {
                 width: calc(100% - #{$sign-control-dropdown-width});
             }
+        }
+
+        .signature-image{
+            background-size: contain;
+            background-repeat: no-repeat;
+            width: 90%;
+            height: $sign-control-height - 12px;
+            margin: 6px auto;
         }
 
         .sign-control-dropdown {
@@ -78,8 +86,11 @@ $sign-control-wide-width: $sign-control-width * 1.6;
         border: 1px solid $deep-red;
         color: white;
         cursor: pointer;
-        line-height: 37px;
-        width: 80px;
+        line-height: $sign-control-height;
+        width: auto;
+        div{
+            margin:0 12px;
+        }
     }
 }
 
@@ -89,7 +100,7 @@ $sign-control-wide-width: $sign-control-width * 1.6;
 
 .pdf-screen{
     background: white;
-
+    user-select: none;
 
     .pdf-viewer {
         .pdf-title {

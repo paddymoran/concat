@@ -182,14 +182,17 @@ export class SelectRecipients extends React.Component<SelectRecipientsProps>  {
         this.props.push(`/others_sign/select_annotation/${this.props.params.documentSetId}`);
     }
     render() {
-        return (<div>
+        return (
+            <div>
                 <div className='page-heading'>
-                <h1 className="title question">Select Recipients</h1>
-                <div className="sub-title step-count">Step 3</div>
+                    <h1 className="title question">Select Recipients</h1>
+                    
+                    <div className="sub-title step-count">Step 3</div>
                 </div>
-            <div className="select-recipients">
-            <InviteForm initialValues={{recipients: [{}]}} onSubmit={this.onSubmit} fullWidth={false}/>
-            </div>
+                
+                <div className="select-recipients">
+                    <InviteForm initialValues={{recipients: [{}]}} onSubmit={this.onSubmit} fullWidth={false}/>
+                </div>
             </div>
         );
     }

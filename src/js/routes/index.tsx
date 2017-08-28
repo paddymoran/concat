@@ -8,6 +8,7 @@ import SelectRecipients from '../components/selectRecipients';
 import Landing from '../components/landing';
 import Help from '../components/help';
 import { CompletedDocumentSets, PendingDocumentSets, AllDocumentSets } from '../components/documentSets';
+import RequestedSignatures from '../components/requestedSignatures';
 import NotFound from '../components/notFound';
 
 
@@ -24,6 +25,7 @@ export default () => {
                 <Route path='others_sign/select_annotation/:documentSetId' component={ SelectAnnotation} />
                 <Route path='faq' component={ Help } />
                 <Route path='all' component={ AllDocumentSets } />
+                <Route path='to_sign' component={ RequestedSignatures } />
                 <Route path='pending' component={ PendingDocumentSets } />
                 <Route path='completed' component={ CompletedDocumentSets  } />
                 <Route path='documents/:documentSetId' component={ DocumentSetView } />

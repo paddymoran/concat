@@ -20,10 +20,6 @@ $sign-control-wide-width: $sign-control-width * 1.6;
     height: $control-height;
     box-shadow: 0 4px 2px -2px $gray-light;
 
-    .draggable{
-         cursor: move;
-    }
-
     .controls-right {
         float: right;
     }
@@ -31,15 +27,21 @@ $sign-control-wide-width: $sign-control-width * 1.6;
     .controls-left, .controls-right {
         .sign-control {
             float: left;
-        }
-
-        &.sign-control {
             cursor: pointer;
         }
     }
 
-    .controls-left > div:not(:first-child) .sign-control { margin-left: 5px; }
-    .controls-right > div:not(:last-child) .sign-control { margin-right: 5px; }
+    .controls-left > div:not(:first-child) {
+        .sign-control, &.sign-control {
+            margin-left: 5px;
+        }
+    }
+    
+    .controls-right > div:not(:last-child) {
+        .sign-control, &.sign-control {
+            margin-right: 5px;
+        }
+    }
 
     .sign-control  {
         @include clearfix();
@@ -51,6 +53,10 @@ $sign-control-wide-width: $sign-control-width * 1.6;
         border: 1px solid $gray-light;
         line-height: $sign-control-height;
         vertical-align: middle;
+
+        &.sign-control-wide {
+            width: $sign-control-wide-width;
+        }
 
         .activate-sign-control, .sign-control-dropdown {
             float: left;
@@ -94,14 +100,8 @@ $sign-control-wide-width: $sign-control-width * 1.6;
 
     .submit-button {
         background-color: $deep-red;
-        border: 1px solid $deep-red;
+        border: 1px solid darken($deep-red, 8%);
         color: white;
-        cursor: pointer;
-        line-height: $sign-control-height;
-        width: auto;
-        div{
-            margin:0 12px;
-        }
     }
 }
 

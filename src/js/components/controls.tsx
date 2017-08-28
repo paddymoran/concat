@@ -348,14 +348,12 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                     </div>
 
                     <div className="controls-right">
-                        <div className="sign-control" onClick={() => this.props.showInviteModal({ documentSetId: this.props.documentSetId })}>
-                            Invite
+                        <div className="sign-control sign-control-wide" onClick={() => this.props.showInviteModal({ documentSetId: this.props.documentSetId })}>
+                            <i className="fa fa-envelope-o" />&nbsp;&nbsp;Invite
                         </div>
 
-                        <div className="submit-button sign-control" onClick={this.props.sign}>
-                            <div>
-                                <i className="fa fa-pencil" />&nbsp;&nbsp;Sign
-                            </div>
+                        <div className="submit-button sign-control sign-control-wide" onClick={this.props.sign}>
+                            <i className="fa fa-pencil" />&nbsp;&nbsp;Sign
                         </div>
                     </div>
                 </div>

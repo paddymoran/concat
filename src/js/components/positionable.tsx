@@ -36,7 +36,6 @@ interface ConnectedPositionableProps extends PositionableProps {
     background?: string;
     removePositionableFromDocument?: (payload: Sign.Actions.RemovePositionableFromDocumentPayload) => void;
     movePositionable?: (payload: Sign.Actions.MovePositionablePayload | Sign.Actions.MoveDatePayload) => void;
-    resize?: (positionable: Sign.Positionable, width: number, height: number) => any;
     controls?: React.ComponentClass<ControlProps>
 }
 
@@ -89,8 +88,7 @@ class DateControls extends React.PureComponent<DateControlProps> {
             timestamp,
             height,
             value,
-            ratioX,
-            dataUrl: canvas.toDataURL()
+            ratioX
         })
     }
     onChangeFormat(event : React.FormEvent<HTMLSelectElement>) {
@@ -107,8 +105,7 @@ class DateControls extends React.PureComponent<DateControlProps> {
             timestamp,
             height,
             value,
-            ratioX,
-            dataUrl: canvas.toDataURL()
+            ratioX
         });
     }
 
@@ -154,8 +151,7 @@ class TextControls extends React.PureComponent<TextControlProps> {
             textIndex: this.props.index,
             height,
             value,
-            ratioX,
-            dataUrl: canvas.toDataURL()
+            ratioX
         })
     }
 
@@ -286,9 +282,6 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
             // Add the new X ratio to the move positionable action
             moveData.offsetX = boundNumber(newXPosition / this.props.containerWidth);
         }
-        if(this.props.resize) {
-            moveData = {...moveData, ...this.props.resize(this.props.positionable, newWidth, newHeight)}
-        }
         // Move that bus! (eeer.... I mean that positionable)
         this.props.movePositionable(moveData);
     }
@@ -344,31 +337,35 @@ export const SignaturePositionable = connect<{}, {}, ConnectedPositionableProps>
 
 
 export const DatePositionable = connect<{}, {}, ConnectedPositionableProps>(
-    (state: Sign.State, ownProps: PositionableProps) => ({
-        positionable: state.documentViewer.dates[ownProps.index] as Sign.Positionable,
-        indexKey: 'dateIndex',
-        background: `url("${state.documentViewer.dates[ownProps.index].dataUrl}")`,
-        controls: ConnectedDateControls,
-        resize: (positionable : Sign.DocumentDate, width: number, height: number) : any => {
-            const canvas = stringToCanvas(height, positionable.value);
-            return {dataUrl: canvas.toDataURL()}
+    (state: Sign.State, ownProps: PositionableProps) => {
+        const positionable : Sign.DocumentDate = state.documentViewer.dates[ownProps.index];
+        const height = Math.round(ownProps.containerHeight * positionable.ratioY);
+        const canvas = stringToCanvas(height, positionable.value, Positionable.MIN_WIDTH)
+        const dataUrl = canvas.toDataURL();
+        return {
+            positionable,
+            indexKey: 'dateIndex',
+            background: `url("${dataUrl}")`,
+            controls: ConnectedDateControls,
         }
-    }),
+    },
     { removePositionableFromDocument: removeDateFromDocument, movePositionable: moveDate }
 )(Positionable);
 
 
 
 export const TextPositionable = connect<{}, {}, ConnectedPositionableProps>(
-    (state: Sign.State, ownProps: PositionableProps) => ({
-        positionable: state.documentViewer.texts[ownProps.index] as Sign.Positionable,
-        indexKey: 'textIndex',
-        background: `url("${state.documentViewer.texts[ownProps.index].dataUrl}")`,
-        controls: ConnectedTextControls,
-        resize: (positionable : Sign.DocumentText, width: number, height: number) : any => {
-            const canvas = stringToCanvas(height, positionable.value);
-            return {dataUrl: canvas.toDataURL()}
+    (state: Sign.State, ownProps: PositionableProps) => {
+        const positionable : Sign.DocumentText = state.documentViewer.texts[ownProps.index];
+        const height = Math.round(ownProps.containerHeight * positionable.ratioY);
+        const canvas = stringToCanvas(height, positionable.value, Positionable.MIN_WIDTH)
+        const dataUrl = canvas.toDataURL();
+        return {
+            positionable: state.documentViewer.texts[ownProps.index] as Sign.Positionable,
+            indexKey: 'textIndex',
+            background: `url("${dataUrl}")`,
+            controls: ConnectedTextControls
         }
-    }),
+    },
     { removePositionableFromDocument: removeTextFromDocument, movePositionable: moveText }
 )(Positionable);

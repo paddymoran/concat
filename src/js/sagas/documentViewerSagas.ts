@@ -38,9 +38,7 @@ function *signDocumentSaga() {
 
             yield all([
                 put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
-
                 put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-
                 put(push(`/documents/${action.payload.documentSetId}`)),
             ]);
         }

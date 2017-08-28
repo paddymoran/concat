@@ -48,7 +48,6 @@ export function stringToCanvas(height: number, string: string, minWidth = 0) {
     ctx.font = font;
     const textLength = ctx.measureText(string).width;
     canvas.width = Math.max(minWidth, textLength + (margin * 2));
-
     ctx.font = font;
     ctx.fillStyle = '#000'
     ctx.textBaseline="top";

@@ -98,7 +98,6 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
                             format: item.format,
                             height,
                             dateIndex: index,
-                            dataUrl: canvas.toDataURL(),
                             documentId: props.documentId,
                             pageNumber: props.pageNumber,
                              ...boundPositioning({width, height, posX, posY, pageBounds, viewport, containerWidth})
@@ -109,7 +108,6 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
                             value: item.value,
                             height,
                             textIndex: index,
-                            dataUrl: canvas.toDataURL(),
                             documentId: props.documentId,
                             pageNumber: props.pageNumber,
                              ...boundPositioning({width, height, posX, posY, pageBounds, viewport, containerWidth})
@@ -320,7 +318,6 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                                     format,
                                     height,
                                     dateIndex: id,
-                                    dataUrl: canvas.toDataURL(),
                                     documentId,
                                     pageNumber,
                                      ...boundPositioning({width, height, posX, posY, pageBounds, viewport, containerWidth})
@@ -336,7 +333,6 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                                     value,
                                     height,
                                     textIndex: id,
-                                    dataUrl: canvas.toDataURL(),
                                     documentId,
                                     pageNumber,
                                      ...boundPositioning({width, height, posX, posY, pageBounds, viewport, containerWidth})

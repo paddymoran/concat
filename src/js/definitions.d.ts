@@ -96,13 +96,11 @@ declare namespace Sign {
         value: string;
         timestamp: number;
         format?: string;
-        dataUrl: string;
         height: number;
     }
 
     interface DocumentText  extends Positionable{
         value: string;
-        dataUrl: string;
         height: number;
     }
 
@@ -484,14 +482,12 @@ declare namespace Sign.Actions {
         value: string;
         timestamp: number;
         format: string;
-        dataUrl: string;
         height: number;
     }
 
     interface AddTextToDocumentPayload extends Positionable{
         textIndex: string;
         value: string;
-        dataUrl: string;
         height: number;
     }
 
@@ -535,7 +531,6 @@ declare namespace Sign.Actions {
     interface MoveDatePayload extends MovePositionablePayload {
         value: string;
         dateIndex: string;
-        dataUrl?: string;
         timestamp: number;
         format: string;
         height: number;
@@ -543,7 +538,6 @@ declare namespace Sign.Actions {
 
     interface MoveTextPayload extends MovePositionablePayload {
         textIndex: string;
-        dataUrl?: string;
         height: number;
         value: string;
     }

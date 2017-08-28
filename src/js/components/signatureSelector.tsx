@@ -174,7 +174,12 @@ class ModalButton extends React.Component<ConnectedModalButtonProps> {
     }
     setActive(e: React.MouseEvent<HTMLElement>){
         e.stopPropagation();
-        this.props.setActive();
+        if(this.props.selectedId){
+            this.props.setActive();
+        }
+        else{
+            this.props.showModal();
+        }
     }
     componentWillMount() {
         this.props.requestSignatures();
@@ -186,7 +191,8 @@ class ModalButton extends React.Component<ConnectedModalButtonProps> {
         }
 
         return (
-            <div className="sign-control sign-control-with-dropdown">
+
+            <div className="sign-control sign-control-with-dropdown" >
                 <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.setActive}>
                     { this.props.selectedId && <div className="signature-image" style={style}></div> }
                     { !this.props.selectedId && <div className="signature-placeholder" >{ this.props.text }</div> }
@@ -196,6 +202,7 @@ class ModalButton extends React.Component<ConnectedModalButtonProps> {
                     <i className="fa fa-caret-down" />
                 </div>
             </div>
+
         );
     }
 }
@@ -205,7 +212,7 @@ class ModalButton extends React.Component<ConnectedModalButtonProps> {
 export const SignatureButton = connect<{}, {}, ModalButtonProps>(
     (state: Sign.State) => ({
         text: 'Signature',
-        selectedId: state.documentViewer.selectedSignatureId,
+        selectedId: state.documentViewer.selectedSignatureId
     }),
     {
         showModal: showSignatureSelection,
@@ -216,7 +223,7 @@ export const SignatureButton = connect<{}, {}, ModalButtonProps>(
 export const InitialButton = connect<{}, {}, ModalButtonProps>(
     (state: Sign.State) => ({
         text: 'Initial',
-        selectedId: state.documentViewer.selectedInitialId,
+        selectedId: state.documentViewer.selectedInitialId
     }),
     {
         showModal: showInitialSelectionModal,

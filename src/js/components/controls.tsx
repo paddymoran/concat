@@ -7,6 +7,34 @@ import { DateButton, TextButton } from './textSelector';
 import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { setActiveSignControl } from '../actions';
+import { OverlayTrigger,  Popover } from 'react-bootstrap';
+
+const SignatureTooltip = () => {
+    return <Popover id="signature-tooltip" title="Signatures">Click to create a new signature.</Popover>;
+}
+
+const SignatureDragTooltip = () => {
+    return <Popover id="signature-tooltip" title="Signatures">Click to toggle Signature Mode, or drag the thumbnail onto the page.</Popover>;
+}
+
+const InitialTooltip = () => {
+    return <Popover id="signature-tooltip" title="Initials">Click to create a new initial.</Popover>;
+}
+
+const InitialDragTooltip = () => {
+    return <Popover id="signature-tooltip" title="Initials">Click to toggle Initial Mode, or drag the thumbnail onto the page.</Popover>;
+}
+
+
+const DateTooltip = () => {
+    return <Popover id="signature-tooltip" title="Dates">Click to toggle Date Mode, or drag the button onto the page.  You can edit the date and format once it was been placed.</Popover>;
+}
+
+
+const TextTooltip = () => {
+    return <Popover id="signature-tooltip" title="Textbox">Click to toggle Textbox Mode, or drag the button onto the page.  You can edit the text once it was been placed.</Popover>;
+}
+
 
 
 interface SignatureDragSourceProps {
@@ -136,6 +164,7 @@ class AddTextControl extends React.PureComponent<AddTextControlProps> {
     }
 }
 
+;
 
 
 const DraggableAddSignatureControl = DragSource(
@@ -178,6 +207,10 @@ interface ConnectedControlProps extends ControlProps{
     selectedInitialId?: number;
     setActiveSignControl: (payload: Sign.Actions.SetActiveSignControlPayload) => void;
     activeSignControl: Sign.ActiveSignControl;
+    hasSignature: boolean;
+    hasInitial: boolean;
+    hasDate: boolean;
+    hasText: boolean;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -202,8 +235,51 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
     activateDate() {
         this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.DATE})
     }
-     activateText() {
+    activateText() {
         this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.TEXT})
+    }
+
+    signatureTooltip(children: JSX.Element){
+        if(this.props.selectedSignatureId && !this.props.hasSignature){
+            return this.tooltip(SignatureDragTooltip(), 750, children);
+        }
+        else if(!this.props.selectedSignatureId){
+            return this.tooltip(SignatureTooltip(), 0, children);
+        }
+        return children;
+    }
+
+    initialTooltip(children: JSX.Element){
+        if(this.props.selectedInitialId && !this.props.hasInitial){
+            return this.tooltip(InitialDragTooltip(), 750, children);
+        }
+        else if(!this.props.selectedInitialId){
+            return this.tooltip(InitialTooltip(), 0, children);
+        }
+        return children;
+    }
+
+    dateTooltip(children: JSX.Element){
+        if(!this.props.hasDate){
+            return this.tooltip(DateTooltip(), 750, children);
+        }
+        return children;
+    }
+
+    textTooltip(children: JSX.Element){
+        if(!this.props.hasText){
+            return this.tooltip(TextTooltip(), 750, children);
+        }
+        return children;
+    }
+
+
+    tooltip(tooltip: JSX.Element, delay:number, children: JSX.Element) {
+        return <OverlayTrigger placement="bottom" overlay={tooltip} delayShow={delay}>
+            <div style={{float:'left'}}>
+                { children }
+             </div>
+        </OverlayTrigger>
     }
 
     render() {
@@ -212,37 +288,40 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                 <div className="container">
 
                     <div className="controls-left">
-                        <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}>
+
+
+                        { this.signatureTooltip(<DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}>
                             <div className="draggable">
                                 <SignatureButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE}
                                     setActive={this.activateSignature} />
                             </div>
-                        </DraggableAddSignatureControl>
+                        </DraggableAddSignatureControl>) }
 
-                        <DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
+
+                        { this.initialTooltip(<DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
                             <div className="draggable">
                                 <InitialButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.INITIAL}
                                     setActive={this.activateInitial} />
                             </div>
-                        </DraggableAddSignatureControl>
+                        </DraggableAddSignatureControl>) }
 
-                        <DraggableAddDateControl >
+                        { this.dateTooltip(<DraggableAddDateControl >
                             <div className="draggable">
                                 <DateButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.DATE}
                                     setActive={this.activateDate} />
                             </div>
-                        </DraggableAddDateControl>
+                        </DraggableAddDateControl>) }
 
-                        <DraggableAddTextControl >
+                        { this.textTooltip(<DraggableAddTextControl >
                             <div className="draggable">
                                 <TextButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.TEXT}
                                     setActive={this.activateText} />
                             </div>
-                        </DraggableAddTextControl>
+                        </DraggableAddTextControl> ) }
                     </div>
 
                     <div className="controls-right">
@@ -262,7 +341,11 @@ export const Controls = connect<{}, {}, ControlProps>(
     (state: Sign.State) => ({
         selectedSignatureId: state.documentViewer.selectedSignatureId,
         selectedInitialId: state.documentViewer.selectedInitialId,
-        activeSignControl: state.documentViewer.activeSignControl
+        activeSignControl: state.documentViewer.activeSignControl,
+        hasSignature: !!Object.keys(state.documentViewer.signatures).length,
+        hasInitial: !!Object.keys(state.documentViewer.signatures).length,
+        hasDate: !!Object.keys(state.documentViewer.dates).length,
+        hasText: !!Object.keys(state.documentViewer.texts).length,
     }),
     { setActiveSignControl }
 )(UnconnectedControls)

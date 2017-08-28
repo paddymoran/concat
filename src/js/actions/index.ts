@@ -292,6 +292,12 @@ export function showFailureModal(payload: Sign.Actions.ShowFailureModalPayload):
     };
 }
 
+export function showInviteModal(): Sign.Actions.ShowInviteModal {
+    return {
+        type: Sign.Actions.Types.SHOW_INVITE_MODAL
+    };
+}
+
 export function updateDocumentWidth(payload: Sign.Actions.UpdateDocumentWidthPayload) : Sign.Actions.UpdateDocumentWidth {
     return {
         type: Sign.Actions.Types.UPDATE_DOCUMENT_WIDTH,

@@ -254,7 +254,8 @@ declare namespace Sign {
     const enum ModalType {
         SIGN_CONFIRMATION = 'SIGN_CONFIRMATION',
         SUBMIT_CONFIRMATION = 'SUBMIT_CONFIRMATION',
-        FAILURE = 'FAILURE'
+        FAILURE = 'FAILURE',
+        INVITE = 'INVITE',
     }
 
     interface SignatureRequest {
@@ -348,6 +349,7 @@ declare namespace Sign.Actions {
         SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
         SHOW_SUBMIT_CONFIRMATION_MODAL = 'SHOW_SUBMIT_CONFIRMATION_MODAL',
         SHOW_FAILURE_MODAL = 'SHOW_FAILURE_MODAL',
+        SHOW_INVITE_MODAL = 'SHOW_INVITE_MODAL',
 
         UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
 
@@ -667,6 +669,7 @@ declare namespace Sign.Actions {
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
     interface ShowSubmitConfirmationModal extends ActionCreator<ShowSubmitConfirmationModalPayload> {}
     interface ShowFailureModal extends ActionCreator<ShowFailureModalPayload> {}
+    interface ShowInviteModal extends Action {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}

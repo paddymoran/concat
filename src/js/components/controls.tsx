@@ -6,7 +6,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { DateButton, TextButton } from './textSelector';
 import * as Moment from 'moment';
 import { connect } from 'react-redux';
-import { setActiveSignControl } from '../actions';
+import { setActiveSignControl, showInviteModal } from '../actions';
 
 
 interface SignatureDragSourceProps {
@@ -178,6 +178,7 @@ interface ConnectedControlProps extends ControlProps{
     selectedInitialId?: number;
     setActiveSignControl: (payload: Sign.Actions.SetActiveSignControlPayload) => void;
     activeSignControl: Sign.ActiveSignControl;
+    showInviteModal: () => void;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -225,7 +226,10 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                     </div>
 
                     <div className="controls-right">
-                        <div className="submit-button sign-control" onClick={ this.props.sign }>
+                        <div className="sign-control" onClick={this.props.showInviteModal}>
+                            Invite
+                        </div>
+                        <div className="submit-button sign-control" onClick={this.props.sign}>
                             <i className="fa fa-pencil" />&nbsp;&nbsp;Sign
                         </div>
                     </div>
@@ -241,5 +245,5 @@ export const Controls = connect<{}, {}, ControlProps>(
         selectedInitialId: state.documentViewer.selectedInitialId,
         activeSignControl: state.documentViewer.activeSignControl
     }),
-    { setActiveSignControl }
+    { setActiveSignControl, showInviteModal }
 )(UnconnectedControls)

@@ -27,6 +27,7 @@ interface PDFViewerProps {
     documentId: string;
     documentSetId: string;
     requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
+    isDocumentOwner: boolean;
 }
 
 interface ConnectedPDFViewerProps extends PDFViewerProps {

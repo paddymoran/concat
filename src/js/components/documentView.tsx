@@ -14,7 +14,7 @@ export default class DocumentView extends React.Component<DocumentViewProps>  {
     render() {
         return (
             <div className="pdf-screen">
-                <PDFViewer documentId={this.props.params.documentId} documentSetId={this.props.params.documentSetId} />
+                <PDFViewer documentId={this.props.params.documentId} documentSetId={this.props.params.documentSetId} isDocumentOwner={true} />
             </div>
         );
     }
@@ -37,7 +37,7 @@ class UnconnectedRequestedDocumentView extends React.Component<RequestedSignatur
         // get the request info
         return (
             <div className="pdf-screen">
-                <PDFViewer documentId={this.props.params.documentId} documentSetId={this.props.params.documentSetId} requestedSignatureInfo={this.props.requestedSignatureInfo}/>
+                <PDFViewer documentId={this.props.params.documentId} documentSetId={this.props.params.documentSetId} requestedSignatureInfo={this.props.requestedSignatureInfo} isDocumentOwner={false} />
             </div>
         );
     }

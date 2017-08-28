@@ -28,7 +28,7 @@ class TestPopulateSignatures(DBTestCase):
             sign2 = str(uuid4())
             add_document(None, sign1, 'sign2', b'abcd')
             add_document(None, sign2, 'sign2', b'abcde')
-            sign_document(USER_ID, doc1, sign1, {})
-            sign_document(USER_ID, sign1, sign2, {})
+            sign_document(USER_ID, doc1, sign1, None, {})
+            sign_document(USER_ID, sign1, sign2, None, {})
 
             self.assertEqual(len(get_document_set(USER_ID, set_id)['documents']), 2)

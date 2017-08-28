@@ -40,9 +40,19 @@ function *deleteSignature() {
 }
 
 function *requestSignatures(action: Sign.Actions.RequestSignatures) {
+    const status = yield select((state: Sign.State) => state.signatures.status);
+    if(status === Sign.DownloadStatus.InProgress){
+        return;
+    }
+    yield put(setSignatureIds({
+        signatureIds: [],
+        initialIds: [],
+        status: Sign.DownloadStatus.InProgress
+    }));
     const response: SignaturesResponse = yield call(axios.get, '/api/signatures');
     const signatureIds = response.data.filter(d => d.type === 'signature').map((signature) => signature.signature_id);
     const initialIds = response.data.filter(d => d.type === 'initial').map((signature) => signature.signature_id);
+
     yield put(setSignatureIds({
         signatureIds,
         initialIds,
@@ -60,7 +70,7 @@ function *requestSignatures(action: Sign.Actions.RequestSignatures) {
 
 
 function *requestSignaturesSaga() {
-    yield takeLatest(Sign.Actions.Types.REQUEST_SIGNATURES, requestSignatures);
+    yield takeEvery(Sign.Actions.Types.REQUEST_SIGNATURES, requestSignatures);
 
 }
 

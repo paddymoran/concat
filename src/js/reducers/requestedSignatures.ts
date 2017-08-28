@@ -17,7 +17,7 @@ export default function requestedSignatures(state: Sign.RequestedSignatures = DE
                         ...state.documentSets,
                         ...documentSets.reduce((acc: any, documentSet: any) => {
                             acc[documentSet.documentSetId] = documentSet.documents.reduce((acc:any, document:any) => {
-                                acc[document.documentId] = {prompts: document.prompts};
+                                acc[document.documentId] = {prompts: document.prompts, signRequestId: document.signRequestId};
                                 return acc;
                             }, {});
                             return acc;

@@ -37,7 +37,7 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                 <div className="request-signature-title"><span className="inviter">{ inviter }</span> has requested that you sign the following: </div>
                 { Object.keys(this.props.requestDocumentSet).map((documentId: string, index: number) => {
                     const document : Sign.Document = this.props.documents[documentId]
-                    const url = `/documents/${this.props.documentSetId}/${documentId}`;
+                    const url = `/sign/${this.props.documentSetId}/${documentId}`;
                     return <div key={index} className="document-line"><Link to={url}><i className="fa fa-file-pdf-o" /> { document.filename }</Link></div>
                 }) }
                 </div>

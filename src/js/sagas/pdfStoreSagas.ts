@@ -26,8 +26,6 @@ function *getPDFFromStore() {
             pageViewports: pages.map((p : PDFPageProxy) => ({width: p.view[2], height: p.view[3]}))
         }));
 
-
-
         const pageStatuses =  Array(pdfDocumentProxy.numPages).fill(1).map(() => Sign.DocumentReadStatus.Complete);
         const addPDFAction: Sign.Actions.FinishAddPDFToStoreAction = {
             type: Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE,

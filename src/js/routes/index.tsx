@@ -2,7 +2,7 @@ import * as React from 'react';
 import { IndexRoute, Route } from 'react-router';
 import App, { ContainerWithSideBar } from '../components/app';
 import { SelectWorkflow, SelectAnnotation } from '../components/selectWorkflow';
-import DocumentView from '../components/documentView';
+import DocumentView, { RequestedDocumentView}  from '../components/documentView';
 import { DocumentSetView, UploadDocuments, UploadDocumentsOthers } from '../components/uploadDocuments';
 import SelectRecipients from '../components/selectRecipients';
 import Landing from '../components/landing';
@@ -16,6 +16,7 @@ export default () => {
     return (
         <Route path='/' component={App}>
             <Route path='documents/:documentSetId/:documentId' component={ DocumentView } />
+            <Route path='sign/:documentSetId/:documentId' component={ RequestedDocumentView } />
             <Route component={ContainerWithSideBar}>
                 <IndexRoute component={Landing} />
                 <Route path="sign" component={SelectWorkflow} />

@@ -272,7 +272,7 @@ def sign_document():
     document_id = args['documentId']
     document =  BytesIO(document_db['data'])
     filename = document_db['filename']
-
+    sign_request_id = args.get('sign_request_id', None);
     for signature in args['signatures']:
         signature['imgData'] = BytesIO(db.get_signature(signature['signatureId'], session['user_id']))
     for overlay in args['overlays']:
@@ -281,7 +281,7 @@ def sign_document():
 
     result = sign(document, args['signatures'], args['overlays'])
     saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
-    db.sign_document(session['user_id'], document_id, saved_document_id, saveable)
+    db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
     return jsonify({'document_id': saved_document_id})
 
 

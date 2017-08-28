@@ -23,7 +23,8 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
                 ...state,
                 showing: Sign.ModalType.SIGN_CONFIRMATION,
                 documentId: action.payload.documentId,
-                documentSetId: action.payload.documentSetId
+                documentSetId: action.payload.documentSetId,
+                signRequestId: action.payload.signRequestId
             };
 
         case Sign.Actions.Types.SHOW_SUBMIT_CONFIRMATION_MODAL:

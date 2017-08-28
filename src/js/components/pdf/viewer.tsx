@@ -26,6 +26,7 @@ Promise.config({ cancellation: true });
 interface PDFViewerProps {
     documentId: string;
     documentSetId: string;
+    requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
 }
 
 interface ConnectedPDFViewerProps extends PDFViewerProps {
@@ -123,10 +124,13 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
 class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 
     render() {
-        const height = this.props.containerHeight;
+        let  height = this.props.containerHeight;
         let className = "pdf-page-wrapper ";
         if(height) {
             className += "loaded"
+        }
+        else{
+            height = this.props.containerWidth * Math.sqrt(2);
         }
         return <Waypoint topOffset='50px' bottomOffset={'50%'} onEnter={({ previousPosition, currentPosition, event }) => { this.props.setActivePage(this.props.pageNumber) }} >
                   <div className={className} id={`page-view-${this.props.pageNumber}`} >
@@ -160,7 +164,8 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
     }
 
     sign() {
-        this.props.showSignConfirmationModal({ documentId: this.props.documentId, documentSetId: this.props.documentSetId })
+        const signRequestId = this.props.requestedSignatureInfo ? this.props.requestedSignatureInfo.signRequestId : null;
+        this.props.showSignConfirmationModal({ documentId: this.props.documentId, documentSetId: this.props.documentSetId,signRequestId  })
     }
 
     render() {
@@ -201,8 +206,8 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                         addSignatureToDocument={this.props.addSignatureToDocument}
                                         addDateToDocument={this.props.addDateToDocument}
                                         addTextToDocument={this.props.addTextToDocument}
-                                        viewport={this.props.pageViewports[index] || {height: 1, width: 1}}>
-                                        <PDFPageWrapper documentId={this.props.documentId} pageNumber={index}  setActivePage={this.setActivePage} viewport={this.props.pageViewports[index] || {height: 1, width: 1}}/>
+                                        viewport={this.props.pageViewports[index] || {height: Math.sqrt(2), width: 1}}>
+                                        <PDFPageWrapper documentId={this.props.documentId} pageNumber={index}  setActivePage={this.setActivePage} viewport={this.props.pageViewports[index] || {height: Math.sqrt(2), width: 1}}/>
                                     </DimensionedDropTargetSignaturesPageWrapper>
                                     </div>
                                 );

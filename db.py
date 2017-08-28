@@ -300,13 +300,13 @@ def get_document(user_id, document_id):
         return first_row
 
 
-def sign_document(user_id, input_document_id, result_document_id, data):
+def sign_document(user_id, input_document_id, result_document_id, sign_request_id, data):
     """
     Sign a document
     """
     database = get_db()
     insert = """
-        INSERT INTO sign_results (user_id, input_document_id, result_document_id, field_data) VALUES (%(user_id)s, %(input_document_id)s, %(result_document_id)s, %(field_data)s)
+        INSERT INTO sign_results (user_id, input_document_id, result_document_id, sign_request_id, field_data) VALUES (%(user_id)s, %(input_document_id)s, %(result_document_id)s, %(field_data)s)
 
     """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
@@ -314,6 +314,7 @@ def sign_document(user_id, input_document_id, result_document_id, data):
             'user_id': user_id,
             'input_document_id': input_document_id,
             'result_document_id': result_document_id,
+            'sign_request_id': sign_request_id,
             'field_data': psycopg2.extras.Json(data)
         })
         database.commit()

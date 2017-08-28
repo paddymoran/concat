@@ -7,6 +7,7 @@ interface SignConfirmationProps {
     signRequestStatus: Sign.DownloadStatus;
     documentId: string;
     documentSetId: string;
+    signRequestId: number;
     hideModal: () => void;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
 }
@@ -18,7 +19,7 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
     }
 
     sign() {
-        this.props.signDocument({ documentId: this.props.documentId, documentSetId: this.props.documentSetId });
+        this.props.signDocument({ documentId: this.props.documentId, documentSetId: this.props.documentSetId, signRequestId: this.props.signRequestId });
     }
 
     renderLoading() {
@@ -62,6 +63,7 @@ export default connect(
         signRequestStatus: state.documentViewer.signRequestStatus,
         documentId: state.modals.documentId,
         documentSetId: state.modals.documentSetId,
+        signRequestId: state.modals.signRequestId
     }),
     { signDocument, hideModal: () => closeModal({modalName: Sign.ModalType.SIGN_CONFIRMATION})  },
 )(SignConfirmation);

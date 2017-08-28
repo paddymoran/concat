@@ -30,6 +30,7 @@ declare namespace Sign {
         progress?: number;
         pageCount?: number;
         pageViewports?: Viewport[];
+        signRequestId: number;
     }
 
 
@@ -163,15 +164,16 @@ declare namespace Sign {
         initialIds?: number[];
     }
 
+    interface RequestedSignatureDocumentInfo{
+        prompts: DocumentPrompts;
+        signRequestId: number;
+    }
+
 
     interface RequestedSignatures {
         documentSets: {
             [documentSetId: string]: {
-                documents: {
-                    [documentId: string]: {
-                        prompts: DocumentPrompts;
-                    }
-                }
+                [documentId: string]: RequestedSignatureDocumentInfo
             }
         }
         downloadStatus: DownloadStatus;
@@ -549,6 +551,7 @@ declare namespace Sign.Actions {
     interface SignDocumentPayload {
         documentSetId: string;
         documentId: string;
+        signRequestId?: number;
     }
 
     interface SetSignRequestStatusPayload {
@@ -582,6 +585,7 @@ declare namespace Sign.Actions {
     interface ShowSignConfirmationModalPayload {
         documentId: string;
         documentSetId: string;
+        signRequestId?: number;
     }
 
     interface ShowSubmitConfirmationModalPayload {

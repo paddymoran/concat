@@ -2,84 +2,85 @@
     z-index: 10;
 }
 $control-height:50px;
-$background: #fff;
 .controls-affix{
     z-index: 20;
 }
+
+$sign-control-height: 37px;
+$sign-control-dropdown-width: $sign-control-height;
+
+$sign-control-width: 50px;
+$sign-control-wide-width: $sign-control-width * 1.6;
+
 .controls{
+    @include clearfix();
     width:100%;
+    padding-top: 5px;
     background-color:$gray-lighter;
     height: $control-height;
     box-shadow: 0 4px 2px -2px $gray-light;
-    .container{
-        text-align:center;
-    }
-
-    $button-margin: 6px;
-    $button-height: ($control-height - $button-margin - $button-margin);
-    $button-max-width: 180px;
-    $table-padding: 8px;
-    $button-line-height: ($button-height - $table-padding - $table-padding);
-    .control-row{
-       display:table;
-       width: 100%;
-       height: $control-height;
-       table-layout: fixed;
-       .control{
-        display:table-cell;
-        padding:$button-margin 0 ;
-        width: 100%;
-       }
-    }
 
     .draggable{
          cursor: move;
     }
-    .submit-button,  .signature-button {
-        padding: $table-padding;
-        max-width: $button-max-width;
-        margin: 0 auto;
-        width: 100%;
-        border-radius: 2px;
-        display:table;
-        & > span{
-            display:table-cell;
-        }
-        & > span:first-child{
-            width: 30%;
-        }
-    }
-    .signature-button {
-        //height: $button-line-height;
-        //line-height: $button-line-height;
-        border: 1px solid $gray-light;
-        border-radius: 2px;
-        &.active{
-            border-bottom: 4px solid $gray;
-        }
-        background-color: white;
-        transition: all 300ms ease-in-out;
 
-        &:hover{
-            background-color: $gray-lighter;
+    .controls-left .sign-control { float: left; }
+    .controls-right .sign-control { float: right; }
+
+    .controls-left > div:not(:first-child) .sign-control { margin-left: 5px; }
+    .controls-right > div:not(:first-child) .sign-control { margin-right: 5px; }
+
+    .sign-control  {
+        @include clearfix();
+        text-align: center;
+        border-radius: 2px;
+        width: $sign-control-width;
+        background: white;
+        margin: 0 auto;
+        border: 1px solid $gray-light;
+        line-height: $sign-control-height;
+        vertical-align: middle;
+
+        .activate-sign-control, .sign-control-dropdown {
+            float: left;
+
+            &:hover {
+                background-color: darken($gray-lighter, 5%);
+            }
         }
-        .signature-image{
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center center;
+
+        .activate-sign-control {
+            width: 100%;
+            transition: all 150ms linear;
+
+            &.active{
+                height: $sign-control-height;
+                border-bottom: 4px solid $deep-red;
+            }
+        }
+
+        &.sign-control-with-dropdown {
+            width: $sign-control-wide-width + $sign-control-dropdown-width;
+            
+            .activate-sign-control {
+                width: calc(100% - #{$sign-control-dropdown-width});
+            }
+        }
+
+        .sign-control-dropdown {
+            width: $sign-control-dropdown-width;
+            border-left: 1px solid $gray-lighter;
         }
     }
-    .submit-button{
+
+    .submit-button {
         background-color: $deep-red;
         border: 1px solid $deep-red;
         color: white;
-        //height: $button-line-height;
-        //line-height: $button-line-height;
         cursor: pointer;
-
-
+        line-height: 37px;
+        width: 80px;
     }
-
 }
 
 
@@ -87,7 +88,7 @@ $background: #fff;
 
 
 .pdf-screen{
-    background: $background;
+    background: white;
 
 
     .pdf-viewer {

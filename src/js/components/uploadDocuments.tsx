@@ -6,6 +6,8 @@ import { addDocument, requestDocumentSet, createDocumentSet } from '../actions';
 import { generateUUID } from './uuid';
 import  { Link } from 'react-router';
 import HorizontalDocumentList from './horizontalDocumentList';
+import SelectRecipients from './selectRecipients';
+
 
 interface UploadDocumentsProps {
     documentIds: string[];
@@ -109,8 +111,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps> {
             <FileDropZone onDrop={this.fileDrop}>
                 <div>
                 <div className='page-heading'>
-                <h1 className="title question">Upload Documents</h1>
-                <div className="sub-title step-count">Step 2</div>
+                <h1 className="title question">Select Documents</h1>
                 </div>
 
                 <div className="explanation fake-drop-zone" onClick={this.onClick}>
@@ -119,12 +120,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps> {
                         <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
                     </div>
 
-
                     <DocumentList documentSetId={this.props.documentSetId} showRemove={true}/>
-
-                    { !!this.props.documentIds && !!this.props.documentIds.length && <div className="button-bar">
-                        <Link to={this.props.nextLink} className={'btn btn-primary ' + (this.props.documentIds.length === 0 ? 'disabled' : '')}>{ this.props.linkText }</Link>
-                    </div> }
                 </div>
             </FileDropZone>
         );
@@ -159,3 +155,13 @@ export const UploadDocumentsOthers = connect(
     },
     { addDocument, createDocumentSet,  requestDocumentSet }
 )(Upload);
+
+
+export class UploadDocumentsFull extends React.PureComponent<ConnectedDocumentSetProps> {
+    render(){
+        return <div>
+            <UploadDocuments {...this.props} />
+            <SelectRecipients {...this.props} />
+        </div>
+    }
+}

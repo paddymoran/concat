@@ -4,22 +4,20 @@ import { Link } from 'react-router';
 import { push } from 'react-router-redux';
 import { generateUUID } from './uuid';
 
-
 interface SidebarProps {
-    openSelfSign: () => void;
-    openOthersSign: () => void;
+    pathname: string;
+}
+
+interface ConnectedSidebarProps extends SidebarProps{
+    openSign: () => void;
 }
 
 
-class Sidebar extends React.PureComponent<SidebarProps> {
+class Sidebar extends React.PureComponent<ConnectedSidebarProps> {
     render() {
         return <div className="side-menu">
             <ul>
-            <li><Link to='/sign' activeClassName="active">Sign</Link>
-                <ul>
-                    <li><a onClick={() => generateUUID().then(this.props.openSelfSign)}>Only Me</a></li>
-                    <li><a onClick={() => generateUUID().then(this.props.openOthersSign)}>Invite Others</a></li>
-                </ul>
+            <li><a className={this.props.pathname.indexOf('/upload') === 0 ? 'active' : ''} onClick={() => generateUUID().then(this.props.openSign)}>Sign</a>
             </li>
             <li><Link to='/all' activeClassName="active">Documents</Link>
                 <ul>
@@ -37,9 +35,8 @@ class Sidebar extends React.PureComponent<SidebarProps> {
 }
 
 
-export default connect((state: Sign.State) => ({
+export default connect<{}, {}, SidebarProps>((state: Sign.State) => ({
 
 }), {
-        openSelfSign: (uuid: string) => push(`/self_sign/${uuid}`),
-        openOthersSign: (uuid: string) => push(`/others_sign/${uuid}`),
+        openSign: (uuid: string) => push(`/upload/${uuid}`),
 })(Sidebar)

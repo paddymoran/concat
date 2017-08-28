@@ -14,14 +14,14 @@ interface AppProps {
     location:  Location,
     children: any
 }
-export  class ContainerWithSideBar extends React.PureComponent<AppProps , {}> {
+export  class ContainerWithSideBar extends React.PureComponent<AppProps, {}> {
     render() {
         const { children, location: { pathname } } = this.props;
         return (
             <div className="container">
                 <Row>
                 <Col sm={2}>
-                    <Sidebar />
+                    <Sidebar pathname={pathname}/>
                 </Col>
 
                 <Col sm={10}>

@@ -72,12 +72,20 @@ $$
 SELECT json_agg(row_to_json(q)) as "signature_requests"
 FROM (
 SELECT json_agg(
-    json_build_object('document_id', sr.document_id, 'filename', d.filename, 'sign_request_id', sr.sign_request_id, 'prompts', field_data, 'created_at', d.created_at)) as documents,
+    json_build_object(
+    'document_id', sr.document_id,
+    'filename', d.filename,
+    'sign_request_id', sr.sign_request_id,
+    'prompts', sr.field_data,
+    'created_at', d.created_at,
+    'sign_status', CASE WHEN srr.sign_result_id IS NOT NULL THEN 'Signed' ELSE 'Pending' END
+    )) as documents,
     d.document_set_id, ds.name, ds.created_at, u.name as "requester", u.user_id
 FROM sign_requests sr
 JOIN documents d ON d.document_id = sr.document_id
 JOIN document_sets ds ON ds.document_set_id = d.document_set_id
 JOIN users u ON u.user_id = ds.user_id
+LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
 WHERE sr.user_id = $1
 
 GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id

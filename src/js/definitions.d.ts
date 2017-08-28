@@ -20,6 +20,7 @@ declare namespace Sign {
         filename: string;
         createdAt?: string;
     }
+    type SignStatus = 'Pending' | 'Signed' | 'Rejected' | 'Partial';
 
     interface Document extends DocumentData{
         id: string;
@@ -31,6 +32,7 @@ declare namespace Sign {
         pageCount?: number;
         pageViewports?: Viewport[];
         signRequestId: number;
+        signStatus?:  SignStatus;
     }
 
 
@@ -48,7 +50,7 @@ declare namespace Sign {
         user_id: number;
     }
 
-    type SignStatus = 'Pending' | 'Signed' | 'Rejected' | 'Partial';
+
     type DocumentSetSignStatus = 'Pending' | 'Complete' | 'Rejected' | 'Partial';
 
     interface DocumentSet {

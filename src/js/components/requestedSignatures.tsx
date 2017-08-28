@@ -28,6 +28,18 @@ interface ConnectedRequestedSignatureDocumentSetProps extends RequestedSignature
     documentSet: Sign.DocumentSet
 }
 
+const SignStatus = (props: {signStatus: Sign.SignStatus}) => {
+    const status = props.signStatus || 'Pending';
+    const className = {
+        'Pending': 'text-warning',
+        'Partial': 'text-warning',
+        'Signed': 'text-success',
+        'Rejected': 'text-danger'
+    }[status];
+    return <span className={`sign-status ${className}`}>{ status }</span>
+}
+
+
 class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequestedSignatureDocumentSetProps>  {
     render() {
         const inviter = this.props.documentSet.owner.name;
@@ -38,7 +50,10 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                 { Object.keys(this.props.requestDocumentSet).map((documentId: string, index: number) => {
                     const document : Sign.Document = this.props.documents[documentId]
                     const url = `/sign/${this.props.documentSetId}/${documentId}`;
-                    return <div key={index} className="document-line"><Link to={url}><i className="fa fa-file-pdf-o" /> { document.filename }</Link></div>
+                    return <div key={index} className="document-line">
+                        <SignStatus signStatus={document.signStatus}/>
+                        <Link to={url}><i className="fa fa-file-pdf-o" /> { document.filename }</Link>
+                        </div>
                 }) }
                 </div>
         );

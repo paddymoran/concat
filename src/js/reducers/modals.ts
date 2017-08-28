@@ -48,6 +48,9 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
 
             return state;
 
+        case Sign.Actions.Types.SHOW_INVITE_MODAL:
+            return { ...state, showing: Sign.ModalType.INVITE };
+
         default:
             return state;
     }

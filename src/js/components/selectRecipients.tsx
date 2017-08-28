@@ -24,15 +24,19 @@ interface RecipientList {
 
 const FormInput = (props : FieldProps) => {
     const formProps : FormGroupProps = {};
-    if(props.meta.touched){
+    
+    if (props.meta.touched) {
         formProps.validationState = (props.meta.valid ? 'success' : 'error');
     }
-    return <FormGroup {...formProps}>
-         { props.title && <ControlLabel>{ props.title }</ControlLabel> }
-         <FormControl type={props.type} {...props.input} placeholder={props.placeholder} />
-         <FormControl.Feedback />
-         { props.meta.error && props.meta.touched && <HelpBlock>{ props.meta.error }</HelpBlock> }
-         </FormGroup>
+
+    return (
+        <FormGroup {...formProps}>
+            { props.title && <ControlLabel>{ props.title }</ControlLabel> }
+            <FormControl type={props.type} {...props.input} placeholder={props.placeholder} />
+            <FormControl.Feedback />
+            { props.meta.error && props.meta.touched && <HelpBlock>{ props.meta.error }</HelpBlock> }
+        </FormGroup>
+    );
 }
 
 
@@ -40,41 +44,46 @@ const renderRecipients = (props: any) => {
     const { fields, meta: { error, submitFailed } } = props;
           console.log(props)
     return (
-  <ul>
-    {fields.map((recipient: any, index : number) =>
-      <li key={index}>
-        <Row>
-            <Col md={3} mdOffset={3}>
-                <Field
-                name={`${recipient}.name`}
-                type="text"
-                component={FormInput}
-                placeholder="Name"
-                />
-            </Col>
-            <Col md={3}>
-                <Field
-                name={`${recipient}.email`}
-                type="email"
-                component={FormInput }
-                placeholder="Email"
-                />
-             </Col>
-            <Col md={1}>
-                <Button onClick={() => fields.remove(index)}><i className="fa fa-trash"/></Button>
-           </Col>
-         </Row>
-      </li>
-    )}
-    <li  className="centered-button-row">
-     <div className="btn-toolbar">
-      <Button onClick={() => fields.push({})}>
-        Add Another Recipient
-      </Button>
-        </div>
-    </li>
-      { submitFailed && error && <div className="alert alert-danger">{error}</div>}
-  </ul>)
+        <ul>
+            {fields.map((recipient: any, index : number) =>
+                <li key={index}>
+                    <Row>
+                        <Col md={3} mdOffset={3}>
+                            <Field
+                                name={`${recipient}.name`}
+                                type="text"
+                                component={FormInput}
+                                placeholder="Name" />
+                        </Col>
+                        
+                        <Col md={3}>
+                            <Field
+                                name={`${recipient}.email`}
+                                type="email"
+                                component={FormInput }
+                                placeholder="Email" />
+                        </Col>
+                        
+                        <Col md={1}>
+                            <Button onClick={() => fields.remove(index)}>
+                                <i className="fa fa-trash"/>
+                            </Button>
+                        </Col>
+                    </Row>
+                </li>
+            )}
+
+            <li  className="centered-button-row">
+                <div className="btn-toolbar">
+                    <Button onClick={() => fields.push({})}>
+                        Add Another Recipient
+                    </Button>
+                </div>
+            </li>
+            
+            { submitFailed && error && <div className="alert alert-danger">{error}</div>}
+        </ul>
+  );
 }
 
 class FieldArraysForm extends React.PureComponent<FormProps, {}> {
@@ -82,18 +91,19 @@ class FieldArraysForm extends React.PureComponent<FormProps, {}> {
       const { handleSubmit, pristine, reset, submitting, valid } = this.props;
       return (
         <form onSubmit={handleSubmit}>
-
-          <FieldArray name="recipients" component={renderRecipients} />
-          <div className="centered-button-row">
-              <div className="btn-toolbar">
-            <Button disabled={pristine || submitting} onClick={reset}>
-              Reset
-            </Button>
-            <Button type="submit" bsStyle={'primary'} disabled={submitting || !valid}>
-              Continue
-            </Button>
-          </div>
-          </div>
+            <FieldArray name="recipients" component={renderRecipients} />
+            
+            <div className="centered-button-row">
+                <div className="btn-toolbar">
+                    <Button disabled={pristine || submitting} onClick={reset}>
+                        Reset
+                    </Button>
+                
+                    <Button type="submit" bsStyle={'primary'} disabled={submitting || !valid}>
+                        Continue
+                    </Button>
+                </div>
+            </div>
         </form>
       )
       }
@@ -128,7 +138,7 @@ const validate = (values : Readonly<RecipientList>) : FormErrors<RecipientList> 
 }
 
 
-const Form = reduxForm<RecipientList>({
+export const InviteForm = reduxForm<RecipientList>({
     form: 'selectRecipients', // a unique identifier for this form
     validate
 })(FieldArraysForm)
@@ -155,7 +165,7 @@ export class SelectRecipients extends React.Component<SelectRecipientsProps>  {
                 <div className="sub-title step-count">Step 3</div>
                 </div>
             <div className="select-recipients">
-            <Form initialValues={{recipients: [{}]}} onSubmit={this.onSubmit}/>
+            <InviteForm initialValues={{recipients: [{}]}} onSubmit={this.onSubmit}/>
             </div>
             </div>
         );

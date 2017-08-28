@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { DragSource } from 'react-dnd';
 import { SignatureButton, InitialButton } from './signatureSelector';
-
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { DateButton, TextButton } from './textSelector';
 import * as Moment from 'moment';
 import { connect } from 'react-redux';
-import { setActiveSignControl } from '../actions';
 import { OverlayTrigger,  Popover } from 'react-bootstrap';
+import { setActiveSignControl, showInviteModal } from '../actions';
+
 
 const SignatureTooltip = () => {
     return <Popover id="signature-tooltip" title="Signatures">Click to create a new signature.</Popover>;
@@ -34,6 +34,9 @@ const DateTooltip = () => {
 const TextTooltip = () => {
     return <Popover id="signature-tooltip" title="Textbox">Click to toggle Textbox Mode, or drag the button onto the page.  You can edit the text once it was been placed.</Popover>;
 }
+
+
+
 
 
 
@@ -200,6 +203,8 @@ const DraggableAddTextControl = DragSource(
 
 interface ControlProps {
     sign: () => void;
+    documentSetId: string;
+    documentId: string;
 }
 
 interface ConnectedControlProps extends ControlProps{
@@ -211,6 +216,7 @@ interface ConnectedControlProps extends ControlProps{
     hasInitial: boolean;
     hasDate: boolean;
     hasText: boolean;
+    showInviteModal: (payload: Sign.Actions.ShowInviteModalPayload) => void;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -325,7 +331,11 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                     </div>
 
                     <div className="controls-right">
-                        <div className="submit-button sign-control" onClick={ this.props.sign }>
+                        <div className="sign-control" onClick={() => this.props.showInviteModal({ documentSetId: this.props.documentSetId })}>
+                            Invite
+                        </div>
+
+                        <div className="submit-button sign-control" onClick={this.props.sign}>
                             <div>
                                 <i className="fa fa-pencil" />&nbsp;&nbsp;Sign
                             </div>
@@ -347,5 +357,5 @@ export const Controls = connect<{}, {}, ControlProps>(
         hasDate: !!Object.keys(state.documentViewer.dates).length,
         hasText: !!Object.keys(state.documentViewer.texts).length,
     }),
-    { setActiveSignControl }
+    { setActiveSignControl, showInviteModal }
 )(UnconnectedControls)

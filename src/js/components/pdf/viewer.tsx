@@ -27,6 +27,7 @@ interface PDFViewerProps {
     documentId: string;
     documentSetId: string;
     requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
+    isDocumentOwner: boolean;
 }
 
 interface ConnectedPDFViewerProps extends PDFViewerProps {
@@ -172,7 +173,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         return (
             <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
-               <div  className="controls-affix"><Controls sign={this.sign} /></div>
+               <div  className="controls-affix"><Controls documentSetId={this.props.documentSetId} documentId={this.props.documentId} sign={this.sign} /></div>
                 </AutoAffix>
 
                 <div className='pdf-container container'>

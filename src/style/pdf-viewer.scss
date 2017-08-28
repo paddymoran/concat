@@ -24,11 +24,22 @@ $sign-control-wide-width: $sign-control-width * 1.6;
          cursor: move;
     }
 
-    .controls-left .sign-control { float: left; }
-    .controls-right .sign-control { float: right; }
+    .controls-right {
+        float: right;
+    }
+
+    .controls-left, .controls-right {
+        .sign-control {
+            float: left;
+        }
+
+        &.sign-control {
+            cursor: pointer;
+        }
+    }
 
     .controls-left > div:not(:first-child) .sign-control { margin-left: 5px; }
-    .controls-right > div:not(:first-child) .sign-control { margin-right: 5px; }
+    .controls-right > div:not(:last-child) .sign-control { margin-right: 5px; }
 
     .sign-control  {
         @include clearfix();

@@ -306,7 +306,7 @@ def sign_document(user_id, input_document_id, result_document_id, sign_request_i
     """
     database = get_db()
     insert = """
-        INSERT INTO sign_results (user_id, input_document_id, result_document_id, sign_request_id, field_data) VALUES (%(user_id)s, %(input_document_id)s, %(result_document_id)s, %(field_data)s)
+        INSERT INTO sign_results (user_id, input_document_id, result_document_id, sign_request_id, field_data) VALUES (%(user_id)s, %(input_document_id)s, %(result_document_id)s, %(sign_request_id)s, %(field_data)s)
 
     """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:

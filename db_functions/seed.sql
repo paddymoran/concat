@@ -96,28 +96,54 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
     UNION
    SELECT result_document_id, input_document_id,original_id, document_set_id, generation + 1
     FROM sign_results tt, docs t
-    WHERE t.document_id = tt.input_document_id 
+    WHERE t.document_id = tt.input_document_id
 )
     SELECT row_to_json(qqq) FROM (
         SELECT
             $1 as document_set_id,
+             ds.name as name, ds.created_at as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents
-    FROM (
-    SELECT d.document_id, filename, created_at, versions
-    FROM (
-    SELECT
-    DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions
-    FROM docs 
-    WHERE document_set_id = $1
-    WINDOW wnd AS (
-       PARTITION BY original_id ORDER BY generation ASC
-       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-    )
-    ) q
-    JOIN documents d on d.document_id = q.document_id
-    ) qq
+	    FROM (
+		    SELECT d.document_id, filename, created_at, versions
+		    FROM (
+			    SELECT
+			    DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions
+			    FROM docs
+			    WHERE document_set_id = $1
+			    WINDOW wnd AS (
+			       PARTITION BY original_id ORDER BY generation ASC
+			       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+			    )
+	    ) q
+	    JOIN documents d on d.document_id = q.document_id
+	    ) qq
+	    JOIN document_sets ds ON ds.document_set_id = $1
+	    GROUP BY ds.name, ds.created_at
  ) qqq
 
+$_$;
+
+
+--
+-- Name: signature_requests(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION signature_requests(user_id integer) RETURNS json
+    LANGUAGE sql
+    AS $_$
+SELECT json_agg(row_to_json(q)) as "signature_requests"
+FROM (
+SELECT json_agg(
+    json_build_object('document_id', sr.document_id, 'filename', d.filename, 'sign_request_id', sr.sign_request_id, 'prompts', field_data, 'created_at', d.created_at)) as documents,
+    d.document_set_id, ds.name, ds.created_at, u.name as "requester", u.user_id
+FROM sign_requests sr
+JOIN documents d ON d.document_id = sr.document_id
+JOIN document_sets ds ON ds.document_set_id = d.document_set_id
+JOIN users u ON u.user_id = ds.user_id
+WHERE sr.user_id = $1
+
+GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id
+) q
 $_$;
 
 
@@ -228,7 +254,8 @@ CREATE TABLE sign_results (
     user_id integer,
     input_document_id uuid,
     result_document_id uuid,
-    field_data jsonb
+    field_data jsonb,
+    sign_request_id integer
 );
 
 
@@ -426,6 +453,14 @@ ALTER TABLE ONLY sign_results
 
 ALTER TABLE ONLY sign_results
     ADD CONSTRAINT sign_results_result_document_id_fk FOREIGN KEY (result_document_id) REFERENCES documents(document_id);
+
+
+--
+-- Name: sign_results_sign_request_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY sign_results
+    ADD CONSTRAINT sign_results_sign_request_id_fk FOREIGN KEY (sign_request_id) REFERENCES sign_requests(sign_request_id) ON DELETE CASCADE;
 
 
 --

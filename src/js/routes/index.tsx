@@ -3,7 +3,7 @@ import { IndexRoute, Route } from 'react-router';
 import App, { ContainerWithSideBar } from '../components/app';
 import { SelectWorkflow, SelectAnnotation } from '../components/selectWorkflow';
 import DocumentView, { RequestedDocumentView}  from '../components/documentView';
-import { DocumentSetView, UploadDocuments, UploadDocumentsOthers } from '../components/uploadDocuments';
+import { DocumentSetView, UploadDocumentsFull } from '../components/uploadDocuments';
 import SelectRecipients from '../components/selectRecipients';
 import Landing from '../components/landing';
 import Help from '../components/help';
@@ -19,11 +19,7 @@ export default () => {
             <Route path='sign/:documentSetId/:documentId' component={ RequestedDocumentView } />
             <Route component={ContainerWithSideBar}>
                 <IndexRoute component={Landing} />
-                <Route path="sign" component={SelectWorkflow} />
-                <Route path='self_sign/:documentSetId' component={ UploadDocuments } />
-                <Route path='others_sign/:documentSetId' component={ UploadDocumentsOthers } />
-                <Route path='others_sign/select_recipients/:documentSetId' component={ SelectRecipients } />
-                <Route path='others_sign/select_annotation/:documentSetId' component={ SelectAnnotation} />
+                <Route path="upload/:documentSetId" component={ UploadDocumentsFull} />
                 <Route path='faq' component={ Help } />
                 <Route path='all' component={ AllDocumentSets } />
                 <Route path='to_sign' component={ RequestedSignatures } />

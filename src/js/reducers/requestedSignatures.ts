@@ -25,6 +25,13 @@ export default function requestedSignatures(state: Sign.RequestedSignatures = DE
                     }
                 };
             }
+        case Sign.Actions.Types.SIGN_DOCUMENT:
+            {
+                return {
+                    ...state,
+                    downloadStatus: Sign.DownloadStatus.Stale
+                }
+            }
         default:
             return state;
     }

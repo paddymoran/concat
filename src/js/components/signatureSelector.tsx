@@ -176,12 +176,18 @@ class ModalButton extends React.Component<ConnectedModalButtonProps> {
         if(this.props.selectedId){
             style['backgroundImage'] = `url(${signatureUrl(this.props.selectedId)})`;
         }
+
         return (
-            <div className={`signature-button ${this.props.active ? 'active' : ''}`} onClick={() => {this.props.setActive(); this.props.showModal();} }>
-                <span className="signature-image" style={style}></span>
-                <span>{this.props.text}</span>
+            <div className="sign-control sign-control-with-dropdown">
+                <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.props.setActive}>
+                    <span className="signature-image" style={style}>Image</span>
+                </div>
+
+                <div className="sign-control-dropdown" onClick={this.props.showModal}>
+                    <i className="fa fa-caret-down" />
+                </div>
             </div>
-        )
+        );
     }
 }
 

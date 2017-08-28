@@ -9,27 +9,25 @@ interface ControlButtonProps {
 export class DateButton extends React.Component<ControlButtonProps> {
 
     render(){
-        return (
-            <div className={`signature-button ${this.props.active ? 'active' : ''}`} onClick={() => this.props.setActive()}>
-                <span className="fa fa-calendar "></span>
-                <span>Date</span>
-            </div>
-        )
+        return <Button label="Date" active={this.props.active} setActive={this.props.setActive} iconName="calendar" />;
     }
 }
 
 export class TextButton extends React.Component<ControlButtonProps> {
 
     render(){
-        return (
-            <div className={`signature-button ${this.props.active ? 'active' : ''}`} onClick={() => this.props.setActive()}>
-                <span className="fa fa-font"></span>
-                <span>Text</span>
-            </div>
-        )
+        return <Button label="Custom Text" active={this.props.active} setActive={this.props.setActive} iconName="font" />;
     }
 }
 
-
-
-
+class Button extends React.PureComponent<any> {
+    render() {
+        return (
+            <div className="sign-control">
+                <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.props.setActive}>
+                    <i className={`fa fa-${this.props.iconName}`} />
+                </div>
+            </div>
+        );
+    }
+}

@@ -190,55 +190,45 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
             <div className="controls">
                 <div className="container">
 
-                    <div className="control-row">
-                        <div className="control">
-                            <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}>
-                                <div className="draggable">
-                                    <SignatureButton
-                                        active={this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE}
-                                        setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.SIGNATURE)} />
-                                </div>
-                            </DraggableAddSignatureControl>
-                        </div>
-
-                        <div className="control">
-                            <DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
-                                <div className="draggable">
-                                    <InitialButton
-                                        active={this.props.activeSignControl === Sign.ActiveSignControl.INITIAL}
-                                        setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.INITIAL)} />
-                                </div>
-                            </DraggableAddSignatureControl>
-                        </div>
-
-                        <div className="control">
-                            <DraggableAddDateControl >
-                                <div className="draggable">
-                                    <DateButton
-                                        active={this.props.activeSignControl === Sign.ActiveSignControl.DATE}
-                                        setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.DATE)} />
-                                </div>
-                            </DraggableAddDateControl>
-                        </div>
-
-                        <div className="control">
-                            <DraggableAddTextControl >
-                                <div className="draggable">
-                                    <TextButton
-                                        active={this.props.activeSignControl === Sign.ActiveSignControl.TEXT}
-                                        setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.TEXT)} />
-                                </div>
-                            </DraggableAddTextControl>
-                        </div>
-
-                        <div className="control">
-                            <div className="submit-button" onClick={ this.props.sign }>
-                                <span className="fa fa-pencil" />
-                                <span>Sign</span>
+                    <div className="controls-left">
+                        <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}>
+                            <div className="draggable">
+                                <SignatureButton
+                                    active={this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE}
+                                    setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.SIGNATURE)} />
                             </div>
-                        </div>
+                        </DraggableAddSignatureControl>
+
+                        <DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
+                            <div className="draggable">
+                                <InitialButton
+                                    active={this.props.activeSignControl === Sign.ActiveSignControl.INITIAL}
+                                    setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.INITIAL)} />
+                            </div>
+                        </DraggableAddSignatureControl>
+
+                        <DraggableAddDateControl >
+                            <div className="draggable">
+                                <DateButton
+                                    active={this.props.activeSignControl === Sign.ActiveSignControl.DATE}
+                                    setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.DATE)} />
+                            </div>
+                        </DraggableAddDateControl>
+
+                        <DraggableAddTextControl >
+                            <div className="draggable">
+                                <TextButton
+                                    active={this.props.activeSignControl === Sign.ActiveSignControl.TEXT}
+                                    setActive={() => this.setActiveSignControl(Sign.ActiveSignControl.TEXT)} />
+                            </div>
+                        </DraggableAddTextControl>
                     </div>
 
+                    <div className="controls-right">
+                        <div className="submit-button sign-control" onClick={ this.props.sign }>
+                            <i className="fa fa-pencil" />&nbsp;&nbsp;Sign
+                        </div>
+                    </div>
                 </div>
             </div>
         );

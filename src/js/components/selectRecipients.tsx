@@ -9,7 +9,7 @@ import { defineRecipients } from '../actions';
 import { push } from 'react-router-redux';
 
 type FormProps = {
-
+    fullWidth: boolean;
 } & InjectedFormProps
 
 type FieldProps = {
@@ -24,7 +24,7 @@ interface RecipientList {
 
 const FormInput = (props : FieldProps) => {
     const formProps : FormGroupProps = {};
-    
+
     if (props.meta.touched) {
         formProps.validationState = (props.meta.valid ? 'success' : 'error');
     }
@@ -39,74 +39,97 @@ const FormInput = (props : FieldProps) => {
     );
 }
 
-
-const renderRecipients = (props: any) => {
-    const { fields, meta: { error, submitFailed } } = props;
-          console.log(props)
-    return (
-        <ul>
-            {fields.map((recipient: any, index : number) =>
-                <li key={index}>
-                    <Row>
-                        <Col md={3} mdOffset={3}>
-                            <Field
-                                name={`${recipient}.name`}
-                                type="text"
-                                component={FormInput}
-                                placeholder="Name" />
-                        </Col>
-                        
-                        <Col md={3}>
-                            <Field
-                                name={`${recipient}.email`}
-                                type="email"
-                                component={FormInput }
-                                placeholder="Email" />
-                        </Col>
-                        
-                        <Col md={1}>
-                            <Button onClick={() => fields.remove(index)}>
-                                <i className="fa fa-trash"/>
-                            </Button>
-                        </Col>
-                    </Row>
-                </li>
-            )}
-
-            <li  className="centered-button-row">
-                <div className="btn-toolbar">
-                    <Button onClick={() => fields.push({})}>
-                        Add Another Recipient
-                    </Button>
-                </div>
-            </li>
-            
-            { submitFailed && error && <div className="alert alert-danger">{error}</div>}
-        </ul>
-  );
+interface RenderRecipientsProps {
+    fields: any;
+    fullWidth?: boolean;
+    meta: {
+        error: string;
+        submitFailed: boolean;
+    }
 }
 
-class FieldArraysForm extends React.PureComponent<FormProps, {}> {
+class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
     render() {
-      const { handleSubmit, pristine, reset, submitting, valid } = this.props;
-      return (
-        <form onSubmit={handleSubmit}>
-            <FieldArray name="recipients" component={renderRecipients} />
-            
-            <div className="centered-button-row">
-                <div className="btn-toolbar">
-                    <Button disabled={pristine || submitting} onClick={reset}>
-                        Reset
-                    </Button>
+        const { fields, meta: { error, submitFailed } } = this.props;
+        const fullWidth = this.props.fullWidth || false;
+
+        // Sometimes we need the form to be the full width of it's parent container,
+        // sometimes we don't... this defines that sizing
+        const firstFieldOffset = fullWidth ? 0 : 3;
+        const fieldColSize = fullWidth ? 5 : 3;
+
+        return (
+            <ul>
+                {fields.map((recipient: any, index : number) =>
+                    <li key={index}>
+                        <Row>
+                            <Col md={fieldColSize} mdOffset={firstFieldOffset}>
+                                <Field
+                                    name={`${recipient}.name`}
+                                    type="text"
+                                    component={FormInput}
+                                    placeholder="Name" />
+                            </Col>
+                            
+                            <Col md={fieldColSize}>
+                                <Field
+                                    name={`${recipient}.email`}
+                                    type="email"
+                                    component={FormInput }
+                                    placeholder="Email" />
+                            </Col>
+                            
+                            <Col md={1}>
+                                <Button onClick={() => fields.remove(index)}>
+                                    <i className="fa fa-trash"/>
+                                </Button>
+                            </Col>
+                        </Row>
+                    </li>
+                )}
+
+                <li  className="centered-button-row">
+                    <div className="btn-toolbar">
+                        <Button onClick={() => fields.push({})}>
+                            Add Another Recipient
+                        </Button>
+                    </div>
+                </li>
                 
-                    <Button type="submit" bsStyle={'primary'} disabled={submitting || !valid}>
-                        Continue
-                    </Button>
+                { submitFailed && error && <div className="alert alert-danger">{error}</div>}
+            </ul>
+        );
+    }
+}
+
+class RenderRecipientsFullWidth extends React.PureComponent<RenderRecipientsProps> {
+    render() {
+        return <RenderRecipients {...this.props} fullWidth={true} />;
+    }
+}
+
+class FieldArraysForm extends React.PureComponent<FormProps> {
+    render() {
+        const { handleSubmit, pristine, reset, submitting, valid, fullWidth } = this.props;
+        
+        return (
+            <form onSubmit={handleSubmit}>
+                <FieldArray name="recipients" component={fullWidth ? RenderRecipientsFullWidth : RenderRecipients} />
+                
+                <div className="centered-button-row">
+                    <div className="btn-toolbar">
+                        <Button disabled={pristine || submitting} onClick={reset}>
+                            Reset
+                        </Button>
+                    
+                        <Button type="submit" bsStyle={'primary'} disabled={submitting || !valid}>
+                            Continue
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </form>
-      )
-      }
+            </form>
+        );
+    }
 }
 
 const validate = (values : Readonly<RecipientList>) : FormErrors<RecipientList> => {
@@ -138,10 +161,10 @@ const validate = (values : Readonly<RecipientList>) : FormErrors<RecipientList> 
 }
 
 
-export const InviteForm = reduxForm<RecipientList>({
+export const InviteForm = reduxForm<RecipientList, { fullWidth: boolean; }>({
     form: 'selectRecipients', // a unique identifier for this form
     validate
-})(FieldArraysForm)
+})(FieldArraysForm);
 
 interface SelectRecipientsProps extends Sign.Components.RouteDocumentSet {
     defineRecipients: (values: Sign.Actions.DefineRecipientsPayload) => void;
@@ -159,14 +182,17 @@ export class SelectRecipients extends React.Component<SelectRecipientsProps>  {
         this.props.push(`/others_sign/select_annotation/${this.props.params.documentSetId}`);
     }
     render() {
-        return (<div>
+        return (
+            <div>
                 <div className='page-heading'>
-                <h1 className="title question">Select Recipients</h1>
-                <div className="sub-title step-count">Step 3</div>
+                    <h1 className="title question">Select Recipients</h1>
+                    
+                    <div className="sub-title step-count">Step 3</div>
                 </div>
-            <div className="select-recipients">
-            <InviteForm initialValues={{recipients: [{}]}} onSubmit={this.onSubmit}/>
-            </div>
+                
+                <div className="select-recipients">
+                    <InviteForm initialValues={{recipients: [{}]}} onSubmit={this.onSubmit} fullWidth={false}/>
+                </div>
             </div>
         );
     }

@@ -168,6 +168,14 @@ interface ConnectedModalButtonProps extends ModalButtonProps{
 }
 
 class ModalButton extends React.Component<ConnectedModalButtonProps> {
+    constructor(props: ConnectedModalButtonProps) {
+        super(props);
+        this.setActive = this.setActive.bind(this);
+    }
+    setActive(e: React.MouseEvent<HTMLElement>){
+        e.stopPropagation();
+        this.props.setActive();
+    }
     componentWillMount() {
         this.props.requestSignatures();
     }
@@ -179,8 +187,9 @@ class ModalButton extends React.Component<ConnectedModalButtonProps> {
 
         return (
             <div className="sign-control sign-control-with-dropdown">
-                <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.props.setActive}>
-                    <span className="signature-image" style={style}>Image</span>
+                <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.setActive}>
+                    { this.props.selectedId && <div className="signature-image" style={style}></div> }
+                    { !this.props.selectedId && <div className="signature-placeholder" >{ this.props.text }</div> }
                 </div>
 
                 <div className="sign-control-dropdown" onClick={this.props.showModal}>

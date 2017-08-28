@@ -598,6 +598,10 @@ declare namespace Sign.Actions {
         message: string;
     }
 
+    interface ShowInviteModalPayload {
+        documentSetId: string;
+    }
+
     interface UpdateDocumentWidthPayload {
         width: number
     }
@@ -669,7 +673,7 @@ declare namespace Sign.Actions {
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
     interface ShowSubmitConfirmationModal extends ActionCreator<ShowSubmitConfirmationModalPayload> {}
     interface ShowFailureModal extends ActionCreator<ShowFailureModalPayload> {}
-    interface ShowInviteModal extends Action {}
+    interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}

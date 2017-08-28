@@ -69,7 +69,6 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
 function setActiveSignButton(state: Sign.DocumentViewer, action: Sign.Actions.SetActiveSignControl): Sign.DocumentViewer {
     const currentActive = state.activeSignControl;
     const newActive = action.payload.activeSignControl;
-
     return {
         ...state,
         activeSignControl: newActive === currentActive ? Sign.ActiveSignControl.NONE : newActive

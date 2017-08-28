@@ -91,7 +91,7 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
            generateUUID()
                .then((index) => {
                     const height = Math.round(Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * props.containerWidth);
-                    const canvas = stringToCanvas(height, item.value);
+                    const canvas = stringToCanvas(height, item.value, Sign.DefaultSignatureSize.MIN_WIDTH);
                     const width = canvas.width;
                     if(item.type === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT){
                          props.addDateToDocument({
@@ -271,6 +271,7 @@ interface OverlayPageWrapperProps {
     containerWidth: number;
     viewport: Sign.Viewport;
     activeSignControl: Sign.ActiveSignControl;
+    overlayDefaults: Sign.OverlayDefaults;
 }
 
 
@@ -314,7 +315,18 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                                 })
                         case Sign.ActiveSignControl.DATE:
                             {
-                                const { value, timestamp, format } = dateDefaults();
+                                let { value, timestamp, format } = dateDefaults();
+                                if(this.props.overlayDefaults.date){
+                                    if(this.props.overlayDefaults.date.value){
+                                        value = this.props.overlayDefaults.date.value;
+                                    }
+                                    if(this.props.overlayDefaults.date.format){
+                                        format = this.props.overlayDefaults.date.format;
+                                    }
+                                    if(this.props.overlayDefaults.date.timestamp){
+                                        timestamp = this.props.overlayDefaults.date.timestamp;
+                                    }
+                                }
                                 const height = Math.round(Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * containerWidth);
                                 const canvas = stringToCanvas(height, value);
                                 const width = canvas.width;
@@ -331,7 +343,12 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                             }
                         case Sign.ActiveSignControl.TEXT:
                             {
-                                const { value } = textDefaults();
+                                let { value } = textDefaults();
+                                if(this.props.overlayDefaults.text){
+                                    if(this.props.overlayDefaults.text.value){
+                                        value = this.props.overlayDefaults.text.value;
+                                    }
+                                }
                                 const height = Math.round(Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * containerWidth);
                                 const canvas = stringToCanvas(height, value);
                                 const width = canvas.width;
@@ -375,7 +392,8 @@ const OverlayPageWrapper = connect<{}, {}, OverlayPageWrapperProps>(
     (state: Sign.State) => ({
         selectedSignatureId: state.documentViewer.selectedSignatureId,
         selectedInitialId: state.documentViewer.selectedInitialId,
-        activeSignControl: state.documentViewer.activeSignControl
+        activeSignControl: state.documentViewer.activeSignControl,
+        overlayDefaults: state.overlayDefaults,
     })
 )(UnconnectedOverlayPageWrapper);
 

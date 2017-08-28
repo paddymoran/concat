@@ -181,6 +181,15 @@ declare namespace Sign {
         downloadStatus: DownloadStatus;
     }
 
+    interface OverlayDefaults {
+        signature?: DocumentSignature;
+        date?: DocumentDate;
+        text?: DocumentText;
+        prompt?: DocumentPrompt;
+
+    }
+
+
     interface State {
         routing: any;
         documentSets: DocumentSets;
@@ -192,6 +201,7 @@ declare namespace Sign {
         signatures: Signatures;
         dimensions: Dimensions;
         requestedSignatures: RequestedSignatures;
+        overlayDefaults: OverlayDefaults;
     }
 
     interface Action<T> {
@@ -239,7 +249,9 @@ declare namespace Sign {
         WIDTH = 200,
         HEIGHT = 100,
         WIDTH_RATIO = 0.2,
-        TEXT_WIDTH_RATIO = 0.025
+        TEXT_WIDTH_RATIO = 0.025,
+        MIN_WIDTH = 65,
+        MIN_HEIGHT = 20,
     }
 
     const DEFAULT_DATE_FORMAT = 'DD MMMM YYYY';
@@ -467,6 +479,8 @@ declare namespace Sign.Actions {
     interface SelectInitialPayload {
         initialId: number;
     }
+
+
 
     interface Positionable {
         documentId: string;

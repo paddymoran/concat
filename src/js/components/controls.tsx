@@ -37,9 +37,6 @@ const TextTooltip = () => {
 
 
 
-
-
-
 interface SignatureDragSourceProps {
     signatureId: number;
 }
@@ -53,13 +50,14 @@ interface DragProps {
 
 interface AddSignatureControlProps extends DragProps {
     signatureId: number;
+    defaults?: Sign.DocumentSignature;
 }
 
 interface AddDateControlProps extends DragProps {
-
+    defaults?: Sign.DocumentDate;
 }
 interface AddTextControlProps extends DragProps {
-
+    defaults?: Sign.DocumentText;
 }
 
 export function dateDefaults(){
@@ -90,19 +88,37 @@ const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {
 
 const dateSource: __ReactDnd.DragSourceSpec<AddDateControlProps> = {
     beginDrag(props, monitor) {
+        let { format, value, timestamp } = dateDefaults();
 
+        if(props.defaults){
+            if(props.defaults.format){
+                format = props.defaults.format;
+            }
+            if(props.defaults.value){
+                value = props.defaults.value;
+            }
+            if(props.defaults.timestamp){
+                timestamp = props.defaults.timestamp;
+            }
+        }
         return {
             type: Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT,
-            ...dateDefaults()
+            format, timestamp, value
         };
     }
 };
 
 const textSource: __ReactDnd.DragSourceSpec<AddTextControlProps> = {
     beginDrag(props, monitor) {
+        let { value } = textDefaults();
+        if(props.defaults){
+            if(props.defaults.value){
+                value = props.defaults.value;
+            }
+        }
         return {
             type: Sign.DragAndDropTypes.ADD_TEXT_TO_DOCUMENT,
-            ...textDefaults()
+            value
         };
     }
 };
@@ -217,6 +233,7 @@ interface ConnectedControlProps extends ControlProps{
     hasDate: boolean;
     hasText: boolean;
     showInviteModal: (payload: Sign.Actions.ShowInviteModalPayload) => void;
+    overlayDefaults: Sign.OverlayDefaults;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -296,7 +313,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                     <div className="controls-left">
 
 
-                        { this.signatureTooltip(<DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}>
+                        { this.signatureTooltip(<DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}  defaults={this.props.overlayDefaults.signature}>
                             <div className="draggable">
                                 <SignatureButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE}
@@ -305,7 +322,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                         </DraggableAddSignatureControl>) }
 
 
-                        { this.initialTooltip(<DraggableAddSignatureControl signatureId={this.props.selectedInitialId}>
+                        { this.initialTooltip(<DraggableAddSignatureControl signatureId={this.props.selectedInitialId} defaults={this.props.overlayDefaults.signature}>
                             <div className="draggable">
                                 <InitialButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.INITIAL}
@@ -313,7 +330,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             </div>
                         </DraggableAddSignatureControl>) }
 
-                        { this.dateTooltip(<DraggableAddDateControl >
+                        { this.dateTooltip(<DraggableAddDateControl defaults={this.props.overlayDefaults.date}>
                             <div className="draggable">
                                 <DateButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.DATE}
@@ -321,7 +338,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             </div>
                         </DraggableAddDateControl>) }
 
-                        { this.textTooltip(<DraggableAddTextControl >
+                        { this.textTooltip(<DraggableAddTextControl defaults={this.props.overlayDefaults.text}>
                             <div className="draggable">
                                 <TextButton
                                     active={this.props.activeSignControl === Sign.ActiveSignControl.TEXT}
@@ -356,6 +373,7 @@ export const Controls = connect<{}, {}, ControlProps>(
         hasInitial: !!Object.keys(state.documentViewer.signatures).length,
         hasDate: !!Object.keys(state.documentViewer.dates).length,
         hasText: !!Object.keys(state.documentViewer.texts).length,
+        overlayDefaults: state.overlayDefaults,
     }),
     { setActiveSignControl, showInviteModal }
 )(UnconnectedControls)

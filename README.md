@@ -35,6 +35,6 @@ For testing we use a database schema dump to rebuild the database, rather than r
 
 To generate the dump, run the following command from project root.
 
-`pg_dump catalex_sign --schema-only --no-owner > db_functions/seed.sql`
+`pg_dump catalex_sign --schema-only --no-owner --no-acl > db_functions/seed.sql`
 
 

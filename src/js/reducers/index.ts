@@ -9,6 +9,7 @@ import documentViewer from './documentViewer';
 import signatures from './signatures';
 import modals from './modals';
 import dimensions from './dimensions';
+import overlayDefaults from './overlayDefaults';
 import requestedSignatures from './requestedSignatures';
 
 
@@ -23,6 +24,7 @@ const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     signatures,
     dimensions,
     requestedSignatures,
+    overlayDefaults,
     form
 });
 

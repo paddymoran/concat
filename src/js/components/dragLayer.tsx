@@ -39,6 +39,7 @@ interface DragLayerProps {
     }
     isDragging: boolean
     containerWidth: number;
+   // overlayDefaults: Sign.OverlayDefaults
 }
 
 interface DragProps {
@@ -51,10 +52,12 @@ interface DragProps {
 
 interface SigProps extends DragProps{
     signatureId: number;
+    defaults?: Sign.DocumentSignature
 }
 
 interface TextProps extends DragProps{
     value: string;
+    defaults?: Sign.DocumentText
 }
 
 interface SigState {
@@ -96,7 +99,7 @@ class TextDragger extends React.PureComponent<TextProps, TextState> {
     }
 
     componentDidMount() {
-        const canvas = stringToCanvas(this.state.height, this.state.value);
+        const canvas = stringToCanvas(this.state.height, this.state.value, Sign.DefaultSignatureSize.MIN_WIDTH);
         this.setState({width: this.state.height * (canvas.width / canvas.height), dataUrl: canvas.toDataURL()});
 
     }
@@ -119,7 +122,7 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
     return (
       <div className="custom-drag">
          {  itemType === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} containerWidth={this.props.containerWidth}/> }
-         {  itemType === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT && <TextDragger clientOffset={this.props.clientOffset} value={this.props.item.value} containerWidth={this.props.containerWidth}/> }
+         {  itemType === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT && <TextDragger  clientOffset={this.props.clientOffset} value={this.props.item.value} containerWidth={this.props.containerWidth}/> }
          {  itemType === Sign.DragAndDropTypes.ADD_TEXT_TO_DOCUMENT && <TextDragger clientOffset={this.props.clientOffset} value={this.props.item.value} containerWidth={this.props.containerWidth}/> }
      </div>
     );
@@ -127,7 +130,8 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
 }
 
 const DimensionedDragLayer = connect((state : Sign.State) => ({
-    containerWidth: state.dimensions.width
+    containerWidth: state.dimensions.width,
+    //overlayDefaults: state.overlayDefaults
 }))(CustomDragLayer)
 
 const DimensionedConnectedDragLayer = DragLayer(monitor => ({

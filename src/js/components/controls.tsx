@@ -31,6 +31,21 @@ interface AddTextControlProps extends DragProps {
 
 }
 
+export function dateDefaults(){
+    const format = 'DD MMMM YYYY', timestamp = (new Date()).getTime();
+    return {
+        format,
+        value: Moment(timestamp).format(format),
+        timestamp
+    }
+}
+
+export function textDefaults(){
+    const value = 'Custom Text...';
+    return {
+        value
+    }
+}
 
 const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {
     beginDrag(props, monitor) {
@@ -44,22 +59,19 @@ const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {
 
 const dateSource: __ReactDnd.DragSourceSpec<AddDateControlProps> = {
     beginDrag(props, monitor) {
-        const format = 'DD MMMM YYYY', timestamp = (new Date()).getTime();
+
         return {
             type: Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT,
-            format,
-            value: Moment(timestamp).format(format),
-            timestamp
+            ...dateDefaults()
         };
     }
 };
 
 const textSource: __ReactDnd.DragSourceSpec<AddTextControlProps> = {
     beginDrag(props, monitor) {
-        const value = 'Custom Text...';
         return {
             type: Sign.DragAndDropTypes.ADD_TEXT_TO_DOCUMENT,
-            value
+            ...textDefaults()
         };
     }
 };

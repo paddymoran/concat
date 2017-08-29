@@ -16,7 +16,7 @@ export class DateButton extends React.Component<ControlButtonProps> {
         this.props.setActive();
     }
     render(){
-        return <Button label="Date" active={this.props.active} setActive={this.setActive} iconName="calendar" />;
+        return <ControlButton label="Date" active={this.props.active} setActive={this.setActive} iconName="calendar" />;
     }
 }
 
@@ -30,16 +30,31 @@ export class TextButton extends React.Component<ControlButtonProps> {
         this.props.setActive();
     }
     render(){
-        return <Button label="Custom Text" active={this.props.active} setActive={this.setActive} iconName="font" />;
+        return <ControlButton label="Custom Text" active={this.props.active} setActive={this.setActive} iconName="font" />;
     }
 }
 
-class Button extends React.PureComponent<any> {
+export class PromptButton extends React.Component<ControlButtonProps> {
+    constructor(props: ControlButtonProps) {
+        super(props);
+        this.setActive = this.setActive.bind(this);
+    }
+    setActive(e: React.MouseEvent<HTMLElement>){
+        e.stopPropagation();
+        this.props.setActive();
+    }
+    render(){
+        return <ControlButton label="Request Signature" showLabel={true} active={this.props.active} setActive={this.setActive} iconName="paste" />;
+    }
+}
+
+
+class ControlButton extends React.PureComponent<any> {
     render() {
         return (
             <div className="sign-control">
                 <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.props.setActive}>
-                    <i className={`fa fa-${this.props.iconName}`} />
+                <div className="button-text"><i className={`fa fa-${this.props.iconName}`} /> { this.props.showLabel && this.props.label }</div>
                 </div>
             </div>
         );

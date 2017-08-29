@@ -6,8 +6,8 @@ import PDFPreview from './preview';
 import PDFPage from './page';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import { signDocument, moveSignature, addSignatureToDocument, addDateToDocument, addTextToDocument, setActivePage, showSignConfirmationModal } from '../../actions';
-import { SignaturePositionable, DatePositionable, TextPositionable } from '../positionable';
+import { signDocument, moveSignature, addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal } from '../../actions';
+import { SignaturePositionable, DatePositionable, TextPositionable, PromptPositionable } from '../positionable';
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
@@ -36,6 +36,7 @@ interface ConnectedPDFViewerProps extends PDFViewerProps {
     signatures: Sign.DocumentSignatures;
     dates: Sign.DocumentDates;
     texts: Sign.DocumentTexts;
+    prompts: Sign.DocumentPrompts;
     signRequestStatus: Sign.DownloadStatus;
     selectedSignatureId: number;
     selectedInitialId: number;
@@ -43,6 +44,7 @@ interface ConnectedPDFViewerProps extends PDFViewerProps {
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
     addDateToDocument: (data: Sign.Actions.AddDateToDocumentPayload) => void;
     addTextToDocument: (data: Sign.Actions.AddTextToDocumentPayload) => void;
+    addPromptToDocument: (data: Sign.Actions.AddPromptToDocumentPayload) => void;
     setActivePage: (payload: Sign.Actions.SetActivePagePayload) => void;
     showSignConfirmationModal: (payload: Sign.Actions.ShowSignConfirmationModalPayload) => void;
 }
@@ -55,8 +57,6 @@ interface PDFPageWrapperProps {
     containerHeight?: number;
     setActivePage: Function;
 }
-
-
 
 
 const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
@@ -91,7 +91,7 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
            generateUUID()
                .then((index) => {
                     const height = Math.round(Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * props.containerWidth);
-                    const canvas = stringToCanvas(height, item.value);
+                    const canvas = stringToCanvas(height, item.value, Sign.DefaultSignatureSize.MIN_WIDTH);
                     const width = canvas.width;
                     if(item.type === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT){
                          props.addDateToDocument({
@@ -117,6 +117,20 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
                     }
 
                })
+       }
+       else if (item.type === Sign.DragAndDropTypes.ADD_PROMPT_TO_DOCUMENT){
+            generateUUID()
+               .then((index) => {
+                    const width = Sign.DefaultSignatureSize.WIDTH_RATIO * containerWidth;
+                    const height = width / 3;
+                    props.addPromptToDocument({
+                        value: item.value,
+                        promptIndex: index,
+                        documentId: props.documentId,
+                        pageNumber: props.pageNumber,
+                         ...boundPositioning({width, height, posX, posY, pageBounds, viewport, containerWidth})
+                    });
+           });
        }
     }
 };
@@ -173,7 +187,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         return (
             <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
-               <div  className="controls-affix"><Controls documentSetId={this.props.documentSetId} documentId={this.props.documentId} sign={this.sign} /></div>
+               <div  className="controls-affix"><Controls documentSetId={this.props.documentSetId} documentId={this.props.documentId} sign={this.sign} showInvite={this.props.isDocumentOwner} showPrompts={this.props.isDocumentOwner} /></div>
                 </AutoAffix>
 
                 <div className='pdf-container container'>
@@ -195,6 +209,9 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                                                                                     this.props.dates[dateIndex].documentId === this.props.documentId);
                                 const textIndexes = Object.keys(this.props.texts).filter(textIndex => this.props.texts[textIndex].pageNumber === index &&
                                                                                                     this.props.texts[textIndex].documentId === this.props.documentId);
+                                const promptIndexes = Object.keys(this.props.prompts).filter(textIndex => this.props.prompts[textIndex].pageNumber === index &&
+                                                                                                    this.props.prompts[textIndex].documentId === this.props.documentId);
+
                                 return (
                                         <div className="page-separator" key={index}>
                                     <DimensionedDropTargetSignaturesPageWrapper
@@ -203,12 +220,16 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                         signaturesIndexes={signaturesIndexes}
                                         dateIndexes={dateIndexes}
                                         textIndexes={textIndexes}
-                                        promptIndexes={[]}
+                                        promptIndexes={promptIndexes}
                                         addSignatureToDocument={this.props.addSignatureToDocument}
                                         addDateToDocument={this.props.addDateToDocument}
                                         addTextToDocument={this.props.addTextToDocument}
+                                        addPromptToDocument={this.props.addPromptToDocument}
                                         viewport={this.props.pageViewports[index] || {height: Math.sqrt(2), width: 1}}>
-                                        <PDFPageWrapper documentId={this.props.documentId} pageNumber={index}  setActivePage={this.setActivePage} viewport={this.props.pageViewports[index] || {height: Math.sqrt(2), width: 1}}/>
+                                        <PDFPageWrapper documentId={this.props.documentId}
+                                            pageNumber={index}
+                                            setActivePage={this.setActivePage}
+                                            viewport={this.props.pageViewports[index] || {height: Math.sqrt(2), width: 1}}/>
                                     </DimensionedDropTargetSignaturesPageWrapper>
                                     </div>
                                 );
@@ -266,11 +287,13 @@ interface OverlayPageWrapperProps {
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
     addDateToDocument: (data: Sign.Actions.AddDateToDocumentPayload) => void;
     addTextToDocument: (data: Sign.Actions.AddTextToDocumentPayload) => void;
+    addPromptToDocument: (data: Sign.Actions.AddPromptToDocumentPayload) => void;
     connectDropTarget?: Function;
     isOver?: boolean;
     containerWidth: number;
     viewport: Sign.Viewport;
     activeSignControl: Sign.ActiveSignControl;
+    overlayDefaults: Sign.OverlayDefaults;
 }
 
 
@@ -284,6 +307,7 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
     }
 
     addSelected(e: React.MouseEvent<HTMLElement>) {
+
         if (this.props.activeSignControl === Sign.ActiveSignControl.NONE) {
             return;
         }
@@ -314,7 +338,18 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                                 })
                         case Sign.ActiveSignControl.DATE:
                             {
-                                const { value, timestamp, format } = dateDefaults();
+                                let { value, timestamp, format } = dateDefaults();
+                                if(this.props.overlayDefaults.date){
+                                    if(this.props.overlayDefaults.date.value){
+                                        value = this.props.overlayDefaults.date.value;
+                                    }
+                                    if(this.props.overlayDefaults.date.format){
+                                        format = this.props.overlayDefaults.date.format;
+                                    }
+                                    if(this.props.overlayDefaults.date.timestamp){
+                                        timestamp = this.props.overlayDefaults.date.timestamp;
+                                    }
+                                }
                                 const height = Math.round(Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * containerWidth);
                                 const canvas = stringToCanvas(height, value);
                                 const width = canvas.width;
@@ -331,7 +366,12 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                             }
                         case Sign.ActiveSignControl.TEXT:
                             {
-                                const { value } = textDefaults();
+                                let { value } = textDefaults();
+                                if(this.props.overlayDefaults.text){
+                                    if(this.props.overlayDefaults.text.value){
+                                        value = this.props.overlayDefaults.text.value;
+                                    }
+                                }
                                 const height = Math.round(Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * containerWidth);
                                 const canvas = stringToCanvas(height, value);
                                 const width = canvas.width;
@@ -345,6 +385,23 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                                 });
                             }
                         case Sign.ActiveSignControl.PROMPT:
+                            {
+                                let value = {};
+                                if(this.props.overlayDefaults.prompt){
+                                    if(this.props.overlayDefaults.prompt.value){
+                                        value = this.props.overlayDefaults.prompt.value;
+                                    }
+                                }
+                                const width = Sign.DefaultSignatureSize.WIDTH_RATIO * containerWidth;
+                                const height = width  / 3;
+                                return this.props.addPromptToDocument({
+                                    value,
+                                    promptIndex: id,
+                                    documentId,
+                                    pageNumber,
+                                     ...boundPositioning({width, height, posX, posY, pageBounds, viewport, containerWidth})
+                                });
+                            }
                     }
                 });
         }
@@ -362,7 +419,8 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
             <div className={className} style={{position: 'relative'}} onClick={this.addSelected}>
                {  this.props.signaturesIndexes.map(signatureIndex => <SignaturePositionable key={signatureIndex} index={signatureIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
                {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} index={dateIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
-               {  this.props.textIndexes.map(dateIndex => <TextPositionable key={dateIndex} index={dateIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
+               {  this.props.textIndexes.map(textIndex => <TextPositionable key={textIndex} index={textIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
+               {  this.props.promptIndexes.map(promptIndex => <PromptPositionable key={promptIndex} index={promptIndex} page={this.refs['pdf-page']} containerWidth={this.props.containerWidth}  containerHeight={height}/>)}
                 { child }
             </div>
         );
@@ -375,7 +433,8 @@ const OverlayPageWrapper = connect<{}, {}, OverlayPageWrapperProps>(
     (state: Sign.State) => ({
         selectedSignatureId: state.documentViewer.selectedSignatureId,
         selectedInitialId: state.documentViewer.selectedInitialId,
-        activeSignControl: state.documentViewer.activeSignControl
+        activeSignControl: state.documentViewer.activeSignControl,
+        overlayDefaults: state.overlayDefaults,
     })
 )(UnconnectedOverlayPageWrapper);
 
@@ -407,11 +466,12 @@ const ConnectedPDFViewer = connect(
             signatures: state.documentViewer.signatures,
             dates: state.documentViewer.dates,
             texts: state.documentViewer.texts,
+            prompts: state.documentViewer.prompts,
             signRequestStatus: state.documentViewer.signRequestStatus,
             selectedSignatureId: state.documentViewer.selectedSignatureId,
             selectedInitialId: state.documentViewer.selectedInitialId
     };
-}, { signDocument, addSignatureToDocument, addDateToDocument, addTextToDocument, setActivePage, showSignConfirmationModal }
+}, { signDocument, addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal }
 )(PDFViewer);
 
 

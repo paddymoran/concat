@@ -32,7 +32,7 @@ class InviteModal extends React.PureComponent<InviteProps> {
 
     render() {
         return (
-            <Modal show={true} onHide={this.props.hideModal}>
+            <Modal backdrop='static' show={true} onHide={this.props.hideModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Invite</Modal.Title>
                 </Modal.Header>
@@ -48,7 +48,7 @@ class InviteModal extends React.PureComponent<InviteProps> {
 export default connect(
     (state: Sign.State) => {
         const documentSets: any = state.documentSets[state.modals.documentSetId] || { recipients: [{}] };
-        return { recipients: documentSets.recipients };
+        return { recipients: documentSets.recipients, documentSetId: state.modals.documentSetId };
     },
     {
         defineRecipients,

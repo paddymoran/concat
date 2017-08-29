@@ -158,15 +158,23 @@ export const UploadDocumentsOthers = connect(
 class UnconnectedUploadDocumentsFull extends React.PureComponent<UploadDocumentsFullProps> {
     constructor(props: UploadDocumentsFullProps){
         super(props);
+        this.submit = this.submit.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.toggleInviteSignatories = this.toggleInviteSignatories.bind(this);
     }
     
     onSubmit(values: { recipients: Sign.Recipients }) {
-        if (this.props.inviteSignatories) {
-            this.props.defineRecipients(this.props.documentSetId, values.recipients);
-        }
+        this.props.defineRecipients(this.props.documentSetId, values.recipients);
         this.props.nextPage(this.props.documentSetId);
+    }
+
+    submit() {
+        if (this.props.inviteSignatories) {
+            this.props.submit();
+        }
+        else {
+            this.props.nextPage(this.props.documentSetId);
+        }
     }
 
     toggleInviteSignatories() {
@@ -195,7 +203,7 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<UploadDocuments
                 <hr />
 
                 <div className="text-center">
-                    <Button bsStyle="primary" onClick={this.props.submit}>Continue To Sign</Button>
+                    <Button bsStyle="primary" onClick={this.submit}>Continue To Sign</Button>
                 </div>
             </div>
         );

@@ -11,6 +11,7 @@ import modals from './modals';
 import dimensions from './dimensions';
 import overlayDefaults from './overlayDefaults';
 import requestedSignatures from './requestedSignatures';
+import uploadDocuments from './uploadDocuments';
 
 
 const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
@@ -24,8 +25,9 @@ const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     signatures,
     dimensions,
     requestedSignatures,
+    form,
+    uploadDocuments,
     overlayDefaults,
-    form
 });
 
 export default rootReducer;

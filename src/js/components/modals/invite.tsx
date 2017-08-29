@@ -1,14 +1,16 @@
 import * as React from 'react';
-import { Button, Modal } from 'react-bootstrap';
+import { Button, Modal, ButtonToolbar } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { closeModal, defineRecipients } from '../../actions';
 import { InviteForm } from '../selectRecipients';
+import { submit } from 'redux-form';
 
 interface InviteProps {
     hideModal: () => void;
     recipients: Sign.Recipients;
     documentSetId: string;
     defineRecipients: (payload: Sign.Actions.DefineRecipientsPayload) => void;
+    submit: () => void;
 }
 
 interface RecipientList {
@@ -38,8 +40,15 @@ class InviteModal extends React.PureComponent<InviteProps> {
                 </Modal.Header>
 
                 <Modal.Body>
-                    <InviteForm initialValues={{recipients: this.props.recipients}} onSubmit={this.onSubmit} fullWidth={true} />
+                    <InviteForm initialValues={{recipients: this.props.recipients}} onSubmit={this.onSubmit} />
                 </Modal.Body>
+
+                <Modal.Footer>
+                    <ButtonToolbar className="pull-right">
+                        <Button onClick={this.props.hideModal}>Close</Button>
+                        <Button onClick={this.props.submit} bsStyle="primary">Save</Button>
+                    </ButtonToolbar>
+                </Modal.Footer>
             </Modal>
         );
     }
@@ -51,6 +60,7 @@ export default connect(
         return { recipients: documentSets.recipients, documentSetId: state.modals.documentSetId };
     },
     {
+        submit: () => submit(Sign.FormName.RECIPIENTS),
         defineRecipients,
         hideModal: () => closeModal({modalName: Sign.ModalType.INVITE})
     }

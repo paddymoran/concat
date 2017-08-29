@@ -111,6 +111,18 @@ class TextDragger extends React.PureComponent<TextProps, TextState> {
     }
 }
 
+class PromptDragger extends React.PureComponent<TextProps, TextState> {
+    constructor(props: TextProps){
+        super(props);
+    }
+
+    render() {
+        const width = Sign.DefaultSignatureSize.WIDTH_RATIO * this.props.containerWidth;
+        const height = width / 3;
+        return <div className="prompt-drag" style={getItemStyles(this.props, width, height )}></div>
+    }
+}
+
 
 export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
 
@@ -124,6 +136,7 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
          {  itemType === Sign.DragAndDropTypes.ADD_SIGNATURE_TO_DOCUMENT && <SignatureGetSize signatureId={this.props.item.signatureId} clientOffset={this.props.clientOffset} containerWidth={this.props.containerWidth}/> }
          {  itemType === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT && <TextDragger  clientOffset={this.props.clientOffset} value={this.props.item.value} containerWidth={this.props.containerWidth}/> }
          {  itemType === Sign.DragAndDropTypes.ADD_TEXT_TO_DOCUMENT && <TextDragger clientOffset={this.props.clientOffset} value={this.props.item.value} containerWidth={this.props.containerWidth}/> }
+         {  itemType === Sign.DragAndDropTypes.ADD_PROMPT_TO_DOCUMENT && <PromptDragger clientOffset={this.props.clientOffset} value={this.props.item.value} containerWidth={this.props.containerWidth}/> }
      </div>
     );
   }

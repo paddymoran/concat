@@ -4,7 +4,8 @@ import ReactRnd from 'react-rnd';
 import {
     moveSignature, removeSignatureFromDocument,
     moveDate, removeDateFromDocument,
-    moveText, removeTextFromDocument
+    moveText, removeTextFromDocument,
+    movePrompt, removePromptFromDocument
  } from '../actions';
 import { connect } from 'react-redux';
 import { signatureUrl, stringToCanvas } from '../utils';
@@ -377,4 +378,16 @@ export const TextPositionable = connect<{}, {}, ConnectedPositionableProps>(
         }
     },
     { removePositionableFromDocument: removeTextFromDocument, movePositionable: moveText }
+)(Positionable);
+
+export const PromptPositionable = connect<{}, {}, ConnectedPositionableProps>(
+    (state: Sign.State, ownProps: PositionableProps) => {
+        const positionable : Sign.DocumentPrompt = state.documentViewer.prompts[ownProps.index];
+        return {
+            positionable: state.documentViewer.prompts[ownProps.index] as Sign.Positionable,
+            indexKey: 'promptIndex',
+            controls: SimpleControls,
+        }
+    },
+    { removePositionableFromDocument: removePromptFromDocument, movePositionable: movePrompt }
 )(Positionable);

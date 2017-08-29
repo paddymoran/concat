@@ -27,7 +27,7 @@ $sign-control-wide-width: $sign-control-width * 1.6;
     .controls-left, .controls-right {
         .sign-control {
             float: left;
-            cursor: pointer;
+            cursor: move;
         }
     }
 

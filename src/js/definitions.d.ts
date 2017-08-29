@@ -107,8 +107,15 @@ declare namespace Sign {
         height: number;
     }
 
+    type PromptType = 'signature' | 'initial' | 'date' | 'text';
+
+    interface PromptInfo{
+        recipientEmail: string;
+        type: PromptType
+    }
+
     interface DocumentPrompt extends Positionable{
-        value: any;
+        value: PromptInfo
     }
 
     interface DocumentSignatures {
@@ -574,6 +581,7 @@ declare namespace Sign.Actions {
 
     interface MovePromptPayload extends MovePositionablePayload {
         promptIndex: string;
+        value: Sign.PromptInfo;
     }
 
     interface SignDocumentPayload {

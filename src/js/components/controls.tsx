@@ -132,7 +132,9 @@ const textSource: __ReactDnd.DragSourceSpec<AddTextControlProps> = {
 
 const promptSource: __ReactDnd.DragSourceSpec<AddPromptControlProps> = {
     beginDrag(props, monitor) {
-        let { value } = textDefaults();
+        let value = {
+            type: 'signature'
+        }
         if(props.defaults){
             if(props.defaults.value){
                 value = props.defaults.value;
@@ -282,6 +284,7 @@ interface ConnectedControlProps extends ControlProps{
     hasDate: boolean;
     hasText: boolean;
     hasPrompt: boolean;
+    hasRecipients: boolean;
     showInviteModal: (payload: Sign.Actions.ShowInviteModalPayload) => void;
     overlayDefaults: Sign.OverlayDefaults;
 }
@@ -378,6 +381,18 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
 
 
     render() {
+        const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients }  = this.props;
+        const hasSigned = ( hasSignature || hasInitial || hasDate || hasText);
+        const selfSign = hasSigned && !hasPrompt && !hasRecipients;
+        const otherSign = !hasSigned && hasRecipients;
+        const mixSign = hasSigned && hasRecipients;
+        let submitString = 'Sign';
+        if(otherSign){
+            submitString = 'Send';
+        }
+        else if(mixSign){
+            submitString = 'Sign & Send';
+        }
         return (
             <div className="controls" onClick={this.activateNone}>
                 <div className="container">
@@ -434,7 +449,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                         </div> }
 
                         <div className="submit-button sign-control" onClick={this.props.sign}>
-                        <div  className="button-text"><i className="fa fa-pencil" /><span className="label">Sign</span></div>
+                            <div  className="button-text"><i className="fa fa-pencil" /><span className="label">{ submitString }</span></div>
                         </div>
                     </div>
                 </div>
@@ -444,7 +459,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
 }
 
 export const Controls = connect<{}, {}, ControlProps>(
-    (state: Sign.State) => ({
+    (state: Sign.State, ownProps: any) => ({
         selectedSignatureId: state.documentViewer.selectedSignatureId,
         selectedInitialId: state.documentViewer.selectedInitialId,
         activeSignControl: state.documentViewer.activeSignControl,
@@ -453,6 +468,7 @@ export const Controls = connect<{}, {}, ControlProps>(
         hasDate: !!Object.keys(state.documentViewer.dates).length,
         hasText: !!Object.keys(state.documentViewer.texts).length,
         hasPrompt: !!Object.keys(state.documentViewer.prompts).length,
+        hasRecipients: ((state.documentSets[ownProps.documentSetId] || {recipients: []}).recipients || []).length > 0,
         overlayDefaults: state.overlayDefaults,
     }),
     { setActiveSignControl, showInviteModal }

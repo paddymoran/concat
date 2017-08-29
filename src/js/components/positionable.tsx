@@ -29,6 +29,8 @@ interface PositionableProps {
     containerHeight: number;
     containerWidth: number;
     index: string;
+    documentSetId: string;
+    documentId: string;
 }
 
 interface ConnectedPositionableProps extends PositionableProps {
@@ -39,14 +41,16 @@ interface ConnectedPositionableProps extends PositionableProps {
     movePositionable?: (payload: Sign.Actions.MovePositionablePayload | Sign.Actions.MoveDatePayload) => void;
     controls?: React.ComponentClass<ControlProps>;
     rerenderOnResize?: boolean;
+    recipients?: Sign.Recipients;
 }
-
 
 interface ControlProps {
     index: string;
     onDelete: () => void;
     element: () => React.Component;
     containerWidth: number;
+    documentSetId: string;
+    documentId: string;
 }
 
 interface DateControlProps extends ControlProps{
@@ -62,6 +66,7 @@ interface TextControlProps extends ControlProps{
 interface PromptControlProps extends ControlProps{
     prompt: Sign.DocumentPrompt,
     updatePrompt: (payload: Sign.Actions.MovePromptPayload) => void;
+    recipients: Sign.Recipients;
 }
 
 
@@ -159,7 +164,7 @@ class TextControls extends React.PureComponent<TextControlProps> {
             height,
             value,
             ratioX
-        })
+        });
     }
 
     render(){
@@ -189,18 +194,46 @@ const ConnectedTextControls = connect((state, ownProps: ControlProps) => ({
 class PromptControls extends React.PureComponent<PromptControlProps> {
     constructor(props: PromptControlProps){
         super(props);
-        this.onChangeValue = this.onChangeValue.bind(this);
+        this.onChangeRecipient= this.onChangeRecipient.bind(this);
+        this.onChangeType= this.onChangeType.bind(this);
     }
 
-    onChangeValue(event : React.FormEvent<HTMLTextAreaElement>) {
+    onChangeRecipient(event : React.FormEvent<HTMLSelectElement>) {
+        const value = event.currentTarget.value
+        this.props.updatePrompt({
+            promptIndex: this.props.index,
+            value: {
+                recipientEmail: value,
+                type: this.props.prompt.value.type
+            }
+        });
+    }
+
+    onChangeType(event : React.FormEvent<HTMLSelectElement>) {
+        const value = event.currentTarget.value as  Sign.PromptType;;
+        this.props.updatePrompt({
+            promptIndex: this.props.index,
+            value: {
+                recipientEmail: this.props.prompt.value.recipientEmail,
+                type: value
+            }
+        });
+
     }
 
     render(){
         return <div className="positionable-controls">
              <OverlayTrigger  trigger="click" rootClose placement="top" overlay={
-                    <Popover id={`popover-for-${this.props.index}`} >
+                    <Popover id={`popover-for-${this.props.index}`} className="prompt-controls">
                         <div className="form-group">
-                            <select className="form-control">
+                            <label>Who</label>
+                            <select className="form-control" value={this.props.prompt.value.recipientEmail} onChange={this.onChangeRecipient}>
+                                { this.props.recipients.map((recipient, i) => <option key={recipient.email} value={recipient.email}>{ recipient.name }</option> ) }
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label>Type</label>
+                            <select className="form-control" value={this.props.prompt.value.type} onChange={this.onChangeType}>
                                 <option value="signature">Signature</option>
                                 <option value="initial">Initial</option>
                                 <option value="date">Date</option>
@@ -217,11 +250,15 @@ class PromptControls extends React.PureComponent<PromptControlProps> {
 }
 
 
-const ConnectedPromptControls = connect((state, ownProps: ControlProps) => ({
-    prompt: state.documentViewer.texts[ownProps.index]  as Sign.DocumentPrompt,
-}), {
+const ConnectedPromptControls = connect((state, ownProps: ControlProps) => {
+    return {
+        prompt: state.documentViewer.prompts[ownProps.index]  as Sign.DocumentPrompt,
+        recipients: (state.documentSets[ownProps.documentSetId] || {recipients: []}).recipients || []
+        }
+    }, {
     updatePrompt: movePrompt
 })(PromptControls)
+
 
 // Keep numbers between 0 and 1
 const boundNumber = (number: number) => {
@@ -367,7 +404,7 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
                 minHeight={Sign.DefaultSignatureSize.MIN_HEIGHT}
                 lockAspectRatio={true}
                 resizeHandlerClasses={Positionable.HANDLER_STYLES}
-            ><Controls onDelete={this.onDelete} index={this.props.index} element={() => this.positionable} containerWidth={containerWidth}/></ReactRnd>
+            ><Controls onDelete={this.onDelete} index={this.props.index} element={() => this.positionable} containerWidth={containerWidth} documentSetId={this.props.documentSetId} documentId={this.props.documentId}/></ReactRnd>
         );
     }
 }

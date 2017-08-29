@@ -45,7 +45,7 @@ class InviteModal extends React.PureComponent<InviteProps> {
 
                 <Modal.Footer>
                     <ButtonToolbar className="pull-right">
-                        <Button onClick={this.props.hideModal}>Close</Button>
+                        <Button onClick={this.props.hideModal}>Cancel</Button>
                         <Button onClick={this.props.submit} bsStyle="primary">Save</Button>
                     </ButtonToolbar>
                 </Modal.Footer>

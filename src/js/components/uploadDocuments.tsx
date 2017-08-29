@@ -2,11 +2,15 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocument, requestDocumentSet, createDocumentSet } from '../actions';
+import { addDocument, requestDocumentSet, createDocumentSet, defineRecipients, setInviteSignatories } from '../actions';
 import { generateUUID } from './uuid';
 import  { Link } from 'react-router';
+import { push } from 'react-router-redux';
 import HorizontalDocumentList from './horizontalDocumentList';
 import SelectRecipients from './selectRecipients';
+import { InviteForm } from './selectRecipients';
+import { Checkbox, Button } from 'react-bootstrap';
+import { submit } from 'redux-form';
 
 
 interface UploadDocumentsProps {
@@ -23,10 +27,6 @@ interface ConnectedDocumentSetProps {
     documentSetId: string;
 }
 
-interface DocumentSetViewProps extends Sign.Components.RouteDocumentSet {
-
-}
-
 interface DocumentSetProps extends ConnectedDocumentSetProps {
     documentSet: Sign.DocumentSet;
     documentIds: string[];
@@ -34,7 +34,7 @@ interface DocumentSetProps extends ConnectedDocumentSetProps {
     requestDocumentSet: (documentSetId: string) => void;
 }
 
-export class DocumentSetView extends React.PureComponent<DocumentSetViewProps> {
+export class DocumentSetView extends React.PureComponent<Sign.Components.RouteDocumentSet> {
     render() {
         return <ConnectedDocumentSet documentSetId={this.props.params.documentSetId} />
     }
@@ -71,9 +71,7 @@ const ConnectedDocumentSet = connect(
             loaded: documentSet && documentSet.downloadStatus === Sign.DownloadStatus.Complete
         };
     },
-    {
-        requestDocumentSet
-    }
+    { requestDocumentSet }
 )(DocumentSet);
 
 
@@ -157,11 +155,79 @@ export const UploadDocumentsOthers = connect(
 )(Upload);
 
 
-export class UploadDocumentsFull extends React.PureComponent<ConnectedDocumentSetProps> {
-    render(){
-        return <div>
-            <UploadDocuments {...this.props} />
-            <SelectRecipients {...this.props} />
-        </div>
+class UnconnectedUploadDocumentsFull extends React.PureComponent<UploadDocumentsFullProps> {
+    constructor(props: UploadDocumentsFullProps){
+        super(props);
+        this.onSubmit = this.onSubmit.bind(this);
+        this.toggleInviteSignatories = this.toggleInviteSignatories.bind(this);
+    }
+    
+    onSubmit(values: { recipients: Sign.Recipients }) {
+        if (this.props.inviteSignatories) {
+            this.props.defineRecipients(this.props.documentSetId, values.recipients);
+        }
+        this.props.nextPage(this.props.documentSetId);
+    }
+
+    toggleInviteSignatories() {
+        this.props.setInviteSignatories(!this.props.inviteSignatories);
+    }
+
+    render() {
+        return (
+            <div>
+                <UploadDocuments {...this.props} />
+                
+                <hr />
+
+                <div className="text-center">
+                    <Button onClick={this.toggleInviteSignatories}>{this.props.inviteSignatories ? 'Don\'t Invite Signatories' : 'Invite Signatories'}</Button>
+                </div>
+
+                {this.props.inviteSignatories && 
+                    <div>
+                        <h3 className="text-center">Signatories</h3>
+
+                        <div className="text-center">
+                            <Checkbox>Me</Checkbox>
+                        </div>
+
+                        <InviteForm initialValues={{ recipients: [{}] }} onSubmit={this.onSubmit} />
+                    </div>
+                }
+
+                <hr />
+
+                <div className="text-center">
+                    <Button bsStyle="primary" onClick={this.props.submit}>Continue To Sign</Button>
+                </div>
+            </div>
+        );
     }
 }
+
+interface UploadDocumentsFullProps {
+    documentSetId: string;
+    inviteSignatories: boolean;
+    submit: () => void;
+    defineRecipients: (documentSetId: string, recipients: Sign.Recipients) => void;
+    nextPage: (documentSetId: string) => void;
+    setInviteSignatories: (inviteSignatories: boolean) => void;
+}
+
+interface ConnectedUploadDocumentsFullProps {
+    params: { documentSetId: string; };
+}
+
+export const UploadDocumentsFull = connect(
+    (state: Sign.State, ownProps: ConnectedUploadDocumentsFullProps) => ({
+        documentSetId: ownProps.params.documentSetId,
+        inviteSignatories: state.uploadDocuments.inviteSignatories
+    }),
+    {
+        submit: () => submit(Sign.FormName.RECIPIENTS),
+        defineRecipients: (documentSetId: string, recipients: Sign.Recipients) =>  defineRecipients({ documentSetId, recipients }),
+        nextPage: (documentSetId: string) => push(`documents/${documentSetId}`),
+        setInviteSignatories: (inviteSignatories: boolean) => setInviteSignatories({ inviteSignatories })
+    }
+)(UnconnectedUploadDocumentsFull);

@@ -181,6 +181,10 @@ declare namespace Sign {
         downloadStatus: DownloadStatus;
     }
 
+    interface UploadDocuments {
+        inviteSignatories: boolean;
+    }
+
     interface State {
         routing: any;
         documentSets: DocumentSets;
@@ -192,6 +196,7 @@ declare namespace Sign {
         signatures: Signatures;
         dimensions: Dimensions;
         requestedSignatures: RequestedSignatures;
+        uploadDocuments: UploadDocuments;
     }
 
     interface Action<T> {
@@ -251,6 +256,10 @@ declare namespace Sign {
         INITIAL = 'initial',
         DATE = 'date',
         TEXT = 'text',
+    }
+
+    const enum FormName {
+        RECIPIENTS = 'recipients',
     }
 
     const enum ModalType {
@@ -357,7 +366,9 @@ declare namespace Sign.Actions {
 
         DEFINE_RECIPIENTS = 'DEFINE_RECIPIENTS',
 
-        SUBMIT_SIGN_REQUESTS = 'SUBMIT_SIGN_REQUESTS'
+        SUBMIT_SIGN_REQUESTS = 'SUBMIT_SIGN_REQUESTS',
+
+        SET_INVITE_SIGNATORIES = 'SET_INVITE_SIGNATORIES',
     }
 
     interface ActionCreator<T> {
@@ -622,6 +633,10 @@ declare namespace Sign.Actions {
         activeSignControl: Sign.ActiveSignControl;
     }
 
+    interface SetInviteSignatoriesPayload {
+        inviteSignatories: boolean;
+    }
+
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
@@ -681,7 +696,7 @@ declare namespace Sign.Actions {
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}
     interface SubmitSignRequests extends ActionCreator<SubmitSignRequestsPayload> {}
 
-
+    interface SetInviteSignatories extends ActionCreator<SetInviteSignatoriesPayload> {}
 }
 
 declare module 'pdfjs-dist/webpack' {

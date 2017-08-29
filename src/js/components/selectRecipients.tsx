@@ -1,16 +1,11 @@
 import * as React from 'react';
 import { Field, FieldArray, reduxForm, FormErrors, BaseFieldProps,  InjectedFormProps, WrappedFieldProps } from 'redux-form'
-import * as FormControl from 'react-bootstrap/lib/FormControl'
-import { ControlLabel, FormGroup, FormGroupProps, HelpBlock } from 'react-bootstrap';
-import * as Button from 'react-bootstrap/lib/Button'
-import { Col, Row } from 'react-bootstrap';
+import { ControlLabel, FormGroup, FormGroupProps, HelpBlock, Col, Row, Button, FormControl } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { defineRecipients } from '../actions';
 import { push } from 'react-router-redux';
 
-type FormProps = {
-    fullWidth: boolean;
-} & InjectedFormProps
+type FormProps = { } & InjectedFormProps
 
 type FieldProps = {
     type: string;
@@ -41,7 +36,6 @@ const FormInput = (props : FieldProps) => {
 
 interface RenderRecipientsProps {
     fields: any;
-    fullWidth?: boolean;
     meta: {
         error: string;
         submitFailed: boolean;
@@ -51,19 +45,13 @@ interface RenderRecipientsProps {
 class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
     render() {
         const { fields, meta: { error, submitFailed } } = this.props;
-        const fullWidth = this.props.fullWidth || false;
-
-        // Sometimes we need the form to be the full width of it's parent container,
-        // sometimes we don't... this defines that sizing
-        const firstFieldOffset = fullWidth ? 0 : 3;
-        const fieldColSize = fullWidth ? 5 : 3;
 
         return (
             <ul>
                 {fields.map((recipient: any, index : number) =>
                     <li key={index}>
                         <Row>
-                            <Col md={fieldColSize} mdOffset={firstFieldOffset}>
+                            <Col md={5}>
                                 <Field
                                     name={`${recipient}.name`}
                                     type="text"
@@ -71,7 +59,7 @@ class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
                                     placeholder="Name" />
                             </Col>
                             
-                            <Col md={fieldColSize}>
+                            <Col md={5}>
                                 <Field
                                     name={`${recipient}.email`}
                                     type="email"
@@ -79,7 +67,7 @@ class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
                                     placeholder="Email" />
                             </Col>
                             
-                            <Col md={1}>
+                            <Col md={2}>
                                 <Button onClick={() => fields.remove(index)}>
                                     <i className="fa fa-trash"/>
                                 </Button>
@@ -102,42 +90,24 @@ class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
     }
 }
 
-class RenderRecipientsFullWidth extends React.PureComponent<RenderRecipientsProps> {
-    render() {
-        return <RenderRecipients {...this.props} fullWidth={true} />;
-    }
-}
-
 class FieldArraysForm extends React.PureComponent<FormProps> {
     render() {
-        const { handleSubmit, pristine, reset, submitting, valid, fullWidth } = this.props;
+        const { handleSubmit, pristine, reset, submitting, valid } = this.props;
         
         return (
             <form onSubmit={handleSubmit}>
-                <FieldArray name="recipients" component={fullWidth ? RenderRecipientsFullWidth : RenderRecipients} />
-                
-                <div className="centered-button-row">
-                    <div className="btn-toolbar">
-                        <Button disabled={pristine || submitting} onClick={reset}>
-                            Reset
-                        </Button>
-                    
-                        <Button type="submit" bsStyle={'primary'} disabled={submitting || !valid}>
-                            Continue
-                        </Button>
-                    </div>
-                </div>
+                <FieldArray name={Sign.FormName.RECIPIENTS} component={RenderRecipients} />
             </form>
         );
     }
 }
 
-const validate = (values : Readonly<RecipientList>) : FormErrors<RecipientList> => {
+const validate = (values: Readonly<RecipientList>): FormErrors<RecipientList> => {
     const errors : FormErrors<RecipientList> = {};
-    if (!values.recipients || !values.recipients.length) {
-        errors.recipients = { _error: 'At least one recipient must be entered' } as any;
-    }
+    const recipients = values[Sign.FormName.RECIPIENTS];
+    
     const recipientsArrayErrors : FormErrors<Sign.Recipient>[] = [];
+    
     values.recipients.forEach((recipient : Sign.Recipient, recipientIndex: number) => {
         const recipientErrors = {} as any;
         if (!recipient || !recipient.name) {
@@ -161,8 +131,8 @@ const validate = (values : Readonly<RecipientList>) : FormErrors<RecipientList> 
 }
 
 
-export const InviteForm = reduxForm<RecipientList, { fullWidth: boolean; }>({
-    form: 'selectRecipients', // a unique identifier for this form
+export const InviteForm = reduxForm<RecipientList>({
+    form: Sign.FormName.RECIPIENTS, // a unique identifier for this form
     validate
 })(FieldArraysForm);
 
@@ -191,7 +161,7 @@ export class SelectRecipients extends React.Component<SelectRecipientsProps>  {
                 </div>
                 
                 <div className="select-recipients">
-                    <InviteForm initialValues={{recipients: [{}]}} onSubmit={this.onSubmit} fullWidth={false}/>
+                    <InviteForm initialValues={{recipients: [{}]}} onSubmit={this.onSubmit} />
                 </div>
             </div>
         );

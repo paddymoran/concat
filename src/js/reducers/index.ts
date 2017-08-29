@@ -10,6 +10,7 @@ import signatures from './signatures';
 import modals from './modals';
 import dimensions from './dimensions';
 import requestedSignatures from './requestedSignatures';
+import uploadDocuments from './uploadDocuments';
 
 
 const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
@@ -23,7 +24,8 @@ const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     signatures,
     dimensions,
     requestedSignatures,
-    form
+    form,
+    uploadDocuments
 });
 
 export default rootReducer;

@@ -328,3 +328,10 @@ export function setActiveSignControl(payload: Sign.Actions.SetActiveSignControlP
         payload
     };
 }
+
+export function setInviteSignatories(payload: Sign.Actions.SetInviteSignatoriesPayload): Sign.Actions.SetInviteSignatories {
+    return {
+        type: Sign.Actions.Types.SET_INVITE_SIGNATORIES,
+        payload
+    };
+}

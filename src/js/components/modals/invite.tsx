@@ -38,7 +38,7 @@ class InviteModal extends React.PureComponent<InviteProps> {
                 </Modal.Header>
 
                 <Modal.Body>
-                    <InviteForm initialValues={{recipients: this.props.recipients}} onSubmit={this.onSubmit} fullWidth={true} />
+                    <InviteForm initialValues={{recipients: this.props.recipients}} onSubmit={this.onSubmit} />
                 </Modal.Body>
             </Modal>
         );

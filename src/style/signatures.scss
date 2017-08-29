@@ -14,7 +14,7 @@
         & > button {
             background-color: #fff;
             border-radius: 10px;
-            color: $gray-light;
+            color: $gray;
             padding: 0 2px;
             &:focus{
                  outline: none;
@@ -39,4 +39,9 @@
     img{
         width: 100%;
      }
+}
+
+
+.prompt-controls{
+    width: 200px;
 }

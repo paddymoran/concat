@@ -132,7 +132,9 @@ const textSource: __ReactDnd.DragSourceSpec<AddTextControlProps> = {
 
 const promptSource: __ReactDnd.DragSourceSpec<AddPromptControlProps> = {
     beginDrag(props, monitor) {
-        let { value } = textDefaults();
+        let value = {
+            type: 'signature'
+        }
         if(props.defaults){
             if(props.defaults.value){
                 value = props.defaults.value;

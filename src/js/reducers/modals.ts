@@ -45,11 +45,10 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
             if (action.payload.modalName === state.showing) {
                 return DEFAULT_STATE;
             }
-
             return state;
 
         case Sign.Actions.Types.SHOW_INVITE_MODAL:
-            return { ...state, showing: Sign.ModalType.INVITE };
+            return { ...state, showing: Sign.ModalType.INVITE, ...action.payload };
 
         default:
             return state;

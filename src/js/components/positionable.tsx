@@ -59,6 +59,11 @@ interface TextControlProps extends ControlProps{
     updateText: (payload: Sign.Actions.MoveTextPayload) => void;
 }
 
+interface PromptControlProps extends ControlProps{
+    prompt: Sign.DocumentPrompt,
+    updatePrompt: (payload: Sign.Actions.MovePromptPayload) => void;
+}
+
 
 class SimpleControls extends React.PureComponent<ControlProps> {
     render(){
@@ -180,6 +185,43 @@ const ConnectedTextControls = connect((state, ownProps: ControlProps) => ({
     updateText: moveText
 })(TextControls)
 
+
+class PromptControls extends React.PureComponent<PromptControlProps> {
+    constructor(props: PromptControlProps){
+        super(props);
+        this.onChangeValue = this.onChangeValue.bind(this);
+    }
+
+    onChangeValue(event : React.FormEvent<HTMLTextAreaElement>) {
+    }
+
+    render(){
+        return <div className="positionable-controls">
+             <OverlayTrigger  trigger="click" rootClose placement="top" overlay={
+                    <Popover id={`popover-for-${this.props.index}`} >
+                        <div className="form-group">
+                            <select className="form-control">
+                                <option value="signature">Signature</option>
+                                <option value="initial">Initial</option>
+                                <option value="date">Date</option>
+                                <option value="text">Text</option>
+                            </select>
+                        </div>
+                    </Popover>
+                 }>
+                <button className="button-no-style "><span className="fa fa-edit"/></button>
+            </OverlayTrigger>
+            <button className="button-no-style" onClick={this.props.onDelete}><span className="fa fa-trash-o"/></button>
+        </div>
+    }
+}
+
+
+const ConnectedPromptControls = connect((state, ownProps: ControlProps) => ({
+    prompt: state.documentViewer.texts[ownProps.index]  as Sign.DocumentPrompt,
+}), {
+    updatePrompt: movePrompt
+})(PromptControls)
 
 // Keep numbers between 0 and 1
 const boundNumber = (number: number) => {
@@ -308,10 +350,10 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
             height: containerHeight * positionable.ratioY
         };
 
-        const stylesWithbackground = {
+        const stylesWithbackground = this.props.background ? {
             backgroundImage: this.props.background,
             backgroundSize: '100% 100%',
-        };
+        } : {};
         const Controls = this.props.controls as React.ComponentClass<ControlProps>;
         return (
             <ReactRnd
@@ -386,7 +428,7 @@ export const PromptPositionable = connect<{}, {}, ConnectedPositionableProps>(
         return {
             positionable: state.documentViewer.prompts[ownProps.index] as Sign.Positionable,
             indexKey: 'promptIndex',
-            controls: SimpleControls,
+            controls: ConnectedPromptControls,
         }
     },
     { removePositionableFromDocument: removePromptFromDocument, movePositionable: movePrompt }

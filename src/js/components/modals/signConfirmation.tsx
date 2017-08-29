@@ -8,6 +8,7 @@ interface SignConfirmationProps {
     documentId: string;
     documentSetId: string;
     signRequestId: number;
+    recipients: Sign.Recipients;
     hideModal: () => void;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
 }
@@ -52,6 +53,18 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
 
                 <Modal.Body>
                     {this.props.signRequestStatus === Sign.DownloadStatus.InProgress ? this.renderLoading() : this.renderBody()}
+
+                    {this.props.recipients && 
+                        <div>
+                            <h3>Recipients</h3>
+                            
+                            {this.props.recipients.map((recipient, index) =>
+                                <p key={index}>
+                                    <strong>{recipient.name}:</strong> {recipient.email}
+                                </p>
+                            )}
+                        </div>
+                    }
                 </Modal.Body>
             </Modal>
         );
@@ -59,11 +72,17 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
 }
 
 export default connect(
-    (state: Sign.State) => ({
-        signRequestStatus: state.documentViewer.signRequestStatus,
-        documentId: state.modals.documentId,
-        documentSetId: state.modals.documentSetId,
-        signRequestId: state.modals.signRequestId
-    }),
+    (state: Sign.State) => {
+        const documentSet = state.documentSets[state.modals.documentSetId];
+        const recipients = documentSet ? documentSet.recipients : null;
+        
+        return {
+            signRequestStatus: state.documentViewer.signRequestStatus,
+            documentId: state.modals.documentId,
+            documentSetId: state.modals.documentSetId,
+            signRequestId: state.modals.signRequestId,
+            recipients,
+        }
+    },
     { signDocument, hideModal: () => closeModal({modalName: Sign.ModalType.SIGN_CONFIRMATION})  },
 )(SignConfirmation);

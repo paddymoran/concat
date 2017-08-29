@@ -56,8 +56,10 @@ class InviteModal extends React.PureComponent<InviteProps> {
 
 export default connect(
     (state: Sign.State) => {
-        const documentSets: any = state.documentSets[state.modals.documentSetId] || { recipients: [{}] };
-        return { recipients: documentSets.recipients, documentSetId: state.modals.documentSetId };
+        const documentSets: any = state.documentSets[state.modals.documentSetId] || { recipients: null };
+        const recipients = documentSets.recipients || [{}];
+
+        return { recipients, documentSetId: state.modals.documentSetId };
     },
     {
         submit: () => submit(Sign.FormName.RECIPIENTS),

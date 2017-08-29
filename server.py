@@ -278,6 +278,9 @@ def sign_document():
     for overlay in args['overlays']:
         base64Image = overlay['dataUrl']
         overlay['imgData'] = BytesIO(b64decode(base64Image.split(",")[1]))
+    #for req in args['signatureRequests']:
+    #    req['recipient']['user_id'] =  users[req['recipient']['email']]['id']
+
 
     result = sign(document, args['signatures'], args['overlays'])
     saved_document_id = db.add_document(None, None, filename, result.read())['document_id']

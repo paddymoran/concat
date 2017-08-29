@@ -786,6 +786,7 @@ declare namespace ReactRnd {
         dragHandlerClassName? : string;
         onDragStop?: (event: DraggableData, resizeData: ResizeData) => void;
         onResizeStop?: (event: any, resizeDirection: string, element: any) => void;
+        className?: string;
     }
 
     interface ReactRndState {

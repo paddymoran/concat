@@ -8,7 +8,7 @@ import {
     movePrompt, removePromptFromDocument
  } from '../actions';
 import { connect } from 'react-redux';
-import { signatureUrl, stringToCanvas } from '../utils';
+import { signatureUrl, stringToCanvas, promptToCanvas } from '../utils';
 import * as Calendar from 'react-widgets/lib/Calendar';
 import * as Popover from 'react-bootstrap/lib/Popover'
 import * as OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
@@ -34,14 +34,15 @@ interface PositionableProps {
 }
 
 interface ConnectedPositionableProps extends PositionableProps {
-    indexKey?: string;
-    positionable?: Sign.Positionable | Sign.DocumentText | Sign.DocumentDate | Sign.DocumentPrompt,
+    indexKey: string;
+    positionable: Sign.Positionable | Sign.DocumentText | Sign.DocumentDate | Sign.DocumentPrompt,
     background?: string;
-    removePositionableFromDocument?: (payload: Sign.Actions.RemovePositionableFromDocumentPayload) => void;
-    movePositionable?: (payload: Sign.Actions.MovePositionablePayload | Sign.Actions.MoveDatePayload) => void;
-    controls?: React.ComponentClass<ControlProps>;
+    removePositionableFromDocument: (payload: Sign.Actions.RemovePositionableFromDocumentPayload) => void;
+    movePositionable: (payload: Sign.Actions.MovePositionablePayload | Sign.Actions.MoveDatePayload) => void;
+    controls: React.ComponentClass<ControlProps>;
     rerenderOnResize?: boolean;
     recipients?: Sign.Recipients;
+    className: string;
 }
 
 interface ControlProps {
@@ -228,6 +229,7 @@ class PromptControls extends React.PureComponent<PromptControlProps> {
                         <div className="form-group">
                             <label>Who</label>
                             <select className="form-control" value={this.props.prompt.value.recipientEmail} onChange={this.onChangeRecipient}>
+                                <option value="">Please select recipient</option>
                                 { this.props.recipients.map((recipient, i) => <option key={recipient.email} value={recipient.email}>{ recipient.name }</option> ) }
                             </select>
                         </div>
@@ -379,7 +381,7 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
 
     render() {
 
-        const { positionable, containerWidth, containerHeight } = this.props;
+        const { positionable, containerWidth, containerHeight, className } = this.props;
         const defaults = {
             x: containerWidth * positionable.offsetX,
             y: containerHeight * positionable.offsetY,
@@ -391,6 +393,7 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
             backgroundImage: this.props.background,
             backgroundSize: '100% 100%',
         } : {};
+
         const Controls = this.props.controls as React.ComponentClass<ControlProps>;
         return (
             <ReactRnd
@@ -404,6 +407,7 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
                 minHeight={Sign.DefaultSignatureSize.MIN_HEIGHT}
                 lockAspectRatio={true}
                 resizeHandlerClasses={Positionable.HANDLER_STYLES}
+                className={className}
             ><Controls onDelete={this.onDelete} index={this.props.index} element={() => this.positionable} containerWidth={containerWidth} documentSetId={this.props.documentSetId} documentId={this.props.documentId}/></ReactRnd>
         );
     }
@@ -412,18 +416,19 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
 
 
 
-export const SignaturePositionable = connect<{}, {}, ConnectedPositionableProps>(
+export const SignaturePositionable = connect<{}, {}, PositionableProps>(
     (state: Sign.State, ownProps: PositionableProps) => ({
         positionable: state.documentViewer.signatures[ownProps.index] as Sign.Positionable,
         indexKey: 'signatureIndex',
        background: `url("${signatureUrl(state.documentViewer.signatures[ownProps.index].signatureId)}"`,
-        controls: SimpleControls
+        controls: SimpleControls,
+        className: 'signature-positionable'
     }),
     { removePositionableFromDocument: removeSignatureFromDocument, movePositionable: moveSignature }
 )(Positionable);
 
 
-export const DatePositionable = connect<{}, {}, ConnectedPositionableProps>(
+export const DatePositionable = connect<{}, {}, PositionableProps>(
     (state: Sign.State, ownProps: PositionableProps) => {
         const positionable : Sign.DocumentDate = state.documentViewer.dates[ownProps.index];
         const height = Math.round(ownProps.containerHeight * positionable.ratioY);
@@ -434,7 +439,8 @@ export const DatePositionable = connect<{}, {}, ConnectedPositionableProps>(
             indexKey: 'dateIndex',
             background: `url("${dataUrl}")`,
             controls: ConnectedDateControls,
-            rerenderOnResize: true
+            rerenderOnResize: true,
+            className: 'date-positionable'
         }
     },
     { removePositionableFromDocument: removeDateFromDocument, movePositionable: moveDate }
@@ -442,7 +448,7 @@ export const DatePositionable = connect<{}, {}, ConnectedPositionableProps>(
 
 
 
-export const TextPositionable = connect<{}, {}, ConnectedPositionableProps>(
+export const TextPositionable = connect<{}, {}, PositionableProps>(
     (state: Sign.State, ownProps: PositionableProps) => {
         const positionable : Sign.DocumentText = state.documentViewer.texts[ownProps.index];
         const height = Math.round(ownProps.containerHeight * positionable.ratioY);
@@ -453,19 +459,34 @@ export const TextPositionable = connect<{}, {}, ConnectedPositionableProps>(
             indexKey: 'textIndex',
             background: `url("${dataUrl}")`,
             controls: ConnectedTextControls,
-            rerenderOnResize: true
+            rerenderOnResize: true,
+            className: 'text-positionable'
         }
     },
     { removePositionableFromDocument: removeTextFromDocument, movePositionable: moveText }
 )(Positionable);
 
-export const PromptPositionable = connect<{}, {}, ConnectedPositionableProps>(
+export const PromptPositionable = connect<{}, {}, PositionableProps>(
     (state: Sign.State, ownProps: PositionableProps) => {
         const positionable : Sign.DocumentPrompt = state.documentViewer.prompts[ownProps.index];
+        const width = Math.round(ownProps.containerWidth * positionable.ratioX);
+        const height = Math.round(ownProps.containerHeight * positionable.ratioY);
+        let recipients = [] as Sign.Recipients;
+        if(state.documentSets[ownProps.documentSetId]){
+             recipients = state.documentSets[ownProps.documentSetId].recipients || [] as Sign.Recipients;
+        }
+        const recipient = recipients.find((r: Sign.Recipient) => r.email === positionable.value.recipientEmail);
+        const name = recipient ? recipient.name : 'Please select recipient';
+
+        const type = positionable.value.type;
+        const canvas = promptToCanvas(width, height, name, type, !recipient)
+         const dataUrl = canvas.toDataURL();
         return {
             positionable: state.documentViewer.prompts[ownProps.index] as Sign.Positionable,
             indexKey: 'promptIndex',
+            background: `url("${dataUrl}")`,
             controls: ConnectedPromptControls,
+            className: 'prompt-positionable'
         }
     },
     { removePositionableFromDocument: removePromptFromDocument, movePositionable: movePrompt }

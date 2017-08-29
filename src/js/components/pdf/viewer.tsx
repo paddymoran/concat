@@ -393,7 +393,7 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                             }
                         case Sign.ActiveSignControl.PROMPT:
                             {
-                                let value = {};
+                                let value = {type: 'signature'};
                                 if(this.props.overlayDefaults.prompt){
                                     if(this.props.overlayDefaults.prompt.value){
                                         value = this.props.overlayDefaults.prompt.value;

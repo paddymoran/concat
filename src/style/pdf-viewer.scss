@@ -26,8 +26,14 @@ $sign-control-wide-width: $sign-control-width * 1.6;
 
     .controls-left, .controls-right {
         .sign-control {
+            cursor: pointer;
             float: left;
-            cursor: move;
+        }
+
+        [draggable] {
+            .sign-control {
+                cursor: move;
+            }
         }
     }
 

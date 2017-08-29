@@ -188,10 +188,6 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<UploadDocuments
                     <div>
                         <h3 className="text-center">Signatories</h3>
 
-                        <div className="text-center">
-                            <Checkbox>Me</Checkbox>
-                        </div>
-
                         <InviteForm initialValues={{ recipients: [{}] }} onSubmit={this.onSubmit} />
                     </div>
                 }

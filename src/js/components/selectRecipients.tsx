@@ -4,6 +4,7 @@ import { ControlLabel, FormGroup, FormGroupProps, HelpBlock, Col, Row, Button, F
 import { connect } from 'react-redux';
 import { defineRecipients } from '../actions';
 import { push } from 'react-router-redux';
+import { Combobox } from 'react-widgets';
 
 type FormProps = { } & InjectedFormProps
 
@@ -42,6 +43,42 @@ interface RenderRecipientsProps {
     }
 }
 
+export interface IFieldComponentProps extends WrappedFieldProps {
+    label: string;
+    type: string;
+}
+
+class BaseFieldComponent extends React.PureComponent {
+    validationState(touched: boolean, error: string) {
+        if (!touched) {
+            return null;
+        }
+
+        return error ? 'error' : 'success';
+    }
+
+    render() {
+        const { label, meta: { touched, error } } = this.props;
+        const displayError = touched && error;
+
+        const data = ['Josh', 'Tim', 'Mia'];
+
+        return (
+            <FormGroup validationState={this.validationState(touched, error)}>
+                <Col componentClass={ControlLabel} md={3}>
+                    {label}
+                </Col>
+                <Col md={9}>
+                    <Combobox data={data} />
+                    { displayError && <HelpBlock>{error}</HelpBlock>}
+                </Col>
+            </FormGroup>
+        );
+    }
+}
+
+
+
 class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
     render() {
         const { fields, meta: { error, submitFailed } } = this.props;
@@ -52,11 +89,12 @@ class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
                     <li key={index}>
                         <Row>
                             <Col md={5}>
-                                <Field
+                                {/*<Field
                                     name={`${recipient}.name`}
                                     type="text"
                                     component={FormInput}
-                                    placeholder="Name" />
+                                    placeholder="Name" />*/}
+                                <Field name={`${recipient}.name`} component={BaseFieldComponent} />
                             </Col>
                             
                             <Col md={5}>

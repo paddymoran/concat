@@ -271,6 +271,13 @@ export function closeModal(payload: Sign.Actions.CloseModalPayload): Sign.Action
     };
 }
 
+export function updateModalData(payload: Sign.Actions.UpdateModalDataPayload): Sign.Actions.UpdateModalData {
+    return {
+        type: Sign.Actions.Types.UPDATE_MODAL_DATA,
+        payload
+    };
+}
+
 export function showSignConfirmationModal(payload: Sign.Actions.ShowSignConfirmationModalPayload): Sign.Actions.ShowSignConfirmationModal {
     return {
         type: Sign.Actions.Types.SHOW_SIGN_CONFIRMATION_MODAL,

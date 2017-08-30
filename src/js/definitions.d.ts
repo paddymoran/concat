@@ -376,6 +376,7 @@ declare namespace Sign.Actions {
         SHOW_RESULTS = 'SHOW_RESULTS',
         CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
 
+        UPDATE_MODAL_DATA = 'UPDATE_MODAL_DATA',
         SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
         SHOW_SUBMIT_CONFIRMATION_MODAL = 'SHOW_SUBMIT_CONFIRMATION_MODAL',
         SHOW_FAILURE_MODAL = 'SHOW_FAILURE_MODAL',
@@ -671,6 +672,10 @@ declare namespace Sign.Actions {
         documentId: string;
     }
 
+    interface UpdateModalDataPayload {
+        [key: string]: any;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -719,6 +724,7 @@ declare namespace Sign.Actions {
     interface ShowResults extends ActionCreator<ShowResultsPayload> {}
 
     interface CloseModal extends ActionCreator<CloseModalPayload> {}
+    interface UpdateModalData extends ActionCreator<UpdateModalDataPayload> {}
     interface ShowInitialSelectionModal extends Action {}
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
     interface ShowSubmitConfirmationModal extends ActionCreator<ShowSubmitConfirmationModalPayload> {}

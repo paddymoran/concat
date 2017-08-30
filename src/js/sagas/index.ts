@@ -1,7 +1,7 @@
 import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
 import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import axios from 'axios';
-import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures } from '../actions';
+import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures, updateModalData } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -205,7 +205,15 @@ function *emailDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.EMAIL_DOCUMENT, emailDocument);
     
     function *emailDocument(action: Sign.Actions.EmailDocument) {
-        yield call(axios.post, '/api/send_document', { documentId: action.payload.documentId, recipients: action.payload.recipients });
+        yield put(updateModalData({ status: Sign.DownloadStatus.InProgress }));
+
+        try {
+            yield call(axios.post, '/api/send_document', { documentId: action.payload.documentId, recipients: action.payload.recipients });
+            yield put(updateModalData({ status: Sign.DownloadStatus.Complete }));
+        }
+        catch (e) {
+            yield put(updateModalData({ status: Sign.DownloadStatus.Failed }));
+        }
     }
 }
 

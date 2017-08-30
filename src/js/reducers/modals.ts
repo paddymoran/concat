@@ -2,6 +2,12 @@ const DEFAULT_STATE: Sign.Modals = {};
 
 export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) {
     switch (action.type) {
+        case Sign.Actions.Types.UPDATE_MODAL_DATA:
+            return {
+                ...state,
+                ...action.payload
+            };
+
         case Sign.Actions.Types.SHOW_SIGNATURE_SELECTION:
             return {
                 ...state,
@@ -54,6 +60,7 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
             return {
                 ...state,
                 ...action.payload,
+                status: Sign.DownloadStatus.NotStarted,
                 showing: Sign.ModalType.EMAIL_DOCUMENT,
             };
 

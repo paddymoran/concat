@@ -1,5 +1,5 @@
 CREATE TABLE document_view (
-    document_id INTEGER PRIMARY KEY,
+    document_id UUID PRIMARY KEY,
     field_data JSONB,
 
     CONSTRAINT document_view_document_id_fk FOREIGN KEY (document_id)

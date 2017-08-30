@@ -7,7 +7,7 @@ import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { OverlayTrigger,  Popover } from 'react-bootstrap';
 import { setActiveSignControl, showInviteModal } from '../actions';
-
+import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
 const SignatureTooltip = () => {
     return <Popover id="signature-tooltip" title="Signatures">Click to create a new signature.</Popover>;
@@ -288,7 +288,7 @@ interface ConnectedControlProps extends ControlProps{
     hasRecipients: boolean;
     showInviteModal: (payload: Sign.Actions.ShowInviteModalPayload) => void;
     overlayDefaults: Sign.OverlayDefaults;
-    nextInvalidOverlay: string | boolean;
+    nextInvalidOverlay?: string
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -330,8 +330,12 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
     }
 
     sign() {
-
-        this.props.sign();
+        if(this.props.nextInvalidOverlay){
+            this.scrollTo(this.props.nextInvalidOverlay);
+        }
+        else{
+            this.props.sign();
+        }
     }
 
     signatureTooltip(children: JSX.Element){
@@ -387,6 +391,9 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         this.props.showInviteModal({ documentSetId: this.props.documentSetId });
     }
 
+    scrollTo(id: string) {
+        Scroll.scrollTo(`overlay-${id}`, {smooth: true, duration: 350, offset: -233})
+    }
 
     render() {
         const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients }  = this.props;
@@ -470,8 +477,29 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
     }
 }
 
+function validPrompt(prompt : Sign.DocumentPrompt){
+    return prompt.value && prompt.value.recipientEmail;
+}
+
+
+function findNextOverlay(positionables: Sign.DocumentPrompt[]){
+    return positionables.sort(function (a, b) {
+      return a.pageNumber - b.pageNumber || a.offsetY- b.offsetY;
+    })[0].promptIndex
+}
+
 function findNextInvalidOverlay(documentViewer: Sign.DocumentViewer, documentId: string) {
-    return false;
+    const invalidPrompts = Object.keys(documentViewer.prompts).map((k: string) => {
+        if(documentViewer.prompts[k].documentId === documentId){
+            if(!validPrompt(documentViewer.prompts[k])){
+                return documentViewer.prompts[k];
+            }
+        }
+    }).filter(d => !!d);
+    if(invalidPrompts.length){
+        return findNextOverlay(invalidPrompts)
+    }
+    return;
 }
 
 

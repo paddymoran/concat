@@ -413,7 +413,7 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
             containerWidth={containerWidth}
             documentSetId={this.props.documentSetId}
             documentId={this.props.documentId}/>
-            <div id={this.props.index}/>
+            <div id={`overlay-${this.props.index}`}/>
             </ReactRnd>
         );
     }

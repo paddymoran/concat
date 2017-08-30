@@ -161,8 +161,7 @@ def document_upload():
         user_id = session['user_id']
         return jsonify(upload_document(files, set_id, document_id, user_id))
     except Exception as e:
-        print(e)
-        raise InvalidUsage(e.message, status_code=500)
+        raise InvalidUsage(e, status_code=500)
 
 
 @app.route('/api/save_view/<document_id>', methods=['POST'])

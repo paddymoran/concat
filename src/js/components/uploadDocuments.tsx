@@ -18,8 +18,6 @@ interface UploadDocumentsProps {
     addDocument: (payload: Sign.Actions.AddDocumentPayload) => void;
     createDocumentSet: (payload: Sign.Actions.DocumentSetPayload) => void;
     requestDocumentSet: (documentSetId: string) => void;
-    nextLink: string;
-    linkText: string;
     documentSetId: string;
 }
 
@@ -132,27 +130,11 @@ export const UploadDocuments = connect(
         return {
             documentIds: documentSet ? documentSet.documentIds : null,
             documentSetId,
-            nextLink: documentSet ? `/documents/${documentSetId}/${documentSet.documentIds[0]}` : null,
-            linkText: 'Sign Documents'
         };
     },
     { addDocument, createDocumentSet,  requestDocumentSet }
 )(Upload);
 
-
-export const UploadDocumentsOthers = connect(
-    (state: Sign.State, ownProps: any) => {
-        const { documentSetId } = ownProps.params;
-        const documentSet = state.documentSets[documentSetId];
-        return {
-            documentIds: documentSet ? documentSet.documentIds : null,
-            documentSetId,
-            nextLink: documentSet ? `/others_sign/select_recipients/${documentSetId}` : null,
-            linkText: 'Select Recipients'
-        };
-    },
-    { addDocument, createDocumentSet,  requestDocumentSet }
-)(Upload);
 
 
 class UnconnectedUploadDocumentsFull extends React.PureComponent<ConnectedUploadDocumentsFullProps> {
@@ -165,7 +147,7 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<ConnectedUpload
 
     onSubmit(values: { recipients: Sign.Recipients }) {
         this.props.defineRecipients(this.props.documentSetId, values.recipients);
-        this.props.nextPage(this.props.documentSetId);
+        this.nextPage();
     }
 
     submit() {
@@ -173,12 +155,18 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<ConnectedUpload
             this.props.submit();
         }
         else {
-            this.props.nextPage(this.props.documentSetId);
+            this.nextPage();
         }
     }
 
     toggleInviteSignatories() {
         this.props.setInviteSignatories(!this.props.inviteSignatories);
+    }
+
+    nextPage(){
+        if(this.props.documentIds.length){
+            this.props.nextPage(this.props.documentSetId, this.props.documentIds[0])
+        }
     }
 
     render() {
@@ -203,7 +191,7 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<ConnectedUpload
                 <hr />
 
                 <div className="text-center">
-                    <Button bsStyle="primary" onClick={this.submit}>Continue To Sign</Button>
+                    <Button bsStyle="primary" onClick={this.submit}>Continue</Button>
                 </div>
             </div>
         );
@@ -216,22 +204,24 @@ interface UploadDocumentsFullProps {
 
 interface ConnectedUploadDocumentsFullProps extends UploadDocumentsFullProps{
     documentSetId: string;
+    documentIds: string[];
     inviteSignatories: boolean;
     submit: () => void;
     defineRecipients: (documentSetId: string, recipients: Sign.Recipients) => void;
-    nextPage: (documentSetId: string) => void;
+    nextPage: (documentSetId: string, documentId: string) => void;
     setInviteSignatories: (inviteSignatories: boolean) => void;
 }
 
 export const UploadDocumentsFull = connect(
     (state: Sign.State, ownProps: UploadDocumentsFullProps) => ({
         documentSetId: ownProps.params.documentSetId,
-        inviteSignatories: state.uploadDocuments.inviteSignatories
+        inviteSignatories: state.uploadDocuments.inviteSignatories,
+        documentIds: (state.documentSets[ownProps.params.documentSetId]|| {documentIds: []}).documentIds
     }),
     {
         submit: () => submit(Sign.FormName.RECIPIENTS),
         defineRecipients: (documentSetId: string, recipients: Sign.Recipients) =>  defineRecipients({ documentSetId, recipients }),
-        nextPage: (documentSetId: string) => push(`documents/${documentSetId}`),
+        nextPage: (documentSetId: string, documentId: string) => push(`/documents/${documentSetId}/${documentId}`),
         setInviteSignatories: (inviteSignatories: boolean) => setInviteSignatories({ inviteSignatories })
     }
 )(UnconnectedUploadDocumentsFull);

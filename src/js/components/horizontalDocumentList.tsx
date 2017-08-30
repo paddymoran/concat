@@ -47,7 +47,9 @@ class DocumentView extends React.PureComponent<ConnectedDocumentViewProps> {
         return (
             <div className="document row">
                 <Col sm={3} md={2}>
-                    <PDFPage className="preview" pageNumber={0} drawWidth={THUMBNAIL_WIDTH} documentId={this.props.documentId} showLoading={false} />
+                    <div>
+                        <PDFPage className="preview" pageNumber={0} drawWidth={THUMBNAIL_WIDTH} documentId={this.props.documentId} showLoading={false} />
+                    </div>
                 </Col>
 
                 <Col sm={6} md={7}>

@@ -3,12 +3,14 @@ import { connect } from 'react-redux';
 import PDFViewer from './pdf/viewer';
 import { requestRequestedSignatures, requestDocumentSet } from '../actions';
 
+
 interface DocumentViewProps {
     params: {
         documentSetId: string;
         documentId: string;
     };
 }
+
 interface ConnectedDocumentViewProps extends DocumentViewProps {
     requestDocumentSet: (documentId: string) => void
 }

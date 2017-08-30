@@ -271,6 +271,7 @@ interface ControlProps {
     save: () => void;
     showInvite: boolean;
     showPrompts: boolean;
+    showSave: boolean;
     documentSetId: string;
     documentId: string;
 }
@@ -459,9 +460,9 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                     </div>
 
                     <div className="controls-right">
-                        <div className="submit-button sign-control" onClick={this.props.save}>
+                        { this.props.showSave && <div className="submit-button sign-control" onClick={this.props.save}>
                             <div  className="button-text"><i className="fa fa-save" /><span className="label">Save Draft</span></div>
-                        </div>
+                        </div> }
 
                         { this.props.showInvite && <div className="sign-control" onClick={this.showInviteModal}>
                             <div className="button-text"><i className="fa fa-users" /><span className="label">Invite</span></div>

@@ -78,17 +78,20 @@ def find_or_create_and_validate_document_set(set_id, user_id):
         result = cursor.fetchone()
 
         if not result:
-            create_doc_set_query = """
-                INSERT INTO document_sets (document_set_id, user_id)
-                VALUES (%(set_id)s, %(user_id)s)
-            """
+            try:
+                create_doc_set_query = """
+                    INSERT INTO document_sets (document_set_id, user_id)
+                    VALUES (%(set_id)s, %(user_id)s)
+                """
 
-            cursor.execute(create_doc_set_query, {
-                'set_id': set_id,
-                'user_id': user_id
-            })
+                cursor.execute(create_doc_set_query, {
+                    'set_id': set_id,
+                    'user_id': user_id
+                })
 
-            database.commit()
+                database.commit()
+            except:
+                pass
         elif result[0] != user_id:
             raise Exception
 

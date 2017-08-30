@@ -86,7 +86,7 @@ function *requestDocumentSaga() {
             readStatus: Sign.DocumentReadStatus.InProgress
         }));
         const response = yield call(axios.get, `/api/document/${action.payload.documentId}`, {responseType: 'arraybuffer'});
-        const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(response.headers['content-disposition'])[1];
+        const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(response.headers['content-disposition'])[1].replace(/"/g, '');
         const data = response.data;
         yield all([
             // Finish the file upload to the document store
@@ -223,7 +223,6 @@ function *requestRequestedSignaturesSaga() {
                 documents: (d.documents || [])
                 .map((d : any) => ({documentId: d.document_id, createdAt: d.created_at, filename: d.filename, prompts: d.prompts, signRequestId: d.sign_request_id, signStatus: d.sign_status})) }
         });
-
         yield put(updateRequestedSignatures({
             downloadStatus: Sign.DownloadStatus.Complete,
             documentSets: data

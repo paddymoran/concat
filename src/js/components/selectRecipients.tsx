@@ -51,7 +51,7 @@ export interface ComboboxComponentProps extends WrappedFieldProps {
 
 class ComboboxComponent extends React.PureComponent<ComboboxComponentProps> {
     render() {
-        return <Combobox suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} />
+        return <Combobox suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} onChange={this.props.input.onChange} />
     }
 }
 

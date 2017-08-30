@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Field, FieldArray, reduxForm, FormErrors, BaseFieldProps,  InjectedFormProps, WrappedFieldProps, change, touch } from 'redux-form'
+import { Field, FieldArray,reduxForm, FormErrors, BaseFieldProps,  InjectedFormProps, WrappedFieldProps, change, touch } from 'redux-form'
 import { ControlLabel, FormGroup, FormGroupProps, HelpBlock, Col, Row, Button, FormControl } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { defineRecipients } from '../actions';
@@ -43,17 +43,6 @@ interface RenderRecipientsProps {
     }
 }
 
-export interface ComboboxComponentProps extends WrappedFieldProps {
-    dataDisplayField: string;
-    data: any[];
-    onSelect: (value: Sign.Recipient) => void;
-}
-
-class ComboboxComponent extends React.PureComponent<ComboboxComponentProps> {
-    render() {
-        return <Combobox suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} />
-    }
-}
 
 interface RecipientRowProps {
     contacts: Sign.Recipients;
@@ -72,7 +61,7 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
         this.onSelect = this.onSelect.bind(this);
     }
 
-    onSelect(recipient: Sign.Recipient) {
+    onSelect(recipient: any) {
         // If the user selected a contact, and that contact has an email, set the email field too
         // We have to check this, because sometimes the input will just be plain text
         if (recipient.email) {
@@ -87,14 +76,16 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
             <li>
                 <Row>
                     <Col md={5}>
-                        <Field name={`${this.props.recipient}.name`} data={this.props.contacts} onSelect={this.onSelect} dataDisplayField="name" component={ComboboxComponent} />
+                        <Field name={`${this.props.recipient}.name`}
+                            component={(props: FieldProps) => <Combobox {...props.input} suggest={true}   textField="name" data={this.props.contacts}  onSelect={this.onSelect} /> } />
+
                     </Col>
 
                     <Col md={5}>
                         <Field
                             name={`${this.props.recipient}.email`}
                             type="email"
-                            component={FormInput }
+                            component={FormInput}
                             placeholder="Email" />
                     </Col>
 

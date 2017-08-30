@@ -1,7 +1,7 @@
 import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
 import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import axios from 'axios';
-import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures, addPromptToDocument } from '../actions';
+import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures, addPromptToDocument, updateModalData, addOverlays, defineRecipients  } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -19,6 +19,7 @@ export default function *rootSaga(): any {
         requestDocumentSetsSaga(),
         requestRequestedSignaturesSaga(),
         deleteDocumentSaga(),
+        emailDocumentSaga(),
         ...pdfStoreSagas,
         ...signatureSagas,
         ...documentViewerSagas,
@@ -104,13 +105,13 @@ function *requestDocumentSaga() {
 
 function *deleteDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.REMOVE_DOCUMENT, removeDocument);
-     function *removeDocument(action: Sign.Actions.RemoveDocument) {
-        try{
+    function *removeDocument(action: Sign.Actions.RemoveDocument) {
+        try {
             const response = yield call(axios.delete, `/api/document/${action.payload.documentId}`);
-         }catch(e){
-             //swallow
-         }
-     }
+        } catch(e) {
+            //swallow
+        }
+    }
 }
 
 
@@ -144,7 +145,33 @@ function *requestDocumentSetSaga() {
             documentIds: (data.documents || []).map((d: any) => d.document_id)
         }));
 
+
+        const recipients : Sign.Recipients = data.documents.reduce((acc: Sign.Recipients, document: any) => {
+            if(document.field_data && document.field_data.recipients){
+                acc = [...acc, ...document.field_data.recipients];
+            }
+            return acc;
+        }, []);
+
+        if(recipients.length){
+            yield put(defineRecipients({documentSetId: action.payload.documentSetId, recipients}));
+        }
+
         //todo add new action for mass setting views
+        const payload : Sign.Actions.AddOverlaysPayload = data.documents.reduce((acc : any, document: any) => {
+            if(document.field_data && document.field_data.view){
+                ['signatures', 'prompts', 'texts', 'dates'].map(k => {
+                    Object.keys(document.field_data.view[k]).map(s => {
+                        acc[k].push(document.field_data.view[k][s])
+                    });
+                });
+            }
+            return acc;
+        }, {
+            signatures: [], dates: [], prompts: [], texts: []
+        })
+        yield put(addOverlays(payload));
+
     }
 
 }
@@ -201,6 +228,22 @@ function *requestRequestedSignaturesSaga() {
             documentSets: data
         }));
      }
+}
+
+function *emailDocumentSaga() {
+    yield takeEvery(Sign.Actions.Types.EMAIL_DOCUMENT, emailDocument);
+
+    function *emailDocument(action: Sign.Actions.EmailDocument) {
+        yield put(updateModalData({ status: Sign.DownloadStatus.InProgress }));
+
+        try {
+            yield call(axios.post, '/api/send_document', { documentId: action.payload.documentId, recipients: action.payload.recipients });
+            yield put(updateModalData({ status: Sign.DownloadStatus.Complete }));
+        }
+        catch (e) {
+            yield put(updateModalData({ status: Sign.DownloadStatus.Failed }));
+        }
+    }
 }
 
 

@@ -17,13 +17,13 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
             return selectInitial(state, action);
 
         case Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT:
-            return addSignatureToDocument(state, action);
+            return {...state, signatures: addSignatureToDocument(state.signatures, action)};
 
         case Sign.Actions.Types.MOVE_SIGNATURE:
-            return moveSignature(state, action);
+            return {...state, signatures: moveSignature(state.signatures, action)};
 
         case Sign.Actions.Types.REMOVE_SIGNATURE_FROM_DOCUMENT:
-            return removeSignatureFromDocument(state, action);
+            return {...state, signatures: removeSignatureFromDocument(state.signatures, action)};
 
         case Sign.Actions.Types.ADD_DATE_TO_DOCUMENT:
             return {...state, dates: addDateToDocument(state.dates, action)};
@@ -51,6 +51,20 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
 
         case Sign.Actions.Types.REMOVE_PROMPT_FROM_DOCUMENT:
             return {...state, prompts: removePromptFromDocument(state.prompts, action)};
+
+
+        case Sign.Actions.Types.ADD_OVERLAYS:
+            return {
+                ...state,
+                dates: action.payload.dates.reduce((acc : Sign.DocumentDates, action: Sign.Actions.AddDateToDocumentPayload) =>
+                                                   addDateToDocument(acc, {payload: action, type: Sign.Actions.Types.ADD_DATE_TO_DOCUMENT } ), state.dates),
+                prompts: action.payload.prompts.reduce((acc : Sign.DocumentPrompts, action: Sign.Actions.AddPromptToDocumentPayload) =>
+                                                       addPromptToDocument(acc, {payload: action, type: Sign.Actions.Types.ADD_PROMPT_TO_DOCUMENT }), state.prompts),
+                texts: action.payload.texts.reduce((acc : Sign.DocumentTexts, action: Sign.Actions.AddTextToDocumentPayload) =>
+                                                       addTextToDocument(acc, {payload: action, type: Sign.Actions.Types.ADD_TEXT_TO_DOCUMENT }), state.texts),
+                signatures: action.payload.signatures.reduce((acc : Sign.DocumentSignatures, action: Sign.Actions.AddSignatureToDocumentPayload) =>
+                                                       addSignatureToDocument(acc, {payload: action, type: Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT }), state.signatures),
+            };
 
         case Sign.Actions.Types.SET_SIGN_REQUEST_STATUS:
             return setSignRequestStatus(state, action);
@@ -86,32 +100,26 @@ function selectInitial(state: Sign.DocumentViewer, action: Sign.Actions.SelectIn
     };
 }
 
-function addSignatureToDocument(state: Sign.DocumentViewer, action: Sign.Actions.AddSignatureToDocument): Sign.DocumentViewer {
+function addSignatureToDocument(state: Sign.DocumentSignatures, action: Sign.Actions.AddSignatureToDocument): Sign.DocumentSignatures {
     return {
         ...state,
-        signatures: {
-            ...state.signatures,
-            [action.payload.signatureIndex]: action.payload
-        }
+        [action.payload.signatureIndex]: action.payload
     };
 }
 
-function moveSignature(state: Sign.DocumentViewer, action: Sign.Actions.MoveSignature): Sign.DocumentViewer {
+function moveSignature(state: Sign.DocumentSignatures, action: Sign.Actions.MoveSignature): Sign.DocumentSignatures {
     const { signatureIndex, ...rest } = action.payload;
 
     return {
         ...state,
-        signatures: {
-            ...state.signatures,
-            [signatureIndex]: { ...state.signatures[signatureIndex], ...rest }
-        }
+        [signatureIndex]: { ...state[signatureIndex], ...rest }
     };
 }
 
-function removeSignatureFromDocument(state: Sign.DocumentViewer, action: Sign.Actions.RemoveSignatureFromDocument): Sign.DocumentViewer {
-    const signatures = { ...state.signatures };
-    delete signatures[action.payload.signatureIndex];
-    return { ...state, signatures };
+function removeSignatureFromDocument(state: Sign.DocumentSignatures, action: Sign.Actions.RemoveSignatureFromDocument): Sign.DocumentSignatures {
+    state = { ...state};
+    delete state[action.payload.signatureIndex];
+    return state;
 }
 
 function addDateToDocument(state: Sign.DocumentDates, action: Sign.Actions.AddDateToDocument): Sign.DocumentDates {

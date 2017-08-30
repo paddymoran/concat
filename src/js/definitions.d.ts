@@ -288,6 +288,7 @@ declare namespace Sign {
         SUBMIT_CONFIRMATION = 'SUBMIT_CONFIRMATION',
         FAILURE = 'FAILURE',
         INVITE = 'INVITE',
+        EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
     }
 
     interface SignatureRequest {
@@ -345,6 +346,7 @@ declare namespace Sign.Actions {
         ADD_DATE_TO_DOCUMENT = 'ADD_DATE_TO_DOCUMENT',
         ADD_TEXT_TO_DOCUMENT = 'ADD_TEXT_TO_DOCUMENT',
         ADD_PROMPT_TO_DOCUMENT = 'ADD_PROMPT_TO_DOCUMENT',
+        ADD_OVERLAYS = 'ADD_OVERLAYS',
         MOVE_SIGNATURE = 'MOVE_SIGNATURE',
         MOVE_DATE = 'MOVE_DATE',
         MOVE_TEXT = 'MOVE_TEXT',
@@ -378,10 +380,12 @@ declare namespace Sign.Actions {
         SHOW_RESULTS = 'SHOW_RESULTS',
         CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
 
+        UPDATE_MODAL_DATA = 'UPDATE_MODAL_DATA',
         SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
         SHOW_SUBMIT_CONFIRMATION_MODAL = 'SHOW_SUBMIT_CONFIRMATION_MODAL',
         SHOW_FAILURE_MODAL = 'SHOW_FAILURE_MODAL',
         SHOW_INVITE_MODAL = 'SHOW_INVITE_MODAL',
+        SHOW_EMAIL_DOCUMENT_MODAL = 'SHOW_EMAIL_DOCUMENT_MODAL',
 
         UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
 
@@ -392,7 +396,10 @@ declare namespace Sign.Actions {
         SET_INVITE_SIGNATORIES = 'SET_INVITE_SIGNATORIES',
 
         SAVE_DOCUMENT_VIEW = 'SAVE_DOCUMENT_VIEW',
-        UPDATE_SAVE_STATUS = 'UPDATE_SAVE_STATUS'
+        UPDATE_SAVE_STATUS = 'UPDATE_SAVE_STATUS',
+
+
+        EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
 
     }
 
@@ -540,6 +547,13 @@ declare namespace Sign.Actions {
         value: any;
     }
 
+    interface AddOverlaysPayload {
+        signatures: AddSignatureToDocumentPayload[],
+        prompts: AddTextToDocumentPayload[],
+        dates: AddDateToDocumentPayload[],
+        texts: AddTextToDocumentPayload[],
+    }
+
     interface RemovePositionableFromDocumentPayload {
         [indexKey: string]: string;
     }
@@ -665,6 +679,7 @@ declare namespace Sign.Actions {
         inviteSignatories: boolean;
     }
 
+
     interface SaveDocumentViewPayload {
         documentSetId: string;
         documentId: string;
@@ -673,6 +688,20 @@ declare namespace Sign.Actions {
     interface UpdateSaveStatusPayload {
         documentId: string;
         status: Sign.SaveStatus;
+    }
+
+    interface EmailDocumentPayload {
+        documentId: string;
+        recipients: Sign.Recipients;
+    }
+
+    interface ShowEmailDocumentModalPayload {
+        documentId: string;
+    }
+
+    interface UpdateModalDataPayload {
+        [key: string]: any;
+
     }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
@@ -694,6 +723,7 @@ declare namespace Sign.Actions {
     interface AddDateToDocument extends ActionCreator<AddDateToDocumentPayload> {}
     interface AddTextToDocument extends ActionCreator<AddTextToDocumentPayload> {}
     interface AddPromptToDocument extends ActionCreator<AddPromptToDocumentPayload> {}
+    interface AddOverlays extends ActionCreator<AddOverlaysPayload> {}
     interface MoveSignature extends ActionCreator<MoveSignaturePayload> {}
     interface MoveDate extends ActionCreator<MoveDatePayload> {}
     interface MoveText extends ActionCreator<MoveTextPayload> {}
@@ -723,11 +753,13 @@ declare namespace Sign.Actions {
     interface ShowResults extends ActionCreator<ShowResultsPayload> {}
 
     interface CloseModal extends ActionCreator<CloseModalPayload> {}
+    interface UpdateModalData extends ActionCreator<UpdateModalDataPayload> {}
     interface ShowInitialSelectionModal extends Action {}
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
     interface ShowSubmitConfirmationModal extends ActionCreator<ShowSubmitConfirmationModalPayload> {}
     interface ShowFailureModal extends ActionCreator<ShowFailureModalPayload> {}
     interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
+    interface ShowEmailDocumentModal extends ActionCreator<ShowEmailDocumentModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}
@@ -737,6 +769,9 @@ declare namespace Sign.Actions {
 
     interface SaveDocumentView extends ActionCreator<SaveDocumentViewPayload> {}
     interface UpdateSaveStatus extends ActionCreator<UpdateSaveStatusPayload> {}
+
+    interface EmailDocument extends ActionCreator<EmailDocumentPayload> {}
+
 }
 
 declare module 'pdfjs-dist/webpack' {

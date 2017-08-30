@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import { CSSTransitionGroup } from 'react-transition-group';
 import PDFPage from './pdf/page';
 import { connect } from 'react-redux';
-import { reorderDocuments } from '../actions';
+import { showEmailDocumentModal } from '../actions';
 import { Link } from 'react-router';
 import { findSetForDocument } from '../utils';
 import { DragSource, DropTarget } from 'react-dnd';
@@ -16,6 +16,7 @@ interface DocumentViewProps {
 interface ConnectedDocumentViewProps extends DocumentViewProps {
     document: Sign.Document;
     documentSetId: string;
+    showEmailDocumentModal: (payload: Sign.Actions.ShowEmailDocumentModalPayload) => void;
 }
 
 interface DocumentListProps {
@@ -30,6 +31,18 @@ const THUMBNAIL_WIDTH = 150;
 
 
 class DocumentView extends React.PureComponent<ConnectedDocumentViewProps> {
+    constructor(props: ConnectedDocumentViewProps) {
+        super(props);
+
+        this.emailDocument = this.emailDocument.bind(this);
+    }
+
+    emailDocument() {
+        this.props.showEmailDocumentModal({
+            documentId: this.props.documentId
+        });
+    }
+
     render() {
         return (
             <div className="document row">
@@ -42,8 +55,9 @@ class DocumentView extends React.PureComponent<ConnectedDocumentViewProps> {
                 </Col>
 
                 <Col sm={3}>
-                    <Link to={`/documents/${this.props.documentSetId}/${this.props.documentId}`} className="btn btn-default btn-block">Sign</Link>
-                    <a target="_blank" href={`/api/document/${this.props.documentId}`} className="btn btn-default btn-block">Download</a>
+                    <Link to={`/documents/${this.props.documentSetId}/${this.props.documentId}`} className="btn btn-default btn-block"><i className="fa fa-pencil" /> Sign</Link>
+                    <a target="_blank" href={`/api/document/${this.props.documentId}`} className="btn btn-default btn-block"><i className="fa fa-download" /> Download</a>
+                    <Button block onClick={this.emailDocument}><i className="fa fa-envelope-o" /> Email</Button>
                 </Col>
             </div>
         );
@@ -54,7 +68,8 @@ const ConnectedDocumentView = connect(
     (state: Sign.State, ownProps: DocumentViewProps) => ({
         document: state.documents[ownProps.documentId],
         documentSetId: findSetForDocument(state.documentSets, ownProps.documentId)
-    })
+    }),
+    { showEmailDocumentModal }
 )(DocumentView);
 
 

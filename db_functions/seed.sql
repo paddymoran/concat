@@ -103,22 +103,24 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
             $1 as document_set_id,
              ds.name as name, ds.created_at as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents
-	    FROM (
-		    SELECT d.document_id, filename, created_at, versions
-		    FROM (
-			    SELECT
-			    DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions
-			    FROM docs
-			    WHERE document_set_id = $1
-			    WINDOW wnd AS (
-			       PARTITION BY original_id ORDER BY generation ASC
-			       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-			    )
-	    ) q
-	    JOIN documents d on d.document_id = q.document_id
-	    ) qq
-	    JOIN document_sets ds ON ds.document_set_id = $1
-	    GROUP BY ds.name, ds.created_at
+        FROM (
+            SELECT d.document_id, filename, created_at, versions, dv.field_data
+            FROM (
+                SELECT
+                DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions
+                FROM docs d
+                WHERE document_set_id = $1
+
+                WINDOW wnd AS (
+                   PARTITION BY original_id ORDER BY generation ASC
+                   ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+                )
+        ) q
+        JOIN documents d on d.document_id = q.document_id
+        LEFT OUTER JOIN document_view dv ON d.document_id = dv.document_id
+        ) qq
+        JOIN document_sets ds ON ds.document_set_id = $1
+        GROUP BY ds.name, ds.created_at
  ) qqq
 
 $_$;
@@ -190,6 +192,16 @@ CREATE TABLE document_sets (
     user_id integer,
     name text,
     created_at timestamp without time zone DEFAULT now()
+);
+
+
+--
+-- Name: document_view; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE document_view (
+    document_id uuid NOT NULL,
+    field_data jsonb
 );
 
 
@@ -345,6 +357,14 @@ ALTER TABLE ONLY document_sets
 
 
 --
+-- Name: document_view_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY document_view
+    ADD CONSTRAINT document_view_pkey PRIMARY KEY (document_id);
+
+
+--
 -- Name: documents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -413,6 +433,14 @@ ALTER TABLE ONLY access_tokens
 
 ALTER TABLE ONLY document_sets
     ADD CONSTRAINT document_sets_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
+
+
+--
+-- Name: document_view_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY document_view
+    ADD CONSTRAINT document_view_document_id_fk FOREIGN KEY (document_id) REFERENCES documents(document_id);
 
 
 --

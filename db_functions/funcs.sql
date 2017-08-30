@@ -29,18 +29,20 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
              ds.name as name, ds.created_at as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents
         FROM (
-            SELECT d.document_id, filename, created_at, versions
+            SELECT d.document_id, filename, created_at, versions, dv.field_data
             FROM (
                 SELECT
                 DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions
-                FROM docs
+                FROM docs d
                 WHERE document_set_id = $1
+
                 WINDOW wnd AS (
                    PARTITION BY original_id ORDER BY generation ASC
                    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
                 )
         ) q
         JOIN documents d on d.document_id = q.document_id
+        LEFT OUTER JOIN document_view dv ON d.document_id = dv.document_id
         ) qq
         JOIN document_sets ds ON ds.document_set_id = $1
         GROUP BY ds.name, ds.created_at

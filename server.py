@@ -282,7 +282,7 @@ def sign_document():
     document_id = args['documentId']
     document =  BytesIO(document_db['data'])
     filename = document_db['filename']
-    sign_request_id = args.get('signRequestId', None);
+    sign_request_id = args.get('signRequestId', None)
     for signature in args['signatures']:
         signature['imgData'] = BytesIO(db.get_signature(signature['signatureId'], session['user_id']))
     for overlay in args['overlays']:
@@ -316,6 +316,40 @@ def request_signatures():
 @app.route('/api/requested_signatures', methods=['GET'])
 def get_signature_requests():
     return jsonify(db.get_signature_requests(session['user_id']))
+
+@app.route('/api/send_document', methods=['POST'])
+def email_document():
+    try:
+        args = request.get_json()
+
+        user_info = db.get_user_info(session['user_id'])
+
+        params = {
+            'client_id': app.config.get('OAUTH_CLIENT_ID'),
+            'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
+            'template': 'emails.sign.email-documents',
+            'recipients': json.dumps(args['recipients']),
+            'subject': 'Documents from CataLex Sign',
+            'sender_name': user_info['name'],
+            'sender_email': user_info['email']
+        }
+
+        document = db.get_document(session['user_id'], args['documentId'])
+
+        files = [
+            ('file', (document['filename'], BytesIO(document['data']), 'application/pdf'))
+        ]
+
+        response = requests.post(
+            app.config.get('AUTH_SERVER') + '/mail/send-documents',
+            data=params,
+            files=files
+        )
+
+        return jsonify(response.json())
+    except Exception as e:
+        print(e)
+        raise InvalidUsage('Send document failed', status_code=500)
 
 
 @app.route('/login', methods=['GET'])

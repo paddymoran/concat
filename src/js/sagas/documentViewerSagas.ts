@@ -84,7 +84,7 @@ function *saveDocumentViewSaga() {
     yield takeEvery(Sign.Actions.Types.SAVE_DOCUMENT_VIEW, saveDocumentView);
 
     function *saveDocumentView(action: Sign.Actions.SaveDocumentView) {
-        const recipients = yield select((state: Sign.State) => state.documentSets[action.payload.documentSetId]);
+        const recipients = yield select((state: Sign.State) => state.documentSets[action.payload.documentSetId].recipients);
         const documentView = yield select((state: Sign.State) => state.documentViewer);
         const remove = (obj: any) => {
             Object.keys(obj).map(k => {

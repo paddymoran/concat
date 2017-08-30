@@ -60,6 +60,12 @@ export function selectInitial(payload: Sign.Actions.SelectInitialPayload): Sign.
     };
 }
 
+export function addOverlays(payload: Sign.Actions.AddOverlaysPayload): Sign.Actions.AddOverlays {
+    return {
+        type: Sign.Actions.Types.ADD_OVERLAYS,
+        payload
+    };
+}
 
 export function addSignatureToDocument(payload: Sign.Actions.AddSignatureToDocumentPayload): Sign.Actions.AddSignatureToDocument {
     return {
@@ -271,6 +277,13 @@ export function closeModal(payload: Sign.Actions.CloseModalPayload): Sign.Action
     };
 }
 
+export function updateModalData(payload: Sign.Actions.UpdateModalDataPayload): Sign.Actions.UpdateModalData {
+    return {
+        type: Sign.Actions.Types.UPDATE_MODAL_DATA,
+        payload
+    };
+}
+
 export function showSignConfirmationModal(payload: Sign.Actions.ShowSignConfirmationModalPayload): Sign.Actions.ShowSignConfirmationModal {
     return {
         type: Sign.Actions.Types.SHOW_SIGN_CONFIRMATION_MODAL,
@@ -336,6 +349,7 @@ export function setInviteSignatories(payload: Sign.Actions.SetInviteSignatoriesP
     };
 }
 
+
 export function saveDocumentView(payload: Sign.Actions.SaveDocumentViewPayload): Sign.Actions.SaveDocumentView {
     return {
         type: Sign.Actions.Types.SAVE_DOCUMENT_VIEW,
@@ -346,6 +360,20 @@ export function saveDocumentView(payload: Sign.Actions.SaveDocumentViewPayload):
 export function updateSaveStatus(payload: Sign.Actions.UpdateSaveStatusPayload): Sign.Actions.UpdateSaveStatus {
     return {
         type: Sign.Actions.Types.UPDATE_SAVE_STATUS,
+        payload
+    }
+}
+
+export function showEmailDocumentModal(payload: Sign.Actions.ShowEmailDocumentModalPayload): Sign.Actions.ShowEmailDocumentModal {
+    return {
+        type: Sign.Actions.Types.SHOW_EMAIL_DOCUMENT_MODAL,
+        payload
+    }
+}
+
+export function emailDocument(payload: Sign.Actions.EmailDocumentPayload): Sign.Actions.EmailDocument {
+    return {
+        type: Sign.Actions.Types.EMAIL_DOCUMENT,
         payload
     };
 }

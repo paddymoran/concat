@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { Field, FieldArray, reduxForm, FormErrors, BaseFieldProps,  InjectedFormProps, WrappedFieldProps } from 'redux-form'
+import { Field, FieldArray, reduxForm, FormErrors, BaseFieldProps,  InjectedFormProps, WrappedFieldProps, change, touch } from 'redux-form'
 import { ControlLabel, FormGroup, FormGroupProps, HelpBlock, Col, Row, Button, FormControl } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { defineRecipients } from '../actions';
 import { push } from 'react-router-redux';
+import { Combobox } from 'react-widgets';
 
 type FormProps = { } & InjectedFormProps
 
@@ -42,38 +43,89 @@ interface RenderRecipientsProps {
     }
 }
 
+export interface ComboboxComponentProps extends WrappedFieldProps {
+    dataDisplayField: string;
+    data: any[];
+    onSelect: (value: Sign.Recipient) => void;
+}
+
+class ComboboxComponent extends React.PureComponent<ComboboxComponentProps> {
+    render() {
+        return <Combobox suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} />
+    }
+}
+
+interface RecipientRowProps {
+    contacts: Sign.Recipients;
+    recipient: Sign.Recipient;
+    remove: () => void;
+}
+
+interface UnconnectedRecipientRowProps extends RecipientRowProps {
+    change: (form: string, field: string, value: any) => void;
+    touch: (form: string, field: string) => void;
+}
+
+class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRowProps> {
+    constructor(props: UnconnectedRecipientRowProps) {
+        super(props);
+        this.onSelect = this.onSelect.bind(this);
+    }
+
+    onSelect(recipient: Sign.Recipient) {
+        // If the user selected a contact, and that contact has an email, set the email field too
+        // We have to check this, because sometimes the input will just be plain text
+        if (recipient.email) {
+            const fieldName = `${this.props.recipient}.email`;
+            this.props.change(Sign.FormName.RECIPIENTS, fieldName, recipient.email);
+            this.props.touch(Sign.FormName.RECIPIENTS, fieldName); // touch the field too, for validation
+        }
+    }
+
+    render() {
+        return (
+            <li>
+                <Row>
+                    <Col md={5}>
+                        <Field name={`${this.props.recipient}.name`} data={this.props.contacts} onSelect={this.onSelect} dataDisplayField="name" component={ComboboxComponent} />
+                    </Col>
+
+                    <Col md={5}>
+                        <Field
+                            name={`${this.props.recipient}.email`}
+                            type="email"
+                            component={FormInput }
+                            placeholder="Email" />
+                    </Col>
+
+                    <Col md={2}>
+                        <Button onClick={this.props.remove}>
+                            <i className="fa fa-trash"/>
+                        </Button>
+                    </Col>
+                </Row>
+            </li>
+        );
+    }
+}
+
+const RecipientRow = connect<{}, {}, RecipientRowProps>(null, { change, touch })(UnconnectedRecipientRow);
+
+
 class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
     render() {
         const { fields, meta: { error, submitFailed } } = this.props;
 
+        const contacts = [
+            {name: 'Josh', email: 'josh@catalex.nz'},
+            {name: 'Tim', email: 'tim@catalex.nz'},
+            {name: 'Mia', email: 'mia@catalex.nz'}
+        ];
+
         return (
             <ul>
-                {fields.map((recipient: any, index : number) =>
-                    <li key={index}>
-                        <Row>
-                            <Col md={5}>
-                                <Field
-                                    name={`${recipient}.name`}
-                                    type="text"
-                                    component={FormInput}
-                                    placeholder="Name" />
-                            </Col>
-
-                            <Col md={5}>
-                                <Field
-                                    name={`${recipient}.email`}
-                                    type="email"
-                                    component={FormInput }
-                                    placeholder="Email" />
-                            </Col>
-
-                            <Col md={2}>
-                                <Button onClick={() => fields.remove(index)}>
-                                    <i className="fa fa-trash"/>
-                                </Button>
-                            </Col>
-                        </Row>
-                    </li>
+                {fields.map((recipient: Sign.Recipient, index: number) =>
+                    <RecipientRow key={index} recipient={recipient} contacts={contacts} remove={() => fields.remove(index)} />
                 )}
 
                 <li  className="centered-button-row">

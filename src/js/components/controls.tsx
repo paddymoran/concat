@@ -301,6 +301,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         this.activateText = this.activateText.bind(this);
         this.activatePrompt = this.activatePrompt.bind(this);
         this.showInviteModal = this.showInviteModal.bind(this);
+        this.sign = this.sign.bind(this);
     }
 
     activateNone() {
@@ -325,6 +326,11 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
 
     activatePrompt() {
         this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.PROMPT})
+    }
+
+    sign() {
+
+        this.props.sign();
     }
 
     signatureTooltip(children: JSX.Element){
@@ -453,7 +459,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <div className="button-text"><i className="fa fa-users" /><span className="label">Invite</span></div>
                         </div> }
 
-                        <div className="submit-button sign-control" onClick={this.props.sign}>
+                        <div className="submit-button sign-control" onClick={this.sign}>
                             <div  className="button-text"><i className="fa fa-pencil" /><span className="label">{ submitString }</span></div>
                         </div>
                     </div>

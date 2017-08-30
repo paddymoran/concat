@@ -7,6 +7,7 @@ DROP FUNCTION IF EXISTS  signature_requests(user_id integer);
 
 DROP TYPE IF EXISTS signature_type CASCADE;
 
+DROP TABLE IF EXISTS public.document_view;
 DROP TABLE IF EXISTS public.signatures;
 
 

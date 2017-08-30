@@ -55,6 +55,29 @@ export function stringToCanvas(height: number, string: string, minWidth = 0) {
     return canvas;
 }
 
+export function promptToCanvas(width: number, height: number, recipient: string, type: string, required: boolean) {
+    const canvas = document.createElement('canvas');
+    canvas.height = height;
+    canvas.width = width;
+    const margin = height / 8;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'rgba(250, 255, 179, 0.56)';
+    ctx.fillRect(0,0,width, height);
+    const fontsize = (canvas.height/2-(margin)) * 0.9;
+    let font = `bold ${fontsize}px arial`;
+    ctx.font = font;
+    ctx.fillStyle = required ? '#a6171d' : '#000'
+    ctx.textBaseline="top";
+    ctx.textAlign="center";
+    ctx.fillText(recipient, width / 2, margin, width - (margin * 2));
+    font = `bold ${(fontsize)*0.75}px arial`;
+    ctx.font = font;
+    ctx.fillStyle =  '#000'
+    ctx.fillText(type.toUpperCase(), width / 2, height / 2 + margin /2 , width - (margin * 2));
+
+    return canvas;
+}
+
 
 export function debounce(func: () => void, wait = 50) {
     let h: number;

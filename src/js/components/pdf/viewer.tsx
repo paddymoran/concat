@@ -6,7 +6,7 @@ import PDFPreview from './preview';
 import PDFPage from './page';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import { signDocument, moveSignature, addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal } from '../../actions';
+import { signDocument, moveSignature, addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal, saveDocumentView  } from '../../actions';
 import { SignaturePositionable, DatePositionable, TextPositionable, PromptPositionable } from '../positionable';
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
@@ -47,6 +47,7 @@ interface ConnectedPDFViewerProps extends PDFViewerProps {
     addPromptToDocument: (data: Sign.Actions.AddPromptToDocumentPayload) => void;
     setActivePage: (payload: Sign.Actions.SetActivePagePayload) => void;
     showSignConfirmationModal: (payload: Sign.Actions.ShowSignConfirmationModalPayload) => void;
+    saveDocumentView: (payload: Sign.Actions.SaveDocumentViewPayload) => void;
 }
 
 interface PDFPageWrapperProps {
@@ -169,6 +170,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         super(props);
         this.setActivePage = this.setActivePage.bind(this);
         this.sign = this.sign.bind(this);
+        this.save = this.save.bind(this);
     }
 
     setActivePage(pageNumber: number) {
@@ -180,14 +182,18 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
 
     sign() {
         const signRequestId = this.props.requestedSignatureInfo ? this.props.requestedSignatureInfo.signRequestId : null;
-        this.props.showSignConfirmationModal({ documentId: this.props.documentId, documentSetId: this.props.documentSetId,signRequestId  })
+        this.props.showSignConfirmationModal({ documentId: this.props.documentId, documentSetId: this.props.documentSetId, signRequestId  })
+    }
+
+    save() {
+        this.props.saveDocumentView({documentSetId: this.props.documentSetId, documentId: this.props.documentId})
     }
 
     render() {
         return (
             <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
-               <div  className="controls-affix"><Controls documentSetId={this.props.documentSetId} documentId={this.props.documentId} sign={this.sign} showInvite={this.props.isDocumentOwner} showPrompts={this.props.isDocumentOwner} /></div>
+               <div  className="controls-affix"><Controls documentSetId={this.props.documentSetId} documentId={this.props.documentId} sign={this.sign} save={this.save} showInvite={this.props.isDocumentOwner} showPrompts={this.props.isDocumentOwner} /></div>
                 </AutoAffix>
 
                 <div className='pdf-container container'>
@@ -485,7 +491,7 @@ const ConnectedPDFViewer = connect(
             selectedSignatureId: state.documentViewer.selectedSignatureId,
             selectedInitialId: state.documentViewer.selectedInitialId,
     };
-}, { signDocument, addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal }
+}, { signDocument, addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal, saveDocumentView }
 )(PDFViewer);
 
 

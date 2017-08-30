@@ -335,3 +335,17 @@ export function setInviteSignatories(payload: Sign.Actions.SetInviteSignatoriesP
         payload
     };
 }
+
+export function saveDocumentView(payload: Sign.Actions.SaveDocumentViewPayload): Sign.Actions.SaveDocumentView {
+    return {
+        type: Sign.Actions.Types.SAVE_DOCUMENT_VIEW,
+        payload
+    };
+}
+
+export function updateSaveStatus(payload: Sign.Actions.UpdateSaveStatusPayload): Sign.Actions.UpdateSaveStatus {
+    return {
+        type: Sign.Actions.Types.UPDATE_SAVE_STATUS,
+        payload
+    };
+}

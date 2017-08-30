@@ -155,14 +155,14 @@ export const UploadDocumentsOthers = connect(
 )(Upload);
 
 
-class UnconnectedUploadDocumentsFull extends React.PureComponent<UploadDocumentsFullProps> {
-    constructor(props: UploadDocumentsFullProps){
+class UnconnectedUploadDocumentsFull extends React.PureComponent<ConnectedUploadDocumentsFullProps> {
+    constructor(props: ConnectedUploadDocumentsFullProps){
         super(props);
         this.submit = this.submit.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.toggleInviteSignatories = this.toggleInviteSignatories.bind(this);
     }
-    
+
     onSubmit(values: { recipients: Sign.Recipients }) {
         this.props.defineRecipients(this.props.documentSetId, values.recipients);
         this.props.nextPage(this.props.documentSetId);
@@ -185,14 +185,14 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<UploadDocuments
         return (
             <div>
                 <UploadDocuments {...this.props} />
-                
+
                 <hr />
 
                 <div className="text-center">
                     <Button onClick={this.toggleInviteSignatories}>{this.props.inviteSignatories ? 'Don\'t Invite Signatories' : 'Invite Signatories'}</Button>
                 </div>
 
-                {this.props.inviteSignatories && 
+                {this.props.inviteSignatories &&
                     <div>
                         <h3 className="text-center">Signatories</h3>
 
@@ -211,6 +211,10 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<UploadDocuments
 }
 
 interface UploadDocumentsFullProps {
+    params: { documentSetId: string; };
+}
+
+interface ConnectedUploadDocumentsFullProps extends UploadDocumentsFullProps{
     documentSetId: string;
     inviteSignatories: boolean;
     submit: () => void;
@@ -219,12 +223,8 @@ interface UploadDocumentsFullProps {
     setInviteSignatories: (inviteSignatories: boolean) => void;
 }
 
-interface ConnectedUploadDocumentsFullProps {
-    params: { documentSetId: string; };
-}
-
 export const UploadDocumentsFull = connect(
-    (state: Sign.State, ownProps: ConnectedUploadDocumentsFullProps) => ({
+    (state: Sign.State, ownProps: UploadDocumentsFullProps) => ({
         documentSetId: ownProps.params.documentSetId,
         inviteSignatories: state.uploadDocuments.inviteSignatories
     }),

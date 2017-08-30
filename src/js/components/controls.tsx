@@ -268,6 +268,7 @@ const DraggableAddPromptControl = DragSource(
 
 interface ControlProps {
     sign: () => void;
+    save: () => void;
     showInvite: boolean;
     showPrompts: boolean;
     documentSetId: string;
@@ -444,7 +445,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                     </div>
 
                     <div className="controls-right">
-                        <div className="submit-button sign-control" onClick={this.save}>
+                        <div className="submit-button sign-control" onClick={this.props.save}>
                             <div  className="button-text"><i className="fa fa-save" /><span className="label">Save Draft</span></div>
                         </div>
 

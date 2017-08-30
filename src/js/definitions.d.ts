@@ -45,6 +45,8 @@ declare namespace Sign {
         Stale
     }
 
+
+
     interface User {
         name: string;
         user_id: number;
@@ -67,6 +69,7 @@ declare namespace Sign {
     }
 
     type DocumentSetsStatus = DownloadStatus;
+    type SaveStatus = DownloadStatus;
 
     interface Documents {
         [documentId: string]: Document;
@@ -387,6 +390,10 @@ declare namespace Sign.Actions {
         SUBMIT_SIGN_REQUESTS = 'SUBMIT_SIGN_REQUESTS',
 
         SET_INVITE_SIGNATORIES = 'SET_INVITE_SIGNATORIES',
+
+        SAVE_DOCUMENT_VIEW = 'SAVE_DOCUMENT_VIEW',
+        UPDATE_SAVE_STATUS = 'UPDATE_SAVE_STATUS'
+
     }
 
     interface ActionCreator<T> {
@@ -658,6 +665,15 @@ declare namespace Sign.Actions {
         inviteSignatories: boolean;
     }
 
+    interface SaveDocumentViewPayload {
+        documentSetId: string;
+        documentId: string;
+    }
+
+    interface UpdateSaveStatusPayload {
+        documentId: string;
+        status: Sign.SaveStatus;
+    }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
@@ -718,6 +734,9 @@ declare namespace Sign.Actions {
     interface SubmitSignRequests extends ActionCreator<SubmitSignRequestsPayload> {}
 
     interface SetInviteSignatories extends ActionCreator<SetInviteSignatoriesPayload> {}
+
+    interface SaveDocumentView extends ActionCreator<SaveDocumentViewPayload> {}
+    interface UpdateSaveStatus extends ActionCreator<UpdateSaveStatusPayload> {}
 }
 
 declare module 'pdfjs-dist/webpack' {

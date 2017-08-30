@@ -7,23 +7,23 @@ import SignConfirmation from './signConfirmation';
 import SubmitConfirmation from './submitConfirmation';
 import Failure from './failure';
 import Invite from './invite';
+import EmailDocument from './emailDocument';
 
 interface ModalsProps {
     showing: string;
-    //closeModal: (payload: Sign.Actions.CloseModalPayload) => void;
 }
 
 class Modals extends React.PureComponent<ModalsProps>{
     render() {
         switch(this.props.showing){
             case 'selectSignature':
-                return <SignatureModal />;
+                return <SignatureModal />
 
             case 'results':
-                return <ResultsModal  />;
+                return <ResultsModal  />
 
             case 'selectInitial':
-                return <InitialsModal />;
+                return <InitialsModal />
 
             case Sign.ModalType.SIGN_CONFIRMATION:
                 return <SignConfirmation />
@@ -37,6 +37,9 @@ class Modals extends React.PureComponent<ModalsProps>{
             case Sign.ModalType.INVITE:
                 return <Invite />
 
+            case Sign.ModalType.EMAIL_DOCUMENT:
+                return <EmailDocument />
+
             default:
                 return false;
         }
@@ -45,7 +48,5 @@ class Modals extends React.PureComponent<ModalsProps>{
 
 
 export default connect(
-    (state: Sign.State) => ({
-        showing: state.modals.showing
-    })
+    (state: Sign.State) => ({ showing: state.modals.showing })
 )(Modals)

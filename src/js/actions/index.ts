@@ -335,3 +335,17 @@ export function setInviteSignatories(payload: Sign.Actions.SetInviteSignatoriesP
         payload
     };
 }
+
+export function showEmailDocumentModal(payload: Sign.Actions.ShowEmailDocumentModalPayload): Sign.Actions.ShowEmailDocumentModal {
+    return {
+        type: Sign.Actions.Types.SHOW_EMAIL_DOCUMENT_MODAL,
+        payload
+    }
+}
+
+export function emailDocument(payload: Sign.Actions.EmailDocumentPayload): Sign.Actions.EmailDocument {
+    return {
+        type: Sign.Actions.Types.EMAIL_DOCUMENT,
+        payload
+    };
+}

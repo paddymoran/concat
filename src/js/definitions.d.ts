@@ -285,6 +285,7 @@ declare namespace Sign {
         SUBMIT_CONFIRMATION = 'SUBMIT_CONFIRMATION',
         FAILURE = 'FAILURE',
         INVITE = 'INVITE',
+        EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
     }
 
     interface SignatureRequest {
@@ -379,6 +380,7 @@ declare namespace Sign.Actions {
         SHOW_SUBMIT_CONFIRMATION_MODAL = 'SHOW_SUBMIT_CONFIRMATION_MODAL',
         SHOW_FAILURE_MODAL = 'SHOW_FAILURE_MODAL',
         SHOW_INVITE_MODAL = 'SHOW_INVITE_MODAL',
+        SHOW_EMAIL_DOCUMENT_MODAL = 'SHOW_EMAIL_DOCUMENT_MODAL',
 
         UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
 
@@ -387,6 +389,8 @@ declare namespace Sign.Actions {
         SUBMIT_SIGN_REQUESTS = 'SUBMIT_SIGN_REQUESTS',
 
         SET_INVITE_SIGNATORIES = 'SET_INVITE_SIGNATORIES',
+
+        EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
     }
 
     interface ActionCreator<T> {
@@ -658,6 +662,14 @@ declare namespace Sign.Actions {
         inviteSignatories: boolean;
     }
 
+    interface EmailDocumentPayload {
+        documentId: string;
+        recipients: Sign.Recipients;
+    }
+
+    interface ShowEmailDocumentModalPayload {
+        documentId: string;
+    }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
@@ -712,12 +724,15 @@ declare namespace Sign.Actions {
     interface ShowSubmitConfirmationModal extends ActionCreator<ShowSubmitConfirmationModalPayload> {}
     interface ShowFailureModal extends ActionCreator<ShowFailureModalPayload> {}
     interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
+    interface ShowEmailDocumentModal extends ActionCreator<ShowEmailDocumentModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}
     interface SubmitSignRequests extends ActionCreator<SubmitSignRequestsPayload> {}
 
     interface SetInviteSignatories extends ActionCreator<SetInviteSignatoriesPayload> {}
+    
+    interface EmailDocument extends ActionCreator<EmailDocumentPayload> {}
 }
 
 declare module 'pdfjs-dist/webpack' {

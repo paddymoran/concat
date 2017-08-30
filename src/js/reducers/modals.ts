@@ -50,6 +50,13 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
         case Sign.Actions.Types.SHOW_INVITE_MODAL:
             return { ...state, showing: Sign.ModalType.INVITE, ...action.payload };
 
+        case Sign.Actions.Types.SHOW_EMAIL_DOCUMENT_MODAL:
+            return {
+                ...state,
+                ...action.payload,
+                showing: Sign.ModalType.EMAIL_DOCUMENT,
+            };
+
         default:
             return state;
     }

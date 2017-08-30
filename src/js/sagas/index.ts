@@ -19,6 +19,7 @@ export default function *rootSaga(): any {
         requestDocumentSetsSaga(),
         requestRequestedSignaturesSaga(),
         deleteDocumentSaga(),
+        emailDocumentSaga(),
         ...pdfStoreSagas,
         ...signatureSagas,
         ...documentViewerSagas,
@@ -104,13 +105,13 @@ function *requestDocumentSaga() {
 
 function *deleteDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.REMOVE_DOCUMENT, removeDocument);
-     function *removeDocument(action: Sign.Actions.RemoveDocument) {
-        try{
+    function *removeDocument(action: Sign.Actions.RemoveDocument) {
+        try {
             const response = yield call(axios.delete, `/api/document/${action.payload.documentId}`);
-         }catch(e){
-             //swallow
-         }
-     }
+        } catch(e) {
+            //swallow
+        }
+    }
 }
 
 
@@ -198,6 +199,14 @@ function *requestRequestedSignaturesSaga() {
             documentSets: data
         }));
      }
+}
+
+function *emailDocumentSaga() {
+    yield takeEvery(Sign.Actions.Types.EMAIL_DOCUMENT, emailDocument);
+    
+    function *emailDocument(action: Sign.Actions.EmailDocument) {
+        yield call(axios.post, '/api/send_document', { documentId: action.payload.documentId, recipients: action.payload.recipients });
+    }
 }
 
 

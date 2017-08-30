@@ -288,6 +288,7 @@ interface ConnectedControlProps extends ControlProps{
     hasRecipients: boolean;
     showInviteModal: (payload: Sign.Actions.ShowInviteModalPayload) => void;
     overlayDefaults: Sign.OverlayDefaults;
+    nextInvalidOverlay: string | boolean;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -301,6 +302,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         this.activateText = this.activateText.bind(this);
         this.activatePrompt = this.activatePrompt.bind(this);
         this.showInviteModal = this.showInviteModal.bind(this);
+        this.sign = this.sign.bind(this);
     }
 
     activateNone() {
@@ -325,6 +327,11 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
 
     activatePrompt() {
         this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.PROMPT})
+    }
+
+    sign() {
+
+        this.props.sign();
     }
 
     signatureTooltip(children: JSX.Element){
@@ -453,7 +460,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <div className="button-text"><i className="fa fa-users" /><span className="label">Invite</span></div>
                         </div> }
 
-                        <div className="submit-button sign-control" onClick={this.props.sign}>
+                        <div className="submit-button sign-control" onClick={this.sign}>
                             <div  className="button-text"><i className="fa fa-pencil" /><span className="label">{ submitString }</span></div>
                         </div>
                     </div>
@@ -462,6 +469,11 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         );
     }
 }
+
+function findNextInvalidOverlay(documentViewer: Sign.DocumentViewer, documentId: string) {
+    return false;
+}
+
 
 export const Controls = connect<{}, {}, ControlProps>(
     (state: Sign.State, ownProps: any) => ({
@@ -475,6 +487,7 @@ export const Controls = connect<{}, {}, ControlProps>(
         hasPrompt: !!Object.keys(state.documentViewer.prompts).length,
         hasRecipients: ((state.documentSets[ownProps.documentSetId] || {recipients: []}).recipients || []).length > 0,
         overlayDefaults: state.overlayDefaults,
+        nextInvalidOverlay: findNextInvalidOverlay(state.documentViewer, ownProps.documentId)
     }),
     { setActiveSignControl, showInviteModal }
 )(UnconnectedControls)

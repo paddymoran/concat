@@ -408,7 +408,13 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
                 lockAspectRatio={true}
                 resizeHandlerClasses={Positionable.HANDLER_STYLES}
                 className={className}
-            ><Controls onDelete={this.onDelete} index={this.props.index} element={() => this.positionable} containerWidth={containerWidth} documentSetId={this.props.documentSetId} documentId={this.props.documentId}/></ReactRnd>
+            ><Controls onDelete={this.onDelete} index={this.props.index}
+            element={() => this.positionable}
+            containerWidth={containerWidth}
+            documentSetId={this.props.documentSetId}
+            documentId={this.props.documentId}/>
+            <div id={this.props.index}/>
+            </ReactRnd>
         );
     }
 }

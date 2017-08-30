@@ -119,6 +119,7 @@ declare namespace Sign {
 
     interface DocumentPrompt extends Positionable{
         value: PromptInfo
+        promptIndex: string;
     }
 
     interface DocumentSignatures {

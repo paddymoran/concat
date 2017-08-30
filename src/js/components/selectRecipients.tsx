@@ -58,7 +58,7 @@ class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
                                     component={FormInput}
                                     placeholder="Name" />
                             </Col>
-                            
+
                             <Col md={5}>
                                 <Field
                                     name={`${recipient}.email`}
@@ -66,7 +66,7 @@ class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
                                     component={FormInput }
                                     placeholder="Email" />
                             </Col>
-                            
+
                             <Col md={2}>
                                 <Button onClick={() => fields.remove(index)}>
                                     <i className="fa fa-trash"/>
@@ -83,7 +83,7 @@ class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
                         </Button>
                     </div>
                 </li>
-                
+
                 { submitFailed && error && <div className="alert alert-danger">{error}</div>}
             </ul>
         );
@@ -93,7 +93,7 @@ class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
 class FieldArraysForm extends React.PureComponent<FormProps> {
     render() {
         const { handleSubmit, pristine, reset, submitting, valid } = this.props;
-        
+
         return (
             <form onSubmit={handleSubmit}>
                 <FieldArray name={Sign.FormName.RECIPIENTS} component={RenderRecipients} />
@@ -105,9 +105,9 @@ class FieldArraysForm extends React.PureComponent<FormProps> {
 const validate = (values: Readonly<RecipientList>): FormErrors<RecipientList> => {
     const errors : FormErrors<RecipientList> = {};
     const recipients = values[Sign.FormName.RECIPIENTS];
-    
+
     const recipientsArrayErrors : FormErrors<Sign.Recipient>[] = [];
-    
+    const emails : any = {}
     values.recipients.forEach((recipient : Sign.Recipient, recipientIndex: number) => {
         const recipientErrors = {} as any;
         if (!recipient || !recipient.name) {
@@ -122,6 +122,11 @@ const validate = (values: Readonly<RecipientList>): FormErrors<RecipientList> =>
             recipientErrors.email = 'Please enter a valid email'
             recipientsArrayErrors[recipientIndex] = recipientErrors
         }
+        if (recipient && recipient.email && emails[recipient.email]){
+            recipientErrors.email = 'Duplicate Email'
+            recipientsArrayErrors[recipientIndex] = recipientErrors
+        }
+        emails[recipient.email] = true;
 
     })
     if (recipientsArrayErrors.length) {
@@ -156,10 +161,10 @@ export class SelectRecipients extends React.Component<SelectRecipientsProps>  {
             <div>
                 <div className='page-heading'>
                     <h1 className="title question">Select Recipients</h1>
-                    
+
                     <div className="sub-title step-count">Step 3</div>
                 </div>
-                
+
                 <div className="select-recipients">
                     <InviteForm initialValues={{recipients: [{}]}} onSubmit={this.onSubmit} />
                 </div>

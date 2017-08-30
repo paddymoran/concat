@@ -145,32 +145,33 @@ function *requestDocumentSetSaga() {
             documentIds: (data.documents || []).map((d: any) => d.document_id)
         }));
 
+        if(data.documents){
+            const recipients : Sign.Recipients = data.documents.reduce((acc: Sign.Recipients, document: any) => {
+                if(document.field_data && document.field_data.recipients){
+                    acc = [...acc, ...document.field_data.recipients];
+                }
+                return acc;
+            }, []);
 
-        const recipients : Sign.Recipients = data.documents.reduce((acc: Sign.Recipients, document: any) => {
-            if(document.field_data && document.field_data.recipients){
-                acc = [...acc, ...document.field_data.recipients];
+            if(recipients.length){
+                yield put(defineRecipients({documentSetId: action.payload.documentSetId, recipients}));
             }
-            return acc;
-        }, []);
 
-        if(recipients.length){
-            yield put(defineRecipients({documentSetId: action.payload.documentSetId, recipients}));
-        }
-
-        //todo add new action for mass setting views
-        const payload : Sign.Actions.AddOverlaysPayload = data.documents.reduce((acc : any, document: any) => {
-            if(document.field_data && document.field_data.view){
-                ['signatures', 'prompts', 'texts', 'dates'].map(k => {
-                    Object.keys(document.field_data.view[k]).map(s => {
-                        acc[k].push(document.field_data.view[k][s])
+            //todo add new action for mass setting views
+            const payload : Sign.Actions.AddOverlaysPayload = data.documents.reduce((acc : any, document: any) => {
+                if(document.field_data && document.field_data.view){
+                    ['signatures', 'prompts', 'texts', 'dates'].map(k => {
+                        Object.keys(document.field_data.view[k]).map(s => {
+                            acc[k].push(document.field_data.view[k][s])
+                        });
                     });
-                });
-            }
-            return acc;
-        }, {
-            signatures: [], dates: [], prompts: [], texts: []
-        })
-        yield put(addOverlays(payload));
+                }
+                return acc;
+            }, {
+                signatures: [], dates: [], prompts: [], texts: []
+            })
+            yield put(addOverlays(payload));
+        }
 
     }
 

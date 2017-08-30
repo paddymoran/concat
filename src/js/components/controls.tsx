@@ -288,6 +288,7 @@ interface ConnectedControlProps extends ControlProps{
     hasRecipients: boolean;
     showInviteModal: (payload: Sign.Actions.ShowInviteModalPayload) => void;
     overlayDefaults: Sign.OverlayDefaults;
+    nextInvalidOverlay: string | boolean;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -469,6 +470,11 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
     }
 }
 
+function findNextInvalidOverlay(documentViewer: Sign.DocumentViewer, documentId: string) {
+    return false;
+}
+
+
 export const Controls = connect<{}, {}, ControlProps>(
     (state: Sign.State, ownProps: any) => ({
         selectedSignatureId: state.documentViewer.selectedSignatureId,
@@ -481,6 +487,7 @@ export const Controls = connect<{}, {}, ControlProps>(
         hasPrompt: !!Object.keys(state.documentViewer.prompts).length,
         hasRecipients: ((state.documentSets[ownProps.documentSetId] || {recipients: []}).recipients || []).length > 0,
         overlayDefaults: state.overlayDefaults,
+        nextInvalidOverlay: findNextInvalidOverlay(state.documentViewer, ownProps.documentId)
     }),
     { setActiveSignControl, showInviteModal }
 )(UnconnectedControls)

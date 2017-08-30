@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import PDFViewer from './pdf/viewer';
-import { requestRequestedSignatures } from '../actions';
+import { requestRequestedSignatures, requestDocumentSet } from '../actions';
 
 interface DocumentViewProps {
     params: {
@@ -9,8 +9,16 @@ interface DocumentViewProps {
         documentId: string;
     };
 }
+interface ConnectedDocumentViewProps extends DocumentViewProps {
+    requestDocumentSet: (documentId: string) => void
+}
 
-export default class DocumentView extends React.Component<DocumentViewProps>  {
+
+
+export class UnconnectedDocumentView extends React.Component<ConnectedDocumentViewProps>  {
+    componentDidMount() {
+        this.props.requestDocumentSet(this.props.params.documentSetId)
+    }
     render() {
         return (
             <div className="pdf-screen">
@@ -19,6 +27,15 @@ export default class DocumentView extends React.Component<DocumentViewProps>  {
         );
     }
 }
+
+export const DocumentView = connect<{}, {}, ConnectedDocumentViewProps>((state: Sign.State, ownProps: DocumentViewProps) => {
+    return {
+    }
+}, {
+   requestDocumentSet
+})(UnconnectedDocumentView);
+
+export default DocumentView;
 
 
 interface RequestedSignatureProps extends DocumentViewProps {

@@ -80,4 +80,35 @@ function *submitSignRequests() {
     }
 }
 
-export default [signDocumentSaga(), submitSignRequests()];
+function *saveDocumentViewSaga() {
+    yield takeEvery(Sign.Actions.Types.SAVE_DOCUMENT_VIEW, saveDocumentView);
+
+    function *saveDocumentView(action: Sign.Actions.SaveDocumentView) {
+        const recipients = yield select((state: Sign.State) => state.documentSets[action.payload.documentSetId]);
+        const documentView = yield select((state: Sign.State) => state.documentViewer);
+        const remove = (obj: any) => {
+            Object.keys(obj).map(k => {
+                if(obj[k].documentId !== action.payload.documentId){
+                    delete obj[k];
+                }
+            })
+            return obj;
+        }
+        const signatures = remove({...documentView.signatures});
+        const prompts = remove({...documentView.prompts})
+        const texts = remove({...documentView.texts})
+        const dates = remove({...documentView.dates})
+        const view = {
+            signatures, prompts, texts, dates
+        }
+        try{
+            const response = yield call(axios.post, `/api/save_view/${action.payload.documentId}`, {recipients, view});
+        }
+        catch(e) {
+
+        }
+
+    }
+}
+
+export default [signDocumentSaga(), submitSignRequests(), saveDocumentViewSaga()];

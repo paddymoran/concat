@@ -189,7 +189,7 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<ConnectedUpload
                 <hr />
 
                 <div className="text-center">
-                    <Button onClick={this.toggleInviteSignatories}>{this.props.inviteSignatories ? 'Don\'t Invite Signatories' : 'Invite Signatories'}</Button>
+                    <Button onClick={this.toggleInviteSignatories}>{this.props.inviteSignatories ? "Don't Invite Signatories" : "Invite Signatories"}</Button>
                 </div>
 
                 {this.props.inviteSignatories &&

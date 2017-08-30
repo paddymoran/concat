@@ -351,6 +351,38 @@ def add_signature_requests(document_set_id, requests):
         database.commit()
 
 
+def save_document_view(document_id, user_id, field_data):
+    database = get_db()
+    args = {'document_id': document_id, 'field_data': psycopg2.extras.Json(field_data)}
+    if current_app.config.get('USE_DB_UPSERT'):
+        query = """
+            INSERT INTO document_view (document_id, field_data)
+            VALUES (%(document_id)s,  %(field_data)s)
+            ON CONFLICT (document_id) DO UPDATE SET field_data = %(field_data)ss;
+        """
+        with database.cursor() as cursor:
+            cursor.execute(query, args)
+        database.commit()
+    else:
+        try:
+            query = """
+                INSERT INTO document_view (document_id, field_data)
+                VALUES(%(document_id)s,  %(field_data)s)
+            """
+            with database.cursor() as cursor:
+                cursor.execute(query, args)
+
+        except:
+            database.rollback()
+            query = """
+                UPDATE document_view SET field_data = %(field_data)s where document_id= %(document_id)s;
+            """
+            with database.cursor() as cursor:
+                cursor.execute(query, args)
+        database.commit()
+    return
+
+
 
 def get_signature_requests(user_id):
     """

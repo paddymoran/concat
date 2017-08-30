@@ -1,7 +1,7 @@
 import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
 import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import axios from 'axios';
-import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures } from '../actions';
+import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures, addPromptToDocument } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -143,7 +143,10 @@ function *requestDocumentSetSaga() {
             downloadStatus: Sign.DownloadStatus.Complete,
             documentIds: (data.documents || []).map((d: any) => d.document_id)
         }));
-     }
+
+        //todo add new action for mass setting views
+    }
+
 }
 
 
@@ -259,3 +262,5 @@ function *uploadDocumentSaga() {
         });
     }
 }
+
+

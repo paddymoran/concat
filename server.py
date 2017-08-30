@@ -165,6 +165,16 @@ def document_upload():
         raise InvalidUsage(e.message, status_code=500)
 
 
+@app.route('/api/save_view/<document_id>', methods=['POST'])
+def save_document_view(document_id):
+    try:
+        db.save_document_view(document_id, session['user_id'], request.get_json())
+        return jsonify({'message': 'Saved'})
+    except Exception as e:
+        print(e)
+        raise InvalidUsage(e.message, status_code=500)
+
+
 @app.route('/api/document/<document_id>', methods=['DELETE'])
 def remove_document_from_set(document_id):
     try:

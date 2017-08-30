@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Field, FieldArray, reduxForm, FormErrors, BaseFieldProps,  InjectedFormProps, WrappedFieldProps, change } from 'redux-form'
+import { Field, FieldArray, reduxForm, FormErrors, BaseFieldProps,  InjectedFormProps, WrappedFieldProps, change, touch } from 'redux-form'
 import { ControlLabel, FormGroup, FormGroupProps, HelpBlock, Col, Row, Button, FormControl } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { defineRecipients } from '../actions';
@@ -63,6 +63,7 @@ interface RecipientRowProps {
 
 interface UnconnectedRecipientRowProps extends RecipientRowProps {
     change: (form: string, field: string, value: any) => void;
+    touch: (form: string, field: string) => void;
 }
 
 class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRowProps> {
@@ -75,7 +76,9 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
         // If the user selected a contact, and that contact has an email, set the email field too
         // We have to check this, because sometimes the input will just be plain text
         if (recipient.email) {
-            this.props.change(Sign.FormName.RECIPIENTS, `${this.props.recipient}.email`, recipient.email);
+            const fieldName = `${this.props.recipient}.email`;
+            this.props.change(Sign.FormName.RECIPIENTS, fieldName, recipient.email);
+            this.props.touch(Sign.FormName.RECIPIENTS, fieldName); // touch the field too, for validation
         }
     }
 
@@ -106,7 +109,7 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
     }
 }
 
-const RecipientRow = connect<{}, {}, RecipientRowProps>(null, { change })(UnconnectedRecipientRow);
+const RecipientRow = connect<{}, {}, RecipientRowProps>(null, { change, touch })(UnconnectedRecipientRow);
 
 
 class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {

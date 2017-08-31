@@ -377,3 +377,10 @@ export function emailDocument(payload: Sign.Actions.EmailDocumentPayload): Sign.
         payload
     };
 }
+
+export function showRejectConfirmationModal(payload: Sign.Actions.ShowRejectConfirmationModalPayload): Sign.Actions.ShowRejectConfirmationModal {
+    return {
+        type: Sign.Actions.Types.SHOW_REJECT_CONFIRMATION_MODAL,
+        payload
+    };
+}

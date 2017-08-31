@@ -391,3 +391,10 @@ export function rejectDocument(payload: Sign.Actions.RejectDocumentPayload): Sig
         payload
     };
 }
+
+export function nextDocument(payload: Sign.Actions.NextDocumentPayload): Sign.Actions.NextDocument {
+    return {
+        type: Sign.Actions.Types.NEXT_DOCUMENT,
+        payload
+    };
+}

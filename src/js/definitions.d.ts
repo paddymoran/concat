@@ -291,6 +291,7 @@ declare namespace Sign {
         INVITE = 'INVITE',
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
         REJECT_CONFIRMATION = 'REJECT_CONFIRMATION',
+        NEXT_DOCUMENT = 'NEXT_DOCUMENT',
     }
 
     interface SignatureRequest {
@@ -362,6 +363,7 @@ declare namespace Sign.Actions {
         SIGN_DOCUMENT = "SIGN_DOCUMENT",
         REJECT_DOCUMENT = 'REJECT_DOCUMENT',
         SET_SIGN_REQUEST_STATUS = "SET_SIGN_REQUEST_STATUS",
+        NEXT_DOCUMENT = 'NEXT_DOCUMENT',
 
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
         REQUEST_DOCUMENT_SETS = 'REQUEST_DOCUMENT_SETS',
@@ -716,6 +718,11 @@ declare namespace Sign.Actions {
         documentId: string;
     }
 
+    interface NextDocumentPayload {
+        documentSetId: string;
+        documentId: string;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -758,6 +765,7 @@ declare namespace Sign.Actions {
     interface SignDocument extends ActionCreator<SignDocumentPayload> {}
     interface RejectDocument extends ActionCreator<RejectDocumentPayload> {}
     interface SetSignRequestStatus extends ActionCreator<SetSignRequestStatusPayload> {}
+    interface NextDocument extends ActionCreator<NextDocumentPayload> {}
 
     interface RequestSignatures extends Action {}
     interface SetSignatureIds extends ActionCreator<SetSignatureIdsPayload> {}

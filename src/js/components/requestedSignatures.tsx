@@ -1,17 +1,19 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { requestRequestedSignatures } from '../actions';
+import { requestRequestedSignatures, toggleToSignShowComplete } from '../actions';
 import * as moment from 'moment';
 import { stringToDateTime } from '../utils';
 import { Link } from 'react-router';
-
+import { Checkbox } from 'react-bootstrap';
 
 interface RequestedSignatureProps {
+    showComplete: boolean;
     requestRequestedSignatures: () => void;
     requestedSignatures: Sign.RequestedSignatures;
     documents: {
         [documentId: string]: Sign.Document
     };
+    toggleShowComplete: () => void;
 }
 
 interface RequestedSignatureDocumentSetProps {
@@ -85,14 +87,17 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
 
     render() {
         const docSets = this.props.requestedSignatures.documentSets;
+        let docSetKeys = Object.keys(docSets);
 
-        // Filter out complete document sets
-        const docSetKeys = Object.keys(docSets).filter((key: string) => {
-            const docSet = docSets[key];
-            const setComplete = Object.keys(docSet).every(docKey => this.props.documents[docKey].signStatus === Sign.SignStatus.SIGNED)
+        // Filter out complete document sets - if needed
+        if (!this.props.showComplete) {
+            docSetKeys = docSetKeys.filter((key: string) => {
+                const docSet = docSets[key];
+                const setComplete = Object.keys(docSet).every(docKey => this.props.documents[docKey].signStatus === Sign.SignStatus.SIGNED)
 
-            return !setComplete;
-        })
+                return !setComplete;
+            });
+        }
 
         if (docSetKeys.length === 0) {
             return <h3>No pending signature requests.</h3>;
@@ -101,6 +106,11 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
         return (
             <div>
                 <div className="page-heading"><h1 className="title">Documents To Sign</h1></div>
+
+                <Checkbox onChange={this.props.toggleShowComplete}>Show Complete Sets</Checkbox>
+
+                <hr />
+
                 {docSetKeys.map((documentSetId: string, index: number) =>
                     <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={docSets[documentSetId]} />
                 )}
@@ -111,9 +121,11 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
 
 const ConnectedRequestedSignature = connect((state: Sign.State) => ({
     requestedSignatures: state.requestedSignatures,
-    documents: state.documents
+    documents: state.documents,
+    showComplete: state.toSignPage.showComplete
 }), {
-    requestRequestedSignatures
+    requestRequestedSignatures,
+    toggleShowComplete: toggleToSignShowComplete
 })(RequestedSignatures);
 
 

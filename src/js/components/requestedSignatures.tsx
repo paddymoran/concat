@@ -45,17 +45,21 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
         const inviter = this.props.documentSet.owner.name;
         const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
 
-        return (<div className="request-signature">
+        return (
+            <div className="request-signature">
                 <div className="request-signature-title"><span className="inviter">{ inviter }</span> has requested that you sign the following: </div>
                 { Object.keys(this.props.requestDocumentSet).map((documentId: string, index: number) => {
                     const document : Sign.Document = this.props.documents[documentId]
                     const url = `/sign/${this.props.documentSetId}/${documentId}`;
-                    return <div key={index} className="document-line">
-                        <SignStatus signStatus={document.signStatus}/>
-                        <Link to={url}><i className="fa fa-file-pdf-o" /> { document.filename }</Link>
+                    
+                    return (
+                        <div key={index} className="document-line">
+                            <SignStatus signStatus={document.signStatus}/>
+                            <Link to={url}><i className="fa fa-file-pdf-o" /> { document.filename }</Link>
                         </div>
+                    );
                 }) }
-                </div>
+            </div>
         );
     }
 }
@@ -74,15 +78,17 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
     }
     render() {
         const keys : string[] = Object.keys(this.props.requestedSignatures.documentSets);
-        if(!keys.length){
-            return false;
+
+        if (!keys.length) {
+            return <h3>No pending signature requests.</h3>;
         }
-        return (<div>
-                     <div className="page-heading"><h1 className="title">Documents To Sign</h1></div>
-                     { keys.map((documentSetId: string, index: number) => {
-                            return <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={this.props.requestedSignatures.documentSets[documentSetId]} />
-                     }) }
-                </div>
+        return (
+            <div>
+                <div className="page-heading"><h1 className="title">Documents To Sign</h1></div>
+                {keys.map((documentSetId: string, index: number) =>
+                    <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={this.props.requestedSignatures.documentSets[documentSetId]} />
+                )}
+            </div>
         );
     }
 }

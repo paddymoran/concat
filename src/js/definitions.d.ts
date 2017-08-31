@@ -290,6 +290,7 @@ declare namespace Sign {
         FAILURE = 'FAILURE',
         INVITE = 'INVITE',
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
+        REJECT_CONFIRMATION = 'REJECT_CONFIRMATION',
     }
 
     interface SignatureRequest {
@@ -387,6 +388,7 @@ declare namespace Sign.Actions {
         SHOW_FAILURE_MODAL = 'SHOW_FAILURE_MODAL',
         SHOW_INVITE_MODAL = 'SHOW_INVITE_MODAL',
         SHOW_EMAIL_DOCUMENT_MODAL = 'SHOW_EMAIL_DOCUMENT_MODAL',
+        SHOW_REJECT_CONFIRMATION_MODAL = 'SHOW_REJECT_CONFIRMATION_MODAL',
 
         UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
 
@@ -700,6 +702,10 @@ declare namespace Sign.Actions {
         documentId: string;
     }
 
+    interface ShowRejectConfirmationModalPayload {
+        documentId: string;
+    }
+
     interface UpdateModalDataPayload {
         [key: string]: any;
 
@@ -761,6 +767,7 @@ declare namespace Sign.Actions {
     interface ShowFailureModal extends ActionCreator<ShowFailureModalPayload> {}
     interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
     interface ShowEmailDocumentModal extends ActionCreator<ShowEmailDocumentModalPayload> {}
+    interface ShowRejectConfirmationModal extends ActionCreator<ShowRejectConfirmationModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}

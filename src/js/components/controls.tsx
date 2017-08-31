@@ -6,7 +6,7 @@ import { DateButton, TextButton, PromptButton } from './controlButtons';
 import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { OverlayTrigger,  Popover } from 'react-bootstrap';
-import { setActiveSignControl, showInviteModal } from '../actions';
+import { setActiveSignControl, showInviteModal, showRejectConfirmationModal } from '../actions';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
 const SignatureTooltip = () => {
@@ -292,7 +292,8 @@ interface ConnectedControlProps extends ControlProps{
     hasRecipients: boolean;
     showInviteModal: (payload: Sign.Actions.ShowInviteModalPayload) => void;
     overlayDefaults: Sign.OverlayDefaults;
-    nextInvalidOverlay?: string
+    nextInvalidOverlay?: string;
+    reject: () => void;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -473,13 +474,17 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                     </div>
 
                     <div className="controls-right">
-                        { this.props.showSave && <div className="submit-button sign-control" onClick={this.props.save}>
+                        { this.props.showSave && <div className="sign-control" onClick={this.props.save}>
                             <div  className="button-text"><i className="fa fa-save" /><span className="label">Save Draft</span></div>
                         </div> }
 
                         { this.props.showInvite && <div className="sign-control" onClick={this.showInviteModal}>
                             <div className="button-text"><i className="fa fa-users" /><span className="label">Invite</span></div>
                         </div> }
+                        
+                        <div className="sign-control" onClick={this.props.reject}>
+                            <div  className="button-text"><i className="fa fa-times" /><span className="label">Reject</span></div>
+                        </div>
 
                         <div className="submit-button sign-control" onClick={this.sign}>
                             <div  className="button-text"><i className="fa fa-pencil" /><span className="label">{ submitString }</span></div>
@@ -531,5 +536,9 @@ export const Controls = connect<{}, {}, ControlProps>(
         overlayDefaults: state.overlayDefaults,
         nextInvalidOverlay: findNextInvalidOverlay(state.documentViewer, ownProps.documentId)
     }),
-    { setActiveSignControl, showInviteModal }
+    {
+        setActiveSignControl,
+        showInviteModal,
+        reject: showRejectConfirmationModal
+    }
 )(UnconnectedControls)

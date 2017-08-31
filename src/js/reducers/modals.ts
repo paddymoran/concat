@@ -64,6 +64,12 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
                 showing: Sign.ModalType.EMAIL_DOCUMENT,
             };
 
+        case Sign.Actions.Types.SHOW_REJECT_CONFIRMATION_MODAL:
+            return {
+                showing: Sign.ModalType.REJECT_CONFIRMATION,
+                ...action.payload
+            };
+
         default:
             return state;
     }

@@ -47,6 +47,15 @@
 }
 
 
+
+.request-prompt{
+    z-index: 1;
+    position: absolute;
+    outline: 1px dashed black;
+    background-size: 100% 100%;
+    cursor: pointer;
+}
+
 /*
 .prompt-positionable{
        background: repeating-linear-gradient(

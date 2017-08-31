@@ -78,6 +78,33 @@ export function promptToCanvas(width: number, height: number, recipient: string,
     return canvas;
 }
 
+export function requestPromptToCanvas(width: number, height: number, type: string) {
+    const canvas = document.createElement('canvas');
+    canvas.height = height;
+    canvas.width = width;
+    const margin = height / 8;
+    const ctx = canvas.getContext('2d');
+    const colors : any = {
+        'signature': 'rgba(30,138,19, 0.8)',
+        'initial':'rgba(14,104,97, 0.8)',
+        'date':'rgba(169,87,23, 0.8)',
+        'text':'rgba(166,23,30,0.8)',
+    };
+    ctx.fillStyle = colors[type]
+    ctx.fillRect(0,0,width, height);
+    const fontsize = (canvas.height/2-(margin)) * 0.9;
+    let font = `bold ${fontsize}px arial`;
+    ctx.font = font;
+    ctx.textBaseline="top";
+    ctx.textAlign="center";
+    ctx.fillStyle =  '#fff'
+    ctx.fillText(type.toUpperCase(), width / 2, margin  , width - (margin * 2));
+
+    font = `bold ${(fontsize)*0.75}px arial`;
+    ctx.font = font;
+    ctx.fillText('HERE', width / 2, height / 2 + margin /2 , width - (margin * 2));
+    return canvas;
+}
 
 export function debounce(func: () => void, wait = 50) {
     let h: number;

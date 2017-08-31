@@ -8,7 +8,7 @@ import {
     movePrompt, removePromptFromDocument
  } from '../actions';
 import { connect } from 'react-redux';
-import { signatureUrl, stringToCanvas, promptToCanvas } from '../utils';
+import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas } from '../utils';
 import * as Calendar from 'react-widgets/lib/Calendar';
 import * as Popover from 'react-bootstrap/lib/Popover'
 import * as OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
@@ -20,7 +20,6 @@ const DATE_FORMATS = [
     'DD-MM-YY',
     'DD/MM/YY',
     'YYYY/MM/DD'
-
 ]
 
 
@@ -68,6 +67,14 @@ interface PromptControlProps extends ControlProps{
     prompt: Sign.DocumentPrompt,
     updatePrompt: (payload: Sign.Actions.MovePromptPayload) => void;
     recipients: Sign.Recipients;
+}
+
+interface RequestPromptProps  {
+    containerHeight: number;
+    containerWidth: number;
+    documentSetId: string;
+    documentId: string;
+    requestPrompt: Sign.DocumentPrompt;
 }
 
 
@@ -497,3 +504,25 @@ export const PromptPositionable = connect<{}, {}, PositionableProps>(
     },
     { removePositionableFromDocument: removePromptFromDocument, movePositionable: movePrompt }
 )(Positionable);
+
+
+
+
+export class RequestPrompt extends React.PureComponent<RequestPromptProps> {
+    render() {
+        const style= {
+            left: this.props.containerWidth * this.props.requestPrompt.offsetX,
+            top: this.props.containerHeight * this.props.requestPrompt.offsetY,
+            width: this.props.containerWidth * this.props.requestPrompt.ratioX,
+            height: this.props.containerHeight * this.props.requestPrompt.ratioY,
+             background: '',
+        }
+        const canvas = requestPromptToCanvas(style.width, style.height, this.props.requestPrompt.value.type);
+        const dataUrl = canvas.toDataURL();
+        style.background = `url("${dataUrl}")`;
+
+        return <div className="request-prompt " style={style}>
+
+        </div>
+    }
+}

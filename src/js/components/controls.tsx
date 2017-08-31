@@ -341,9 +341,10 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         else{
             const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients }  = this.props;
             const hasSigned = ( hasSignature || hasInitial || hasDate || hasText);
-            const selfSign = hasSigned && !hasPrompt && !hasRecipients;
+            const selfSign = (hasSigned && !hasPrompt && !hasRecipients) || this.props.requestedSignatureInfo; ;
             const otherSign = !hasSigned && hasRecipients;
             const mixSign = hasSigned && hasRecipients;
+
             if(selfSign){
                 this.props.sign();
             }
@@ -481,7 +482,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                         { this.props.showInvite && <div className="sign-control" onClick={this.showInviteModal}>
                             <div className="button-text"><i className="fa fa-users" /><span className="label">Invite</span></div>
                         </div> }
-                        
+
                         <div className="sign-control" onClick={this.props.reject}>
                             <div  className="button-text"><i className="fa fa-times" /><span className="label">Reject</span></div>
                         </div>

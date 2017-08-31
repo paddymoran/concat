@@ -7,7 +7,7 @@ import PDFPage from './page';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
 import {  moveSignature, addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal, showSubmitConfirmationModal, saveDocumentView  } from '../../actions';
-import { SignaturePositionable, DatePositionable, TextPositionable, PromptPositionable } from '../positionable';
+import { SignaturePositionable, DatePositionable, TextPositionable, PromptPositionable, RequestPrompt } from '../positionable';
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
@@ -331,7 +331,6 @@ interface OverlayPageWrapperProps extends UnconnectedOverlayPageWrapperProps{
 
 
 
-
 class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapperProps> {
     constructor(props: OverlayPageWrapperProps) {
         super(props);
@@ -460,6 +459,7 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} index={dateIndex} {...props}/ >)}
                {  this.props.textIndexes.map(textIndex => <TextPositionable key={textIndex} index={textIndex}  {...props} />)}
                {  this.props.promptIndexes.map(promptIndex => <PromptPositionable key={promptIndex} index={promptIndex}  {...props} />)}
+               {  this.props.requestPrompts && this.props.requestPrompts.map(requestPrompt => <RequestPrompt requestPrompt={requestPrompt} {...props}  />) }
                 { child }
             </div>
         );

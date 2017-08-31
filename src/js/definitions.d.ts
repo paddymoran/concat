@@ -20,7 +20,13 @@ declare namespace Sign {
         filename: string;
         createdAt?: string;
     }
-    type SignStatus = 'Pending' | 'Signed' | 'Rejected' | 'Partial';
+
+    const enum SignStatus {
+        'PENDING' = 'Pending',
+        'SIGNED' = 'Signed',
+        'REJECTED' = 'Rejected',
+        'PARTIAL' = 'Partial',
+    }
 
     interface Document extends DocumentData{
         id: string;
@@ -220,6 +226,11 @@ declare namespace Sign {
         requestedSignatures: RequestedSignatures;
         uploadDocuments: UploadDocuments;
         overlayDefaults: OverlayDefaults;
+        toSignPage: ToSignPage;
+    }
+
+    interface ToSignPage {
+        showComplete: boolean;
     }
 
     interface Action<T> {
@@ -409,6 +420,8 @@ declare namespace Sign.Actions {
 
 
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
+
+        TOGGLE_TO_SIGN_SHOW_COMPLETE = 'TOGGLE_TO_SIGN_SHOW_COMPLETE',
 
     }
 
@@ -799,6 +812,8 @@ declare namespace Sign.Actions {
     interface UpdateSaveStatus extends ActionCreator<UpdateSaveStatusPayload> {}
 
     interface EmailDocument extends ActionCreator<EmailDocumentPayload> {}
+
+    interface ToggleToSignShowComplete extends Action {}
 
 }
 

@@ -231,7 +231,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                        save={this.save}
                        requestedSignatureInfo={this.props.requestedSignatureInfo}
                        requestPrompts={requestPrompts}
-                       showInvite={this.props.isDocumentOwner} showPrompts={this.props.isDocumentOwner} showSave={this.props.isDocumentOwner}/>
+                       showInvite={this.props.isDocumentOwner} showPrompts={this.props.isDocumentOwner} showSave={this.props.isDocumentOwner} showReject={!this.props.isDocumentOwner}/>
                    </div>
                 </AutoAffix>
 

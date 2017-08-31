@@ -398,3 +398,9 @@ export function nextDocument(payload: Sign.Actions.NextDocumentPayload): Sign.Ac
         payload
     };
 }
+
+export function toggleToSignShowComplete(): Sign.Actions.ToggleToSignShowComplete {
+    return {
+        type: Sign.Actions.Types.TOGGLE_TO_SIGN_SHOW_COMPLETE
+    };
+}

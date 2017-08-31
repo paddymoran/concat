@@ -2,6 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { requestDocumentSets } from '../actions';
 import * as moment from 'moment';
+import { Link } from 'react-router';
+import { Nav, NavItem } from 'react-bootstrap';
 
 interface FileListProps {
     documents: Sign.DocumentData[],
@@ -61,15 +63,15 @@ class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  
     }
     render() {
         const documentSets = this.props.documentSets;
-        const documents = Object.keys(documentSets).reduce((acc: any, setId: string) : Sign.DocumentData[] => {
-            return [...acc, ...documentSets[setId].documentIds.map((documentId: string) => {
-                return this.props.documents[documentId];
-            })]
-        }, [])
+        const documents = Object.keys(documentSets).reduce((acc: any, setId: string) : Sign.DocumentData[] => [
+            ...acc,
+            ...documentSets[setId].documentIds.map((documentId: string) => this.props.documents[documentId])
+        ], []);
+
         return (
-                <div>
+            <div>
                 <FileList documents={documents} />
-                </div>
+            </div>
         );
     }
 }
@@ -91,10 +93,19 @@ export const PendingDocumentSets = connect((state: Sign.State) => ({
 
 export class AllDocumentSets extends React.PureComponent<DocumentSets>  {
     render() {
-        return (<div>
-            <div className="page-heading"><h1 className="title">Documents</h1></div>
-            <PendingDocumentSets />
-            <CompletedDocumentSets />
+        return (
+            <div>
+                <div className="page-heading"><h1 className="title">Documents</h1></div>
+
+                <Nav bsStyle="pills">
+                    <li><Link to="/all">All</Link></li>
+                    <li><Link to="/to_sign">To Sign</Link></li>
+                    <li><Link to="/pending">Pending</Link></li>
+                    <li><Link to="/complete">Complete</Link></li>
+                </Nav>
+                
+                <PendingDocumentSets />
+                <CompletedDocumentSets />
             </div>
         );
     }

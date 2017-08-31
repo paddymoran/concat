@@ -384,3 +384,10 @@ export function showRejectConfirmationModal(payload: Sign.Actions.ShowRejectConf
         payload
     };
 }
+
+export function rejectDocument(payload: Sign.Actions.RejectDocumentPayload): Sign.Actions.RejectDocument {
+    return {
+        type: Sign.Actions.Types.REJECT_DOCUMENT,
+        payload
+    };
+}

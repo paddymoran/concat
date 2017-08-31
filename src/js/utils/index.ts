@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 
 
-export function findSetForDocument(documentSets: Sign.DocumentSets, documentId: string) {
+export function findSetForDocument(documentSets: Sign.DocumentSets, documentId: string): string {
     return Object.keys(documentSets).find(key => documentSets[key].documentIds.includes(documentId));
 }
 

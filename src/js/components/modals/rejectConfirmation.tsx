@@ -1,13 +1,31 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Modal, Button } from 'react-bootstrap';
-import { closeModal } from '../../actions';
+import { closeModal, rejectDocument } from '../../actions';
+import { findSetForDocument } from '../../utils';
 
 interface RejectConfirmationProps {
+    documentSetId: string;
+    documentId: string;
     closeModal: () => void;
+    rejectDocument: (payload: Sign.Actions.RejectDocumentPayload) => void;
 }
 
 class RejectConfirmation extends React.PureComponent<RejectConfirmationProps> {
+    constructor(props: RejectConfirmationProps) {
+        super(props);
+
+        this.reject = this.reject.bind(this);
+    }
+
+    reject() {
+        this.props.rejectDocument({
+            documentSetId: this.props.documentSetId,
+            documentId: this.props.documentId
+        });
+        this.props.closeModal();
+    }
+
     render() {
         return (
             <Modal show={true} onHide={this.props.closeModal} className="icon-modal">
@@ -20,7 +38,7 @@ class RejectConfirmation extends React.PureComponent<RejectConfirmationProps> {
 
                     <p className='text-center'>Are you sure you want to <strong>reject</strong> this document?</p>
 
-                    <Button bsStyle='primary' bsSize="lg">Reject</Button>
+                    <Button bsStyle="primary" bsSize="lg" onClick={this.reject}>Reject</Button>
                 </Modal.Body>
             </Modal>
         );
@@ -28,6 +46,12 @@ class RejectConfirmation extends React.PureComponent<RejectConfirmationProps> {
 }
 
 export default connect(
-    null,
-    { closeModal: () => closeModal({ modalName: Sign.ModalType.REJECT_CONFIRMATION }) }
+    (state: Sign.State) => ({
+        documentId: state.modals.documentId,
+        documentSetId: findSetForDocument(state.documentSets, state.modals.documentId)
+    }),
+    {
+        rejectDocument,
+        closeModal: () => closeModal({ modalName: Sign.ModalType.REJECT_CONFIRMATION })
+    }
 )(RejectConfirmation);

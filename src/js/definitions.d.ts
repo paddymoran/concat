@@ -360,6 +360,7 @@ declare namespace Sign.Actions {
         SET_ACTIVE_SIGN_CONTROL = 'SET_ACTIVE_SIGN_CONTROL',
 
         SIGN_DOCUMENT = "SIGN_DOCUMENT",
+        REJECT_DOCUMENT = 'REJECT_DOCUMENT',
         SET_SIGN_REQUEST_STATUS = "SET_SIGN_REQUEST_STATUS",
 
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
@@ -708,7 +709,11 @@ declare namespace Sign.Actions {
 
     interface UpdateModalDataPayload {
         [key: string]: any;
+    }
 
+    interface RejectDocumentPayload {
+        documentSetId: string;
+        documentId: string;
     }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
@@ -751,6 +756,7 @@ declare namespace Sign.Actions {
     interface UpdateRequestedSignatures extends ActionCreator<UpdateRequestedSignaturesPayload> {}
 
     interface SignDocument extends ActionCreator<SignDocumentPayload> {}
+    interface RejectDocument extends ActionCreator<RejectDocumentPayload> {}
     interface SetSignRequestStatus extends ActionCreator<SetSignRequestStatusPayload> {}
 
     interface RequestSignatures extends Action {}

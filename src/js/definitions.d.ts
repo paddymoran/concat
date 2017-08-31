@@ -96,6 +96,7 @@ declare namespace Sign {
     interface DocumentSignature extends Positionable{
         signatureId: number;
         xyRatio: number;
+        sourceRequestPromptIndex?: string;
     }
 
     interface DocumentDate  extends Positionable{
@@ -103,11 +104,13 @@ declare namespace Sign {
         timestamp: number;
         format?: string;
         height: number;
+        sourceRequestPromptIndex?: string;
     }
 
     interface DocumentText  extends Positionable{
         value: string;
         height: number;
+        sourceRequestPromptIndex?: string;
     }
 
     type PromptType = 'signature' | 'initial' | 'date' | 'text';
@@ -532,6 +535,7 @@ declare namespace Sign.Actions {
         signatureIndex: string;
         signatureId: number;
         xyRatio: number;
+        sourceRequestPromptIndex?: string;
     }
 
     interface AddDateToDocumentPayload extends Positionable{
@@ -539,6 +543,7 @@ declare namespace Sign.Actions {
         value: string;
         timestamp: number;
         format: string;
+        sourceRequestPromptIndex?: string;
         height: number;
     }
 
@@ -546,6 +551,7 @@ declare namespace Sign.Actions {
         textIndex: string;
         value: string;
         height: number;
+        sourceRequestPromptIndex?: string;
     }
 
     interface AddPromptToDocumentPayload extends Positionable{

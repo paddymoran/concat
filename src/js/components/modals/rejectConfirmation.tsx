@@ -36,7 +36,7 @@ class RejectConfirmation extends React.PureComponent<RejectConfirmationProps> {
                 <Modal.Body>
                     <i className="fa fa-exclamation modal-icon" aria-hidden="true"></i>
 
-                    <p className='text-center'>Are you sure you want to <strong>reject</strong> this document?</p>
+                    <p className='text-center'>Are you sure you want to <strong>reject</strong> signing this document?  The inviter will be notified.</p>
 
                     <Button bsStyle="primary" bsSize="lg" onClick={this.reject}>Reject</Button>
                 </Modal.Body>

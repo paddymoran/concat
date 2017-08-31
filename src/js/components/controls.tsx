@@ -308,6 +308,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         this.activatePrompt = this.activatePrompt.bind(this);
         this.showInviteModal = this.showInviteModal.bind(this);
         this.sign = this.sign.bind(this);
+        this.nextPrompt= this.nextPrompt.bind(this);
     }
 
     activateNone() {
@@ -352,6 +353,15 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                 this.props.send();
             }
         }
+    }
+
+    getNextPrompt() {
+        return this.props.requestedSignatureInfo && this.props.requestedSignatureInfo.prompts && this.props.requestedSignatureInfo.prompts.length && this.props.requestedSignatureInfo.prompts[0];
+    }
+
+    nextPrompt() {
+        const prompt = this.getNextPrompt();
+        this.scrollTo(prompt.promptIndex);
     }
 
     signatureTooltip(children: JSX.Element){
@@ -424,6 +434,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         else if(mixSign){
             submitString = 'Sign & Send';
         }
+        const nextPrompt = this.getNextPrompt();
         return (
             <div className="controls" onClick={this.activateNone}>
                 <div className="container">
@@ -481,6 +492,10 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
 
                         { this.props.showInvite && <div className="sign-control" onClick={this.showInviteModal}>
                             <div className="button-text"><i className="fa fa-users" /><span className="label">Invite</span></div>
+                        </div> }
+
+                        { nextPrompt &&  <div className="sign-control" onClick={this.nextPrompt}>
+                            <div  className="button-text"><i className="fa fa-forward" /><span className="label">Guide</span></div>
                         </div> }
 
                         { this.props.requestedSignatureInfo &&  <div className="sign-control" onClick={this.props.reject}>

@@ -5,15 +5,21 @@ import {
     moveSignature, removeSignatureFromDocument,
     moveDate, removeDateFromDocument,
     moveText, removeTextFromDocument,
-    movePrompt, removePromptFromDocument
+    movePrompt, removePromptFromDocument,
+    showSignatureSelection,
+    showInitialSelectionModal,
+    addSignatureToDocument, addDateToDocument, addTextToDocument,
  } from '../actions';
 import { connect } from 'react-redux';
-import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas } from '../utils';
+import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas, imageRatio } from '../utils';
+import { generateUUID } from './uuid';
 import * as Calendar from 'react-widgets/lib/Calendar';
 import * as Popover from 'react-bootstrap/lib/Popover'
 import * as OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
 import * as Moment from 'moment';
 import { debounce } from '../utils';
+import * as Promise from 'bluebird';
+
 
 const DATE_FORMATS = [
     'DD MMMM YYYY',
@@ -67,14 +73,6 @@ interface PromptControlProps extends ControlProps{
     prompt: Sign.DocumentPrompt,
     updatePrompt: (payload: Sign.Actions.MovePromptPayload) => void;
     recipients: Sign.Recipients;
-}
-
-interface RequestPromptProps  {
-    containerHeight: number;
-    containerWidth: number;
-    documentSetId: string;
-    documentId: string;
-    requestPrompt: Sign.DocumentPrompt;
 }
 
 
@@ -506,23 +504,98 @@ export const PromptPositionable = connect<{}, {}, PositionableProps>(
 )(Positionable);
 
 
+interface RequestPromptProps  {
+    containerHeight: number;
+    containerWidth: number;
+    documentSetId: string;
+    documentId: string;
+    requestPrompt: Sign.DocumentPrompt;
+}
+
+interface ConnectedRequestPromptProps extends RequestPromptProps{
+    selectedSignatureId: number;
+    selectedInitialId: number;
+    addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;
+    addDateToDocument: (data: Sign.Actions.AddDateToDocumentPayload) => void;
+    addTextToDocument: (data: Sign.Actions.AddTextToDocumentPayload) => void;
+    showSignatureSelection: () => void;
+    showInitialSelectionModal: () => void;
+}
 
 
-export class RequestPrompt extends React.PureComponent<RequestPromptProps> {
+
+class UnconnectedRequestPrompt extends React.PureComponent<ConnectedRequestPromptProps> {
+    constructor(props: ConnectedRequestPromptProps) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    addSignature(signatureId: number){
+        return Promise.all([imageRatio(signatureUrl(signatureId)), generateUUID()])
+           .spread((xyRatio: number, signatureIndex: string) => {
+                // Find the centered position of the signature on the page
+                let ratioX = this.props.requestPrompt.ratioX;
+                let ratioY = ratioX / xyRatio;
+                if(ratioY > this.props.requestPrompt.ratioY){
+                    ratioX = ratioX * this.props.requestPrompt.ratioY/ratioY;
+                    ratioY = this.props.requestPrompt.ratioY;
+                }
+                this.props.addSignatureToDocument({
+                    signatureIndex,
+                    signatureId,
+                    xyRatio,
+                    documentId: this.props.requestPrompt.documentId,
+                    pageNumber: this.props.requestPrompt.pageNumber,
+                    ratioX,
+                    ratioY,
+                    offsetX: this.props.requestPrompt.offsetX,
+                    offsetY: this.props.requestPrompt.offsetY,
+                    sourceRequestPromptIndex: this.props.requestPrompt.promptIndex
+                });
+       })
+    }
+
+    handleClick() {
+        switch(this.props.requestPrompt.value.type){
+            case 'signature':
+                if(this.props.selectedSignatureId){
+                    return this.addSignature(this.props.selectedSignatureId);
+                }
+                else{
+                    return this.props.showSignatureSelection();
+                }
+            case 'initial':
+                if(this.props.selectedInitialId){
+                    return this.addSignature(this.props.selectedInitialId);
+                }
+                else{
+                    return this.props.showInitialSelectionModal();
+                }
+        }
+    }
+
     render() {
         const style= {
             left: this.props.containerWidth * this.props.requestPrompt.offsetX,
             top: this.props.containerHeight * this.props.requestPrompt.offsetY,
             width: this.props.containerWidth * this.props.requestPrompt.ratioX,
             height: this.props.containerHeight * this.props.requestPrompt.ratioY,
-             background: '',
+            background: '',
         }
         const canvas = requestPromptToCanvas(style.width, style.height, this.props.requestPrompt.value.type);
         const dataUrl = canvas.toDataURL();
         style.background = `url("${dataUrl}")`;
 
-        return <div className="request-prompt " style={style}>
-
-        </div>
+        return <div className="request-prompt " id={`overlay-${this.props.requestPrompt.promptIndex}`} style={style} onClick={this.handleClick}></div>
     }
 }
+
+export const RequestPrompt = connect<{}, {}, RequestPromptProps>(
+    (state: Sign.State, ownProps: RequestPromptProps) => ({
+        selectedSignatureId: state.documentViewer.selectedSignatureId,
+        selectedInitialId: state.documentViewer.selectedInitialId,
+    }), {
+        showSignatureSelection,
+        showInitialSelectionModal,
+        addSignatureToDocument, addDateToDocument, addTextToDocument
+    })(UnconnectedRequestPrompt);

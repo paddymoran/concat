@@ -85,7 +85,6 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
                         pageNumber: props.pageNumber,
                          ...boundPositioning({width, height, posX, posY, pageBounds, viewport, containerWidth})
                     });
-
            })
        }
        else if(item.type === Sign.DragAndDropTypes.ADD_DATE_TO_DOCUMENT || item.type === Sign.DragAndDropTypes.ADD_TEXT_TO_DOCUMENT){
@@ -159,7 +158,7 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
     };
 }
 
-
+type SourceIds =  {[index: string] : boolean};
 
 const PDFPreviewDimensions = sizeMe<Sign.Components.PDFPreviewProps>({refreshRate: 300})(PDFPreview);
 
@@ -194,7 +193,34 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         this.props.saveDocumentView({documentSetId: this.props.documentSetId, documentId: this.props.documentId})
     }
 
+    collectRequestPrompts(index : number, sourceIds : SourceIds) {
+        let requestPrompts : Sign.DocumentPrompt[] = null;
+        if(this.props.requestedSignatureInfo && this.props.requestedSignatureInfo.prompts){
+            const prompts : Sign.DocumentPrompt[] = this.props.requestedSignatureInfo.prompts;
+            requestPrompts = prompts
+                .filter((prompt : Sign.DocumentPrompt) => prompt.pageNumber === index && prompt.documentId === this.props.documentId)
+                .filter((prompt : Sign.DocumentPrompt) => !sourceIds[prompt.promptIndex])
+            return requestPrompts;
+        }
+    }
+
     render() {
+        const sourceIds : SourceIds = {};
+        Object.keys(this.props.signatures).reduce((acc : SourceIds, k) => {
+            acc[this.props.signatures[k].sourceRequestPromptIndex] = true;
+            return acc;
+        }, sourceIds);
+        Object.keys(this.props.dates).reduce((acc : SourceIds, k) => {
+            acc[this.props.dates[k].sourceRequestPromptIndex] = true;
+            return acc;
+        }, sourceIds);
+        Object.keys(this.props.texts).reduce((acc : SourceIds, k) => {
+            acc[this.props.texts[k].sourceRequestPromptIndex] = true;
+            return acc;
+        }, sourceIds);
+
+
+
         return (
             <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
@@ -230,11 +256,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                 const promptIndexes = Object.keys(this.props.prompts).filter(textIndex => this.props.prompts[textIndex].pageNumber === index &&
                                                                                                     this.props.prompts[textIndex].documentId === this.props.documentId);
 
-                                let requestPrompts : Sign.DocumentPrompt[] = null;
-                                if(this.props.requestedSignatureInfo && this.props.requestedSignatureInfo.prompts){
-                                    const prompts : Sign.DocumentPrompt[] = this.props.requestedSignatureInfo.prompts;
-                                    requestPrompts = prompts.filter((prompt : Sign.DocumentPrompt) => prompt.pageNumber === index && prompt.documentId === this.props.documentId);
-                                }
+
                                 return (
                                         <div className="page-separator" key={index}>
                                     <DimensionedDropTargetSignaturesPageWrapper
@@ -245,7 +267,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                         dateIndexes={dateIndexes}
                                         textIndexes={textIndexes}
                                         promptIndexes={promptIndexes}
-                                        requestPrompts={requestPrompts}
+                                        requestPrompts={this.collectRequestPrompts(index, sourceIds)}
                                         addSignatureToDocument={this.props.addSignatureToDocument}
                                         addDateToDocument={this.props.addDateToDocument}
                                         addTextToDocument={this.props.addTextToDocument}

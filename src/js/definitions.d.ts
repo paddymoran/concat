@@ -178,7 +178,7 @@ declare namespace Sign {
     }
 
     interface RequestedSignatureDocumentInfo{
-        prompts: DocumentPrompts;
+        prompts: DocumentPrompt[];
         signRequestId: number;
     }
 

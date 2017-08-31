@@ -38,3 +38,7 @@ To generate the dump, run the following command from project root.
 `pg_dump catalex_sign --schema-only --no-owner --no-acl > db_functions/seed.sql`
 
 
+
+
+
+- Signed at end of filename

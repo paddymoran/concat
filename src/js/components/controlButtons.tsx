@@ -6,7 +6,7 @@ interface ControlButtonProps {
     setActive: () => void;
 }
 
-export class DateButton extends React.Component<ControlButtonProps> {
+export class DateButton extends React.PureComponent<ControlButtonProps> {
     constructor(props: ControlButtonProps) {
         super(props);
         this.setActive = this.setActive.bind(this);
@@ -20,7 +20,7 @@ export class DateButton extends React.Component<ControlButtonProps> {
     }
 }
 
-export class TextButton extends React.Component<ControlButtonProps> {
+export class TextButton extends React.PureComponent<ControlButtonProps> {
     constructor(props: ControlButtonProps) {
         super(props);
         this.setActive = this.setActive.bind(this);
@@ -34,7 +34,7 @@ export class TextButton extends React.Component<ControlButtonProps> {
     }
 }
 
-export class PromptButton extends React.Component<ControlButtonProps> {
+export class PromptButton extends React.PureComponent<ControlButtonProps> {
     constructor(props: ControlButtonProps) {
         super(props);
         this.setActive = this.setActive.bind(this);

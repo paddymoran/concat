@@ -354,7 +354,7 @@ def add_signature_requests(document_set_id, requests):
                 # group by document id
                 promptMap = defaultdict(list)
                 for p in req.get('prompts'):
-                    promptMap[p['documentId']] = p
+                    promptMap[p['documentId']] += [p]
                 for document_id, prompts in promptMap.items():
                     inserts.append(cursor.mogrify("(%s, %s, %s)", (document_id, req['recipient']['user_id'], json.dumps(prompts))))
         cursor.execute(query + b', '.join(inserts))

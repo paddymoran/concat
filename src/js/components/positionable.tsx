@@ -48,7 +48,7 @@ interface ConnectedPositionableProps extends PositionableProps {
 interface ControlProps {
     index: string;
     onDelete: () => void;
-    element: () => React.Component;
+    element: () => React.PureComponent;
     containerWidth: number;
     documentSetId: string;
     documentId: string;
@@ -90,7 +90,7 @@ class DateControls extends React.PureComponent<DateControlProps> {
     onChangeDate(newValue : Date) {
         const timestamp = newValue.getTime();
         const value = Moment(newValue).format(this.props.date.format);
-        const height = findDOMNode(this.props.element() as React.Component).clientHeight;
+        const height = findDOMNode(this.props.element() as React.PureComponent).clientHeight;
         const canvas = stringToCanvas(height, value);
         const { documentId, format } = this.props.date;
         const width = canvas.width;
@@ -108,7 +108,7 @@ class DateControls extends React.PureComponent<DateControlProps> {
         const { documentId, timestamp } = this.props.date;
         const format = event.currentTarget.value;
         const value = Moment(this.props.date.timestamp).format(format);
-        const height = findDOMNode(this.props.element() as React.Component).clientHeight;
+        const height = findDOMNode(this.props.element() as React.PureComponent).clientHeight;
         const canvas = stringToCanvas(height, value);
         const width = canvas.width;
         const ratioX = width / this.props.containerWidth;
@@ -156,7 +156,7 @@ class TextControls extends React.PureComponent<TextControlProps> {
 
     onChangeValue(event : React.FormEvent<HTMLTextAreaElement>) {
         const value = event.currentTarget.value;
-        const height = findDOMNode(this.props.element() as React.Component).clientHeight;
+        const height = findDOMNode(this.props.element() as React.PureComponent).clientHeight;
         const canvas = stringToCanvas(height, value, Sign.DefaultSignatureSize.MIN_WIDTH);
         const width = canvas.width;
         const ratioX = width / this.props.containerWidth;

@@ -33,7 +33,7 @@ const UPLOAD_SIGNATURE_TAB = 3;
 
 
 
-export class SignatureSelector extends React.Component<SignatureSelectorProps, SignatureSelectorState> {
+export class SignatureSelector extends React.PureComponent<SignatureSelectorProps, SignatureSelectorState> {
     private signatureCanvas: SignatureCanvas;
 
     constructor(props: SignatureSelectorProps) {
@@ -167,7 +167,7 @@ interface ConnectedModalButtonProps extends ModalButtonProps{
     requestSignatures: () => void;
 }
 
-class ModalButton extends React.Component<ConnectedModalButtonProps> {
+class ModalButton extends React.PureComponent<ConnectedModalButtonProps> {
     constructor(props: ConnectedModalButtonProps) {
         super(props);
         this.setActive = this.setActive.bind(this);

@@ -5,7 +5,7 @@ import { Dropdown, MenuItem, Navbar, Nav } from 'react-bootstrap';
 
 
 
-export class AccountControls extends React.Component {
+export class AccountControls extends React.PureComponent {
     render() {
         //const props = this.props;
         //const close = () => this.refs.dropdown.refs.inner.handleClose()
@@ -31,7 +31,7 @@ export class AccountControls extends React.Component {
 }
 
 
-export default class Header extends React.Component {
+export default class Header extends React.PureComponent {
     render() {
         return (<Navbar collapseOnSelect>
                <Navbar.Header>

@@ -17,7 +17,7 @@ interface ConnectedDocumentViewProps extends DocumentViewProps {
 
 
 
-export class UnconnectedDocumentView extends React.Component<ConnectedDocumentViewProps>  {
+export class UnconnectedDocumentView extends React.PureComponent<ConnectedDocumentViewProps>  {
     componentDidMount() {
         this.props.requestDocumentSet(this.props.params.documentSetId)
     }
@@ -48,7 +48,7 @@ interface RequestedSignatureProps extends DocumentViewProps {
 
 
 
-class UnconnectedRequestedDocumentView extends React.Component<RequestedSignatureProps>  {
+class UnconnectedRequestedDocumentView extends React.PureComponent<RequestedSignatureProps>  {
     componentDidMount() {
         this.props.requestRequestedSignatures()
     }

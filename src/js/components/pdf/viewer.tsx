@@ -203,6 +203,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                        sign={this.sign}
                        send={this.send}
                        save={this.save}
+                       requestedSignatureInfo={this.props.requestedSignatureInfo}
                        showInvite={this.props.isDocumentOwner} showPrompts={this.props.isDocumentOwner} showSave={this.props.isDocumentOwner}/>
                    </div>
                 </AutoAffix>
@@ -229,6 +230,11 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                 const promptIndexes = Object.keys(this.props.prompts).filter(textIndex => this.props.prompts[textIndex].pageNumber === index &&
                                                                                                     this.props.prompts[textIndex].documentId === this.props.documentId);
 
+                                let requestPrompts : Sign.DocumentPrompt[] = null;
+                                if(this.props.requestedSignatureInfo && this.props.requestedSignatureInfo.prompts){
+                                    const prompts : Sign.DocumentPrompt[] = this.props.requestedSignatureInfo.prompts;
+                                    requestPrompts = prompts.filter((prompt : Sign.DocumentPrompt) => prompt.pageNumber === index && prompt.documentId === this.props.documentId);
+                                }
                                 return (
                                         <div className="page-separator" key={index}>
                                     <DimensionedDropTargetSignaturesPageWrapper
@@ -239,6 +245,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                         dateIndexes={dateIndexes}
                                         textIndexes={textIndexes}
                                         promptIndexes={promptIndexes}
+                                        requestPrompts={requestPrompts}
                                         addSignatureToDocument={this.props.addSignatureToDocument}
                                         addDateToDocument={this.props.addDateToDocument}
                                         addTextToDocument={this.props.addTextToDocument}
@@ -301,6 +308,7 @@ interface UnconnectedOverlayPageWrapperProps   {
     dateIndexes: string[];
     textIndexes: string[];
     promptIndexes: string[];
+    requestPrompts?: Sign.DocumentPrompt[]
     selectedSignatureId?: number;
     selectedInitialId?: number;
     addSignatureToDocument: (data: Sign.Actions.AddSignatureToDocumentPayload) => void;

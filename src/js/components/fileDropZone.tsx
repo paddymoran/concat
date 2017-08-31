@@ -4,7 +4,7 @@ import ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
 import Button from 'react-bootstrap/lib/Button';
 
 
-class FileDropZone extends React.Component<Sign.FileDropZoneProps, {}> {
+class FileDropZone extends React.PureComponent<Sign.FileDropZoneProps, {}> {
     render() {
         const { connectDropTarget} = this.props;
         return connectDropTarget(

@@ -276,6 +276,7 @@ interface ControlProps {
     showSave: boolean;
     documentSetId: string;
     documentId: string;
+    requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
 }
 
 interface ConnectedControlProps extends ControlProps{

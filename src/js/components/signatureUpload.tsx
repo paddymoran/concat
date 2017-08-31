@@ -64,7 +64,7 @@ function rotate(imageURL: string, width: number, height: number, angle: number) 
 
 interface SignatureUploadProps {}
 
-export default class SignatureUpload extends React.Component<SignatureUploadProps, any> {
+export default class SignatureUpload extends React.PureComponent<SignatureUploadProps, any> {
     _fileInput: HTMLInputElement;
     constructor(props: SignatureUploadProps) {
         super(props);

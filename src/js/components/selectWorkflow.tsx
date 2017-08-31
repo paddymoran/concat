@@ -10,7 +10,7 @@ interface SelectWorkflowProps {
     openOthersSign: () => void;
 }
 
-class UnconnectedSelectWorkflow extends React.Component<SelectWorkflowProps> {
+class UnconnectedSelectWorkflow extends React.PureComponent<SelectWorkflowProps> {
     render() {
         return (
             <div>
@@ -58,7 +58,7 @@ interface SelectAnnotationProps {
     showConfirmation: (documentSetId : string) => void;
 }
 
-class UnconnectedSelectAnnotation extends React.Component<SelectAnnotationProps> {
+class UnconnectedSelectAnnotation extends React.PureComponent<SelectAnnotationProps> {
 
     constructor(props : SelectAnnotationProps){
         super(props);

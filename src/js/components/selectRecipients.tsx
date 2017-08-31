@@ -78,7 +78,7 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
                     <Col md={5}>
                         <Field name={`${this.props.recipient}.name`}
                             component={(props: FieldProps) => {
-                                return <Combobox {...props.input} suggest={true}   textField="name" data={this.props.contacts}  onSelect={this.onSelect} />
+                                return <Combobox {...props.input}   textField="name" data={this.props.contacts}  onSelect={this.onSelect} />
                             }} />
 
                     </Col>
@@ -189,7 +189,7 @@ interface SelectRecipientsProps extends Sign.Components.RouteDocumentSet {
 }
 
 
-export class SelectRecipients extends React.Component<SelectRecipientsProps>  {
+export class SelectRecipients extends React.PureComponent<SelectRecipientsProps>  {
     constructor(props : SelectRecipientsProps){
         super(props);
         this.onSubmit = this.onSubmit.bind(this);

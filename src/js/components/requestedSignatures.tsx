@@ -53,7 +53,7 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
         return (
             <div className="request-signature">
                 <div className="request-signature-title">
-                    <strong>{documentSetLabel}</strong><br /><span className="inviter">{ inviter }</span> has requested that you sign the following:
+                    <span className="inviter">{ inviter }</span> has requested that you sign the following ({documentSetLabel}):
                 </div>
                 
                 {Object.keys(this.props.requestDocumentSet).map((documentId: string, index: number) => {

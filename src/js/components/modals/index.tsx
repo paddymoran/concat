@@ -9,6 +9,7 @@ import Failure from './failure';
 import Invite from './invite';
 import EmailDocument from './emailDocument';
 import RejectConfirmation from './rejectConfirmation';
+import NextDocument from './nextDocument';
 
 interface ModalsProps {
     showing: string;
@@ -43,6 +44,9 @@ class Modals extends React.PureComponent<ModalsProps>{
 
             case Sign.ModalType.REJECT_CONFIRMATION:
                 return <RejectConfirmation />
+
+            case Sign.ModalType.NEXT_DOCUMENT:
+                return <NextDocument />
 
             default:
                 return false;

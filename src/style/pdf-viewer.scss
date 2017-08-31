@@ -49,7 +49,7 @@ $sign-control-wide-width: $sign-control-width * 1.6;
         }
     }
 
-    .sign-control  {
+    .sign-control {
         @include clearfix();
         text-align: center;
         border-radius: 2px;
@@ -59,10 +59,11 @@ $sign-control-wide-width: $sign-control-width * 1.6;
         line-height: $sign-control-height;
         vertical-align: middle;
 
-        .button-text{
+        .button-text {
             margin: 0 16px;
-            .label{
-                margin-left:16px;
+            
+            .label {
+                margin-left: 8px;
             }
         }
 

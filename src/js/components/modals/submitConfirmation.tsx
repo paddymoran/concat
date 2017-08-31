@@ -73,7 +73,7 @@ class SubmitConfirmation extends React.PureComponent<SignConfirmationProps> {
             <div>
                 <i className="fa fa-pencil modal-icon" aria-hidden="true"></i>
 
-                <p className='text-center'>Are you sure you send this document set to be signed?</p>
+                <p className='text-center'>Are you sure this document ready to be sent and signed?</p>
 
                 <h3>Recipients</h3>
 

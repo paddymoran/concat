@@ -20,7 +20,13 @@ declare namespace Sign {
         filename: string;
         createdAt?: string;
     }
-    type SignStatus = 'Pending' | 'Signed' | 'Rejected' | 'Partial';
+
+    const enum SignStatus {
+        'PENDING' = 'Pending',
+        'SIGNED' = 'Signed',
+        'REJECTED' = 'Rejected',
+        'PARTIAL' = 'Partial',
+    }
 
     interface Document extends DocumentData{
         id: string;

@@ -9,6 +9,9 @@ import { Link } from 'react-router';
 interface RequestedSignatureProps {
     requestRequestedSignatures: () => void;
     requestedSignatures: Sign.RequestedSignatures;
+    documents: {
+        [documentId: string]: Sign.Document
+    };
 }
 
 interface RequestedSignatureDocumentSetProps {
@@ -47,8 +50,11 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
 
         return (
             <div className="request-signature">
-                <div className="request-signature-title"><span className="inviter">{ inviter }</span> has requested that you sign the following: </div>
-                { Object.keys(this.props.requestDocumentSet).map((documentId: string, index: number) => {
+                <div className="request-signature-title">
+                    <strong>{documentSetLabel}</strong><br /><span className="inviter">{ inviter }</span> has requested that you sign the following:
+                </div>
+                
+                {Object.keys(this.props.requestDocumentSet).map((documentId: string, index: number) => {
                     const document : Sign.Document = this.props.documents[documentId]
                     const url = `/sign/${this.props.documentSetId}/${documentId}`;
                     
@@ -76,17 +82,27 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
     componentDidMount() {
         this.props.requestRequestedSignatures()
     }
-    render() {
-        const keys : string[] = Object.keys(this.props.requestedSignatures.documentSets);
 
-        if (!keys.length) {
+    render() {
+        const docSets = this.props.requestedSignatures.documentSets;
+
+        // Filter out complete document sets
+        const docSetKeys = Object.keys(docSets).filter((key: string) => {
+            const docSet = docSets[key];
+            const setComplete = Object.keys(docSet).every(docKey => this.props.documents[docKey].signStatus === Sign.SignStatus.SIGNED)
+
+            return !setComplete;
+        })
+
+        if (docSetKeys.length === 0) {
             return <h3>No pending signature requests.</h3>;
         }
+
         return (
             <div>
                 <div className="page-heading"><h1 className="title">Documents To Sign</h1></div>
-                {keys.map((documentSetId: string, index: number) =>
-                    <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={this.props.requestedSignatures.documentSets[documentSetId]} />
+                {docSetKeys.map((documentSetId: string, index: number) =>
+                    <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={docSets[documentSetId]} />
                 )}
             </div>
         );
@@ -94,7 +110,8 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
 }
 
 const ConnectedRequestedSignature = connect((state: Sign.State) => ({
-    requestedSignatures: state.requestedSignatures
+    requestedSignatures: state.requestedSignatures,
+    documents: state.documents
 }), {
     requestRequestedSignatures
 })(RequestedSignatures);

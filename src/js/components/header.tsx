@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from 'react-router';
-import { Dropdown, MenuItem, Navbar, Nav, NavItem } from 'react-bootstrap';
+import { Dropdown, MenuItem, Navbar, Nav} from 'react-bootstrap';
 
 export class AccountControls extends React.PureComponent {
     render() {
@@ -10,18 +10,18 @@ export class AccountControls extends React.PureComponent {
                 <Dropdown.Toggle href={userUrl} onClick={(e) => e.preventDefault()} useAnchor={true}>
                     <span className="fa fa-user-circle"/>
                 </Dropdown.Toggle>
-                
+
                 <Dropdown.Menu >
                     <MenuItem rel="noopener noreferrer" target="_blank" href={`${userUrl}`}>CataLex Home</MenuItem>
-                    
+
                     <li className="separator" />
-                    
+
                     <MenuItem rel="noopener noreferrer" target="_blank" href='https://browser.catalex.nz'>Law Browser</MenuItem>
                     <MenuItem rel="noopener noreferrer" target="_blank" href='https://workingdays.catalex.nz'>Working Days</MenuItem>
                     <MenuItem rel="noopener noreferrer" target="_blank" href='https://concat.catalex.nz'>ConCat</MenuItem>
-                    
+
                     <li className="separator" />
-                    
+
                     <MenuItem href='/logout'>Log out</MenuItem>
                 </Dropdown.Menu>
             </Dropdown>
@@ -43,11 +43,11 @@ export default class Header extends React.PureComponent {
                     </Navbar.Brand>
                 </Navbar.Header>
 
-                <Nav pullRight>
-                    <li><Link to='/' activeClassName="active">Upload</Link></li>
+                <ul className="nav navbar-nav navbar-right">
+                    <li ><Link to='/' activeClassName="active">Upload</Link></li>
                     <li><Link to='/all' activeClassName="active">Documents</Link></li>
                     <AccountControls />
-                </Nav>
+                </ul>
             </Navbar>
         );
     }

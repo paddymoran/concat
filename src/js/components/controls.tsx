@@ -483,9 +483,9 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <div className="button-text"><i className="fa fa-users" /><span className="label">Invite</span></div>
                         </div> }
 
-                        <div className="sign-control" onClick={this.props.reject}>
+                        { this.props.requestedSignatureInfo &&  <div className="sign-control" onClick={this.props.reject}>
                             <div  className="button-text"><i className="fa fa-times" /><span className="label">Reject</span></div>
-                        </div>
+                        </div> }
 
                         <div className="submit-button sign-control" onClick={this.sign}>
                             <div  className="button-text"><i className="fa fa-pencil" /><span className="label">{ submitString }</span></div>

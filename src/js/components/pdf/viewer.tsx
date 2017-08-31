@@ -459,7 +459,7 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} index={dateIndex} {...props}/ >)}
                {  this.props.textIndexes.map(textIndex => <TextPositionable key={textIndex} index={textIndex}  {...props} />)}
                {  this.props.promptIndexes.map(promptIndex => <PromptPositionable key={promptIndex} index={promptIndex}  {...props} />)}
-               {  this.props.requestPrompts && this.props.requestPrompts.map(requestPrompt => <RequestPrompt requestPrompt={requestPrompt} {...props}  />) }
+               {  this.props.requestPrompts && this.props.requestPrompts.map((requestPrompt) => <RequestPrompt key={requestPrompt.promptIndex} requestPrompt={requestPrompt} {...props}  />) }
                 { child }
             </div>
         );

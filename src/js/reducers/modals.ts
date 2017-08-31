@@ -70,6 +70,12 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
                 ...action.payload
             };
 
+        case Sign.Actions.Types.NEXT_DOCUMENT:
+            return {
+                showing: Sign.ModalType.NEXT_DOCUMENT,
+                ...action.payload
+            };
+
         default:
             return state;
     }

@@ -277,6 +277,7 @@ interface ControlProps {
     documentSetId: string;
     documentId: string;
     requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
+    requestPrompts?: Sign.DocumentPrompt[];
 }
 
 interface ConnectedControlProps extends ControlProps{
@@ -356,7 +357,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
     }
 
     getNextPrompt() {
-        return this.props.requestedSignatureInfo && this.props.requestedSignatureInfo.prompts && this.props.requestedSignatureInfo.prompts.length && this.props.requestedSignatureInfo.prompts[0];
+        return this.props.requestPrompts && this.props.requestPrompts[0];
     }
 
     nextPrompt() {

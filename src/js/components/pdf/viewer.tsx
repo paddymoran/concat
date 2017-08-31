@@ -193,18 +193,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         this.props.saveDocumentView({documentSetId: this.props.documentSetId, documentId: this.props.documentId})
     }
 
-    collectRequestPrompts(index : number, sourceIds : SourceIds) {
-        let requestPrompts : Sign.DocumentPrompt[] = null;
-        if(this.props.requestedSignatureInfo && this.props.requestedSignatureInfo.prompts){
-            const prompts : Sign.DocumentPrompt[] = this.props.requestedSignatureInfo.prompts;
-            requestPrompts = prompts
-                .filter((prompt : Sign.DocumentPrompt) => prompt.pageNumber === index && prompt.documentId === this.props.documentId)
-                .filter((prompt : Sign.DocumentPrompt) => !sourceIds[prompt.promptIndex])
-            return requestPrompts;
-        }
-    }
-
-    render() {
+    collectRequestPrompts() {
         const sourceIds : SourceIds = {};
         Object.keys(this.props.signatures).reduce((acc : SourceIds, k) => {
             acc[this.props.signatures[k].sourceRequestPromptIndex] = true;
@@ -218,8 +207,19 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
             acc[this.props.texts[k].sourceRequestPromptIndex] = true;
             return acc;
         }, sourceIds);
+        let requestPrompts : Sign.DocumentPrompt[] = null;
+        if(this.props.requestedSignatureInfo && this.props.requestedSignatureInfo.prompts){
+            const prompts : Sign.DocumentPrompt[] = this.props.requestedSignatureInfo.prompts;
+            requestPrompts = prompts
+                .filter((prompt : Sign.DocumentPrompt) =>  prompt.documentId === this.props.documentId)
+                .filter((prompt : Sign.DocumentPrompt) => !sourceIds[prompt.promptIndex])
+            return requestPrompts;
+        }
+    }
 
+    render() {
 
+        const requestPrompts = this.collectRequestPrompts();
 
         return (
             <div className='pdf-viewer'>
@@ -230,6 +230,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                        send={this.send}
                        save={this.save}
                        requestedSignatureInfo={this.props.requestedSignatureInfo}
+                       requestPrompts={requestPrompts}
                        showInvite={this.props.isDocumentOwner} showPrompts={this.props.isDocumentOwner} showSave={this.props.isDocumentOwner}/>
                    </div>
                 </AutoAffix>
@@ -256,7 +257,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                 const promptIndexes = Object.keys(this.props.prompts).filter(textIndex => this.props.prompts[textIndex].pageNumber === index &&
                                                                                                     this.props.prompts[textIndex].documentId === this.props.documentId);
 
-
+                                const filteredRequestPrompts = requestPrompts && requestPrompts.filter((r : Sign.DocumentPrompt) => r.pageNumber === index);
                                 return (
                                         <div className="page-separator" key={index}>
                                     <DimensionedDropTargetSignaturesPageWrapper
@@ -267,7 +268,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                         dateIndexes={dateIndexes}
                                         textIndexes={textIndexes}
                                         promptIndexes={promptIndexes}
-                                        requestPrompts={this.collectRequestPrompts(index, sourceIds)}
+                                        requestPrompts={filteredRequestPrompts}
                                         addSignatureToDocument={this.props.addSignatureToDocument}
                                         addDateToDocument={this.props.addDateToDocument}
                                         addTextToDocument={this.props.addTextToDocument}

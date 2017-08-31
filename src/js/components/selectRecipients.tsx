@@ -77,7 +77,9 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
                 <Row>
                     <Col md={5}>
                         <Field name={`${this.props.recipient}.name`}
-                            component={(props: FieldProps) => <Combobox {...props.input} suggest={true}   textField="name" data={this.props.contacts}  onSelect={this.onSelect} /> } />
+                            component={(props: FieldProps) => {
+                                return <Combobox {...props.input} suggest={true}   textField="name" data={this.props.contacts}  onSelect={this.onSelect} />
+                            }} />
 
                     </Col>
 
@@ -107,10 +109,7 @@ class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
     render() {
         const { fields, meta: { error, submitFailed } } = this.props;
 
-        const contacts = [
-            {name: 'Josh', email: 'josh@catalex.nz'},
-            {name: 'Tim', email: 'tim@catalex.nz'},
-            {name: 'Mia', email: 'mia@catalex.nz'}
+        const contacts : Sign.Recipients = [
         ];
 
         return (

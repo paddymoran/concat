@@ -107,7 +107,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps> {
             <FileDropZone onDrop={this.fileDrop}>
                 <div>
                 <div className='page-heading'>
-                <h1 className="title question">Select Documents</h1>
+                <h1 className="title question">Select Documents to Sign</h1>
                 </div>
 
                 <div className="explanation fake-drop-zone" onClick={this.onClick}>
@@ -125,7 +125,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps> {
 
 export const UploadDocuments = connect(
     (state: Sign.State, ownProps: any) => {
-        const { documentSetId } = ownProps.params;
+        const { documentSetId } = ownProps;
         const documentSet = state.documentSets[documentSetId];
         return {
             documentIds: documentSet ? documentSet.documentIds : null,
@@ -199,7 +199,7 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<ConnectedUpload
 }
 
 interface UploadDocumentsFullProps {
-    params: { documentSetId: string; };
+    documentSetId: string;
 }
 
 interface ConnectedUploadDocumentsFullProps extends UploadDocumentsFullProps{
@@ -214,9 +214,8 @@ interface ConnectedUploadDocumentsFullProps extends UploadDocumentsFullProps{
 
 export const UploadDocumentsFull = connect(
     (state: Sign.State, ownProps: UploadDocumentsFullProps) => ({
-        documentSetId: ownProps.params.documentSetId,
         inviteSignatories: state.uploadDocuments.inviteSignatories,
-        documentIds: (state.documentSets[ownProps.params.documentSetId]|| {documentIds: []}).documentIds
+        documentIds: (state.documentSets[ownProps.documentSetId]|| {documentIds: []}).documentIds
     }),
     {
         submit: () => submit(Sign.FormName.RECIPIENTS),
@@ -225,3 +224,20 @@ export const UploadDocumentsFull = connect(
         setInviteSignatories: (inviteSignatories: boolean) => setInviteSignatories({ inviteSignatories })
     }
 )(UnconnectedUploadDocumentsFull);
+
+export class UploadDocumentsWithDocumentSetId extends React.PureComponent<{}, {documentSetId: string}>{
+    constructor(props: {}){
+        super(props);
+        this.state = {documentSetId: null}
+    }
+    componentWillMount(){
+        generateUUID()
+            .then(id => this.setState({documentSetId: id}))
+    }
+    render() {
+        if(this.state.documentSetId){
+            return <UploadDocumentsFull documentSetId={this.state.documentSetId} />
+        }
+        return false;
+    }
+}

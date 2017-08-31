@@ -41,10 +41,25 @@ export  class ContainerWithSideBar extends React.PureComponent<AppProps, {}> {
     }
 }
 
-interface AppProps {
-    location:  Location,
-    children: any
+export  class Container extends React.PureComponent<AppProps, {}> {
+    render() {
+        const { children, location: { pathname } } = this.props;
+        return (
+            <div className="container">
+          <CSSTransitionGroup style={{position: 'relative', display:'block'}}
+                  transitionName={'slideInRight'}
+                  transitionEnterTimeout={400}
+                  transitionLeaveTimeout={400}
+                >
+                    <div  key={pathname} className="main-content">
+                { children }
+                </div>
+              </CSSTransitionGroup>
+            </div>
+        );
+    }
 }
+
 
 export default class App extends React.PureComponent<AppProps, {}> {
     render() {

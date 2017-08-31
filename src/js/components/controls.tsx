@@ -268,6 +268,8 @@ const DraggableAddPromptControl = DragSource(
 
 interface ControlProps {
     sign: () => void;
+    send: () => void;
+    next?: () => void;
     save: () => void;
     showInvite: boolean;
     showPrompts: boolean;
@@ -335,7 +337,17 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
             this.scrollTo(this.props.nextInvalidOverlay);
         }
         else{
-            this.props.sign();
+            const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients }  = this.props;
+            const hasSigned = ( hasSignature || hasInitial || hasDate || hasText);
+            const selfSign = hasSigned && !hasPrompt && !hasRecipients;
+            const otherSign = !hasSigned && hasRecipients;
+            const mixSign = hasSigned && hasRecipients;
+            if(selfSign){
+                this.props.sign();
+            }
+            else{
+                this.props.send();
+            }
         }
     }
 

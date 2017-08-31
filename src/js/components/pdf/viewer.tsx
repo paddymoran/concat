@@ -171,7 +171,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         this.setActivePage = this.setActivePage.bind(this);
         this.sign = this.sign.bind(this);
         this.save = this.save.bind(this);
-        //this.send = this.send.bind(this);
+        this.send = this.send.bind(this);
     }
 
     setActivePage(pageNumber: number) {
@@ -186,9 +186,9 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         this.props.showSignConfirmationModal({ documentId: this.props.documentId, documentSetId: this.props.documentSetId, signRequestId  });
     }
 
-    /*send() {
-        this.props.showSubmitConfirmationModal({ documentId: this.props.documentId, documentSetId: this.props.documentSetId});
-    }*/
+    send() {
+        this.props.showSubmitConfirmationModal({documentSetId: this.props.documentSetId});
+    }
 
     save() {
         this.props.saveDocumentView({documentSetId: this.props.documentSetId, documentId: this.props.documentId})
@@ -201,7 +201,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                    <div  className="controls-affix">
                        <Controls documentSetId={this.props.documentSetId} documentId={this.props.documentId}
                        sign={this.sign}
-                       //send={this.send}
+                       send={this.send}
                        save={this.save}
                        showInvite={this.props.isDocumentOwner} showPrompts={this.props.isDocumentOwner} showSave={this.props.isDocumentOwner}/>
                    </div>

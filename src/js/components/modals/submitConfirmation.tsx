@@ -13,7 +13,31 @@ interface SignConfirmationProps {
 }
 
 
-function prepareSubmitPayload(documentSetId : string, documentSet : Sign.DocumentSet) : Sign.Actions.SubmitSignRequestsPayload {
+function prepareSubmitPayload(documentSetId : string, documentSet : Sign.DocumentSet, documentViewer: Sign.DocumentViewer) : Sign.Actions.SubmitSignRequestsPayload {
+    const prompts = Object.keys(documentViewer.prompts).reduce((acc:any, key:string) => {
+        const prompt : Sign.DocumentPrompt = documentViewer.prompts[key];
+        if(documentSet.documentIds.indexOf(prompt.documentId) >= 0){
+            acc[prompt.value.recipientEmail] = [...(acc[prompt.value.recipientEmail] || []), prompt];
+        }
+        return acc;
+    }, {});
+    const recipients = documentSet.recipients.reduce((acc: any, r) => {
+        acc[r.email] = r;
+        return acc;
+    }, {});
+
+    if(Object.keys(prompts).length){
+        return {
+            documentSetId,
+            signatureRequests: Object.keys(prompts).map((key:string) => {
+                return {
+                    recipient: recipients[key],
+                    prompts: prompts[key]
+                }
+            })
+        }
+    }
+
     return {
         documentSetId,
         signatureRequests: (documentSet.recipients || []).map((recipient) => {
@@ -82,7 +106,7 @@ class SubmitConfirmation extends React.PureComponent<SignConfirmationProps> {
 export default connect(
     (state: Sign.State) => ({
         signRequestStatus: state.documentViewer.signRequestStatus,
-        submitPayload: prepareSubmitPayload(state.modals.documentSetId, state.documentSets[state.modals.documentSetId]),
+        submitPayload: prepareSubmitPayload(state.modals.documentSetId, state.documentSets[state.modals.documentSetId], state.documentViewer),
         recipients: state.documentSets[state.modals.documentSetId].recipients,
     }),
     { submitSignRequests, hideModal: () => closeModal({modalName: Sign.ModalType.SUBMIT_CONFIRMATION})  },

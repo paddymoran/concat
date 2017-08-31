@@ -9,7 +9,7 @@ import psycopg2.extras
 from flask import g, current_app
 import uuid
 import json
-
+from collections import defaultdict
 
 def get_db():
     """
@@ -348,8 +348,15 @@ def add_signature_requests(document_set_id, requests):
     inserts = []
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         for req in requests:
-            for document_id in req['documentIds']:
-                inserts.append(cursor.mogrify("(%s, %s, %s)", (document_id, req['recipient']['user_id'], json.dumps(req.get('prompts', [])))))
+            for document_id in req.get('documentIds', []):
+                inserts.append(cursor.mogrify("(%s, %s, %s)", (document_id, req['recipient']['user_id'], json.dumps([]))))
+            if len(req.get('prompts', [])):
+                # group by document id
+                promptMap = defaultdict(list)
+                for p in req.get('prompts'):
+                    promptMap[p['documentId']] = p
+                for document_id, prompts in promptMap.items():
+                    inserts.append(cursor.mogrify("(%s, %s, %s)", (document_id, req['recipient']['user_id'], json.dumps(prompts))))
         cursor.execute(query + b', '.join(inserts))
         database.commit()
 

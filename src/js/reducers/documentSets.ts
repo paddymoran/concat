@@ -39,7 +39,7 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
                     ...state,
                     ...documentSets.reduce((acc : any, set : any) => {
                         acc = {...acc};
-                        acc[set.documentSetId] = {documentIds: set.documents.map((d: any) => d.documentId), downloadStatus: Sign.DownloadStatus.Complete, title: set.title, owner: set.owner}
+                        acc[set.documentSetId] = {documentIds: set.documents.map((d: any) => d.documentId), downloadStatus: Sign.DownloadStatus.Complete, title: set.title, owner: set.owner, createdAt: set.createdAt}
                         return acc;
                     }, state)
                 };

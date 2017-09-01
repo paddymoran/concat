@@ -55,11 +55,11 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                 <div className="request-signature-title">
                     <span className="inviter">{ inviter }</span> has requested that you sign the following ({documentSetLabel}):
                 </div>
-                
+
                 {Object.keys(this.props.requestDocumentSet).map((documentId: string, index: number) => {
                     const document : Sign.Document = this.props.documents[documentId]
                     const url = `/sign/${this.props.documentSetId}/${documentId}`;
-                    
+
                     return (
                         <div key={index} className="document-line">
                             <SignStatus signStatus={document.signStatus}/>
@@ -98,6 +98,8 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
                 return !setComplete;
             });
         }
+
+        // TODO, spinner
 
         if (docSetKeys.length === 0) {
             return <h3>No pending signature requests.</h3>;

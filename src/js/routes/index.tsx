@@ -10,6 +10,7 @@ import Help from '../components/help';
 import { CompletedDocumentSets, PendingDocumentSets, AllDocumentSets } from '../components/documentSets';
 import RequestedSignatures from '../components/requestedSignatures';
 import NotFound from '../components/notFound';
+import Documents from '../components/documents';
 
 
 export default () => {
@@ -20,10 +21,12 @@ export default () => {
             <Route component={Container}>
                 <IndexRoute component={UploadDocumentsWithDocumentSetId} />
                 <Route path='faq' component={ Help } />
-                <Route path='all' component={ AllDocumentSets } />
-                <Route path='to_sign' component={ RequestedSignatures } />
-                <Route path='pending' component={ PendingDocumentSets } />
-                <Route path='completed' component={ CompletedDocumentSets  } />
+                <Route component={Documents}>
+                    <Route path='all' component={ AllDocumentSets } />
+                    <Route path='to_sign' component={ RequestedSignatures } />
+                    <Route path='pending' component={ PendingDocumentSets } />
+                    <Route path='completed' component={ CompletedDocumentSets  } />
+                </Route>
                 <Route path='documents/:documentSetId' component={ DocumentSetView } />
                 <Route path='*' component={ NotFound } />
             </Route>

@@ -392,7 +392,18 @@ def save_document_view(document_id, user_id, field_data):
         database.commit()
     return
 
+def document_get_status(document_set_id):
+    database = get_db()
+    query = """
+        SELECT document_set_status(%(document_set_id)s)
+    """
 
+    with database.cursor() as cursor:
+        cursor.execute(query, {
+            'document_set_id': document_set_id
+        })
+        data = cursor.fetchone()
+        return data[0]
 
 def get_signature_requests(user_id):
     """

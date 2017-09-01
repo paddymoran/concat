@@ -81,8 +81,8 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
         return (
             <li>
                 <Row>
-                    <Col md={5}>                        
-                        <Field name={`${this.props.recipient}.name`} component={ComboboxComponent} data={this.props.contacts} dataDisplayField="name" onSelect={this.onSelect} />
+                    <Col md={5}>
+                        <Field name={`${this.props.recipient}.name`} component={ComboboxComponent as any} props={{data: this.props.contacts, dataDisplayField: "name", onSelect: this.onSelect} as any} />
                     </Col>
 
                     <Col md={5}>

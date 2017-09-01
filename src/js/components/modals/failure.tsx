@@ -11,7 +11,7 @@ interface FailureProps {
 class FailureModal  extends React.PureComponent<FailureProps> {
     render() {
         return (
-            <Modal show={true} onHide={this.props.hideModal} className="icon-modal">
+            <Modal backdrop='static' show={true} onHide={this.props.hideModal} className="icon-modal">
                 <Modal.Header closeButton>
                     <Modal.Title>Action Failure</Modal.Title>
                 </Modal.Header>

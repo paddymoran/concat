@@ -91,7 +91,7 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
             height: 200
         };
         return  (
-            <Modal show={true} onHide={this.props.closeModal}>
+            <Modal backdrop='static' show={true} onHide={this.props.closeModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Select {this.props.title}</Modal.Title>
                 </Modal.Header>

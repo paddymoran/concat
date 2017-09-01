@@ -27,7 +27,7 @@ class NextDocument extends React.PureComponent<NextDocumentProps> {
 
     render() {
         return (
-            <Modal show={true} onHide={this.props.closeModal} className="icon-modal">
+            <Modal backdrop='static' show={true} onHide={this.props.closeModal} className="icon-modal">
                 <Modal.Header closeButton>
                     <Modal.Title>Next Document</Modal.Title>
                 </Modal.Header>

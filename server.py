@@ -142,6 +142,10 @@ def invite_users(users, link, sender):
     return response.json()
 
 
+def check_document_get_completion(document_set_id):
+    if db.document_get_status(document_set_id) == 'complete':
+        pass
+
 '''
 Documents
 '''
@@ -289,6 +293,8 @@ def sign_document():
     result = sign(document, args['signatures'], args['overlays'])
     saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
     db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
+    if sign_request_id:
+        check_document_set_completion(args['documentSetId'])
     return jsonify({'document_id': saved_document_id})
 
 

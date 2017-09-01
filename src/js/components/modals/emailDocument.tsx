@@ -36,7 +36,7 @@ class EmailDocument extends React.PureComponent<EmailDocumentProps> {
         }
 
         return (
-            <Modal show={true} onHide={this.props.closeModal} className={classes}>
+            <Modal backdrop='static' show={true} onHide={this.props.closeModal} className={classes}>
                 <Modal.Header closeButton>
                     <Modal.Title>Email Document</Modal.Title>
                 </Modal.Header>
@@ -44,15 +44,15 @@ class EmailDocument extends React.PureComponent<EmailDocumentProps> {
                 <Modal.Body>
                     {this.props.status === Sign.DownloadStatus.NotStarted && <InviteForm initialValues={{ recipients: [{}] }} onSubmit={this.onSubmit} />}
                     {this.props.status === Sign.DownloadStatus.InProgress && <Loading />}
-                    {this.props.status === Sign.DownloadStatus.Complete && 
-                        <div>                                        
+                    {this.props.status === Sign.DownloadStatus.Complete &&
+                        <div>
                             <i className="fa fa-check modal-icon" aria-hidden="true"></i>
 
                             <p className='text-center'>Document Sent!</p>
                         </div>
                     }
                     {this.props.status === Sign.DownloadStatus.Failed &&
-                        <div>                                        
+                        <div>
                             <i className="fa fa-exclamation modal-icon" aria-hidden="true"></i>
 
                             <p className='text-center'>An error occurred, please close and try again.</p>

@@ -90,7 +90,7 @@ class SubmitConfirmation extends React.PureComponent<SignConfirmationProps> {
 
     render() {
         return (
-            <Modal show={true} onHide={this.props.hideModal} className="icon-modal">
+            <Modal backdrop='static' show={true} onHide={this.props.hideModal} className="icon-modal">
                 <Modal.Header closeButton>
                     <Modal.Title>Submission Confirmation</Modal.Title>
                 </Modal.Header>

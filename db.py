@@ -403,7 +403,7 @@ def document_set_status(document_set_id):
             'document_set_id': document_set_id
         })
         data = cursor.fetchone()
-        return data[0]
+        return data
 
 def get_signature_requests(user_id):
     """

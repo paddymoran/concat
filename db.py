@@ -392,7 +392,7 @@ def save_document_view(document_id, user_id, field_data):
         database.commit()
     return
 
-def document_get_status(document_set_id):
+def document_set_status(document_set_id):
     database = get_db()
     query = """
         SELECT document_set_status(%(document_set_id)s)
@@ -443,3 +443,20 @@ def get_contacts(user_id):
         cursor.execute(query, {'user_id': user_id})
         data = cursor.fetchall()
         return [dict(x) for x in data]
+
+
+def get_document_set_owner(set_id):
+    """
+    Get the owner of a document set
+    """
+    database = get_db()
+    query = """
+        SELECT users.*
+        FROM document_sets
+        JOIN users ON document_sets.user_id = users.user_id
+        WHERE document_sets.document_set_id = %(set_id)s
+    """
+    with database.cursor() as cursor:
+        cursor.execute(query, { 'set_id': set_id })
+        data = cursor.fetchone()[0]
+        return data

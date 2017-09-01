@@ -143,8 +143,32 @@ def invite_users(users, link, sender):
 
 
 def check_document_set_completion(document_set_id):
-    if db.document_set_status(document_set_id) == 'complete':
-        pass
+    if db.document_set_status(document_set_id) == 'Complete':
+        try:
+            args = request.get_json()
+
+            user_info = db.get_user_info(session['user_id'])
+
+            params = {
+                'client_id': app.config.get('OAUTH_CLIENT_ID'),
+                'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
+                'template': 'emails.sign.signing-complete',
+                'data': json.dumps({
+                    'name': 'John',
+                    'setDescription': 'Me you him',
+                    'link': 'sign.catalex.nz/completed'
+                })
+            }
+
+            response = requests.post(
+                app.config.get('AUTH_SERVER') + '/mail/send',
+                data=params
+            )
+
+            return jsonify(response.json())
+        except Exception as e:
+            print(e)
+            raise InvalidUsage('Failed to send completion email', status_code=500)
 
 '''
 Documents

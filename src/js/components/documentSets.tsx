@@ -101,7 +101,7 @@ export class AllDocumentSets extends React.PureComponent<DocumentSets>  {
                     <li><Link to="/all">All</Link></li>
                     <li><Link to="/to_sign">To Sign</Link></li>
                     <li><Link to="/pending">Pending</Link></li>
-                    <li><Link to="/complete">Complete</Link></li>
+                    <li><Link to="/completed">Completed</Link></li>
                 </ul>
                 
                 <PendingDocumentSets />

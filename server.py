@@ -142,7 +142,6 @@ def invite_users(users, link, sender):
     return response.json()
 
 
-<<<<<<< HEAD
 def check_document_set_completion(document_set_id):
     if db.document_set_status(document_set_id) == 'Complete':
         try:

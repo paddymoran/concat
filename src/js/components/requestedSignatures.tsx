@@ -33,7 +33,7 @@ interface ConnectedRequestedSignatureDocumentSetProps extends RequestedSignature
     documentSet: Sign.DocumentSet
 }
 
-const SignStatus = (props: {signStatus: Sign.SignStatus}) => {
+export const SignStatus = (props: {signStatus: Sign.SignStatus}) => {
     const status = props.signStatus || 'Pending';
     const className = {
         'Pending': 'text-warning',
@@ -47,7 +47,7 @@ const SignStatus = (props: {signStatus: Sign.SignStatus}) => {
 
 class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequestedSignatureDocumentSetProps>  {
     render() {
-        const inviter = this.props.documentSet.owner.name;
+        const inviter = this.props.documentSet.owner === undefined ? this.props.documentSet.owner.name : 'A user';
         const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
 
         return (
@@ -82,7 +82,7 @@ const ConnectedRequestedSignatureDocumentSet = connect((state: Sign.State, ownPr
 
 class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  {
     componentDidMount() {
-        this.props.requestRequestedSignatures()
+        this.props.requestRequestedSignatures();
     }
 
     render() {

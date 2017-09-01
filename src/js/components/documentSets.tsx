@@ -4,6 +4,8 @@ import { requestDocumentSets } from '../actions';
 import * as moment from 'moment';
 import { Link } from 'react-router';
 import { Nav, NavItem } from 'react-bootstrap';
+import { stringToDateTime } from '../utils';
+import { SignStatus } from './requestedSignatures';
 
 interface FileListProps {
     documents: Sign.DocumentData[],
@@ -55,6 +57,44 @@ class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>
     }
 }
 
+interface DocumentSetListProps {
+    documentSetId: string;
+}
+
+interface UnconnectedDocumentSetListProps extends DocumentSetListProps {
+    documentSet: Sign.DocumentSet;
+    documents: Sign.Documents;
+}
+
+class UnconnectedDocumentSetList extends React.PureComponent<UnconnectedDocumentSetListProps> {
+    render() {
+        const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
+
+        return (
+            <div className="document-set">
+                <div className="document-set-title">{documentSetLabel}</div>
+                
+                {this.props.documentSet.documentIds.map(documentId => {
+                    const document = this.props.documents[documentId]
+
+                    return (
+                        <div key={documentId} className="document-line">
+                            <SignStatus signStatus={document.signStatus}/>
+                            <i className="fa fa-file-pdf-o" />{document.filename}
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    }
+}
+
+const DocumentSetList = connect(
+    (state: Sign.State, ownProps: DocumentSetListProps) => ({
+        documents: state.documents,
+        documentSet: state.documentSets[ownProps.documentSetId]
+    })
+)(UnconnectedDocumentSetList);
 
 
 class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  {
@@ -70,7 +110,9 @@ class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  
 
         return (
             <div>
-                <FileList documents={documents} />
+                <div className="document-set-list">
+                    {Object.keys(this.props.documentSets).map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} />)}
+                </div>
             </div>
         );
     }
@@ -78,7 +120,7 @@ class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  
 
 
 export const CompletedDocumentSets = connect((state: Sign.State) => ({
-    documentSets: state.documentSets, //.filter(set => !set.status),
+    documentSets: state.documentSets,
     documents: state.documents
 }), {
     requestDocumentSets

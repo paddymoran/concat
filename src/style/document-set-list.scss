@@ -1,0 +1,18 @@
+.document-set-list {
+    .document-set {
+        .document-set-title {
+            font-weight: 700;
+            border-bottom: 1px solid $gray-lighter;
+        }
+
+        margin-bottom: 2em;
+        
+        .document-line {
+            padding: 8px 0;
+
+            i {
+                margin-right: 12px;
+            }
+        }
+    }
+}

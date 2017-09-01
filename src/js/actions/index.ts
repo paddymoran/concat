@@ -404,3 +404,19 @@ export function toggleToSignShowComplete(): Sign.Actions.ToggleToSignShowComplet
         type: Sign.Actions.Types.TOGGLE_TO_SIGN_SHOW_COMPLETE
     };
 }
+
+/**
+ * Contacts
+ */
+export function requestContacts(): Sign.Actions.RequestContacts {
+    return {
+        type: Sign.Actions.Types.REQUEST_CONTACTS
+    };
+}
+
+export function updateContacts(payload: Sign.Actions.UpdateContactsPayload): Sign.Actions.UpdateContacts {
+    return {
+        type: Sign.Actions.Types.SET_CONTACTS,
+        payload
+    };
+}

@@ -49,10 +49,16 @@ class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>
     }
     render() {
 
-        return (
-                <div>
+        const keys = Object.keys(this.props.documentSets).filter((setId: string) => {
+            return this.props.documentSets[setId].documentIds.every(d => this.props.documents[d].signStatus === 'Signed')
+        });
 
+        return (
+            <div>
+                <div className="document-set-list">
+                    { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} />)}
                 </div>
+            </div>
         );
     }
 }
@@ -73,7 +79,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<UnconnectedDocument
         return (
             <div className="document-set">
                 <div className="document-set-title">{documentSetLabel}</div>
-                
+
                 {this.props.documentSet.documentIds.map(documentId => {
                     const document = this.props.documents[documentId]
 
@@ -96,22 +102,20 @@ const DocumentSetList = connect(
     })
 )(UnconnectedDocumentSetList);
 
-
 class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  {
     componentDidMount() {
         this.props.requestDocumentSets()
     }
     render() {
-        const documentSets = this.props.documentSets;
-        const documents = Object.keys(documentSets).reduce((acc: any, setId: string) : Sign.DocumentData[] => [
-            ...acc,
-            ...documentSets[setId].documentIds.map((documentId: string) => this.props.documents[documentId])
-        ], []);
+
+        const keys = Object.keys(this.props.documentSets).filter((setId: string) => {
+            return this.props.documentSets[setId].documentIds.some(d => this.props.documents[d].signStatus === 'Pending')
+        });
 
         return (
             <div>
                 <div className="document-set-list">
-                    {Object.keys(this.props.documentSets).map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} />)}
+                    { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} />)}
                 </div>
             </div>
         );

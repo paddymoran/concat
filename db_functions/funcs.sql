@@ -29,7 +29,7 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
              ds.name as name, ds.created_at as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents
         FROM (
-            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id)
+            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status
             FROM (
                 SELECT
                 DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions, first_value(document_id) over wnd as start_id

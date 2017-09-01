@@ -411,3 +411,24 @@ def get_signature_requests(user_id):
         return data[0] or []
 
 
+def get_contacts(user_id):
+    """
+    Get a user's contacts.
+
+    For now, this is just a list of people they have sent signature request before.
+    """
+
+    database = get_db()
+    query = """
+        SELECT DISTINCT users.user_id, users.name, users.email
+        FROM document_sets
+        JOIN documents ON document_sets.document_set_id = documents.document_set_id
+        JOIN sign_requests ON documents.document_id = sign_requests.document_id
+        JOIN users ON sign_requests.user_id = users.user_id
+        WHERE document_sets.user_id = %(user_id)s
+    """
+
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, {'user_id': user_id})
+        data = cursor.fetchall()
+        return [dict(x) for x in data]

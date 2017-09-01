@@ -428,7 +428,7 @@ def get_contacts(user_id):
         WHERE document_sets.user_id = %(user_id)s
     """
 
-    with database.cursor() as cursor:
-        cursor.execute(query, { 'user_id': user_id })
-        data = cursor.fetchone()
-        return data[0] or []
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, {'user_id': user_id})
+        data = cursor.fetchall()
+        return [dict(x) for x in data]

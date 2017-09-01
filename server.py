@@ -64,6 +64,9 @@ def upload_document(files, set_id, document_id, user_id):
 def generate_signed_filename(file_id):
     return SIGNED_FILE_PREFIX + file_id + '.pdf'
 
+def get_service_url(requestUrl):
+    url = urlparse(request.url)
+    return """%s://%s""" % (url.scheme, url.netloc)
 
 
 def save_temp_signature(signature_id, user_id):
@@ -147,16 +150,19 @@ def check_document_set_completion(document_set_id):
         try:
             args = request.get_json()
 
-            user_info = db.get_user_info(session['user_id'])
+            user = db.get_document_set_owner(document_set_id)
 
             params = {
                 'client_id': app.config.get('OAUTH_CLIENT_ID'),
                 'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
                 'template': 'emails.sign.signing-complete',
+                'email': user['email'],
+                'name': user['name'],
+                'subject': 'Documents Signed & Ready in CataLex Sign',
                 'data': json.dumps({
-                    'name': 'John',
+                    'name': user['name'],
                     'setDescription': 'Me you him',
-                    'link': 'sign.catalex.nz/completed'
+                    'link': get_service_url(request.url) + '/completed'
                 })
             }
 
@@ -319,15 +325,14 @@ def sign_document():
     saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
     db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
     if sign_request_id:
-        check_document_get_completion(args['documentSetId'])
+        check_document_set_completion(args['documentSetId'])
     return jsonify({'document_id': saved_document_id})
 
 
 @app.route('/api/request_signatures', methods=['POST'])
 def request_signatures():
     args = request.get_json()
-    url = urlparse(request.url)
-    link = """%s://%s/to_sign""" % (url.scheme, url.netloc)
+    link = get_service_url(request.url) + '/to_sign'
     users = invite_users([s['recipient'] for s in args['signatureRequests']], link, sender=session.get('name', 'User'))
     [db.upsert_user({'name': user['name'], 'email': user['email'], 'user_id': user['id']}) for user in users]
     users = {user['email']: user for user in users}

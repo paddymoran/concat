@@ -456,7 +456,28 @@ def get_document_set_owner(set_id):
         JOIN users ON document_sets.user_id = users.user_id
         WHERE document_sets.document_set_id = %(set_id)s
     """
-    with database.cursor() as cursor:
+
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, { 'set_id': set_id })
-        data = cursor.fetchone()[0]
-        return data
+        data = cursor.fetchone()
+        return dict(data)
+
+
+def get_document_set_recipients(set_id):
+    """
+    Get the recipients for a document set
+    """
+
+    database = get_db()
+    query = """
+        SELECT DISTINCT users.*
+        FROM documents
+        JOIN sign_requests ON documents.document_id = sign_requests.document_id
+        JOIN users ON sign_requests.user_id = users.user_id
+        WHERE documents.document_set_id = %(user_id)s
+    """
+
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, {'user_id': user_id})
+        data = cursor.fetchall()
+        return [dict(x) for x in data]

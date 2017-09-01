@@ -33,7 +33,7 @@ interface ConnectedRequestedSignatureDocumentSetProps extends RequestedSignature
     documentSet: Sign.DocumentSet
 }
 
-const SignStatus = (props: {signStatus: Sign.SignStatus}) => {
+export const SignStatus = (props: {signStatus: Sign.SignStatus}) => {
     const status = props.signStatus || 'Pending';
     const className = {
         'Pending': 'text-warning',

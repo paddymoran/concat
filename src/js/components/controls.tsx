@@ -7,6 +7,7 @@ import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { OverlayTrigger,  Popover } from 'react-bootstrap';
 import { setActiveSignControl, showInviteModal, showRejectConfirmationModal } from '../actions';
+import { dateDefaults, textDefaults } from '../utils';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
 const SignatureTooltip = () => {
@@ -65,22 +66,6 @@ interface AddTextControlProps extends DragProps {
 
 interface AddPromptControlProps extends DragProps {
     defaults?: Sign.DocumentPrompt;
-}
-
-export function dateDefaults(){
-    const format = 'DD MMMM YYYY', timestamp = (new Date()).getTime();
-    return {
-        format,
-        value: Moment(timestamp).format(format),
-        timestamp
-    }
-}
-
-export function textDefaults(){
-    const value = 'Custom Text...';
-    return {
-        value
-    }
 }
 
 const signatureSource: __ReactDnd.DragSourceSpec<AddSignatureControlProps> = {

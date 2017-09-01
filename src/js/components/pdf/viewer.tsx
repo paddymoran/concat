@@ -12,9 +12,9 @@ import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
 import sizeMe from 'react-sizeme';
-import { signatureUrl, boundNumber, imageRatio, stringToCanvas } from '../../utils';
+import { signatureUrl, boundNumber, imageRatio, stringToCanvas, textDefaults, dateDefaults } from '../../utils';
 import { generateUUID } from '../uuid';
-import { Controls, textDefaults, dateDefaults } from '../controls'
+import { Controls } from '../controls'
 import { DropTarget } from 'react-dnd';
 import * as Waypoint from 'react-waypoint';
 import WidthSpy from '../widthSpy'

@@ -47,6 +47,19 @@ interface UnconnectedRecipientRowProps extends RecipientRowProps {
     touch: (form: string, field: string) => void;
 }
 
+
+interface ComboboxComponentProps extends WrappedFieldProps {
+    dataDisplayField: string;
+    data: any[];
+    onSelect: (value: Sign.Recipient) => void;
+}
+
+class ComboboxComponent extends React.PureComponent<ComboboxComponentProps> {
+    render() {
+        return <Combobox {...this.props.input} suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} />
+    }
+}
+
 class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRowProps> {
     constructor(props: UnconnectedRecipientRowProps) {
         super(props);
@@ -59,6 +72,7 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
         if (recipient.email) {
             const fieldName = `${this.props.recipient}.email`;
             this.props.change(Sign.FormName.RECIPIENTS, fieldName, recipient.email);
+            this.props.change(Sign.FormName.RECIPIENTS, `${this.props.recipient}.name`, recipient.name);
             this.props.touch(Sign.FormName.RECIPIENTS, fieldName); // touch the field too, for validation
         }
     }
@@ -67,12 +81,8 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
         return (
             <li>
                 <Row>
-                    <Col md={5}>
-                        <Field name={`${this.props.recipient}.name`}
-                            component={(props: FieldProps) => {
-                                return <Combobox {...props.input}   textField="name" data={this.props.contacts}  onSelect={this.onSelect} />
-                            }} />
-
+                    <Col md={5}>                        
+                        <Field name={`${this.props.recipient}.name`} component={ComboboxComponent} data={this.props.contacts} dataDisplayField="name" onSelect={this.onSelect} />
                     </Col>
 
                     <Col md={5}>

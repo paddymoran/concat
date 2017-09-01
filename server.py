@@ -319,7 +319,7 @@ def sign_document():
     saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
     db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
     if sign_request_id:
-        check_document_get_completion(args['documentSetId'])
+        check_document_set_completion(args['documentSetId'])
     return jsonify({'document_id': saved_document_id})
 
 

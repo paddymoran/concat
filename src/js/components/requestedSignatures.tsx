@@ -47,7 +47,7 @@ export const SignStatus = (props: {signStatus: Sign.SignStatus}) => {
 
 class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequestedSignatureDocumentSetProps>  {
     render() {
-        const inviter = this.props.documentSet.owner === undefined ? this.props.documentSet.owner.name : 'A user';
+        const inviter = this.props.documentSet.owner === undefined ? 'A user' : this.props.documentSet.owner.name;
         const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
 
         return (

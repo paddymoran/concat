@@ -21,6 +21,27 @@ CREATE OR REPLACE FUNCTION document_status(uuid)
     WHERE d.document_id = $1
 $$ LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION latest_document_id(uuid)
+RETURNS uuid as
+$$
+    WITH RECURSIVE docs(document_id, prev_id, original_id, generation) as (
+        SELECT t.document_id, null::uuid, t.document_id, 0
+        FROM documents t
+        WHERE document_id = $1
+        UNION
+       SELECT result_document_id, input_document_id,original_id, generation + 1
+        FROM sign_results tt, docs t
+        WHERE t.document_id = tt.input_document_id
+    )
+    SELECT
+    DISTINCT last_value(document_id) over wnd AS document_id
+    FROM docs d
+
+    WINDOW wnd AS (
+       PARTITION BY original_id ORDER BY generation ASC
+       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+    )
+$$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION document_set_json(uuid)
 RETURNS JSON as
@@ -103,27 +124,7 @@ GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id
 $$ LANGUAGE sql;
 
 
-CREATE OR REPLACE FUNCTION latest_document_id(uuid)
-RETURNS uuid as
-$$
-    WITH RECURSIVE docs(document_id, prev_id, original_id, generation) as (
-        SELECT t.document_id, null::uuid, t.document_id, 0
-        FROM documents t
-        WHERE document_id = $1
-        UNION
-       SELECT result_document_id, input_document_id,original_id, generation + 1
-        FROM sign_results tt, docs t
-        WHERE t.document_id = tt.input_document_id
-    )
-    SELECT
-    DISTINCT last_value(document_id) over wnd AS document_id
-    FROM docs d
 
-    WINDOW wnd AS (
-       PARTITION BY original_id ORDER BY generation ASC
-       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-    )
-$$ LANGUAGE sql;
 
 
 

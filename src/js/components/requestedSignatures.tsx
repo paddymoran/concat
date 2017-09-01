@@ -107,7 +107,7 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
 
         return (
             <div>
-                <Checkbox onChange={this.props.toggleShowComplete}>Show Complete Sets</Checkbox>
+                <Checkbox onChange={this.props.toggleShowComplete}>Show completed document sets</Checkbox>
 
                 <hr />
 

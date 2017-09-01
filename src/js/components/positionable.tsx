@@ -8,7 +8,7 @@ import {
     movePrompt, removePromptFromDocument,
     showSignatureSelection,
     showInitialSelectionModal,
-    addSignatureToDocument, addDateToDocument, addTextToDocument,
+    addSignatureToDocument, addDateToDocument, addTextToDocument
  } from '../actions';
 import { connect } from 'react-redux';
 import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas, imageRatio } from '../utils';
@@ -17,8 +17,9 @@ import * as Calendar from 'react-widgets/lib/Calendar';
 import * as Popover from 'react-bootstrap/lib/Popover'
 import * as OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
 import * as Moment from 'moment';
-import { debounce } from '../utils';
+import { debounce, textDefaults, dateDefaults  } from '../utils';
 import * as Promise from 'bluebird';
+
 
 
 const DATE_FORMATS = [
@@ -555,6 +556,54 @@ class UnconnectedRequestPrompt extends React.PureComponent<ConnectedRequestPromp
        })
     }
 
+    addDate() {
+        let { value, timestamp, format } = dateDefaults();
+        return generateUUID()
+            .then((id) => {
+                const height = Math.round(Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * this.props.containerWidth);
+                const canvas = stringToCanvas(height, value);
+                const width = canvas.width;
+                return this.props.addDateToDocument({
+                    value,
+                    timestamp,
+                    format,
+                    height,
+                    dateIndex: id,
+                    documentId: this.props.requestPrompt.documentId,
+                    pageNumber: this.props.requestPrompt.pageNumber,
+                    ratioX: canvas.width/this.props.containerWidth,
+                    ratioY: canvas.height/this.props.containerHeight,
+                    offsetX: this.props.requestPrompt.offsetX,
+                    offsetY: this.props.requestPrompt.offsetY,
+                    sourceRequestPromptIndex: this.props.requestPrompt.promptIndex
+            });
+        });
+    }
+
+    addText() {
+        let { value } = textDefaults();
+        return generateUUID()
+            .then((id) => {
+                const height = Math.round(Sign.DefaultSignatureSize.TEXT_WIDTH_RATIO * this.props.containerWidth);
+                const canvas = stringToCanvas(height, value);
+                const width = canvas.width;
+                return this.props.addTextToDocument({
+                    value,
+                    height,
+                    textIndex: id,
+                    documentId: this.props.requestPrompt.documentId,
+                    pageNumber: this.props.requestPrompt.pageNumber,
+                    ratioX: canvas.width/this.props.containerWidth,
+                    ratioY: canvas.height/this.props.containerHeight,
+                    offsetX: this.props.requestPrompt.offsetX,
+                    offsetY: this.props.requestPrompt.offsetY,
+                    sourceRequestPromptIndex: this.props.requestPrompt.promptIndex
+            });
+        });
+    }
+
+
+
     handleClick() {
         switch(this.props.requestPrompt.value.type){
             case 'signature':
@@ -571,6 +620,10 @@ class UnconnectedRequestPrompt extends React.PureComponent<ConnectedRequestPromp
                 else{
                     return this.props.showInitialSelectionModal();
                 }
+            case 'date':
+                return this.addDate();
+             case 'text':
+                 return this.addText();
         }
     }
 

@@ -4,63 +4,79 @@ import { setSignRequestStatus, showResults, closeModal, showFailureModal } from 
 import { push } from 'react-router-redux';
 import { findSetForDocument, stringToCanvas } from '../utils';
 
+function *signDocument(action: Sign.Actions.SignDocument) {
+    const status = yield select((state: Sign.State) => state.documentViewer.signRequestStatus);
+    if(status === Sign.DownloadStatus.InProgress){
+        return;
+    }
+    yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
+
+    const documentViewer = yield select((state: Sign.State) => state.documentViewer);
+
+    const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === action.payload.documentId);
+    const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === action.payload.documentId);
+    const texts = Object.keys(documentViewer.texts).map(key => documentViewer.texts[key]).filter(text => text.documentId === action.payload.documentId);
+
+    const overlays = [...dates, ...texts].map(o => {
+        const canvas = stringToCanvas(o.height * 4, o.value);
+        const dataUrl = canvas.toDataURL();
+        return {...o, dataUrl}
+    });
+
+    const postPayload = {
+        ...action.payload,
+        signatures,
+        overlays
+    };
+
+    try {
+        const response = yield call(axios.post, '/api/sign', postPayload);
+
+        yield all([
+            put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
+            put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
+            put(push(`/documents/${action.payload.documentSetId}`)),
+        ]);
+    }
+    catch (e) {
+        yield all([
+            put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
+            put(setSignRequestStatus(Sign.DownloadStatus.Failed))
+        ]);
+    }
+}
+
+
 function *signDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.SIGN_DOCUMENT, signDocument);
 
-    function *signDocument(action: Sign.Actions.SignDocument) {
-        const status = yield select((state: Sign.State) => state.documentViewer.signRequestStatus);
-        if(status === Sign.DownloadStatus.InProgress){
-            return;
-        }
-        yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
+}
 
-        const documentViewer = yield select((state: Sign.State) => state.documentViewer);
-
-        const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === action.payload.documentId);
-
-        const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === action.payload.documentId);
-        const texts = Object.keys(documentViewer.texts).map(key => documentViewer.texts[key]).filter(text => text.documentId === action.payload.documentId);
-
-        const overlays = [...dates, ...texts].map(o => {
-            const canvas = stringToCanvas(o.height * 4, o.value);
-            const dataUrl = canvas.toDataURL();
-            return {...o, dataUrl}
-        });
-
-        const postPayload = {
-            ...action.payload,
-            signatures,
-            overlays
-        };
-
-        try {
-            const response = yield call(axios.post, '/api/sign', postPayload);
-
-            yield all([
-                put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
-                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-                put(push(`/documents/${action.payload.documentSetId}`)),
-            ]);
-        }
-        catch (e) {
-            yield all([
-                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-                put(setSignRequestStatus(Sign.DownloadStatus.Failed))
-            ]);
-        }
-    }
+function hasSomethingToSign(documentViewer : Sign.DocumentViewer, documentId : string) {
+    const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === documentId);
+    const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === documentId);
+    const texts = Object.keys(documentViewer.texts).map(key => documentViewer.texts[key]).filter(text => text.documentId === documentId);
+    return signatures.length || dates.length || texts.length;
 }
 
 function *submitSignRequests() {
     yield takeEvery(Sign.Actions.Types.SUBMIT_SIGN_REQUESTS, submit);
 
     function *submit(action: Sign.Actions.SubmitSignRequests) {
+        const documentViewer = yield select((state: Sign.State) => state.documentViewer);
+        const documentSets = yield select((state: Sign.State) => state.documentSets);
+        const documentIds = documentSets[action.payload.documentSetId].documentIds;
+
+        for(let documentId of documentIds){
+            if(hasSomethingToSign(documentViewer, documentId)){
+                yield signDocument({type: Sign.Actions.Types.SIGN_DOCUMENT, payload: {documentSetId: action.payload.documentSetId, documentId}} as Sign.Actions.SignDocument);
+            }
+        }
         const status = yield select((state: Sign.State) => state.documentViewer.signRequestStatus);
         if(status === Sign.DownloadStatus.InProgress){
             return;
         }
         yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
-
         try {
             const response = yield call(axios.post, '/api/request_signatures', action.payload);
 

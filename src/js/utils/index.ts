@@ -116,6 +116,22 @@ export function debounce(func: () => void, wait = 50) {
 }
 
 
+export function dateDefaults(){
+    const format = 'DD MMMM YYYY', timestamp = (new Date()).getTime();
+    return {
+        format,
+        value: moment(timestamp).format(format),
+        timestamp
+    }
+}
+
+export function textDefaults(){
+    const value = 'Custom Text...';
+    return {
+        value
+    }
+}
+
 
 export const datetimeFormat = "Do MMM, h:mm:ss a";
 

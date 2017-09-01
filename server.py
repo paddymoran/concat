@@ -275,7 +275,6 @@ Sign
 @app.route('/api/sign', methods=['POST'])
 def sign_document():
     args = request.get_json()
-
     saveable = deepcopy(args)
     document_db = db.get_document(session['user_id'], args['documentId'])
     document_id = args['documentId']
@@ -287,10 +286,6 @@ def sign_document():
     for overlay in args['overlays']:
         base64Image = overlay['dataUrl']
         overlay['imgData'] = BytesIO(b64decode(base64Image.split(",")[1]))
-    #for req in args['signatureRequests']:
-    #    req['recipient']['user_id'] =  users[req['recipient']['email']]['id']
-
-
     result = sign(document, args['signatures'], args['overlays'])
     saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
     db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)

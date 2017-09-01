@@ -46,7 +46,7 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
 
     render() {
         return (
-            <Modal show={true} onHide={this.props.hideModal} className="icon-modal">
+            <Modal backdrop='static' show={true} onHide={this.props.hideModal} className="icon-modal">
                 <Modal.Header closeButton>
                     <Modal.Title>Sign Confirmation</Modal.Title>
                 </Modal.Header>
@@ -54,10 +54,10 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
                 <Modal.Body>
                     {this.props.signRequestStatus === Sign.DownloadStatus.InProgress ? this.renderLoading() : this.renderBody()}
 
-                    {this.props.recipients && 
+                    {this.props.recipients && this.props.recipients.length &&
                         <div>
                             <h3>Recipients</h3>
-                            
+
                             {this.props.recipients.map((recipient, index) =>
                                 <p key={index}>
                                     <strong>{recipient.name}:</strong> {recipient.email}
@@ -75,7 +75,7 @@ export default connect(
     (state: Sign.State) => {
         const documentSet = state.documentSets[state.modals.documentSetId];
         const recipients = documentSet ? documentSet.recipients : null;
-        
+
         return {
             signRequestStatus: state.documentViewer.signRequestStatus,
             documentId: state.modals.documentId,

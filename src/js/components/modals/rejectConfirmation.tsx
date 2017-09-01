@@ -28,7 +28,7 @@ class RejectConfirmation extends React.PureComponent<RejectConfirmationProps> {
 
     render() {
         return (
-            <Modal show={true} onHide={this.props.closeModal} className="icon-modal">
+            <Modal backdrop='static' show={true} onHide={this.props.closeModal} className="icon-modal">
                 <Modal.Header closeButton>
                     <Modal.Title>Reject Document</Modal.Title>
                 </Modal.Header>

@@ -51,8 +51,6 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
 $$ LANGUAGE sql;
 
 
-
-
 CREATE OR REPLACE FUNCTION delete_document(
     user_id integer,
     document_id uuid)
@@ -75,7 +73,7 @@ SELECT json_agg(row_to_json(q)) as "signature_requests"
 FROM (
 SELECT json_agg(
     json_build_object(
-    'document_id', sr.document_id,
+    'document_id', latest_document_id(sr.document_id),
     'filename', d.filename,
     'sign_request_id', sr.sign_request_id,
     'prompts', sr.field_data,
@@ -92,4 +90,37 @@ WHERE sr.user_id = $1
 
 GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id
 ) q
+$$ LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION latest_document_id(uuid)
+RETURNS uuid as
+$$
+    WITH RECURSIVE docs(document_id, prev_id, original_id, generation) as (
+        SELECT t.document_id, null::uuid, t.document_id, 0
+        FROM documents t
+        WHERE document_id = $1
+        UNION
+       SELECT result_document_id, input_document_id,original_id, generation + 1
+        FROM sign_results tt, docs t
+        WHERE t.document_id = tt.input_document_id
+    )
+    SELECT
+    DISTINCT last_value(document_id) over wnd AS document_id
+    FROM docs d
+
+    WINDOW wnd AS (
+       PARTITION BY original_id ORDER BY generation ASC
+       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+    )
+$$ LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION document_set_status(uuid)
+RETURNS text as
+$$
+SELECT CASE WHEN every(srr.sign_request_id is not null) THEN 'complete' ELSE 'pending' END as status
+FROM documents d
+JOIN sign_requests sr on d.document_id = sr.document_id
+LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
+WHERE document_set_id = $1
 $$ LANGUAGE sql;

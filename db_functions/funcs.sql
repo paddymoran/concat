@@ -29,10 +29,10 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
              ds.name as name, ds.created_at as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents
         FROM (
-            SELECT d.document_id, filename, created_at, versions, dv.field_data
+            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id)
             FROM (
                 SELECT
-                DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions
+                DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions, first_value(document_id) over wnd as start_id
                 FROM docs d
                 WHERE document_set_id = $1
 
@@ -115,12 +115,22 @@ $$
     )
 $$ LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION document_status(uuid)
+    RETURNS text as
+    $$
+    SELECT CASE WHEN every(sr.sign_request_id is null) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
+    FROM documents d
+    LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
+    LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
+    WHERE d.document_id = $1
+$$ LANGUAGE sql;
+
+
+
 CREATE OR REPLACE FUNCTION document_set_status(uuid)
 RETURNS text as
 $$
-SELECT CASE WHEN every(srr.sign_request_id is not null) THEN 'complete' ELSE 'pending' END as status
+SELECT CASE WHEN EVERY(document_status(document_id) = 'Signed') THEN 'Complete' ELSE 'Pending' END as status
 FROM documents d
-JOIN sign_requests sr on d.document_id = sr.document_id
-LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
 WHERE document_set_id = $1
 $$ LANGUAGE sql;

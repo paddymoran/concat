@@ -46,15 +46,11 @@ export  class Container extends React.PureComponent<AppProps, {}> {
         const { children, location: { pathname } } = this.props;
         return (
             <div className="container">
-          <CSSTransitionGroup style={{position: 'relative', display:'block'}}
-                  transitionName={'slideInRight'}
-                  transitionEnterTimeout={400}
-                  transitionLeaveTimeout={400}
-                >
+
                     <div  key={pathname} className="main-content">
                 { children }
                 </div>
-              </CSSTransitionGroup>
+
             </div>
         );
     }

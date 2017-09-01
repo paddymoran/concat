@@ -21,7 +21,7 @@ function prepareSubmitPayload(documentSetId : string, documentSet : Sign.Documen
         }
         return acc;
     }, {});
-    const recipients = documentSet.recipients.reduce((acc: any, r) => {
+    const recipients = (documentSet.recipients || []).reduce((acc: any, r) => {
         acc[r.email] = r;
         return acc;
     }, {});

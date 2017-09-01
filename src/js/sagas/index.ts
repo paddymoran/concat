@@ -197,7 +197,7 @@ function *requestDocumentSetsSaga() {
         const data = response.data.map((d : any) => {
             return {createdAt: d.created_at, title: d.name, documentSetId: d.document_set_id,
                 documents: (d.documents || [])
-                .map((d : any) => ({documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions})) }
+                .map((d : any) => ({documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions, signStatus: d.sign_status})) }
         });
         yield put(updateDocumentSets({
             downloadStatus: Sign.DownloadStatus.Complete,

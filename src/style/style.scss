@@ -196,3 +196,11 @@ a {
 .main-content {
     margin-top: 45px;
 }
+
+.center-nav-pills {
+    text-align: center;
+
+    .nav-pills {
+        display: inline-block;
+    }
+}

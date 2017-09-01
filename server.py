@@ -302,7 +302,7 @@ def sign_document():
 def request_signatures():
     args = request.get_json()
     url = urlparse(request.url)
-    link = """%s//%s/sign/%s""" % (url.scheme, url.netloc, args['documentSetId'])
+    link = """%s//%s/to_sign""" % (url.scheme, url.netloc)
     users = invite_users([s['recipient'] for s in args['signatureRequests']], link, sender=session.get('name', 'User'))
     [db.upsert_user({'name': user['name'], 'email': user['email'], 'user_id': user['id']}) for user in users]
     users = {user['email']: user for user in users}

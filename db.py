@@ -474,10 +474,10 @@ def get_document_set_recipients(set_id):
         FROM documents
         JOIN sign_requests ON documents.document_id = sign_requests.document_id
         JOIN users ON sign_requests.user_id = users.user_id
-        WHERE documents.document_set_id = %(user_id)s
+        WHERE documents.document_set_id = %(set_id)s
     """
 
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
-        cursor.execute(query, {'user_id': user_id})
+        cursor.execute(query, {'set_id': set_id})
         data = cursor.fetchall()
         return [dict(x) for x in data]

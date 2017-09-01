@@ -146,11 +146,12 @@ def invite_users(users, link, sender):
 
 
 def check_document_set_completion(document_set_id):
-    if db.document_set_status(document_set_id) == 'Complete':
+    if db.document_set_status(document_set_id)[0] == 'Complete':
         try:
             args = request.get_json()
 
             user = db.get_document_set_owner(document_set_id)
+            recipients = db.get_document_set_recipients(document_set_id)
 
             params = {
                 'client_id': app.config.get('OAUTH_CLIENT_ID'),
@@ -161,7 +162,7 @@ def check_document_set_completion(document_set_id):
                 'subject': 'Documents Signed & Ready in CataLex Sign',
                 'data': json.dumps({
                     'name': user['name'],
-                    'setDescription': 'Me you him',
+                    'setDescription': 'CataLex Sign Document',
                     'link': get_service_url(request.url) + '/completed'
                 })
             }

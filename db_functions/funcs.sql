@@ -11,6 +11,16 @@ CREATE TRIGGER document_hash_trigger
     FOR EACH ROW
     EXECUTE PROCEDURE document_hash();
 
+CREATE OR REPLACE FUNCTION document_status(uuid)
+    RETURNS text as
+    $$
+    SELECT CASE WHEN every(sr.sign_request_id is null) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
+    FROM documents d
+    LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
+    LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
+    WHERE d.document_id = $1
+$$ LANGUAGE sql;
+
 
 CREATE OR REPLACE FUNCTION document_set_json(uuid)
 RETURNS JSON as
@@ -113,16 +123,6 @@ $$
        PARTITION BY original_id ORDER BY generation ASC
        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
     )
-$$ LANGUAGE sql;
-
-CREATE OR REPLACE FUNCTION document_status(uuid)
-    RETURNS text as
-    $$
-    SELECT CASE WHEN every(sr.sign_request_id is null) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
-    FROM documents d
-    LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
-    LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
-    WHERE d.document_id = $1
 $$ LANGUAGE sql;
 
 

@@ -311,10 +311,15 @@ def request_signatures():
     return jsonify({'message': 'Requests sent'})
 
 
-
 @app.route('/api/requested_signatures', methods=['GET'])
 def get_signature_requests():
     return jsonify(db.get_signature_requests(session['user_id']))
+
+
+@app.route('/api/contacts', methods=['GET'])
+def get_contacts():
+    return jsonify(db.get_contacts(session['user_id']))
+
 
 @app.route('/api/send_document', methods=['POST'])
 def email_document():

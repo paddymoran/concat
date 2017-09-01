@@ -120,10 +120,10 @@ class InvalidUsage(Exception):
             self.status_code = status_code
         self.payload = payload
 
-    def to_dict(self):
-        rv = dict(self.payload or ())
-        rv['message'] = self.message
-        return rv
+def to_dict(self):
+    rv = dict(self.payload or ())
+    rv['message'] = self.message
+    return rv
 
 
 def invite_users(users, link, sender):
@@ -142,6 +142,7 @@ def invite_users(users, link, sender):
     return response.json()
 
 
+<<<<<<< HEAD
 def check_document_set_completion(document_set_id):
     if db.document_set_status(document_set_id) == 'Complete':
         try:
@@ -169,6 +170,7 @@ def check_document_set_completion(document_set_id):
         except Exception as e:
             print(e)
             raise InvalidUsage('Failed to send completion email', status_code=500)
+
 
 '''
 Documents
@@ -318,7 +320,7 @@ def sign_document():
     saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
     db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
     if sign_request_id:
-        check_document_set_completion(args['documentSetId'])
+        check_document_get_completion(args['documentSetId'])
     return jsonify({'document_id': saved_document_id})
 
 
@@ -326,7 +328,7 @@ def sign_document():
 def request_signatures():
     args = request.get_json()
     url = urlparse(request.url)
-    link = """%s//%s/to_sign""" % (url.scheme, url.netloc)
+    link = """%s://%s/to_sign""" % (url.scheme, url.netloc)
     users = invite_users([s['recipient'] for s in args['signatureRequests']], link, sender=session.get('name', 'User'))
     [db.upsert_user({'name': user['name'], 'email': user['email'], 'user_id': user['id']}) for user in users]
     users = {user['email']: user for user in users}

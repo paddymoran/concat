@@ -210,7 +210,19 @@ declare namespace Sign {
         date?: DocumentDate;
         text?: DocumentText;
         prompt?: DocumentPrompt;
+    }
 
+    interface Contact {
+        id: number;
+        name: string;
+        email: string;
+    }
+
+    type ContactList = Contact[];
+
+    interface Contacts {
+        status: DownloadStatus;
+        contacts: ContactList;
     }
 
     interface State {
@@ -227,6 +239,7 @@ declare namespace Sign {
         uploadDocuments: UploadDocuments;
         overlayDefaults: OverlayDefaults;
         toSignPage: ToSignPage;
+        contacts: Contacts;
     }
 
     interface ToSignPage {
@@ -421,8 +434,12 @@ declare namespace Sign.Actions {
 
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
 
+        // To sign page
         TOGGLE_TO_SIGN_SHOW_COMPLETE = 'TOGGLE_TO_SIGN_SHOW_COMPLETE',
 
+        // Contacts
+        REQUEST_CONTACTS = 'REQUEST_CONTACTS',
+        SET_CONTACTS = 'SET_CONTACTS',
     }
 
     interface ActionCreator<T> {
@@ -742,6 +759,11 @@ declare namespace Sign.Actions {
         documentId: string;
     }
 
+    interface UpdateContactsPayload {
+        status?: DownloadStatus;
+        contacts?: ContactList;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -814,6 +836,10 @@ declare namespace Sign.Actions {
     interface EmailDocument extends ActionCreator<EmailDocumentPayload> {}
 
     interface ToggleToSignShowComplete extends Action {}
+
+    // Contacts
+    interface RequestContacts extends Action {}
+    interface UpdateContacts extends ActionCreator<UpdateContactsPayload> {}
 
 }
 

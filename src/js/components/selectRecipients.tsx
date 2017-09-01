@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Field, FieldArray,reduxForm, FormErrors, BaseFieldProps,  InjectedFormProps, WrappedFieldProps, change, touch } from 'redux-form'
 import { ControlLabel, FormGroup, FormGroupProps, HelpBlock, Col, Row, Button, FormControl } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { defineRecipients } from '../actions';
+import { defineRecipients, requestContacts } from '../actions';
 import { push } from 'react-router-redux';
 import { Combobox } from 'react-widgets';
 
@@ -33,14 +33,6 @@ const FormInput = (props : FieldProps) => {
             { props.meta.error && props.meta.touched && <HelpBlock>{ props.meta.error }</HelpBlock> }
         </FormGroup>
     );
-}
-
-interface RenderRecipientsProps {
-    fields: any;
-    meta: {
-        error: string;
-        submitFailed: boolean;
-    }
 }
 
 
@@ -105,12 +97,28 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
 const RecipientRow = connect<{}, {}, RecipientRowProps>(null, { change, touch })(UnconnectedRecipientRow);
 
 
-class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
+interface RenderRecipientsProps {
+    fields: any;
+    meta: {
+        error: string;
+        submitFailed: boolean;
+    }
+}
+
+interface UnconnectedRenderRecipientsProps extends RenderRecipientsProps {
+    requestContacts: () => void;
+    contacts: Sign.Contacts;
+}
+
+class UnconnectedRenderRecipients extends React.PureComponent<UnconnectedRenderRecipientsProps> {
+    componentDidMount() {
+        this.props.requestContacts();
+    }
+
     render() {
         const { fields, meta: { error, submitFailed } } = this.props;
 
-        const contacts : Sign.Recipients = [
-        ];
+        const contacts = this.props.contacts.status === Sign.DownloadStatus.Complete ? this.props.contacts.contacts : [];
 
         return (
             <ul>
@@ -131,6 +139,15 @@ class RenderRecipients extends React.PureComponent<RenderRecipientsProps> {
         );
     }
 }
+
+const RenderRecipients = connect(
+    (state: Sign.State) => ({
+        contacts: state.contacts
+    }),
+    { requestContacts }
+)(UnconnectedRenderRecipients);
+
+
 
 class FieldArraysForm extends React.PureComponent<FormProps> {
     render() {

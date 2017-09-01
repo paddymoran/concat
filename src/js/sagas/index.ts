@@ -1,7 +1,8 @@
 import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
 import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
+import * as Axios from 'axios';
 import axios from 'axios';
-import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures, addPromptToDocument, updateModalData, addOverlays, defineRecipients  } from '../actions';
+import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures, addPromptToDocument, updateModalData, addOverlays, defineRecipients, updateContacts } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -20,6 +21,7 @@ export default function *rootSaga(): any {
         requestRequestedSignaturesSaga(),
         deleteDocumentSaga(),
         emailDocumentSaga(),
+        requestContactsSaga(),
         ...pdfStoreSagas,
         ...signatureSagas,
         ...documentViewerSagas,
@@ -246,6 +248,39 @@ function *emailDocumentSaga() {
     }
 }
 
+interface ContactsResponse extends Axios.AxiosResponse {
+    data: {
+        user_id: number;
+        name: string;
+        email: string;
+    }[];
+}
+
+function *requestContactsSaga() {
+    yield takeEvery(Sign.Actions.Types.REQUEST_CONTACTS, requestContacts);
+
+    function *requestContacts(action: Sign.Actions.RequestContacts) {
+        yield put(updateContacts({ status: Sign.DownloadStatus.InProgress }));
+
+        try {
+            const response: ContactsResponse = yield call(axios.get, '/api/contacts');
+
+            // Change user_id to id
+            const contacts = response.data.map(contact => {
+                const { user_id, ...rest } = contact;
+                return { id: user_id, ...rest };
+            });
+
+            yield put(updateContacts({
+                status: Sign.DownloadStatus.Complete,
+                contacts
+            }));
+        }
+        catch (e) {
+            yield put(updateContacts({ status: Sign.DownloadStatus.Failed }));
+        }
+    }
+}
 
 
 function *uploadDocumentSaga() {
@@ -305,5 +340,3 @@ function *uploadDocumentSaga() {
         });
     }
 }
-
-

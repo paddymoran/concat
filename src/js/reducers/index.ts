@@ -13,6 +13,7 @@ import overlayDefaults from './overlayDefaults';
 import requestedSignatures from './requestedSignatures';
 import uploadDocuments from './uploadDocuments';
 import toSignPage from './toSignPage';
+import contacts from './contacts';
 
 
 const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
@@ -30,6 +31,7 @@ const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     uploadDocuments,
     overlayDefaults,
     toSignPage,
+    contacts,
 });
 
 export default rootReducer;

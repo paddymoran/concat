@@ -6,6 +6,7 @@ DROP FUNCTION IF EXISTS delete_document(user_id integer, document_id uuid);
 DROP FUNCTION IF EXISTS signature_requests(user_id integer);
 DROP FUNCTION IF EXISTS latest_document_id(uuid);
 DROP FUNCTION IF EXISTS document_set_status(uuid);
+DROP FUNCTION IF EXISTS document_status(uuid);
 DROP TYPE IF EXISTS signature_type CASCADE;
 
 DROP TABLE IF EXISTS public.document_view;

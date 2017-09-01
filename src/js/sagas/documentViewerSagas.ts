@@ -4,6 +4,13 @@ import { setSignRequestStatus, showResults, closeModal, showFailureModal } from 
 import { push } from 'react-router-redux';
 import { findSetForDocument, stringToCanvas } from '../utils';
 
+function *signDocumentWithRedirect(action: Sign.Actions.SignDocument){
+    const success = yield signDocument(action);
+    if(success){
+        yield put(push(`/documents/${action.payload.documentSetId}`));
+    }
+}
+
 function *signDocument(action: Sign.Actions.SignDocument) {
     const status = yield select((state: Sign.State) => state.documentViewer.signRequestStatus);
     if(status === Sign.DownloadStatus.InProgress){
@@ -35,8 +42,8 @@ function *signDocument(action: Sign.Actions.SignDocument) {
         yield all([
             put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
             put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-            put(push(`/documents/${action.payload.documentSetId}`)),
         ]);
+        return true;
     }
     catch (e) {
         yield all([
@@ -48,9 +55,9 @@ function *signDocument(action: Sign.Actions.SignDocument) {
 
 
 function *signDocumentSaga() {
-    yield takeEvery(Sign.Actions.Types.SIGN_DOCUMENT, signDocument);
-
+    yield takeEvery(Sign.Actions.Types.SIGN_DOCUMENT, signDocumentWithRedirect);
 }
+
 
 function hasSomethingToSign(documentViewer : Sign.DocumentViewer, documentId : string) {
     const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === documentId);

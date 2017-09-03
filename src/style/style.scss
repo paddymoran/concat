@@ -18,9 +18,12 @@ $header-height: 50px;
 $navbar-height: $header-height;
 $header-height-sml: $header-height;
 $navbar-margin-bottom: 0px;
- $btn-font-weight: 300;
-$grid-float-breakpoint: 1px;
-$grid-float-breakpoint-max: 1px;
+$btn-font-weight: 300;
+
+
+
+// Z indexes (so they are all in one place - and we don't hate ourselves when signatures appear over modals)
+$navbar-zindex: 150;
 
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/grid";
@@ -29,6 +32,7 @@ $grid-float-breakpoint-max: 1px;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/button-groups";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/forms";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/dropdowns";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/component-animations";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/modals";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/tables";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/close";
@@ -42,7 +46,6 @@ $grid-float-breakpoint-max: 1px;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/type";
 //@import "~bootstrap-sass/assets/stylesheets/bootstrap/tooltip";
 
-
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/utilities";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities";
 @import "~font-awesome/scss/variables";
@@ -54,6 +57,8 @@ $fa-font-path: '~font-awesome/fonts';
 
 // React widgets
 @import "~react-widgets/dist/css/react-widgets.css";
+
+
 
 
 
@@ -76,20 +81,28 @@ $fa-font-path: '~font-awesome/fonts';
 @import "document-set-list";
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  /* Margin bottom by footer height */
-
-
-  font-family: -apple-system,Helvetica Neue,Roboto,Segoe UI,Lucida Grande,sans-serif;
-overflow-x:hidden;
+    /* Margin bottom by footer height */
+    font-family: -apple-system,Helvetica Neue,Roboto,Segoe UI,Lucida Grande,sans-serif;
+    overflow-x:hidden;
 }
 
 a {
     cursor: pointer;
+}
+
+.navbar-brand {
+    float: none;
+}
+
+.navbar-collapse.collapse.in {
+    position: relative;
+    background: $gray-darker;
+    z-index: $navbar-zindex;
 }
 
 .alert {

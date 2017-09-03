@@ -191,7 +191,7 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<ConnectedUpload
                 <hr />
 
                 <div className="text-center">
-                    <Button bsStyle="primary" onClick={this.submit}>Continue</Button>
+                    <Button bsStyle="primary" onClick={this.submit} disabled={!this.props.documentIds.length}>Continue</Button>
                 </div>
             </div>
         );

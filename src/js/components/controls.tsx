@@ -422,6 +422,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
             submitString = 'Sign & Send';
         }
         const nextPrompt = this.getNextPrompt();
+        const canSubmit = hasSigned || hasRecipients;
         return (
             <div className="controls" onClick={this.activateNone}>
                 <div className="container">
@@ -489,9 +490,14 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <div  className="button-text"><i className="fa fa-times" /><span className="label">Reject</span></div>
                         </div>}
 
-                        <div className="submit-button sign-control" onClick={this.sign}>
+                        { canSubmit && <div className="submit-button sign-control" onClick={this.sign}>
                             <div  className="button-text"><i className="fa fa-pencil" /><span className="label">{ submitString }</span></div>
-                        </div>
+                        </div> }
+
+                        { !canSubmit && <div className="submit-button sign-control submit-disabled">
+                            <div  className="button-text"><i className="fa fa-pencil" /><span className="label">{ submitString }</span></div>
+                        </div> }
+
                     </div>
                 </div>
             </div>

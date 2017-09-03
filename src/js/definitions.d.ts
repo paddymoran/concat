@@ -980,6 +980,7 @@ declare module 'react-bootstrap/lib/FormGroup' {
     export = ReactBootstrap.FormGroup;
 }
 
+
 declare module 'react-widgets/lib/localizers/moment' {
     function momentLocalizer(moment : any): void;
     namespace momentLocalizer {}

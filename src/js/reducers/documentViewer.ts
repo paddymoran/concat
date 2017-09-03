@@ -75,6 +75,9 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
         case Sign.Actions.Types.SET_ACTIVE_SIGN_CONTROL:
             return setActiveSignButton(state, action);
 
+        case Sign.Actions.Types.DEFINE_RECIPIENTS:
+            return {...state, prompts: removeMissingRecipients(state.prompts, action)}
+
         default:
             return state;
     }
@@ -201,8 +204,28 @@ function setSignRequestStatus(state: Sign.DocumentViewer, action: Sign.Actions.S
     };
 }
 
-
-
 function setActivePage(state: Sign.DocumentViewer, action: Sign.Actions.SetActivePage): Sign.DocumentViewer {
     return { ...state, documents: {...state.documents, [action.payload.documentId]: {...(state.documents || {})[action.payload.documentId], activePage: action.payload.pageNumber} } };
+}
+
+function removeMissingRecipients(state: Sign.DocumentPrompts, action: Sign.Actions.DefineRecipients): Sign.DocumentPrompts {
+    const recipients = action.payload.recipients.reduce((acc: any, recipient: Sign.Recipient) => {
+        acc[recipient.email] = true;
+        return acc
+    }, {});
+    Object.keys(state).map((key: string) => {
+        if(!recipients[state[key].value.recipientEmail]){
+            state = {
+                ...state,
+                [key]: {
+                    ...state[key],
+                    value: {
+                        type: state[key].value.type,
+                        recipientEmail: ''
+                    }
+                }
+            }
+        }
+    })
+    return state;
 }

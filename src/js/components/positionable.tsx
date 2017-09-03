@@ -233,6 +233,12 @@ class PromptControls extends React.PureComponent<PromptControlProps, {show: bool
 
     }
 
+    componentWillReceiveProps(newProps: PromptControlProps) {
+        if(!this.state.show && !newProps.prompt.value.recipientEmail){
+            this.show();
+        }
+    }
+
     hide() {
         if(this.props.prompt.value.recipientEmail){
              this.setState({show: false});

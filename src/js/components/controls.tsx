@@ -281,6 +281,7 @@ interface ConnectedControlProps extends ControlProps{
     overlayDefaults: Sign.OverlayDefaults;
     nextInvalidOverlay?: string;
     reject: () => void;
+    saveStatus: Sign.DownloadStatus;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -423,6 +424,14 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         }
         const nextPrompt = this.getNextPrompt();
         const canSubmit = hasSigned || hasRecipients;
+        const saveIcon = {
+            [Sign.DownloadStatus.InProgress]: 'fa-spin fa-spinner',
+            [Sign.DownloadStatus.Stale]: 'fa-save stale-save',
+            [Sign.DownloadStatus.Complete]: 'fa-save'
+        }[this.props.saveStatus] || 'fa-save';
+        const saveText = {
+            [Sign.DownloadStatus.Complete]: 'Saved'
+        }[this.props.saveStatus] || 'Save Draft';
         return (
             <div className="controls" onClick={this.activateNone}>
                 <div className="container">
@@ -475,7 +484,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
 
                     <div className="controls-right">
                         { this.props.showSave && <div className="sign-control" onClick={this.props.save}>
-                            <div  className="button-text"><i className="fa fa-save" /><span className="label">Save Draft</span></div>
+                            <div  className="button-text"><i className={`fa ${saveIcon}`} /><span className="label">{ saveText }</span></div>
                         </div> }
 
                         { this.props.showInvite && <div className="sign-control" onClick={this.showInviteModal}>
@@ -543,7 +552,8 @@ export const Controls = connect<{}, {}, ControlProps>(
         hasPrompt: !!Object.keys(state.documentViewer.prompts).length,
         hasRecipients: ((state.documentSets[ownProps.documentSetId] || {recipients: []}).recipients || []).length > 0,
         overlayDefaults: state.overlayDefaults,
-        nextInvalidOverlay: findNextInvalidOverlay(state.documentViewer, ownProps.documentId)
+        nextInvalidOverlay: findNextInvalidOverlay(state.documentViewer, ownProps.documentId),
+        saveStatus: state.documentViewer.saveStatus
     }),
     {
         setActiveSignControl,

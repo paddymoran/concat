@@ -6,6 +6,7 @@ const DEFAULT_STATE: Sign.DocumentViewer = {
     activeSignControl: Sign.ActiveSignControl.NONE,
     signRequestStatus: Sign.DownloadStatus.NotStarted,
     documents: {},
+    saveStatus: Sign.DownloadStatus.NotStarted
 };
 
 export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STATE, action: any): Sign.DocumentViewer {
@@ -17,40 +18,40 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
             return selectInitial(state, action);
 
         case Sign.Actions.Types.ADD_SIGNATURE_TO_DOCUMENT:
-            return {...state, signatures: addSignatureToDocument(state.signatures, action)};
+            return {...state, signatures: addSignatureToDocument(state.signatures, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.MOVE_SIGNATURE:
-            return {...state, signatures: moveSignature(state.signatures, action)};
+            return {...state, signatures: moveSignature(state.signatures, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.REMOVE_SIGNATURE_FROM_DOCUMENT:
-            return {...state, signatures: removeSignatureFromDocument(state.signatures, action)};
+            return {...state, signatures: removeSignatureFromDocument(state.signatures, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.ADD_DATE_TO_DOCUMENT:
-            return {...state, dates: addDateToDocument(state.dates, action)};
+            return {...state, dates: addDateToDocument(state.dates, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.MOVE_DATE:
-            return {...state, dates: moveDate(state.dates, action)};
+            return {...state, dates: moveDate(state.dates, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.REMOVE_DATE_FROM_DOCUMENT:
-            return {...state, dates: removeDateFromDocument(state.dates, action)};
+            return {...state, dates: removeDateFromDocument(state.dates, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.ADD_TEXT_TO_DOCUMENT:
-            return {...state, texts: addTextToDocument(state.texts, action)};
+            return {...state, texts: addTextToDocument(state.texts, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.MOVE_TEXT:
-            return {...state, texts: moveText(state.texts, action)};
+            return {...state, texts: moveText(state.texts, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.REMOVE_TEXT_FROM_DOCUMENT:
-            return {...state, texts: removeTextFromDocument(state.texts, action)};
+            return {...state, texts: removeTextFromDocument(state.texts, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.ADD_PROMPT_TO_DOCUMENT:
-            return {...state, prompts: addPromptToDocument(state.prompts, action)};
+            return {...state, prompts: addPromptToDocument(state.prompts, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.MOVE_PROMPT:
-            return {...state, prompts: movePrompt(state.prompts, action)};
+            return {...state, prompts: movePrompt(state.prompts, action), saveStatus: Sign.DownloadStatus.Stale};
 
         case Sign.Actions.Types.REMOVE_PROMPT_FROM_DOCUMENT:
-            return {...state, prompts: removePromptFromDocument(state.prompts, action)};
+            return {...state, prompts: removePromptFromDocument(state.prompts, action), saveStatus: Sign.DownloadStatus.Stale};
 
 
         case Sign.Actions.Types.ADD_OVERLAYS:
@@ -76,7 +77,16 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
             return setActiveSignButton(state, action);
 
         case Sign.Actions.Types.DEFINE_RECIPIENTS:
-            return {...state, prompts: removeMissingRecipients(state.prompts, action)}
+            return {...state, prompts: removeMissingRecipients(state.prompts, action), saveStatus: Sign.DownloadStatus.Stale}
+
+        case Sign.Actions.Types.SET_SAVE_STATUS:
+            if((action.payload.status === Sign.DownloadStatus.Complete || action.payload.status === Sign.DownloadStatus.Failed) &&
+               state.saveStatus === Sign.DownloadStatus.InProgress){
+                return {...state, saveStatus: action.payload.status}
+            }
+            if(action.payload.status === Sign.DownloadStatus.InProgress){
+                return {...state, saveStatus: Sign.DownloadStatus.InProgress}
+            }
 
         default:
             return state;

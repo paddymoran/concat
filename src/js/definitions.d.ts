@@ -165,6 +165,7 @@ declare namespace Sign {
         texts: DocumentTexts;
         prompts: DocumentPrompts;
         activeSignControl: ActiveSignControl;
+        saveStatus: DownloadStatus;
         documents?: {
             [documentId: string] : {
                 activePage: number;
@@ -440,6 +441,7 @@ declare namespace Sign.Actions {
         // Contacts
         REQUEST_CONTACTS = 'REQUEST_CONTACTS',
         SET_CONTACTS = 'SET_CONTACTS',
+        SET_SAVE_STATUS = 'SET_SAVE_STATUS'
     }
 
     interface ActionCreator<T> {
@@ -764,6 +766,11 @@ declare namespace Sign.Actions {
         contacts?: ContactList;
     }
 
+    interface SetSaveStatusPayload {
+        documentId: string;
+        status: DownloadStatus;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -836,6 +843,7 @@ declare namespace Sign.Actions {
     interface EmailDocument extends ActionCreator<EmailDocumentPayload> {}
 
     interface ToggleToSignShowComplete extends Action {}
+    interface SetSaveStatus extends ActionCreator<SetSaveStatusPayload> {}
 
     // Contacts
     interface RequestContacts extends Action {}

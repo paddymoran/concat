@@ -1,6 +1,6 @@
 import { all, takeEvery, put, call, select } from 'redux-saga/effects';
 import axios from 'axios';
-import { setSignRequestStatus, showResults, closeModal, showFailureModal } from '../actions';
+import { setSignRequestStatus, showResults, closeModal, showFailureModal, setSaveStatus } from '../actions';
 import { push } from 'react-router-redux';
 import { findSetForDocument, stringToCanvas } from '../utils';
 
@@ -121,14 +121,16 @@ function *saveDocumentViewSaga() {
         const prompts = remove({...documentView.prompts})
         const texts = remove({...documentView.texts})
         const dates = remove({...documentView.dates})
+        yield put(setSaveStatus({status: Sign.DownloadStatus.InProgress, documentId: action.payload.documentId}));
         const view = {
             signatures, prompts, texts, dates
         }
         try{
             const response = yield call(axios.post, `/api/save_view/${action.payload.documentId}`, {recipients, view});
+            yield put(setSaveStatus({status: Sign.DownloadStatus.Complete, documentId: action.payload.documentId}));
         }
         catch(e) {
-
+            yield put(setSaveStatus({status: Sign.DownloadStatus.Failed, documentId: action.payload.documentId}));
         }
 
     }

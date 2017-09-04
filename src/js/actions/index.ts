@@ -405,6 +405,12 @@ export function toggleToSignShowComplete(): Sign.Actions.ToggleToSignShowComplet
     };
 }
 
+export function setSaveStatus(payload: Sign.Actions.SetSaveStatusPayload): Sign.Actions.SetSaveStatus {
+    return {
+        type: Sign.Actions.Types.SET_SAVE_STATUS,
+        payload
+    };
+}
 /**
  * Contacts
  */

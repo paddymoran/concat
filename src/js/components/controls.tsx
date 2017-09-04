@@ -227,6 +227,31 @@ const DraggableAddPromptControl = DragSource(
     })
 )(AddPromptControl);
 
+interface ConditionalTooltipProps {
+    condition: boolean;
+    delay?: number;
+    tooltip: JSX.Element;
+}
+
+class ConditionalTooltip extends React.PureComponent<ConditionalTooltipProps> {
+    render() {
+        const delay = this.props.delay;
+        const { tooltip, children } = this.props;
+
+        if (this.props.condition) {
+            return (
+                <OverlayTrigger placement="bottom" overlay={tooltip} delayShow={delay}>
+                    <div style={{float:'left'}}>
+                        {children}
+                    </div>
+                </OverlayTrigger>
+            );
+        }
+
+        return <div>{children}</div>;
+    }
+}
+
 interface ControlProps {
     sign: () => void;
     send: () => void;
@@ -274,7 +299,7 @@ interface ConnectedControlProps extends ControlProps{
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
-    constructor(props: ConnectedControlProps){
+    constructor(props: ConnectedControlProps) {
         super(props);
         this.showInviteModal = this.showInviteModal.bind(this);
         this.sign = this.sign.bind(this);
@@ -285,65 +310,14 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         if (this.props.nextInvalidOverlay) {
             this.scrollTo(this.props.nextInvalidOverlay);
         }
-        else{
-            this.props.sign
+        else {
+            this.props.sign();
         }
     }
 
     nextPrompt() {
         const prompt = this.props.getNextPrompt();
         this.scrollTo(prompt.promptIndex);
-    }
-
-    signatureTooltip(children: JSX.Element) {
-        if (this.props.selectedSignatureId && !this.props.hasSignature) {
-            return this.tooltip(SignatureDragTooltip(), 750, children);
-        }
-        else if (!this.props.selectedSignatureId) {
-            return this.tooltip(SignatureTooltip(), 0, children);
-        }
-        return children;
-    }
-
-    initialTooltip(children: JSX.Element) {
-        if (this.props.selectedInitialId && !this.props.hasInitial) {
-            return this.tooltip(InitialDragTooltip(), 750, children);
-        }
-        else if (!this.props.selectedInitialId) {
-            return this.tooltip(InitialTooltip(), 0, children);
-        }
-        return children;
-    }
-
-    dateTooltip(children: JSX.Element) {
-        if (!this.props.hasDate) {
-            return this.tooltip(DateTooltip(), 0, children);
-        }
-        return children;
-    }
-
-    textTooltip(children: JSX.Element) {
-        if (!this.props.hasText) {
-            return this.tooltip(TextTooltip(), 0, children);
-        }
-        return children;
-    }
-
-    promptTooltip(children: JSX.Element) {
-        if (!this.props.hasPrompt) {
-            return this.tooltip(PromptTooltip(), 0, children);
-        }
-        return children;
-    }
-
-    tooltip(tooltip: JSX.Element, delay: number, children: JSX.Element) {
-        return (
-            <OverlayTrigger placement="bottom" overlay={tooltip} delayShow={delay}>
-                <div style={{float:'left'}}>
-                    { children }
-                </div>
-            </OverlayTrigger>
-        );
     }
 
     showInviteModal() {
@@ -380,60 +354,59 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
             [Sign.DownloadStatus.InProgress]: 'Saving',
         }[this.props.saveStatus] || 'Save Draft';
 
+        const isButtonActive = this.props.isButtonActive;
+
         return (
             <div className="controls" onClick={this.props.activateNone}>
                 <div className="container">
                     <div className="controls-left">
-                        {this.signatureTooltip(
+                        <ConditionalTooltip condition={!this.props.selectedSignatureId} delay={this.props.hasSignature ? 0 : 750} tooltip={this.props.hasSignature ? SignatureTooltip() : SignatureDragTooltip()}>
                             <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}  defaults={this.props.overlayDefaults.signature}>
                                 <div className="draggable">
                                     <SignatureButton
-                                        active={this.props.activeSignControl === Sign.SignControl.SIGNATURE}
+                                        active={this.props.isButtonActive[Sign.SignControl.SIGNATURE]}
                                         setActive={this.props.activateSignature} />
                                 </div>
                             </DraggableAddSignatureControl>
-                        )}
+                        </ConditionalTooltip>
 
-
-                        {this.initialTooltip(
+                        <ConditionalTooltip condition={!this.props.selectedInitialId} delay={this.props.hasInitial ? 0 : 750} tooltip={this.props.hasInitial ? InitialTooltip() : InitialDragTooltip()}>
                             <DraggableAddSignatureControl signatureId={this.props.selectedInitialId} defaults={this.props.overlayDefaults.signature}>
                                 <div className="draggable">
                                     <InitialButton
-                                        active={this.props.activeSignControl === Sign.SignControl.INITIAL}
+                                        active={this.props.isButtonActive[Sign.SignControl.INITIAL]}
                                         setActive={this.props.activateInitial} />
                                 </div>
                             </DraggableAddSignatureControl>
-                        )}
+                        </ConditionalTooltip>
 
-                        {this.dateTooltip(
+                        <ConditionalTooltip condition={!this.props.hasDate} tooltip={DateTooltip()}>
                             <DraggableAddDateControl defaults={this.props.overlayDefaults.date}>
                                 <div className="draggable">
                                     <DateButton
-                                        active={this.props.activeSignControl === Sign.SignControl.DATE}
+                                        active={this.props.isButtonActive[Sign.SignControl.DATE]}
                                         setActive={this.props.activateDate} />
                                 </div>
                             </DraggableAddDateControl>
-                        )}
-
-                        {this.textTooltip(
+                        </ConditionalTooltip>
+                        
+                        <ConditionalTooltip condition={!this.props.hasText} tooltip={TextTooltip()}>
                             <DraggableAddTextControl defaults={this.props.overlayDefaults.text}>
                                 <div className="draggable">
-                                    <TextButton
-                                        active={this.props.activeSignControl === Sign.SignControl.TEXT}
-                                        setActive={this.props.activateText} />
+                                    <TextButton active={this.props.isButtonActive[Sign.SignControl.TEXT]} setActive={this.props.activateText} />
                                 </div>
                             </DraggableAddTextControl>
-                        )}
+                        </ConditionalTooltip>
 
-                        {this.props.showPrompts && this.promptTooltip(
-                            <DraggableAddPromptControl defaults={this.props.overlayDefaults.prompt}>
-                                <div className="draggable">
-                                    <PromptButton
-                                        active={this.props.activeSignControl === Sign.SignControl.PROMPT}
-                                        setActive={this.props.activatePrompt} />
-                                </div>
-                            </DraggableAddPromptControl>
-                        )}
+                        {this.props.showPrompts &&
+                            <ConditionalTooltip condition={!this.props.hasPrompt} tooltip={PromptTooltip()}>
+                                <DraggableAddPromptControl defaults={this.props.overlayDefaults.prompt}>
+                                    <div className="draggable">
+                                        <PromptButton active={this.props.isButtonActive[Sign.SignControl.PROMPT]} setActive={this.props.activatePrompt} />
+                                    </div>
+                                </DraggableAddPromptControl>
+                            </ConditionalTooltip>
+                        }
                     </div>
 
                     <div className="controls-right">
@@ -548,6 +521,8 @@ export const Controls = connect<{}, {}, ControlProps>(
             activeSignControl,
             
             hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients,
+
+            isButtonActive,
 
             
             overlayDefaults: state.overlayDefaults,

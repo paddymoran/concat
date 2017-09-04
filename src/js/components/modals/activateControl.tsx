@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { closeModal, setActiveSignControl } from '../../actions';
+import { closeModal, setActiveSignControl, saveDocumentView } from '../../actions';
 import { connect } from 'react-redux';
 
 interface ActivateControlModalProps {
@@ -9,6 +9,7 @@ interface ActivateControlModalProps {
 
 interface UnconnectedActivateControlModalProps extends ActivateControlModalProps {
     closeModal: () => void;
+    saveDraft: () => void;
     setActiveSignControl: (payload: Sign.Actions.SetActiveSignControlPayload) => void;
 }
 
@@ -50,6 +51,11 @@ class UnconnectedActivateControlModal extends React.PureComponent<UnconnectedAct
         this.activateControl(Sign.ActiveSignControl.PROMPT);
     }
 
+    saveDraft() {
+        this.props.saveDraft();
+        this.props.closeModal();
+    }
+
     render() {
         return (
             <Modal backdrop="static" show={true} onHide={this.props.closeModal}>
@@ -62,8 +68,7 @@ class UnconnectedActivateControlModal extends React.PureComponent<UnconnectedAct
                     <Button block bsSize="lg" onClick={this.activateInitial}>Initial</Button>
                     <Button block bsSize="lg" onClick={this.activateDate}>Date</Button>
                     <Button block bsSize="lg" onClick={this.activateText}>Text</Button>
-                    <Button block bsSize="lg" onClick={this.activatePrompt}>Promt</Button>
-                    <Button block bsSize="lg" onClick={this.activateDate}>Request Signature</Button>
+                    <Button block bsSize="lg" onClick={this.activatePrompt}>Request Signature</Button>
                     <Button block bsSize="lg" onClick={this.activateDate}>Save Draft</Button>
                     <Button block bsSize="lg" onClick={this.activateDate}>Invite</Button>
                 </Modal.Body>
@@ -78,6 +83,7 @@ export default connect(
     }),
     {
         closeModal: () => closeModal({ modalName: Sign.ModalType.ACTIVATE_CONTROL }),
-        setActiveSignControl
+        setActiveSignControl,
+        saveDraft: saveDocumentView
     }
 )(UnconnectedActivateControlModal);

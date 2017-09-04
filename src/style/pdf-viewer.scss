@@ -95,7 +95,7 @@ $submit-control-hover-background: darken($submit-control-background, 8%);
         }
 
         @media(max-width: $screen-sm-max) {
-            &:not(.visible-mobile) {
+            &:not(.visible-mobile):not(.active) {
                 display: none;
             }
         }

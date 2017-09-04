@@ -286,7 +286,6 @@ interface ConnectedControlProps extends ControlProps{
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
-
     constructor(props: ConnectedControlProps){
         super(props);
         this.activateNone = this.activateNone.bind(this);
@@ -444,7 +443,6 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}  defaults={this.props.overlayDefaults.signature}>
                                 <div className="draggable">
                                     <SignatureButton
-                                        classNames="visible-mobile"
                                         active={this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE}
                                         setActive={this.activateSignature} />
                                 </div>

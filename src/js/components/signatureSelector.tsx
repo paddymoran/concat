@@ -157,7 +157,6 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
 }
 interface ModalButtonProps {
     active: boolean;
-    classNames?: string;
     setActive: () => void;
 }
 
@@ -192,7 +191,7 @@ class ModalButton extends React.PureComponent<ConnectedModalButtonProps> {
         }
 
         return (
-            <div className={`sign-control sign-control-with-dropdown ${this.props.classNames || ''}`} >
+            <div className={`sign-control sign-control-with-dropdown ${this.props.active ? 'active' : ''}`} >
                 <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.setActive}>
                     { this.props.selectedId && <div className="signature-image" style={style}></div> }
                     { !this.props.selectedId && <div className="signature-placeholder" >{ this.props.text }</div> }

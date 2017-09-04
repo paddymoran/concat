@@ -12,6 +12,11 @@ $sign-control-dropdown-width: $sign-control-height;
 $sign-control-width: 50px;
 $sign-control-wide-width: $sign-control-width * 1.6;
 
+$control-background: $gray-lighter;
+$control-hover-background: darken($control-background, 5%);
+$submit-control-background: $deep-red;
+$submit-control-hover-background: darken($submit-control-background, 8%);
+
 .controls{
     @include clearfix();
     width:100%;
@@ -19,6 +24,12 @@ $sign-control-wide-width: $sign-control-width * 1.6;
     background-color:$gray-lighter;
     height: $control-height;
     box-shadow: 0 4px 2px -2px $gray-light;
+
+    @media(max-width: $screen-sm-max) {
+        .container {
+            width: 100%;
+        }
+    }
 
     .controls-right {
         float: right;
@@ -67,12 +78,25 @@ $sign-control-wide-width: $sign-control-width * 1.6;
             }
         }
 
+        &:hover:not(.sign-control-with-dropdown) {
+            background-color: $control-hover-background;
+        }
+
+        &.submit-button:hover {
+            background-color: $submit-control-hover-background;
+        }
 
         .activate-sign-control, .sign-control-dropdown {
             float: left;
 
             &:hover {
-                background-color: darken($gray-lighter, 5%);
+                background-color: $control-hover-background;
+            }
+        }
+
+        @media(max-width: $screen-xs-max) {
+            &:not(.visible-mobile) {
+                display: none;
             }
         }
 
@@ -109,7 +133,7 @@ $sign-control-wide-width: $sign-control-width * 1.6;
     }
 
     .submit-button {
-        background-color: $deep-red;
+        background-color: $submit-control-background;
         border: 1px solid darken($deep-red, 8%);
         color: white;
     }

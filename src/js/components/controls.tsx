@@ -422,77 +422,100 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
             submitString = 'Sign & Send';
         }
         const nextPrompt = this.getNextPrompt();
+
+        
+
         return (
             <div className="controls" onClick={this.activateNone}>
                 <div className="container">
-
                     <div className="controls-left">
+                        {this.signatureTooltip(
+                            <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}  defaults={this.props.overlayDefaults.signature}>
+                                <div className="draggable">
+                                    <SignatureButton
+                                        classNames="visible-mobile"
+                                        active={this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE}
+                                        setActive={this.activateSignature} />
+                                </div>
+                            </DraggableAddSignatureControl>
+                        )}
 
 
-                        { this.signatureTooltip(<DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}  defaults={this.props.overlayDefaults.signature}>
-                            <div className="draggable">
-                                <SignatureButton
-                                    active={this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE}
-                                    setActive={this.activateSignature} />
-                            </div>
-                        </DraggableAddSignatureControl>) }
+                        {this.initialTooltip(
+                            <DraggableAddSignatureControl signatureId={this.props.selectedInitialId} defaults={this.props.overlayDefaults.signature}>
+                                <div className="draggable">
+                                    <InitialButton
+                                        active={this.props.activeSignControl === Sign.ActiveSignControl.INITIAL}
+                                        setActive={this.activateInitial} />
+                                </div>
+                            </DraggableAddSignatureControl>
+                        )}
 
+                        {this.dateTooltip(
+                            <DraggableAddDateControl defaults={this.props.overlayDefaults.date}>
+                                <div className="draggable">
+                                    <DateButton
+                                        active={this.props.activeSignControl === Sign.ActiveSignControl.DATE}
+                                        setActive={this.activateDate} />
+                                </div>
+                            </DraggableAddDateControl>
+                        )}
 
-                        { this.initialTooltip(<DraggableAddSignatureControl signatureId={this.props.selectedInitialId} defaults={this.props.overlayDefaults.signature}>
-                            <div className="draggable">
-                                <InitialButton
-                                    active={this.props.activeSignControl === Sign.ActiveSignControl.INITIAL}
-                                    setActive={this.activateInitial} />
-                            </div>
-                        </DraggableAddSignatureControl>) }
+                        {this.textTooltip(
+                            <DraggableAddTextControl defaults={this.props.overlayDefaults.text}>
+                                <div className="draggable">
+                                    <TextButton
+                                        active={this.props.activeSignControl === Sign.ActiveSignControl.TEXT}
+                                        setActive={this.activateText} />
+                                </div>
+                            </DraggableAddTextControl>
+                        )}
 
-                        { this.dateTooltip(<DraggableAddDateControl defaults={this.props.overlayDefaults.date}>
-                            <div className="draggable">
-                                <DateButton
-                                    active={this.props.activeSignControl === Sign.ActiveSignControl.DATE}
-                                    setActive={this.activateDate} />
-                            </div>
-                        </DraggableAddDateControl>) }
-
-                        { this.textTooltip(<DraggableAddTextControl defaults={this.props.overlayDefaults.text}>
-                            <div className="draggable">
-                                <TextButton
-                                    active={this.props.activeSignControl === Sign.ActiveSignControl.TEXT}
-                                    setActive={this.activateText} />
-                            </div>
-                        </DraggableAddTextControl> ) }
-
-                        { this.props.showPrompts && this.promptTooltip(<DraggableAddPromptControl defaults={this.props.overlayDefaults.prompt}>
-                            <div className="draggable">
-                                <PromptButton
-                                    active={this.props.activeSignControl === Sign.ActiveSignControl.PROMPT}
-                                    setActive={this.activatePrompt} />
-                            </div>
-                        </DraggableAddPromptControl> ) }
-
+                        {this.props.showPrompts && this.promptTooltip(
+                            <DraggableAddPromptControl defaults={this.props.overlayDefaults.prompt}>
+                                <div className="draggable">
+                                    <PromptButton
+                                        active={this.props.activeSignControl === Sign.ActiveSignControl.PROMPT}
+                                        setActive={this.activatePrompt} />
+                                </div>
+                            </DraggableAddPromptControl>
+                        )}
                     </div>
 
                     <div className="controls-right">
-                        { this.props.showSave && <div className="sign-control" onClick={this.props.save}>
-                            <div  className="button-text"><i className="fa fa-save" /><span className="label">Save Draft</span></div>
-                        </div> }
-
-                        { this.props.showInvite && <div className="sign-control" onClick={this.showInviteModal}>
-                            <div className="button-text"><i className="fa fa-users" /><span className="label">Invite</span></div>
-                        </div> }
-
-                        { nextPrompt &&  <div className="sign-control" onClick={this.nextPrompt}>
-                            <div  className="button-text"><i className="fa fa-forward" /><span className="label">Guide</span></div>
-                        </div> }
-
-                        {(this.props.showReject  && false) && <div className="sign-control" onClick={this.props.reject}>
-                            <div  className="button-text"><i className="fa fa-times" /><span className="label">Reject</span></div>
-                        </div>}
-
-                        <div className="submit-button sign-control" onClick={this.sign}>
-                            <div  className="button-text"><i className="fa fa-pencil" /><span className="label">{ submitString }</span></div>
-                        </div>
+                        <ControlButton label="Save Draft" iconName="save" onClick={this.props.save} visible={this.props.showSave} />
+                        <ControlButton label="Invite" iconName="users" onClick={this.showInviteModal} visible={this.props.showInvite} />
+                        <ControlButton label="Guide" iconName="forward" onClick={this.nextPrompt} visible={!!nextPrompt} />
+                        <ControlButton label="Reject" iconName="times" onClick={this.props.reject} visible={this.props.showReject && false} />
+                        <ControlButton label={submitString} iconName="pencil" classNames="submit-button visible-mobile" onClick={this.sign} />
                     </div>
+                </div>
+            </div>
+        );
+    }
+}
+
+interface ControlButtonProps {
+    label: string;
+    iconName: string;
+    classNames?: string;
+    visible?: boolean;
+    onClick: React.EventHandler<React.MouseEvent<HTMLDivElement>>;
+}
+
+class ControlButton extends React.PureComponent<ControlButtonProps> {
+    render() {
+        const visible = this.props.visible === undefined ? true : this.props.visible;
+        
+        if (!visible) {
+            return false;
+        }
+
+        return (
+            <div className={`sign-control ${this.props.classNames || ''}`} onClick={this.props.onClick}>
+                <div className="button-text">
+                    <i className={`fa fa-${this.props.iconName}`} />
+                    <span className="label">{this.props.label}</span>
                 </div>
             </div>
         );

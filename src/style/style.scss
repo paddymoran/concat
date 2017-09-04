@@ -19,9 +19,13 @@ $navbar-height: $header-height;
 $header-height-sml: $header-height;
 $navbar-margin-bottom: 0px;
  $btn-font-weight: 300;
-$grid-float-breakpoint: 1px;
-$grid-float-breakpoint-max: 1px;
 $zindex-popover: 1030;
+
+$btn-font-weight: 300;
+
+
+// Z indexes (so they are all in one place - and we don't hate ourselves when signatures appear over modals)
+$navbar-zindex: 150;
 
 
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
@@ -31,6 +35,7 @@ $zindex-popover: 1030;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/button-groups";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/forms";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/dropdowns";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/component-animations";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/modals";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/tables";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/close";
@@ -58,6 +63,8 @@ $fa-font-path: '~font-awesome/fonts';
 
 
 
+
+
 @import "header";
 @import "footer";
 @import "pdf-viewer";
@@ -77,20 +84,28 @@ $fa-font-path: '~font-awesome/fonts';
 @import "document-set-list";
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  /* Margin bottom by footer height */
-
-
-  font-family: -apple-system,Helvetica Neue,Roboto,Segoe UI,Lucida Grande,sans-serif;
-overflow-x:hidden;
+    /* Margin bottom by footer height */
+    font-family: -apple-system,Helvetica Neue,Roboto,Segoe UI,Lucida Grande,sans-serif;
+    overflow-x:hidden;
 }
 
 a {
     cursor: pointer;
+}
+
+.navbar-brand {
+    float: none;
+}
+
+.navbar-collapse.collapse.in {
+    position: relative;
+    background: $gray-darker;
+    z-index: $navbar-zindex;
 }
 
 .alert {

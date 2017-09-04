@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from 'react-router';
-import { Dropdown, MenuItem, Navbar, Nav} from 'react-bootstrap';
+import { Dropdown, MenuItem, Navbar, Nav, NavItem, NavDropdown} from 'react-bootstrap';
 
 export class AccountControls extends React.PureComponent {
     render() {
@@ -37,17 +37,20 @@ export default class Header extends React.PureComponent {
             <Navbar collapseOnSelect>
                 <Navbar.Header>
                     <Navbar.Brand>
+                        <Navbar.Toggle />
                         <Link to="/" >
                             <img src="/images/catalex-sign-sml.png" alt="CataLex Sign"/>
                         </Link>
                     </Navbar.Brand>
                 </Navbar.Header>
 
-                <ul className="nav navbar-nav navbar-right">
-                    <li ><Link to='/' activeClassName="active">Upload</Link></li>
-                    <li><Link to='/all' activeClassName="active">Documents</Link></li>
-                    <AccountControls />
-                </ul>
+                <Navbar.Collapse>
+                    <ul className="nav navbar-nav navbar-right">
+                        <li ><Link to='/' activeClassName="active">Upload</Link></li>
+                        <li><Link to='/all' activeClassName="active">Documents</Link></li>
+                        <AccountControls />
+                    </ul>
+                </Navbar.Collapse>
             </Navbar>
         );
     }

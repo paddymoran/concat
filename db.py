@@ -463,6 +463,20 @@ def get_document_set_owner(set_id):
         return dict(data)
 
 
+def get_document_status(doc_id):
+    """
+    Get the owner of a document set
+    """
+    database = get_db()
+    query = """
+        SELECT document_status(%(doc_id)s)
+    """
+
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, { 'doc_id': doc_id })
+        data = cursor.fetchone()
+        return dict(data)
+
 def get_document_set_recipients(set_id):
     """
     Get the recipients for a document set

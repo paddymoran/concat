@@ -18,13 +18,16 @@ $header-height: 50px;
 $navbar-height: $header-height;
 $header-height-sml: $header-height;
 $navbar-margin-bottom: 0px;
-$btn-font-weight: 300;
+ $btn-font-weight: 300;
+$zindex-popover: 1030;
 
+$btn-font-weight: 300;
 
 
 // Z indexes (so they are all in one place - and we don't hate ourselves when signatures appear over modals)
 $navbar-zindex: 150;
 $beta-ribbon-zindex: 10;
+
 
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/grid";

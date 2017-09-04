@@ -10,6 +10,7 @@ import Invite from './invite';
 import EmailDocument from './emailDocument';
 import RejectConfirmation from './rejectConfirmation';
 import NextDocument from './nextDocument';
+import ActivateControl from './activateControl';
 
 interface ModalsProps {
     showing: string;
@@ -22,7 +23,7 @@ class Modals extends React.PureComponent<ModalsProps>{
                 return <SignatureModal />
 
             case 'results':
-                return <ResultsModal  />
+                return <ResultsModal />
 
             case 'selectInitial':
                 return <InitialsModal />
@@ -47,6 +48,9 @@ class Modals extends React.PureComponent<ModalsProps>{
 
             case Sign.ModalType.NEXT_DOCUMENT:
                 return <NextDocument />
+
+            case Sign.ModalType.ACTIVATE_CONTROL:
+                return <ActivateControl />
 
             default:
                 return false;

@@ -5,8 +5,8 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { DateButton, TextButton, PromptButton } from './controlButtons';
 import * as Moment from 'moment';
 import { connect } from 'react-redux';
-import { OverlayTrigger,  Popover } from 'react-bootstrap';
-import { setActiveSignControl, showInviteModal, showRejectConfirmationModal } from '../actions';
+import { OverlayTrigger, Popover, Modal } from 'react-bootstrap';
+import { setActiveSignControl, showInviteModal, showRejectConfirmationModal, closeModal, showActivateControlModal } from '../actions';
 import { dateDefaults, textDefaults } from '../utils';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
@@ -264,6 +264,7 @@ interface ControlProps {
     documentId: string;
     requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
     requestPrompts?: Sign.DocumentPrompt[];
+    showActivateControlModal: () => void;
 }
 
 interface ConnectedControlProps extends ControlProps{
@@ -281,6 +282,7 @@ interface ConnectedControlProps extends ControlProps{
     overlayDefaults: Sign.OverlayDefaults;
     nextInvalidOverlay?: string;
     reject: () => void;
+    saveStatus: Sign.DownloadStatus;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -423,7 +425,15 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         }
         const nextPrompt = this.getNextPrompt();
 
-        
+        const canSubmit = hasSigned || hasRecipients;
+        const saveIcon = {
+            [Sign.DownloadStatus.InProgress]: 'fa-spin fa-spinner',
+            [Sign.DownloadStatus.Stale]: 'fa-save stale-save',
+            [Sign.DownloadStatus.Complete]: 'fa-save'
+        }[this.props.saveStatus] || 'fa-save';
+        const saveText = {
+            [Sign.DownloadStatus.Complete]: 'Saved'
+        }[this.props.saveStatus] || 'Save Draft';
 
         return (
             <div className="controls" onClick={this.activateNone}>
@@ -483,11 +493,12 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                     </div>
 
                     <div className="controls-right">
-                        <ControlButton label="Save Draft" iconName="save" onClick={this.props.save} visible={this.props.showSave} />
-                        <ControlButton label="Invite" iconName="users" onClick={this.showInviteModal} visible={this.props.showInvite} />
-                        <ControlButton label="Guide" iconName="forward" onClick={this.nextPrompt} visible={!!nextPrompt} />
-                        <ControlButton label="Reject" iconName="times" onClick={this.props.reject} visible={this.props.showReject && false} />
-                        <ControlButton label={submitString} iconName="pencil" classNames="submit-button visible-mobile" onClick={this.sign} />
+                        <ControlButton label="Select Control" iconName="fa-bars" classNames="visible-mobile visible-mobile-only" onClick={this.props.showActivateControlModal} />
+                        <ControlButton label={saveText} iconName={saveIcon} onClick={this.props.save} visible={this.props.showSave} />
+                        <ControlButton label="Invite" iconName="fa-users" onClick={this.showInviteModal} visible={this.props.showInvite} />
+                        <ControlButton label="Guide" iconName="fa-forward" onClick={this.nextPrompt} visible={!!nextPrompt} />
+                        <ControlButton label="Reject" iconName="fa-times" onClick={this.props.reject} visible={this.props.showReject && false} />
+                        <ControlButton label={submitString} iconName="fa-pencil" classNames={`submit-button visible-mobile ${canSubmit ? '' : 'submit-disabled'}`} onClick={this.sign} />
                     </div>
                 </div>
             </div>
@@ -514,7 +525,7 @@ class ControlButton extends React.PureComponent<ControlButtonProps> {
         return (
             <div className={`sign-control ${this.props.classNames || ''}`} onClick={this.props.onClick}>
                 <div className="button-text">
-                    <i className={`fa fa-${this.props.iconName}`} />
+                    <i className={`fa ${this.props.iconName}`} />
                     <span className="label">{this.props.label}</span>
                 </div>
             </div>
@@ -560,11 +571,13 @@ export const Controls = connect<{}, {}, ControlProps>(
         hasPrompt: !!Object.keys(state.documentViewer.prompts).length,
         hasRecipients: ((state.documentSets[ownProps.documentSetId] || {recipients: []}).recipients || []).length > 0,
         overlayDefaults: state.overlayDefaults,
-        nextInvalidOverlay: findNextInvalidOverlay(state.documentViewer, ownProps.documentId)
+        nextInvalidOverlay: findNextInvalidOverlay(state.documentViewer, ownProps.documentId),
+        saveStatus: state.documentViewer.saveStatus
     }),
     {
         setActiveSignControl,
         showInviteModal,
-        reject: showRejectConfirmationModal
+        reject: showRejectConfirmationModal,
+        showActivateControlModal
     }
 )(UnconnectedControls)

@@ -148,7 +148,6 @@ def invite_users(users, link, sender):
 def check_document_set_completion(document_set_id):
     if db.document_set_status(document_set_id)[0] == 'Complete':
         try:
-            args = request.get_json()
 
             user = db.get_document_set_owner(document_set_id)
             recipients = db.get_document_set_recipients(document_set_id)
@@ -171,7 +170,6 @@ def check_document_set_completion(document_set_id):
                 app.config.get('AUTH_SERVER') + '/mail/send',
                 data=params
             )
-
             return jsonify(response.json())
         except Exception as e:
             print(e)

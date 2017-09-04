@@ -16,6 +16,7 @@ import { generateUUID } from './uuid';
 import * as Calendar from 'react-widgets/lib/Calendar';
 import * as Popover from 'react-bootstrap/lib/Popover'
 import * as OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
+import { Overlay } from 'react-bootstrap';
 import * as Moment from 'moment';
 import { debounce, textDefaults, dateDefaults  } from '../utils';
 import * as Promise from 'bluebird';
@@ -198,12 +199,16 @@ const ConnectedTextControls = connect((state, ownProps: ControlProps) => ({
 })(TextControls)
 
 
-class PromptControls extends React.PureComponent<PromptControlProps> {
+class PromptControls extends React.PureComponent<PromptControlProps, {show: boolean}> {
     constructor(props: PromptControlProps){
         super(props);
         this.onChangeRecipient= this.onChangeRecipient.bind(this);
         this.onChangeType= this.onChangeType.bind(this);
+        this.show = this.show.bind(this);
+        this.hide = this.hide.bind(this);
+        this.state = {show: !props.prompt.value.recipientEmail}
     }
+
 
     onChangeRecipient(event : React.FormEvent<HTMLSelectElement>) {
         const value = event.currentTarget.value
@@ -228,11 +233,37 @@ class PromptControls extends React.PureComponent<PromptControlProps> {
 
     }
 
+    componentWillReceiveProps(newProps: PromptControlProps) {
+        if(!this.state.show && !newProps.prompt.value.recipientEmail){
+            this.show();
+        }
+    }
+
+    hide() {
+        if(this.props.prompt.value.recipientEmail){
+             this.setState({show: false});
+        }
+    }
+
+    show() {
+       this.setState({show: true});
+    }
+
     render(){
+        const sharedProps = {
+          show: this.state.show,
+          container: window.document.body,
+          rootClose: true,
+          onHide: this.hide,
+          target: () => findDOMNode(this.refs.target),
+          shouldUpdatePosition: true
+        };
+
         return <div className="positionable-controls">
-             <OverlayTrigger  trigger="click" rootClose placement="top" overlay={
+            <button className="button-no-style "  ref="target" onClick={this.show}><span className="fa fa-edit"/></button>
+             <Overlay placement="top" {...sharedProps}>
                     <Popover id={`popover-for-${this.props.index}`} className="prompt-controls">
-                        <div className="form-group">
+                        <div className={`${"form-group " + (this.props.prompt.value.recipientEmail ? '' : 'has-error') }`}>
                             <label>Who</label>
                             <select className="form-control" value={this.props.prompt.value.recipientEmail} onChange={this.onChangeRecipient}>
                                 <option value="">Please select recipient</option>
@@ -249,9 +280,7 @@ class PromptControls extends React.PureComponent<PromptControlProps> {
                             </select>
                         </div>
                     </Popover>
-                 }>
-                <button className="button-no-style "><span className="fa fa-edit"/></button>
-            </OverlayTrigger>
+            </Overlay>
             <button className="button-no-style" onClick={this.props.onDelete}><span className="fa fa-trash-o"/></button>
         </div>
     }

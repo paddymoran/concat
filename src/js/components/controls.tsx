@@ -10,40 +10,16 @@ import { setActiveSignControl, showInviteModal, showRejectConfirmationModal, clo
 import { dateDefaults, textDefaults } from '../utils';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
-const SignatureTooltip = () => {
-    return <Popover id="signature-tooltip" title="Signatures">Click to create a new signature.</Popover>;
-}
-
-const SignatureDragTooltip = () => {
-    return <Popover id="signature-tooltip" title="Signatures">Click to toggle Signature Mode, or drag the signature onto the page.</Popover>;
-}
-
-const InitialTooltip = () => {
-    return <Popover id="signature-tooltip" title="Initials">Click to create a new initial.</Popover>;
-}
-
-const InitialDragTooltip = () => {
-    return <Popover id="signature-tooltip" title="Initials">Click to toggle Initial Mode, or drag the initial onto the page.</Popover>;
-}
-
-
-const DateTooltip = () => {
-    return <Popover id="signature-tooltip" title="Dates">Click to toggle Date Mode, or drag the button onto the page.  You can edit the date and format once it was been placed.</Popover>;
-}
-
-
-const TextTooltip = () => {
-    return <Popover id="signature-tooltip" title="Textbox">Click to toggle Textbox Mode, or drag the button onto the page.  You can edit the text once it was been placed.</Popover>;
-}
-
-const PromptTooltip = () => {
-    return <Popover id="signature-tooltip" title="Signature Request">Click to toggle Sign Here Mode, or drag the button onto the page.  You can edit who is prompt is intended for, and what they must enter, once it was been placed.</Popover>;
-}
-
-
-interface SignatureDragSourceProps {
-    signatureId: number;
-}
+/**
+ * Control tooltips
+ */
+const SignatureTooltip = () => <Popover id="signature-tooltip" title="Signatures">Click to create a new signature.</Popover>;
+const SignatureDragTooltip = () => <Popover id="signature-tooltip" title="Signatures">Click to toggle Signature Mode, or drag the signature onto the page.</Popover>;
+const InitialTooltip = () => <Popover id="signature-tooltip" title="Initials">Click to create a new initial.</Popover>;
+const InitialDragTooltip = () => <Popover id="signature-tooltip" title="Initials">Click to toggle Initial Mode, or drag the initial onto the page.</Popover>;
+const DateTooltip = () => <Popover id="signature-tooltip" title="Dates">Click to toggle Date Mode, or drag the button onto the page.  You can edit the date and format once it was been placed.</Popover>;
+const TextTooltip = () => <Popover id="signature-tooltip" title="Textbox">Click to toggle Textbox Mode, or drag the button onto the page.  You can edit the text once it was been placed.</Popover>;
+const PromptTooltip = () => <Popover id="signature-tooltip" title="Signature Request">Click to toggle Sign Here Mode, or drag the button onto the page.  You can edit who is prompt is intended for, and what they must enter, once it was been placed.</Popover>;
 
 interface DragProps {
     connectDragSource?: Function;
@@ -271,7 +247,7 @@ interface ConnectedControlProps extends ControlProps{
     selectedSignatureId?: number;
     selectedInitialId?: number;
     setActiveSignControl: (payload: Sign.Actions.SetActiveSignControlPayload) => void;
-    activeSignControl: Sign.ActiveSignControl;
+    activeSignControl: Sign.SignControl;
     hasSignature: boolean;
     hasInitial: boolean;
     hasDate: boolean;
@@ -283,122 +259,91 @@ interface ConnectedControlProps extends ControlProps{
     nextInvalidOverlay?: string;
     reject: () => void;
     saveStatus: Sign.DownloadStatus;
+
+    activateNone: () => void;
+    activateSignature: () => void;
+    activateInitial: () => void;
+    activateDate: () => void;
+    activateText: () => void;
+    activatePrompt: () => void;
+
+    sign: () => void;
+    getNextPrompt: () => Sign.DocumentPrompt;
+
+    isButtonActive: { [key: string]: boolean };
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
     constructor(props: ConnectedControlProps){
         super(props);
-        this.activateNone = this.activateNone.bind(this);
-        this.activateSignature = this.activateSignature.bind(this);
-        this.activateInitial = this.activateInitial.bind(this);
-        this.activateDate = this.activateDate.bind(this);
-        this.activateText = this.activateText.bind(this);
-        this.activatePrompt = this.activatePrompt.bind(this);
         this.showInviteModal = this.showInviteModal.bind(this);
         this.sign = this.sign.bind(this);
-        this.nextPrompt= this.nextPrompt.bind(this);
-    }
-
-    activateNone() {
-        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.NONE})
-    }
-
-    activateSignature() {
-        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.SIGNATURE})
-    }
-
-    activateInitial() {
-        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.INITIAL})
-    }
-
-    activateDate() {
-        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.DATE})
-    }
-
-    activateText() {
-        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.TEXT})
-    }
-
-    activatePrompt() {
-        this.props.setActiveSignControl({activeSignControl: Sign.ActiveSignControl.PROMPT})
+        this.nextPrompt = this.nextPrompt.bind(this);
     }
 
     sign() {
-        if(this.props.nextInvalidOverlay){
+        if (this.props.nextInvalidOverlay) {
             this.scrollTo(this.props.nextInvalidOverlay);
         }
         else{
-            const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients }  = this.props;
-            const hasSigned = ( hasSignature || hasInitial || hasDate || hasText);
-            const selfSign = (hasSigned && !hasPrompt && !hasRecipients) || this.props.requestedSignatureInfo; ;
-            const otherSign = !hasSigned && hasRecipients;
-            const mixSign = hasSigned && hasRecipients;
-
-            if(selfSign){
-                this.props.sign();
-            }
-            else{
-                this.props.send();
-            }
+            this.props.sign
         }
-    }
-
-    getNextPrompt() {
-        return this.props.requestPrompts && this.props.requestPrompts[0];
     }
 
     nextPrompt() {
-        const prompt = this.getNextPrompt();
+        const prompt = this.props.getNextPrompt();
         this.scrollTo(prompt.promptIndex);
     }
 
-    signatureTooltip(children: JSX.Element){
-        if(this.props.selectedSignatureId && !this.props.hasSignature){
+    signatureTooltip(children: JSX.Element) {
+        if (this.props.selectedSignatureId && !this.props.hasSignature) {
             return this.tooltip(SignatureDragTooltip(), 750, children);
         }
-        else if(!this.props.selectedSignatureId){
+        else if (!this.props.selectedSignatureId) {
             return this.tooltip(SignatureTooltip(), 0, children);
         }
         return children;
     }
 
-    initialTooltip(children: JSX.Element){
-        if(this.props.selectedInitialId && !this.props.hasInitial){
+    initialTooltip(children: JSX.Element) {
+        if (this.props.selectedInitialId && !this.props.hasInitial) {
             return this.tooltip(InitialDragTooltip(), 750, children);
         }
-        else if(!this.props.selectedInitialId){
+        else if (!this.props.selectedInitialId) {
             return this.tooltip(InitialTooltip(), 0, children);
         }
         return children;
     }
 
-    dateTooltip(children: JSX.Element){
-        if(!this.props.hasDate){
+    dateTooltip(children: JSX.Element) {
+        if (!this.props.hasDate) {
             return this.tooltip(DateTooltip(), 0, children);
         }
         return children;
     }
 
-    textTooltip(children: JSX.Element){
-        if(!this.props.hasText){
+    textTooltip(children: JSX.Element) {
+        if (!this.props.hasText) {
             return this.tooltip(TextTooltip(), 0, children);
         }
         return children;
     }
 
-    promptTooltip(children: JSX.Element){
-        if(!this.props.hasPrompt){
+    promptTooltip(children: JSX.Element) {
+        if (!this.props.hasPrompt) {
             return this.tooltip(PromptTooltip(), 0, children);
         }
         return children;
     }
 
-    tooltip(tooltip: JSX.Element, delay:number, children: JSX.Element) {
-        return <OverlayTrigger placement="bottom" overlay={tooltip} delayShow={delay}>
-            <div style={{float:'left'}}>
-                { children }
-             </div>
-        </OverlayTrigger>
+    tooltip(tooltip: JSX.Element, delay: number, children: JSX.Element) {
+        return (
+            <OverlayTrigger placement="bottom" overlay={tooltip} delayShow={delay}>
+                <div style={{float:'left'}}>
+                    { children }
+                </div>
+            </OverlayTrigger>
+        );
     }
 
     showInviteModal() {
@@ -422,7 +367,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         else if(mixSign){
             submitString = 'Sign & Send';
         }
-        const nextPrompt = this.getNextPrompt();
+        const nextPrompt = this.props.getNextPrompt();
 
         const canSubmit = hasSigned || hasRecipients;
         const saveIcon = {
@@ -436,15 +381,15 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         }[this.props.saveStatus] || 'Save Draft';
 
         return (
-            <div className="controls" onClick={this.activateNone}>
+            <div className="controls" onClick={this.props.activateNone}>
                 <div className="container">
                     <div className="controls-left">
                         {this.signatureTooltip(
                             <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}  defaults={this.props.overlayDefaults.signature}>
                                 <div className="draggable">
                                     <SignatureButton
-                                        active={this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE}
-                                        setActive={this.activateSignature} />
+                                        active={this.props.activeSignControl === Sign.SignControl.SIGNATURE}
+                                        setActive={this.props.activateSignature} />
                                 </div>
                             </DraggableAddSignatureControl>
                         )}
@@ -454,8 +399,8 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <DraggableAddSignatureControl signatureId={this.props.selectedInitialId} defaults={this.props.overlayDefaults.signature}>
                                 <div className="draggable">
                                     <InitialButton
-                                        active={this.props.activeSignControl === Sign.ActiveSignControl.INITIAL}
-                                        setActive={this.activateInitial} />
+                                        active={this.props.activeSignControl === Sign.SignControl.INITIAL}
+                                        setActive={this.props.activateInitial} />
                                 </div>
                             </DraggableAddSignatureControl>
                         )}
@@ -464,8 +409,8 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <DraggableAddDateControl defaults={this.props.overlayDefaults.date}>
                                 <div className="draggable">
                                     <DateButton
-                                        active={this.props.activeSignControl === Sign.ActiveSignControl.DATE}
-                                        setActive={this.activateDate} />
+                                        active={this.props.activeSignControl === Sign.SignControl.DATE}
+                                        setActive={this.props.activateDate} />
                                 </div>
                             </DraggableAddDateControl>
                         )}
@@ -474,8 +419,8 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <DraggableAddTextControl defaults={this.props.overlayDefaults.text}>
                                 <div className="draggable">
                                     <TextButton
-                                        active={this.props.activeSignControl === Sign.ActiveSignControl.TEXT}
-                                        setActive={this.activateText} />
+                                        active={this.props.activeSignControl === Sign.SignControl.TEXT}
+                                        setActive={this.props.activateText} />
                                 </div>
                             </DraggableAddTextControl>
                         )}
@@ -484,8 +429,8 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             <DraggableAddPromptControl defaults={this.props.overlayDefaults.prompt}>
                                 <div className="draggable">
                                     <PromptButton
-                                        active={this.props.activeSignControl === Sign.ActiveSignControl.PROMPT}
-                                        setActive={this.activatePrompt} />
+                                        active={this.props.activeSignControl === Sign.SignControl.PROMPT}
+                                        setActive={this.props.activatePrompt} />
                                 </div>
                             </DraggableAddPromptControl>
                         )}
@@ -559,24 +504,70 @@ function findNextInvalidOverlay(documentViewer: Sign.DocumentViewer, documentId:
 
 
 export const Controls = connect<{}, {}, ControlProps>(
-    (state: Sign.State, ownProps: any) => ({
-        selectedSignatureId: state.documentViewer.selectedSignatureId,
-        selectedInitialId: state.documentViewer.selectedInitialId,
-        activeSignControl: state.documentViewer.activeSignControl,
-        hasSignature: !!Object.keys(state.documentViewer.signatures).length,
-        hasInitial: !!Object.keys(state.documentViewer.signatures).length,
-        hasDate: !!Object.keys(state.documentViewer.dates).length,
-        hasText: !!Object.keys(state.documentViewer.texts).length,
-        hasPrompt: !!Object.keys(state.documentViewer.prompts).length,
-        hasRecipients: ((state.documentSets[ownProps.documentSetId] || {recipients: []}).recipients || []).length > 0,
-        overlayDefaults: state.overlayDefaults,
-        nextInvalidOverlay: findNextInvalidOverlay(state.documentViewer, ownProps.documentId),
-        saveStatus: state.documentViewer.saveStatus
-    }),
+    (state: Sign.State, ownProps: ControlProps) => {
+        const nextInvalidOverlay = findNextInvalidOverlay(state.documentViewer, ownProps.documentId);
+
+        const activeSignControl = state.documentViewer.activeSignControl;
+
+        const hasSignature = !!Object.keys(state.documentViewer.signatures).length;
+        const hasInitial = !!Object.keys(state.documentViewer.signatures).length;
+        const hasDate = !!Object.keys(state.documentViewer.dates).length;
+        const hasText = !!Object.keys(state.documentViewer.texts).length;
+        const hasPrompt = !!Object.keys(state.documentViewer.prompts).length;
+        const hasRecipients = ((state.documentSets[ownProps.documentSetId] || {recipients: []}).recipients || []).length > 0;
+
+        function sign() {
+            const hasSigned = ( hasSignature || hasInitial || hasDate || hasText);
+            const selfSign = (hasSigned && !hasPrompt && !hasRecipients) || ownProps.requestedSignatureInfo; ;
+            const otherSign = !hasSigned && hasRecipients;
+            const mixSign = hasSigned && hasRecipients;
+
+            if (selfSign) {
+                ownProps.sign();
+            }
+            else {
+                ownProps.send();
+            }
+        }
+
+        function getNextPrompt() {
+            return ownProps.requestPrompts && ownProps.requestPrompts[0];
+        }
+
+
+        const isButtonActive = {
+            [Sign.SignControl.SIGNATURE]: activeSignControl === Sign.SignControl.SIGNATURE,
+            [Sign.SignControl.INITIAL]: activeSignControl === Sign.SignControl.INITIAL,
+            [Sign.SignControl.DATE]: activeSignControl === Sign.SignControl.DATE,
+            [Sign.SignControl.TEXT]: activeSignControl === Sign.SignControl.TEXT,
+        }
+
+        return {
+            selectedSignatureId: state.documentViewer.selectedSignatureId,
+            selectedInitialId: state.documentViewer.selectedInitialId,
+            activeSignControl,
+            
+            hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients,
+
+            
+            overlayDefaults: state.overlayDefaults,
+            nextInvalidOverlay,
+            saveStatus: state.documentViewer.saveStatus,
+
+            sign, getNextPrompt
+        }
+    },
     {
         setActiveSignControl,
         showInviteModal,
         reject: showRejectConfirmationModal,
-        showActivateControlModal
+        showActivateControlModal,
+
+        activateNone: () => setActiveSignControl({ activeSignControl: Sign.SignControl.NONE }),
+        activateSignature: () => setActiveSignControl({ activeSignControl: Sign.SignControl.SIGNATURE }),
+        activateInitial: () => setActiveSignControl({ activeSignControl: Sign.SignControl.INITIAL }),
+        activateDate: () => setActiveSignControl({ activeSignControl: Sign.SignControl.DATE }),
+        activateText: () => setActiveSignControl({ activeSignControl: Sign.SignControl.TEXT }),
+        activatePrompt: () => setActiveSignControl({ activeSignControl: Sign.SignControl.PROMPT }),
     }
 )(UnconnectedControls)

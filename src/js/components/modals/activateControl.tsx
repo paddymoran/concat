@@ -26,29 +26,29 @@ class UnconnectedActivateControlModal extends React.PureComponent<UnconnectedAct
         this.activatePrompt = this.activatePrompt.bind(this);
     }
 
-    activateControl(activeSignControl: Sign.ActiveSignControl) {
+    activateControl(activeSignControl: Sign.SignControl) {
         this.props.setActiveSignControl({ activeSignControl });
         this.props.closeModal();
     }
 
     activateSignature() {
-        this.activateControl(Sign.ActiveSignControl.SIGNATURE);
+        this.activateControl(Sign.SignControl.SIGNATURE);
     }
 
     activateInitial() {
-        this.activateControl(Sign.ActiveSignControl.INITIAL);
+        this.activateControl(Sign.SignControl.INITIAL);
     }
 
     activateDate() {
-        this.activateControl(Sign.ActiveSignControl.DATE);
+        this.activateControl(Sign.SignControl.DATE);
     }
 
     activateText() {
-        this.activateControl(Sign.ActiveSignControl.TEXT);
+        this.activateControl(Sign.SignControl.TEXT);
     }
 
     activatePrompt() {
-        this.activateControl(Sign.ActiveSignControl.PROMPT);
+        this.activateControl(Sign.SignControl.PROMPT);
     }
 
     saveDraft() {

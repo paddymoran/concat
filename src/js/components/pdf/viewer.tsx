@@ -346,7 +346,7 @@ interface OverlayPageWrapperProps extends UnconnectedOverlayPageWrapperProps{
     connectDropTarget?: Function;
     isOver?: boolean;
     containerWidth: number;
-    activeSignControl: Sign.ActiveSignControl;
+    activeSignControl: Sign.SignControl;
     overlayDefaults: Sign.OverlayDefaults;
     recipients: Sign.Recipients;
 }
@@ -362,7 +362,7 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
 
     addSelected(e: React.MouseEvent<HTMLElement>) {
 
-        if (this.props.activeSignControl === Sign.ActiveSignControl.NONE) {
+        if (this.props.activeSignControl === Sign.SignControl.NONE) {
             return;
         }
         const target = e.target as HTMLElement;
@@ -374,9 +374,9 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
             return  generateUUID()
                 .then((id) => {
                     switch(this.props.activeSignControl){
-                        case Sign.ActiveSignControl.SIGNATURE:
-                        case Sign.ActiveSignControl.INITIAL:
-                            const signatureId = this.props.activeSignControl === Sign.ActiveSignControl.SIGNATURE ? selectedSignatureId : selectedInitialId;
+                        case Sign.SignControl.SIGNATURE:
+                        case Sign.SignControl.INITIAL:
+                            const signatureId = this.props.activeSignControl === Sign.SignControl.SIGNATURE ? selectedSignatureId : selectedInitialId;
                             return imageRatio(signatureUrl(signatureId))
                                 .then((xyRatio: number) => {
                                     const width = Sign.DefaultSignatureSize.WIDTH_RATIO * containerWidth;
@@ -390,7 +390,7 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                                         ...boundPositioning({width, height, posX, posY, pageBounds, viewport, containerWidth})
                                     });
                                 })
-                        case Sign.ActiveSignControl.DATE:
+                        case Sign.SignControl.DATE:
                             {
                                 let { value, timestamp, format } = dateDefaults();
                                 if(this.props.overlayDefaults.date){
@@ -418,7 +418,7 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                                      ...boundPositioning({width, height, posX, posY, pageBounds, viewport, containerWidth})
                                 });
                             }
-                        case Sign.ActiveSignControl.TEXT:
+                        case Sign.SignControl.TEXT:
                             {
                                 let { value } = textDefaults();
                                 if(this.props.overlayDefaults.text){
@@ -438,7 +438,7 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
                                      ...boundPositioning({width, height, posX, posY, pageBounds, viewport, containerWidth})
                                 });
                             }
-                        case Sign.ActiveSignControl.PROMPT:
+                        case Sign.SignControl.PROMPT:
                             {
                                 let value = {type: 'signature'};
                                 if(this.props.overlayDefaults.prompt){

@@ -147,7 +147,7 @@ declare namespace Sign {
         [key: string]: DocumentPrompt
     }
 
-    const enum ActiveSignControl {
+    const enum SignControl {
         NONE,
         SIGNATURE,
         INITIAL,
@@ -164,7 +164,7 @@ declare namespace Sign {
         dates: DocumentDates;
         texts: DocumentTexts;
         prompts: DocumentPrompts;
-        activeSignControl: ActiveSignControl;
+        activeSignControl: SignControl;
         saveStatus: DownloadStatus;
         documents?: {
             [documentId: string] : {
@@ -719,7 +719,7 @@ declare namespace Sign.Actions {
     }
 
     interface SetActiveSignControlPayload {
-        activeSignControl: Sign.ActiveSignControl;
+        activeSignControl: Sign.SignControl;
     }
 
     interface SetInviteSignatoriesPayload {

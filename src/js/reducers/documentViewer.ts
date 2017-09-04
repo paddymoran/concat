@@ -3,7 +3,7 @@ const DEFAULT_STATE: Sign.DocumentViewer = {
     dates: {},
     texts: {},
     prompts: {},
-    activeSignControl: Sign.ActiveSignControl.NONE,
+    activeSignControl: Sign.SignControl.NONE,
     signRequestStatus: Sign.DownloadStatus.NotStarted,
     documents: {},
     saveStatus: Sign.DownloadStatus.NotStarted
@@ -98,7 +98,7 @@ function setActiveSignButton(state: Sign.DocumentViewer, action: Sign.Actions.Se
     const newActive = action.payload.activeSignControl;
     return {
         ...state,
-        activeSignControl: newActive === currentActive ? Sign.ActiveSignControl.NONE : newActive
+        activeSignControl: newActive === currentActive ? Sign.SignControl.NONE : newActive
     };
 }
 

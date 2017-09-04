@@ -144,8 +144,7 @@ $submit-control-hover-background: darken($submit-control-background, 8%);
         color: white;
     }
     .submit-button.submit-disabled {
-        background-color: lighten($deep-red, 50%);
-        border: 1px solid lighten($deep-red, 30%);
+        opacity: 0.65;
         cursor: not-allowed;
     }
 

@@ -427,12 +427,13 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
 
         const canSubmit = hasSigned || hasRecipients;
         const saveIcon = {
-            [Sign.DownloadStatus.InProgress]: 'fa-spin fa-spinner',
-            [Sign.DownloadStatus.Stale]: 'fa-save stale-save',
+            [Sign.DownloadStatus.InProgress]: 'fa-spin fa-spinner fa-3x fa-fw',
+            [Sign.DownloadStatus.Stale]: 'stale-save fa-save',
             [Sign.DownloadStatus.Complete]: 'fa-save'
         }[this.props.saveStatus] || 'fa-save';
         const saveText = {
-            [Sign.DownloadStatus.Complete]: 'Saved'
+            [Sign.DownloadStatus.Complete]: 'Saved',
+            [Sign.DownloadStatus.InProgress]: 'Saving',
         }[this.props.saveStatus] || 'Save Draft';
 
         return (

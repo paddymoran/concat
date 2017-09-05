@@ -170,6 +170,7 @@ declare namespace Sign {
         documents?: {
             [documentId: string] : {
                 activePage: number;
+                completed: boolean;
             }
         }
     }

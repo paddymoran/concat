@@ -147,7 +147,7 @@ declare namespace Sign {
         [key: string]: DocumentPrompt
     }
 
-    const enum ActiveSignControl {
+    const enum SignControl {
         NONE,
         SIGNATURE,
         INITIAL,
@@ -164,7 +164,7 @@ declare namespace Sign {
         dates: DocumentDates;
         texts: DocumentTexts;
         prompts: DocumentPrompts;
-        activeSignControl: ActiveSignControl;
+        activeSignControl: SignControl;
         saveStatus: DownloadStatus;
         documents?: {
             [documentId: string] : {
@@ -330,6 +330,7 @@ declare namespace Sign {
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
         REJECT_CONFIRMATION = 'REJECT_CONFIRMATION',
         NEXT_DOCUMENT = 'NEXT_DOCUMENT',
+        ACTIVATE_CONTROL = 'ACTIVATE_CONTROL',
     }
 
     interface SignatureRequest {
@@ -421,8 +422,9 @@ declare namespace Sign.Actions {
         SET_ACTIVE_PAGE = 'SET_ACTIVE_PAGE',
 
         SHOW_RESULTS = 'SHOW_RESULTS',
-        CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
 
+        // Modals
+        CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
         UPDATE_MODAL_DATA = 'UPDATE_MODAL_DATA',
         SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
         SHOW_SUBMIT_CONFIRMATION_MODAL = 'SHOW_SUBMIT_CONFIRMATION_MODAL',
@@ -430,6 +432,7 @@ declare namespace Sign.Actions {
         SHOW_INVITE_MODAL = 'SHOW_INVITE_MODAL',
         SHOW_EMAIL_DOCUMENT_MODAL = 'SHOW_EMAIL_DOCUMENT_MODAL',
         SHOW_REJECT_CONFIRMATION_MODAL = 'SHOW_REJECT_CONFIRMATION_MODAL',
+        SHOW_ACTIVATE_CONTROL_MODAL = 'SHOW_ACTIVATE_CONTROL_MODAL',
 
         UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
 
@@ -729,7 +732,7 @@ declare namespace Sign.Actions {
     }
 
     interface SetActiveSignControlPayload {
-        activeSignControl: Sign.ActiveSignControl;
+        activeSignControl: Sign.SignControl;
     }
 
     interface SetInviteSignatoriesPayload {
@@ -838,6 +841,7 @@ declare namespace Sign.Actions {
 
     interface ShowResults extends ActionCreator<ShowResultsPayload> {}
 
+    // Modals
     interface CloseModal extends ActionCreator<CloseModalPayload> {}
     interface UpdateModalData extends ActionCreator<UpdateModalDataPayload> {}
     interface ShowInitialSelectionModal extends Action {}
@@ -847,6 +851,7 @@ declare namespace Sign.Actions {
     interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
     interface ShowEmailDocumentModal extends ActionCreator<ShowEmailDocumentModalPayload> {}
     interface ShowRejectConfirmationModal extends ActionCreator<ShowRejectConfirmationModalPayload> {}
+    interface ShowActivateControlModal extends Action {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}

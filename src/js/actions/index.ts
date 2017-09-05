@@ -427,6 +427,7 @@ export function updateContacts(payload: Sign.Actions.UpdateContactsPayload): Sig
     };
 }
 
+
 export function requestUsage(): Sign.Actions.RequestUsage {
     return {
         type: Sign.Actions.Types.REQUEST_USAGE
@@ -439,3 +440,8 @@ export function updateUsage(payload: Sign.Actions.UpdateUsagePayload): Sign.Acti
         payload
     }
 }
+
+export function showActivateControlModal(): Sign.Actions.ShowActivateControlModal {
+    return { type: Sign.Actions.Types.SHOW_ACTIVATE_CONTROL_MODAL };
+}
+

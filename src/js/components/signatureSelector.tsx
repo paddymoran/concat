@@ -191,8 +191,7 @@ class ModalButton extends React.PureComponent<ConnectedModalButtonProps> {
         }
 
         return (
-
-            <div className="sign-control sign-control-with-dropdown" >
+            <div className={`sign-control sign-control-with-dropdown ${this.props.active ? 'active' : ''}`} >
                 <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.setActive}>
                     { this.props.selectedId && <div className="signature-image" style={style}></div> }
                     { !this.props.selectedId && <div className="signature-placeholder" >{ this.props.text }</div> }
@@ -202,7 +201,6 @@ class ModalButton extends React.PureComponent<ConnectedModalButtonProps> {
                     <i className="fa fa-caret-down" />
                 </div>
             </div>
-
         );
     }
 }

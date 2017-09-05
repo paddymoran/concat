@@ -52,7 +52,7 @@ export class PromptButton extends React.PureComponent<ControlButtonProps> {
 class ControlButton extends React.PureComponent<any> {
     render() {
         return (
-            <div className="sign-control">
+            <div className={`sign-control ${this.props.active ? 'active' : ''}`}>
                 <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.props.setActive}>
                 <div className="button-text"><i className={`fa fa-${this.props.iconName}`} /> { this.props.showLabel && this.props.label }</div>
                 </div>

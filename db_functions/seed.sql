@@ -387,7 +387,8 @@ CREATE TABLE users (
     name text,
     email text,
     shadow boolean DEFAULT false,
-    created_at timestamp without time zone DEFAULT now()
+    created_at timestamp without time zone DEFAULT now(),
+    subscribed boolean DEFAULT false
 );
 
 

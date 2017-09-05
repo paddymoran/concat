@@ -426,3 +426,16 @@ export function updateContacts(payload: Sign.Actions.UpdateContactsPayload): Sig
         payload
     };
 }
+
+export function requestUsage(): Sign.Actions.RequestUsage {
+    return {
+        type: Sign.Actions.Types.REQUEST_USAGE
+    }
+}
+
+export function updateUsage(payload: Sign.Actions.UpdateUsagePayload): Sign.Actions.UpdateUsage {
+    return {
+        type: Sign.Actions.Types.UPDATE_USAGE,
+        payload
+    }
+}

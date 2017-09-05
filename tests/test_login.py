@@ -10,11 +10,13 @@ class TestPopulateLogin(DBTestCase):
             upsert_user({
                         'user_id': 1,
                         'name': 'testuser',
-                        'email': 'testuser@email.com'
+                        'email': 'testuser@email.com',
+                        'subscribed': True
                         })
             upsert_user({
                         'user_id': 1,
                         'name': 'testusery',
-                        'email': 'testuser@email.com'
+                        'email': 'testuser@email.com',
+                        'subscribed': True
                         })
             self.assertEqual(get_user_info(1)['name'], 'testusery')

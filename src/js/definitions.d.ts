@@ -226,6 +226,15 @@ declare namespace Sign {
         contacts: ContactList;
     }
 
+    interface Usage {
+        amountPerUnit?: number;
+        maxAllowanceReached?: boolean;
+        requestedThisUnit?: number;
+        signedThisUnit?: number;
+        unit?: string;
+        status: DownloadStatus;
+    }
+
     interface State {
         routing: any;
         documentSets: DocumentSets;
@@ -241,6 +250,7 @@ declare namespace Sign {
         overlayDefaults: OverlayDefaults;
         toSignPage: ToSignPage;
         contacts: Contacts;
+        usage: Usage;
     }
 
     interface ToSignPage {
@@ -441,7 +451,10 @@ declare namespace Sign.Actions {
         // Contacts
         REQUEST_CONTACTS = 'REQUEST_CONTACTS',
         SET_CONTACTS = 'SET_CONTACTS',
-        SET_SAVE_STATUS = 'SET_SAVE_STATUS'
+        SET_SAVE_STATUS = 'SET_SAVE_STATUS',
+
+        REQUEST_USAGE = 'REQUEST_USAGE',
+        UPDATE_USAGE = 'UPDATE_USAGE'
     }
 
     interface ActionCreator<T> {
@@ -771,6 +784,10 @@ declare namespace Sign.Actions {
         status: DownloadStatus;
     }
 
+    interface UpdateUsagePayload extends Sign.Usage{
+
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -848,6 +865,9 @@ declare namespace Sign.Actions {
     // Contacts
     interface RequestContacts extends Action {}
     interface UpdateContacts extends ActionCreator<UpdateContactsPayload> {}
+
+    interface RequestUsage extends Action {}
+    interface UpdateUsage extends ActionCreator<UpdateUsagePayload> {}
 
 }
 

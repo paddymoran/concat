@@ -16,7 +16,8 @@ class TestDocumentUpload(DBTestCase):
             upsert_user({
                         'user_id': USER_ID,
                         'name': 'testuser',
-                        'email': 'testuser@email.com'
+                        'email': 'testuser@email.com',
+                        'subscribed': True
                         })
             set_id = str(uuid4())
             document_id = str(uuid4())

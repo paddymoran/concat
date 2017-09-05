@@ -41,7 +41,7 @@ class UnconnectedActivateControlModal extends React.PureComponent<ConnectedContr
     }
 
     saveDraft() {
-        this.props.saveDraft();
+        this.props.save();
         this.props.closeActivateControlModal();
     }
 
@@ -65,16 +65,5 @@ class UnconnectedActivateControlModal extends React.PureComponent<ConnectedContr
         );
     }
 }
-
-// export default connect(
-//     (state: Sign.State) => ({
-
-//     }),
-//     {
-//         closeModal: () => closeModal({ modalName: Sign.ModalType.ACTIVATE_CONTROL }),
-//         setActiveSignControl,
-//         saveDraft: saveDocumentView
-//     }
-// )(UnconnectedActivateControlModal);
 
 export default connectControls(UnconnectedActivateControlModal);

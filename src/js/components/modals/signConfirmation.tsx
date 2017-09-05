@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { signDocument, closeModal, markDocumentAsComplete } from '../../actions';
+import { closeModal, markDocumentAsComplete, submitDocumentSet } from '../../actions';
 import { push } from 'react-router-redux';
 import { signDocumentRoute } from '../../utils';
+import { prepareSubmitPayload } from './submitConfirmation';
 
 interface DocumentWithComplete extends Sign.Document {
     complete: boolean;
@@ -16,12 +17,13 @@ interface SignConfirmationProps {
     signRequestId: number;
     recipients: Sign.Recipients;
     closeModal: () => void;
-    signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
+    submitDocumentSet: (payload: Sign.Actions.SubmitDocumentSetPayload) => void;
     nextDocumentId: string;
     push: (url: string) => void;
     isDocumentOwner: boolean;
     markDocumentAsComplete: (payload: Sign.Actions.MarkDocumentAsCompletePayload) => void;
     documents: DocumentWithComplete[];
+    submitPayload: Sign.Actions.SubmitDocumentSetPayload
 }
 
 class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
@@ -33,7 +35,7 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
     }
 
     sign() {
-        this.props.signDocument({ documentId: this.props.documentId, documentSetId: this.props.documentSetId, signRequestId: this.props.signRequestId });
+        this.props.submitDocumentSet(this.props.submitPayload);
     }
 
     renderLoading() {
@@ -178,8 +180,9 @@ export default connect(
             documents,
             recipients,
             nextDocumentId,
-            isDocumentOwner: state.modals.isDocumentOwner
+            isDocumentOwner: state.modals.isDocumentOwner,
+            submitPayload: prepareSubmitPayload(state.modals.documentSetId, state.documentSets[state.modals.documentSetId], state.documentViewer)
         }
     },
-    { signDocument, push, closeModal: () => closeModal({modalName: Sign.ModalType.SIGN_CONFIRMATION}), markDocumentAsComplete },
+    { submitDocumentSet, push, closeModal: () => closeModal({modalName: Sign.ModalType.SIGN_CONFIRMATION}), markDocumentAsComplete },
 )(SignConfirmation);

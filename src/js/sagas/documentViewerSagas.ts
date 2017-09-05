@@ -64,7 +64,7 @@ function hasSomethingToSign(documentViewer : Sign.DocumentViewer, documentId : s
 function *submitDocumentSet() {
     yield takeEvery(Sign.Actions.Types.SUBMIT_DOCUMENT_SET, submit);
 
-    function *submit(action: Sign.Actions.SubmitSignRequests) {
+    function *submit(action: Sign.Actions.SubmitDocumentSet) {
         const documentViewer = yield select((state: Sign.State) => state.documentViewer);
         const documentSets = yield select((state: Sign.State) => state.documentSets);
         const documentIds = documentSets[action.payload.documentSetId].documentIds;

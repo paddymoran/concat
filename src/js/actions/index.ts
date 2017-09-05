@@ -328,7 +328,7 @@ export function defineRecipients(payload: Sign.Actions.DefineRecipientsPayload) 
 }
 
 
-export function submitSignRequests(payload: Sign.Actions.SubmitSignRequestsPayload) : Sign.Actions.SubmitSignRequests {
+export function submitDocumentSet(payload: Sign.Actions.SubmitDocumentSetPayload) : Sign.Actions.SubmitDocumentSet {
     return {
         type: Sign.Actions.Types.SUBMIT_DOCUMENT_SET,
         payload

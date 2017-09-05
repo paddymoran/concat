@@ -46,8 +46,7 @@ class NextDocument extends React.PureComponent<NextDocumentProps> {
 
 export default connect(
     (state: Sign.State) => ({
-        documentId: state.modals.documentId,
-        documentSetId: findSetForDocument(state.documentSets, state.modals.documentId)
+        documentId: state.modals.documentSetId
     }),
     {
         nextDocument,

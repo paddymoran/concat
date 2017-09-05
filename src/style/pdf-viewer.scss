@@ -29,6 +29,9 @@ $submit-control-hover-background: darken($submit-control-background, 8%);
 .status-bar{
     padding: 1em 0;
     font-size:16px;
+    .status-message + .status-message{
+        padding-left:20px;
+    }
 }
 .controls {
     padding-top: 5px;

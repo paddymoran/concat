@@ -779,6 +779,7 @@ declare namespace Sign.Actions {
         documentId: string;
     }
 
+
     interface UpdateContactsPayload {
         status?: DownloadStatus;
         contacts?: ContactList;

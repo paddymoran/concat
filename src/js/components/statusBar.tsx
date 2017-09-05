@@ -1,6 +1,9 @@
 import  * as React from "react";
 import { connect } from 'react-redux';
-import { requestUsage } from '../actions';
+import { requestUsage, requestRequestedSignatures } from '../actions';
+import { getNonCompletedRequestKeys } from './requestedSignatures';
+import { Link } from 'react-router';
+
 
 interface StatusBarProps {
 
@@ -8,26 +11,38 @@ interface StatusBarProps {
 
 interface ConnectedStatusBarProps extends StatusBarProps{
     requestUsage: () => void;
-    usage: Sign.Usage
+    requestRequestedSignatures: () => void;
+    usage: Sign.Usage;
+    requestedSignatures: Sign.RequestedSignatures;
+    documents: Sign.Documents;
 }
 
 
 class StatusBar extends React.PureComponent<ConnectedStatusBarProps> {
     componentDidMount() {
         this.props.requestUsage();
+        this.props.requestRequestedSignatures();
     }
 
     componentDidUpdate() {
         this.props.requestUsage();
+        this.props.requestRequestedSignatures();
     }
 
     renderUsage() {
         if(this.props.usage.amountPerUnit !== null){
-            return <div className="status-message">You have used <strong>{ this.props.usage.requestedThisUnit + this.props.usage.signedThisUnit }</strong> of your <strong>{ this.props.usage.amountPerUnit }</strong> free signs this { this.props.usage.unit }.
-            Click <a href="/signup">here</a> to upgrade your account.</div>
+            return <span className="status-message">You have used <strong>{ this.props.usage.requestedThisUnit + this.props.usage.signedThisUnit }</strong> of your <strong>{ this.props.usage.amountPerUnit }</strong> free signs this { this.props.usage.unit }.
+            Click <a href="/signup">here</a> to upgrade your account.</span >
         }
         else{
-            return <div className="status-message">You have signed or requested the signing of <strong>{ this.props.usage.requestedThisUnit + this.props.usage.signedThisUnit }</strong> documents this { this.props.usage.unit }.</div>
+            return <span  className="status-message">You have signed or requested the signing of <strong>{ this.props.usage.requestedThisUnit + this.props.usage.signedThisUnit }</strong> documents this { this.props.usage.unit }.</span>
+        }
+    }
+
+    renderRequested() {
+        const count = getNonCompletedRequestKeys(this.props.requestedSignatures, this.props.documents).length;
+        if(count > 0){
+            return <span  className="status-message">You have documents that require signing, click <Link to='/to_sign'>here</Link> to view.</span>
         }
     }
 
@@ -35,6 +50,7 @@ class StatusBar extends React.PureComponent<ConnectedStatusBarProps> {
         return <div className="status-bar">
         <div className="container">
             { this.props.usage.status === Sign.DownloadStatus.Complete && this.renderUsage() }
+            { this.props.requestedSignatures.downloadStatus === Sign.DownloadStatus.Complete && this.renderRequested() }
         </div>
         </div>
     }
@@ -42,7 +58,9 @@ class StatusBar extends React.PureComponent<ConnectedStatusBarProps> {
 
 
 export default connect<{}, {}, StatusBarProps>((state: Sign.State) => ({
-    usage: state.usage
+    usage: state.usage,
+    requestedSignatures: state.requestedSignatures,
+    documents: state.documents
 }), {
-    requestUsage
+    requestUsage, requestRequestedSignatures
 })(StatusBar)

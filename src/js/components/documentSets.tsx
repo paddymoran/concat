@@ -40,7 +40,6 @@ class FileList extends React.PureComponent<FileListProps> {
             </tbody>
         </table>
     }
-
 }
 
 

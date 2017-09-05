@@ -13,6 +13,8 @@ class UnconnectedActivateControlModal extends React.PureComponent<ConnectedContr
         this.activateDate = this.activateDate.bind(this);
         this.activateText = this.activateText.bind(this);
         this.activatePrompt = this.activatePrompt.bind(this);
+        this.saveDraft = this.saveDraft.bind(this);
+        this.showInviteModal = this.showInviteModal.bind(this);
     }
 
     activateSignature() {
@@ -45,6 +47,11 @@ class UnconnectedActivateControlModal extends React.PureComponent<ConnectedContr
         this.props.closeActivateControlModal();
     }
 
+    showInviteModal() {
+        this.props.showInviteModal();
+        this.props.closeActivateControlModal();
+    }
+
     render() {
         return (
             <Modal backdrop="static" show={true} onHide={this.props.closeActivateControlModal}>
@@ -58,8 +65,8 @@ class UnconnectedActivateControlModal extends React.PureComponent<ConnectedContr
                     <Button block bsSize="lg" onClick={this.activateDate}>Date</Button>
                     <Button block bsSize="lg" onClick={this.activateText}>Text</Button>
                     <Button block bsSize="lg" onClick={this.activatePrompt}>Request Signature</Button>
-                    <Button block bsSize="lg" onClick={this.activateDate}>Save Draft</Button>
-                    <Button block bsSize="lg" onClick={this.activateDate}>Invite</Button>
+                    <Button block bsSize="lg" onClick={this.saveDraft}>Save Draft</Button>
+                    <Button block bsSize="lg" onClick={this.showInviteModal}>Invite</Button>
                 </Modal.Body>
             </Modal>
         );

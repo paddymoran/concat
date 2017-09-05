@@ -2,23 +2,12 @@ import * as React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { closeModal, setActiveSignControl, saveDocumentView } from '../../actions';
 import { connect } from 'react-redux';
+import { connectControls, ControlProps, ConnectedControlProps } from '../controls';
 
-interface ActivateControlModalProps {
-
-}
-
-interface UnconnectedActivateControlModalProps extends ActivateControlModalProps {
-    closeModal: () => void;
-    saveDraft: () => void;
-    setActiveSignControl: (payload: Sign.Actions.SetActiveSignControlPayload) => void;
-}
-
-class UnconnectedActivateControlModal extends React.PureComponent<UnconnectedActivateControlModalProps> {
-
-    constructor(props: UnconnectedActivateControlModalProps){
+class UnconnectedActivateControlModal extends React.PureComponent<ConnectedControlProps> {
+    constructor(props: ConnectedControlProps) {
         super(props);
 
-        this.activateControl = this.activateControl.bind(this);
         this.activateSignature = this.activateSignature.bind(this);
         this.activateInitial = this.activateInitial.bind(this);
         this.activateDate = this.activateDate.bind(this);
@@ -26,39 +15,39 @@ class UnconnectedActivateControlModal extends React.PureComponent<UnconnectedAct
         this.activatePrompt = this.activatePrompt.bind(this);
     }
 
-    activateControl(activeSignControl: Sign.SignControl) {
-        this.props.setActiveSignControl({ activeSignControl });
-        this.props.closeModal();
-    }
-
     activateSignature() {
-        this.activateControl(Sign.SignControl.SIGNATURE);
+        this.props.activateSignature();
+        this.props.closeActivateControlModal();
     }
 
     activateInitial() {
-        this.activateControl(Sign.SignControl.INITIAL);
+        this.props.activateInitial();
+        this.props.closeActivateControlModal();
     }
 
     activateDate() {
-        this.activateControl(Sign.SignControl.DATE);
+        this.props.activateDate();
+        this.props.closeActivateControlModal();
     }
 
     activateText() {
-        this.activateControl(Sign.SignControl.TEXT);
+        this.props.activateText();
+        this.props.closeActivateControlModal();
     }
 
     activatePrompt() {
-        this.activateControl(Sign.SignControl.PROMPT);
+        this.props.activatePrompt();
+        this.props.closeActivateControlModal();
     }
 
     saveDraft() {
         this.props.saveDraft();
-        this.props.closeModal();
+        this.props.closeActivateControlModal();
     }
 
     render() {
         return (
-            <Modal backdrop="static" show={true} onHide={this.props.closeModal}>
+            <Modal backdrop="static" show={true} onHide={this.props.closeActivateControlModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Select Signing Control</Modal.Title>
                 </Modal.Header>
@@ -77,13 +66,15 @@ class UnconnectedActivateControlModal extends React.PureComponent<UnconnectedAct
     }
 }
 
-export default connect(
-    (state: Sign.State) => ({
+// export default connect(
+//     (state: Sign.State) => ({
 
-    }),
-    {
-        closeModal: () => closeModal({ modalName: Sign.ModalType.ACTIVATE_CONTROL }),
-        setActiveSignControl,
-        saveDraft: saveDocumentView
-    }
-)(UnconnectedActivateControlModal);
+//     }),
+//     {
+//         closeModal: () => closeModal({ modalName: Sign.ModalType.ACTIVATE_CONTROL }),
+//         setActiveSignControl,
+//         saveDraft: saveDocumentView
+//     }
+// )(UnconnectedActivateControlModal);
+
+export default connectControls(UnconnectedActivateControlModal);

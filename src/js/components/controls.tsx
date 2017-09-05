@@ -242,11 +242,10 @@ export interface ControlProps {
     requestPrompts?: Sign.DocumentPrompt[];
     documentId: string;
     requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
+    documentSetId: string;
 }
 
 export interface ConnectedControlProps extends ControlProps {
-    documentSetId: string;
-
     selectedSignatureId?: number;
     selectedInitialId?: number;
     activeSignControl: Sign.SignControl;
@@ -465,7 +464,7 @@ function findNextInvalidOverlay(documentViewer: Sign.DocumentViewer, documentId:
 }
 
 function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
-    const documentSetId = findSetForDocument(state.documentSets, ownProps.documentId);
+    const documentSetId = ownProps.documentSetId;
     const nextInvalidOverlay = findNextInvalidOverlay(state.documentViewer, ownProps.documentId);
     const activeSignControl = state.documentViewer.activeSignControl;
 
@@ -511,14 +510,19 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
     }
 }
 
-function mapDispatchToProps(stateProps: any, dispatch: Function, ownProps: ControlProps) {
-    const documentId = ownProps.documentId;
-    const documentSetId = stateProps.documentSetId;
+function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
+    const { documentId, documentSetId } = ownProps;
 
     return {
         showInviteModal: () => dispatch(showInviteModal({ documentSetId })),
         reject: () => dispatch(showRejectConfirmationModal),
-        showActivateControlModal: () => dispatch(showActivateControlModal({ isDocumentOwner: ownProps.isDocumentOwner, requestPrompts: ownProps.requestPrompts })),
+        showActivateControlModal: () => dispatch(showActivateControlModal({
+            isDocumentOwner: ownProps.isDocumentOwner,
+            requestPrompts: ownProps.requestPrompts,
+            documentId,
+            documentSetId,
+            requestedSignatureInfo: ownProps.requestedSignatureInfo
+        })),
 
         activateNone: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.NONE })),
         activateSignature: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.SIGNATURE })),

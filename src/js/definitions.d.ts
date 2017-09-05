@@ -792,8 +792,11 @@ declare namespace Sign.Actions {
     }
 
     interface ShowActivateControlModalPayload {
+        documentSetId: string;
+        documentId: string;
         isDocumentOwner: boolean;
         requestPrompts: Sign.DocumentPrompt[];
+        requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
     }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}

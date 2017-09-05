@@ -79,7 +79,8 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
         case Sign.Actions.Types.SHOW_ACTIVATE_CONTROL_MODAL:
             return {
                 ...state,
-                showing: Sign.ModalType.ACTIVATE_CONTROL
+                showing: Sign.ModalType.ACTIVATE_CONTROL,
+                ...action.payload
             }
 
         default:

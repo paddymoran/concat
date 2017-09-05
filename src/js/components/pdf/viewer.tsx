@@ -225,7 +225,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
             <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
                    <div  className="controls-affix">
-                        <Controls isDocumentOwner={this.props.isDocumentOwner} requestPrompts={requestPrompts} documentId={this.props.documentId} requestedSignatureInfo={this.props.requestedSignatureInfo} />
+                        <Controls isDocumentOwner={this.props.isDocumentOwner} requestPrompts={requestPrompts} documentId={this.props.documentId} requestedSignatureInfo={this.props.requestedSignatureInfo} documentSetId={this.props.documentSetId} />
                    </div>
                 </AutoAffix>
 

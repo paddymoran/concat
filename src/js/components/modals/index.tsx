@@ -14,6 +14,7 @@ import ActivateControl from './activateControl';
 
 interface ModalsProps {
     showing: string;
+    payload: { [key: string]: any };
 }
 
 class Modals extends React.PureComponent<ModalsProps>{
@@ -50,7 +51,8 @@ class Modals extends React.PureComponent<ModalsProps>{
                 return <NextDocument />
 
             case Sign.ModalType.ACTIVATE_CONTROL:
-                return <ActivateControl />
+                const payload = this.props.payload;
+                return <ActivateControl documentId={payload.documentId} isDocumentOwner={payload.isDocumentOwner} requestPrompts={payload.requestPrompts} requestedSignatureInfo={payload.requestedSignatureInfo} documentSetId={payload.documentSetId} />
 
             default:
                 return false;
@@ -60,5 +62,8 @@ class Modals extends React.PureComponent<ModalsProps>{
 
 
 export default connect(
-    (state: Sign.State) => ({ showing: state.modals.showing })
+    (state: Sign.State) => ({
+        showing: state.modals.showing,
+        payload: state.modals
+    })
 )(Modals)

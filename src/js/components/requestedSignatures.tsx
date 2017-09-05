@@ -6,6 +6,16 @@ import { stringToDateTime } from '../utils';
 import { Link } from 'react-router';
 import { Checkbox } from 'react-bootstrap';
 
+export function getNonCompletedRequestKeys(requestedSignatures: Sign.RequestedSignatures, documents: Sign.Documents ) {
+    const documentSets = requestedSignatures.documentSets;
+    let docSetKeys = Object.keys(documentSets);
+    return  docSetKeys.filter((key: string) => {
+        const docSet = documentSets[key];
+        const setComplete = Object.keys(docSet).every(docKey => documents[docKey].signStatus === Sign.SignStatus.SIGNED)
+        return !setComplete;
+    });
+}
+
 interface RequestedSignatureProps {
     showComplete: boolean;
     requestRequestedSignatures: () => void;
@@ -91,25 +101,15 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
 
         // Filter out complete document sets - if needed
         if (!this.props.showComplete) {
-            docSetKeys = docSetKeys.filter((key: string) => {
-                const docSet = docSets[key];
-                const setComplete = Object.keys(docSet).every(docKey => this.props.documents[docKey].signStatus === Sign.SignStatus.SIGNED)
-
-                return !setComplete;
-            });
+            docSetKeys = getNonCompletedRequestKeys(this.props.requestedSignatures, this.props.documents);
         }
-
-        // TODO, spinner
-
-        if (docSetKeys.length === 0) {
-            return <h3>No pending signature requests.</h3>;
-        }
-
         return (
             <div>
                 <Checkbox onChange={this.props.toggleShowComplete}>Show completed document sets</Checkbox>
 
                 <hr />
+
+                { docSetKeys.length === 0 && <p className="text-center">No pending signature requests.</p> }
 
                 {docSetKeys.map((documentSetId: string, index: number) =>
                     <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={docSets[documentSetId]} />

@@ -90,7 +90,8 @@ def find_or_create_and_validate_document_set(set_id, user_id):
                 })
 
                 database.commit()
-            except:
+            except Exception as e:
+                database.rollback()
                 pass
         elif result[0] != user_id:
             raise Exception

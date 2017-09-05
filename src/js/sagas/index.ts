@@ -415,7 +415,8 @@ function *finishedSigningDocumentSaga() {
         yield put(showSignConfirmationModal({
             documentId: action.payload.documentId,
             documentSetId: action.payload.documentSetId,
-            signRequestId: action.payload.signRequestId
+            signRequestId: action.payload.signRequestId,
+            isDocumentOwner: action.payload.isDocumentOwner
         }));
     }
 }

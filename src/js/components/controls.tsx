@@ -263,7 +263,7 @@ export interface ConnectedControlProps extends ControlProps {
     nextInvalidOverlay?: string;
     reject: () => void;
     saveStatus: Sign.DownloadStatus;
-    
+
     showInvite: boolean;
     showPrompts: boolean;
     showSave: boolean;
@@ -339,13 +339,13 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         const nextPrompt = this.props.getNextPrompt();
 
         const canSubmit = this.canSubmit();
-        
+
         const saveIcon = {
             [Sign.DownloadStatus.InProgress]: 'fa-spin fa-spinner fa-3x fa-fw',
             [Sign.DownloadStatus.Stale]: 'stale-save fa-save',
             [Sign.DownloadStatus.Complete]: 'fa-save'
         }[this.props.saveStatus] || 'fa-save';
-        
+
         const saveText = {
             [Sign.DownloadStatus.Complete]: 'Saved',
             [Sign.DownloadStatus.InProgress]: 'Saving',
@@ -386,7 +386,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                                 </div>
                             </DraggableAddDateControl>
                         </ConditionalTooltip>
-                        
+
                         <ConditionalTooltip condition={!this.props.hasText} tooltip={TextTooltip()}>
                             <DraggableAddTextControl defaults={this.props.overlayDefaults.text}>
                                 <div className="draggable">
@@ -431,7 +431,7 @@ interface ControlButtonProps {
 class ControlButton extends React.PureComponent<ControlButtonProps> {
     render() {
         const visible = this.props.visible === undefined ? true : this.props.visible;
-        
+
         if (!visible) {
             return false;
         }
@@ -496,15 +496,15 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
         showPrompts: ownProps.isDocumentOwner,
         showSave: ownProps.isDocumentOwner,
         showReject: !ownProps.isDocumentOwner,
-        
+
         selectedSignatureId: state.documentViewer.selectedSignatureId,
         selectedInitialId: state.documentViewer.selectedInitialId,
         activeSignControl,
-        
+
         hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients,
 
         isButtonActive,
-        
+
         overlayDefaults: state.overlayDefaults,
         nextInvalidOverlay,
         saveStatus: state.documentViewer.saveStatus,

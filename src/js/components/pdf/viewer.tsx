@@ -168,9 +168,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
     constructor(props: ConnectedPDFViewerProps) {
         super(props);
         this.setActivePage = this.setActivePage.bind(this);
-        this.sign = this.sign.bind(this);
         this.save = this.save.bind(this);
-        this.send = this.send.bind(this);
     }
 
     setActivePage(pageNumber: number) {
@@ -180,14 +178,6 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         })
     }
 
-    sign() {
-        const signRequestId = this.props.requestedSignatureInfo ? this.props.requestedSignatureInfo.signRequestId : null;
-        this.props.showSignConfirmationModal({ documentId: this.props.documentId, documentSetId: this.props.documentSetId, signRequestId  });
-    }
-
-    send() {
-        this.props.showSubmitConfirmationModal({documentSetId: this.props.documentSetId});
-    }
 
     save() {
         this.props.saveDocumentView({documentSetId: this.props.documentSetId, documentId: this.props.documentId})

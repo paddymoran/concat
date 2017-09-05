@@ -161,7 +161,7 @@ declare namespace Sign {
         activePage: number;
         completed: boolean;
     }
-    
+
     interface DocumentViews {
         [documentId: string]: DocumentView;
     }
@@ -711,6 +711,7 @@ declare namespace Sign.Actions {
         documentId: string;
         documentSetId: string;
         signRequestId?: number;
+        isDocumentOwner: boolean;
     }
 
     interface ShowSubmitConfirmationModalPayload {

@@ -65,7 +65,7 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
 
     next() {
         this.props.markDocumentAsComplete({ documentId: this.props.documentId, complete: true });
-        this.props.push(signDocumentRoute(this.props.documentSetId, this.props.documentId, this.props.isDocumentOwner));
+        this.props.push(signDocumentRoute(this.props.documentSetId, this.props.nextDocumentId, this.props.isDocumentOwner));
         this.props.closeModal();
     }
 

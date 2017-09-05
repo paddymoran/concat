@@ -144,6 +144,14 @@ def invite_users(users, link, sender):
     )
     return response.json()
 
+def join_and(names):
+    n = len(authors)
+    if n > 1:
+        return ('{}, '*(n-2) + '{} & {}').format(*names)
+    elif n > 0:
+        return names[0]
+    else:
+        return ''
 
 def check_document_set_completion(document_set_id):
     if db.document_set_status(document_set_id)[0] == 'Complete':
@@ -161,7 +169,7 @@ def check_document_set_completion(document_set_id):
                 'subject': 'Documents Signed & Ready in CataLex Sign',
                 'data': json.dumps({
                     'name': user['name'],
-                    'setDescription': 'CataLex Sign Document',
+                    'setDescription': 'Documents signed by %s' % ([r['name'] for r in recipients]),
                     'link': get_service_url(request.url) + '/completed'
                 })
             }
@@ -195,6 +203,8 @@ def get_document_set_list():
 @app.route('/api/documents', methods=['POST'])
 def document_upload():
     try:
+        if not can_sign_or_submit(session['user_id']):
+            abort(401)
         files = request.files.getlist('file[]')
         set_id = request.form.get('document_set_id')
         document_id = request.form.get('document_id')

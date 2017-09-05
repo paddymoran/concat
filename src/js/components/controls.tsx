@@ -247,7 +247,6 @@ export interface ControlProps {
     documentId: string;
     requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
     requestPrompts?: Sign.DocumentPrompt[];
-    showActivateControlModal: () => void;
 }
 
 export interface ConnectedControlProps extends ControlProps{
@@ -273,6 +272,7 @@ export interface ConnectedControlProps extends ControlProps{
     activateText: () => void;
     activatePrompt: () => void;
 
+    showActivateControlModal: () => void;
     showSignConfirmationModal: () => void;
     showSubmitConfirmationModal: () => void;
     getNextPrompt: () => Sign.DocumentPrompt;
@@ -511,7 +511,7 @@ function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
     return {
         showInviteModal: () => dispatch(showInviteModal({ documentSetId })),
         reject: () => dispatch(showRejectConfirmationModal),
-        showActivateControlModal: () => dispatch(showActivateControlModal),
+        showActivateControlModal: () => dispatch(showActivateControlModal()),
 
         activateNone: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.NONE })),
         activateSignature: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.SIGNATURE })),

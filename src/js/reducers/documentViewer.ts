@@ -87,9 +87,25 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
             if(action.payload.status === Sign.DownloadStatus.InProgress){
                 return {...state, saveStatus: Sign.DownloadStatus.InProgress}
             }
+        
+        case Sign.Actions.Types.MARK_DOCUMENT_AS_COMPLETE:
+            return markDocumentAsComplete(state, action);
 
         default:
             return state;
+    }
+}
+
+function markDocumentAsComplete(state: Sign.DocumentViewer, action: Sign.Actions.MarkDocumentAsComplete): Sign.DocumentViewer {
+    return {
+        ...state,
+        documents: {
+            ...state.documents,
+            [action.payload.documentId]: {
+                ...state.documents[action.payload.documentId],
+                completed: action.payload.complete
+            }
+        }
     }
 }
 

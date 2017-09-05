@@ -445,3 +445,10 @@ export function showActivateControlModal(payload: Sign.Actions.ShowActivateContr
     return { type: Sign.Actions.Types.SHOW_ACTIVATE_CONTROL_MODAL, payload };
 }
 
+export function markDocumentAsComplete(payload: Sign.Actions.MarkDocumentAsCompletePayload): Sign.Actions.MarkDocumentAsComplete {
+    return {
+        type: Sign.Actions.Types.MARK_DOCUMENT_AS_COMPLETE,
+        payload
+    };
+}
+

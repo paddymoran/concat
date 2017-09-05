@@ -123,10 +123,10 @@ class InvalidUsage(Exception):
             self.status_code = status_code
         self.payload = payload
 
-def to_dict(self):
-    rv = dict(self.payload or ())
-    rv['message'] = self.message
-    return rv
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
 
 
 def invite_users(users, link, sender):
@@ -211,7 +211,7 @@ def document_upload():
         user_id = session['user_id']
         return jsonify(upload_document(files, set_id, document_id, user_id))
     except Exception as e:
-        raise InvalidUsage(e, status_code=500)
+        raise InvalidUsage(e.args, status_code=500)
 
 
 @app.route('/api/save_view/<document_id>', methods=['POST'])

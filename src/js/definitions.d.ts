@@ -792,6 +792,14 @@ declare namespace Sign.Actions {
 
     }
 
+    interface ShowActivateControlModalPayload {
+        documentSetId: string;
+        documentId: string;
+        isDocumentOwner: boolean;
+        requestPrompts: Sign.DocumentPrompt[];
+        requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -852,7 +860,7 @@ declare namespace Sign.Actions {
     interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
     interface ShowEmailDocumentModal extends ActionCreator<ShowEmailDocumentModalPayload> {}
     interface ShowRejectConfirmationModal extends ActionCreator<ShowRejectConfirmationModalPayload> {}
-    interface ShowActivateControlModal extends Action {}
+    interface ShowActivateControlModal extends ActionCreator<ShowActivateControlModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}

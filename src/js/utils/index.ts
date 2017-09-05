@@ -138,3 +138,11 @@ export const datetimeFormat = "Do MMM, h:mm:ss a";
 export function stringToDateTime(string : string) : string {
     return moment(string).format(datetimeFormat);
 }
+
+export function signDocumentRoute(documentSetId: string, documentId: string, isDocumentOwner: boolean) {
+    if (isDocumentOwner) {
+        return `/documents/${documentSetId}/${documentId}`;
+    }
+
+    return `/sign/${documentSetId}/${documentId}`;
+}

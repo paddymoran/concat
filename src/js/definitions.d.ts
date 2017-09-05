@@ -157,6 +157,15 @@ declare namespace Sign {
         PROMPT,
     }
 
+    interface DocumentView {
+        activePage: number;
+        completed: boolean;
+    }
+    
+    interface DocumentViews {
+        [documentId: string]: DocumentView;
+    }
+
     interface DocumentViewer {
         signRequestStatus: DownloadStatus;
         selectedSignatureId?: number;
@@ -167,12 +176,7 @@ declare namespace Sign {
         prompts: DocumentPrompts;
         activeSignControl: SignControl;
         saveStatus: DownloadStatus;
-        documents?: {
-            [documentId: string] : {
-                activePage: number;
-                completed: boolean;
-            }
-        }
+        documents?: DocumentViews;
     }
 
     interface PDFStore {
@@ -811,6 +815,9 @@ declare namespace Sign.Actions {
 
     interface FinishedSigningDocumentPayload {
         documentId: string;
+        documentSetId: string;
+        signRequestId: number;
+        isDocumentOwner: boolean;
     }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}

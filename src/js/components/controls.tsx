@@ -536,7 +536,7 @@ function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
 
         finishedSigningDocument: () => {
             const signRequestId = ownProps.requestedSignatureInfo ? ownProps.requestedSignatureInfo.signRequestId : null;
-            dispatch(finishedSigningDocument({ documentId, documentSetId, signRequestId }))
+            dispatch(finishedSigningDocument({ documentId, documentSetId, signRequestId, isDocumentOwner: ownProps.isDocumentOwner }))
         },
 
         closeActivateControlModal: () =>  dispatch(closeModal({ modalName: Sign.ModalType.ACTIVATE_CONTROL })),

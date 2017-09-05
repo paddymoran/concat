@@ -24,10 +24,10 @@ class StatusBar extends React.PureComponent<ConnectedStatusBarProps> {
     renderUsage() {
         if(this.props.usage.amountPerUnit !== null){
             return <div className="status-message">You have used <strong>{ this.props.usage.requestedThisUnit + this.props.usage.signedThisUnit }</strong> of your <strong>{ this.props.usage.amountPerUnit }</strong> free signs this { this.props.usage.unit }.
-            Click <a href="#">here</a> to upgrade your account.</div>
+            Click <a href="/signup">here</a> to upgrade your account.</div>
         }
         else{
-            return <div className="status-message">You have signed or requested the signing of <strong>{ this.props.usage.requestedThisUnit + this.props.usage.signedThisUnit }</strong> documents this { this.props.usage.unit }</div>
+            return <div className="status-message">You have signed or requested the signing of <strong>{ this.props.usage.requestedThisUnit + this.props.usage.signedThisUnit }</strong> documents this { this.props.usage.unit }.</div>
         }
     }
 

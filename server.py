@@ -454,16 +454,20 @@ def login():
             user_data['name'] = user_data['name']
             user_data['subscribed'] = 'CataLex Sign' in user_data['services']
 
-        print(user_data)
         db.upsert_user(user_data)
         session['user_id'] = user_data['user_id']
-
 
         redirect_uri = request.args.get('next', url_for('catch_all'))
         return redirect(redirect_uri)
     except Exception as e:
         print(e)
         raise InvalidUsage('Could not log in', status_code=500)
+
+
+@app.route('/signup', methods=['GET'])
+def signup():
+    session.clear()
+    return redirect(app.config.get('AUTH_SERVER') + '/my-services?Sign=1')
 
 
 @app.route('/logout', methods=['GET'])

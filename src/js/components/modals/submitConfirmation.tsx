@@ -1,19 +1,19 @@
 import * as React from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { submitSignRequests, closeModal } from '../../actions';
+import { submitDocumentSet, closeModal } from '../../actions';
 
 interface SignConfirmationProps {
     signRequestStatus: Sign.DownloadStatus;
     documentSetId: string;
     hideModal: () => void;
     recipients: Sign.Recipients;
-    submitPayload: Sign.Actions.SubmitSignRequestsPayload,
-    submitSignRequests: (payload: Sign.Actions.SubmitSignRequestsPayload) => void;
+    submitPayload: Sign.Actions.SubmitDocumentSetPayload,
+    submitDocumentSet: (payload: Sign.Actions.SubmitDocumentSetPayload) => void;
 }
 
 
-function prepareSubmitPayload(documentSetId : string, documentSet : Sign.DocumentSet, documentViewer: Sign.DocumentViewer) : Sign.Actions.SubmitSignRequestsPayload {
+export function prepareSubmitPayload(documentSetId : string, documentSet : Sign.DocumentSet, documentViewer: Sign.DocumentViewer) : Sign.Actions.SubmitDocumentSetPayload {
     const prompts = Object.keys(documentViewer.prompts).reduce((acc:any, key:string) => {
         const prompt : Sign.DocumentPrompt = documentViewer.prompts[key];
         if(documentSet.documentIds.indexOf(prompt.documentId) >= 0){
@@ -56,7 +56,7 @@ class SubmitConfirmation extends React.PureComponent<SignConfirmationProps> {
     }
 
     submit() {
-        return this.props.submitSignRequests(this.props.submitPayload);
+        return this.props.submitDocumentSet(this.props.submitPayload);
     }
 
     renderLoading() {
@@ -109,5 +109,5 @@ export default connect(
         submitPayload: prepareSubmitPayload(state.modals.documentSetId, state.documentSets[state.modals.documentSetId], state.documentViewer),
         recipients: state.documentSets[state.modals.documentSetId].recipients,
     }),
-    { submitSignRequests, hideModal: () => closeModal({modalName: Sign.ModalType.SUBMIT_CONFIRMATION})  },
+    { submitDocumentSet, hideModal: () => closeModal({modalName: Sign.ModalType.SUBMIT_CONFIRMATION})  },
 )(SubmitConfirmation);

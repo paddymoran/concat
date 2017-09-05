@@ -160,11 +160,10 @@ function *requestDocumentSetSaga() {
             documentSetId: action.payload.documentSetId,
             downloadStatus: Sign.DownloadStatus.Complete,
             documentIds: (data.documents || []).map((d: any) => d.document_id),
-            documents: data.documents.map(formatDocument)
+            documents: (data.documents || []).map(formatDocument)
         }));
 
         if(data.documents){
-
             const recipients : Sign.Recipients = data.documents.reduce((acc: Sign.Recipients, document: any) => {
                 if(document.field_data && document.field_data.recipients){
                     acc = [...acc, ...document.field_data.recipients];

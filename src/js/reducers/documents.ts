@@ -43,6 +43,7 @@ export default function documents(state: Sign.Documents = DEFAULT_STATE, action:
                     }, state)
                 }
             }
+            return state;
 
         case Sign.Actions.Types.UPDATE_DOCUMENT_SETS:
         case Sign.Actions.Types.UPDATE_REQUESTED_SIGNATURES:

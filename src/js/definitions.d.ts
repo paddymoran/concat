@@ -446,7 +446,7 @@ declare namespace Sign.Actions {
 
         DEFINE_RECIPIENTS = 'DEFINE_RECIPIENTS',
 
-        SUBMIT_SIGN_REQUESTS = 'SUBMIT_SIGN_REQUESTS',
+        SUBMIT_DOCUMENT_SET = 'SUBMIT_DOCUMENT_SET',
 
         SET_INVITE_SIGNATORIES = 'SET_INVITE_SIGNATORIES',
 
@@ -735,7 +735,7 @@ declare namespace Sign.Actions {
         recipients: Recipients;
     }
 
-    interface SubmitSignRequestsPayload {
+    interface SubmitDocumentSetPayload {
         documentSetId: string;
         signatureRequests: SignatureRequest[];
     }
@@ -887,7 +887,7 @@ declare namespace Sign.Actions {
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}
-    interface SubmitSignRequests extends ActionCreator<SubmitSignRequestsPayload> {}
+    interface SubmitDocumentSet extends ActionCreator<SubmitDocumentSetPayload> {}
 
     interface SetInviteSignatories extends ActionCreator<SetInviteSignatoriesPayload> {}
 

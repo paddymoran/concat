@@ -235,11 +235,22 @@ function *requestRequestedSignaturesSaga() {
          }));
         const response = yield call(axios.get, `/api/requested_signatures`);
 
-        const data = response.data.map((d : any) => {
-            return {createdAt: d.created_at, title: d.name, documentSetId: d.document_set_id, owner: {name: d.requester, user_id: d.user_id},
-                documents: (d.documents || [])
-                .map((d : any) => ({documentId: d.document_id, createdAt: d.created_at, filename: d.filename, prompts: d.prompts, signRequestId: d.sign_request_id, signStatus: d.sign_status})) }
-        });
+        const data = response.data.map((d : any) => ({
+            createdAt: d.created_at,
+            title: d.name,
+            documentSetId: d.document_set_id,
+            owner: {name: d.requester, user_id: d.user_id},
+            documents: (d.documents || []).map((d: any) => ({
+                documentId: d.document_id,
+                originalDocumentId: d.original_document_id,
+                createdAt: d.created_at,
+                filename: d.filename,
+                prompts: d.prompts,
+                signRequestId: d.sign_request_id,
+                signStatus: d.sign_status
+            }))
+        }));
+
         yield put(updateRequestedSignatures({
             downloadStatus: Sign.DownloadStatus.Complete,
             documentSets: data

@@ -442,6 +442,22 @@ export function updateUsage(payload: Sign.Actions.UpdateUsagePayload): Sign.Acti
 }
 
 export function showActivateControlModal(payload: Sign.Actions.ShowActivateControlModalPayload): Sign.Actions.ShowActivateControlModal {
-    return { type: Sign.Actions.Types.SHOW_ACTIVATE_CONTROL_MODAL, payload };
+    return {
+        type: Sign.Actions.Types.SHOW_ACTIVATE_CONTROL_MODAL,
+        payload
+    };
 }
 
+export function markDocumentAsComplete(payload: Sign.Actions.MarkDocumentAsCompletePayload): Sign.Actions.MarkDocumentAsComplete {
+    return {
+        type: Sign.Actions.Types.MARK_DOCUMENT_AS_COMPLETE,
+        payload
+    };
+}
+
+export function finishedSigningDocument(payload: Sign.Actions.FinishedSigningDocumentPayload): Sign.Actions.FinishedSigningDocument {
+    return {
+        type: Sign.Actions.Types.FINISHED_SIGNING_DOCUMENT,
+        payload
+    };
+}

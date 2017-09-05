@@ -242,10 +242,11 @@ function *requestRequestedSignaturesSaga() {
             owner: {name: d.requester, user_id: d.user_id},
             documents: (d.documents || []).map((d: any) => ({
                 documentId: d.document_id,
-                originalDocumentId: d.original_document_id,
                 createdAt: d.created_at,
                 filename: d.filename,
-                prompts: d.prompts,
+                prompts: (d.prompts || []).map((p: Sign.DocumentPrompt) => {
+                    return {...p, documentId: d.document_id}
+                }),
                 signRequestId: d.sign_request_id,
                 signStatus: d.sign_status
             }))

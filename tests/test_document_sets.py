@@ -15,7 +15,8 @@ class TestPopulateSignatures(DBTestCase):
             upsert_user({
                         'user_id': USER_ID,
                         'name': 'documentsetuser',
-                        'email': 'documentsetuser@email.com'
+                        'email': 'documentsetuser@email.com',
+                        'subscribed': True
                         })
             set_id = str(uuid4())
             doc1 = str(uuid4())

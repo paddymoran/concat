@@ -104,10 +104,10 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
              ds.name as name, ds.created_at as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents
         FROM (
-            SELECT d.document_id, filename, created_at, versions, dv.field_data
+            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status
             FROM (
                 SELECT
-                DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions
+                DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions, first_value(document_id) over wnd as start_id
                 FROM docs d
                 WHERE document_set_id = $1
 
@@ -127,6 +127,61 @@ $_$;
 
 
 --
+-- Name: document_set_status(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION document_set_status(uuid) RETURNS text
+    LANGUAGE sql
+    AS $_$
+SELECT CASE WHEN EVERY(document_status(document_id) = 'Signed') THEN 'Complete' ELSE 'Pending' END as status
+FROM documents d
+WHERE document_set_id = $1
+$_$;
+
+
+--
+-- Name: document_status(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION document_status(uuid) RETURNS text
+    LANGUAGE sql
+    AS $_$
+	SELECT CASE WHEN every(sr.sign_request_id is null) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
+	FROM documents d
+	LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
+	LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
+	WHERE d.document_id = $1
+$_$;
+
+
+--
+-- Name: latest_document_id(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION latest_document_id(uuid) RETURNS uuid
+    LANGUAGE sql
+    AS $_$
+	WITH RECURSIVE docs(document_id, prev_id, original_id, generation) as (
+	    SELECT t.document_id, null::uuid, t.document_id, 0
+	    FROM documents t
+	    WHERE document_id = $1
+	    UNION
+	   SELECT result_document_id, input_document_id,original_id, generation + 1
+	    FROM sign_results tt, docs t
+	    WHERE t.document_id = tt.input_document_id
+	)
+	SELECT
+	DISTINCT last_value(document_id) over wnd AS document_id
+	FROM docs d
+
+	WINDOW wnd AS (
+	   PARTITION BY original_id ORDER BY generation ASC
+	   ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+	)
+$_$;
+
+
+--
 -- Name: signature_requests(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -137,7 +192,7 @@ SELECT json_agg(row_to_json(q)) as "signature_requests"
 FROM (
 SELECT json_agg(
     json_build_object(
-    'document_id', sr.document_id,
+    'document_id', latest_document_id(sr.document_id),
     'filename', d.filename,
     'sign_request_id', sr.sign_request_id,
     'prompts', sr.field_data,
@@ -154,6 +209,55 @@ WHERE sr.user_id = $1
 
 GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id
 ) q
+$_$;
+
+
+--
+-- Name: usage(integer, integer, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION usage(user_id integer, default_amount_per_unit integer, default_unit text) RETURNS TABLE(signed_this_unit integer, requested_this_unit integer, amount_per_unit integer, unit text, max_allowance_reached boolean)
+    LANGUAGE sql
+    AS $_$
+
+    WITH 
+    usage_allowance as (
+        SELECT
+        CASE WHEN subscribed IS TRUE THEN NULL ELSE COALESCE(amount_per_unit, $2) END as amount_per_unit,
+        COALESCE(unit, $3) as unit
+        FROM public.users u
+        LEFT OUTER JOIN user_usage_limits uul ON uul.user_id = u.user_id
+        WHERE u.user_id = 9
+        LIMIT 1
+    ),
+    total_signed as (
+        SELECT
+        count(*)::integer as "signed_this_unit"
+        FROM sign_results sr
+        JOIN documents d ON d.document_id = sr.result_document_id
+        WHERE
+        sign_request_id IS NULL
+        AND user_id = $1
+        AND created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+    ),
+    total_requested as (
+        SELECT count(DISTINCT d.document_id)::integer as "requested_this_unit"
+    FROM sign_requests sr
+    JOIN documents d on d.document_id = sr.document_id
+    JOIN document_sets ds on d.document_set_id = ds.document_set_id
+    WHERE
+    ds.user_id = $1
+    AND d.created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+    )
+    SELECT signed_this_unit, requested_this_unit, amount_per_unit, unit, (signed_this_unit + requested_this_unit) > amount_per_unit as max_allowance_reached
+    FROM (
+    SELECT
+        (SELECT signed_this_unit FROM total_signed),
+        (SELECT requested_this_unit FROM total_requested),
+        (SELECT  amount_per_unit FROM usage_allowance),
+        (SELECT unit FROM usage_allowance)
+
+        ) q
 $_$;
 
 
@@ -313,6 +417,17 @@ ALTER SEQUENCE signatures_id_seq OWNED BY signatures.signature_id;
 
 
 --
+-- Name: user_usage_limits; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE user_usage_limits (
+    user_id integer,
+    amount_per_unit integer,
+    unit text
+);
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -321,7 +436,8 @@ CREATE TABLE users (
     name text,
     email text,
     shadow boolean DEFAULT false,
-    created_at timestamp without time zone DEFAULT now()
+    created_at timestamp without time zone DEFAULT now(),
+    subscribed boolean DEFAULT false
 );
 
 
@@ -513,6 +629,14 @@ ALTER TABLE ONLY sign_results
 
 ALTER TABLE ONLY signatures
     ADD CONSTRAINT signatures_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
+
+
+--
+-- Name: user_usage_limits_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY user_usage_limits
+    ADD CONSTRAINT user_usage_limits_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
 
 
 --

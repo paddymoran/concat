@@ -5,7 +5,7 @@ import json
 import sys
 from flask import (
     Flask, request, redirect, send_file, jsonify, session, abort, url_for,
-    send_from_directory
+    send_from_directory, Response
 )
 import db
 import requests
@@ -176,6 +176,12 @@ def check_document_set_completion(document_set_id):
             raise InvalidUsage('Failed to send completion email', status_code=500)
 
 
+def can_sign_or_submit(user_id):
+    return not db.get_usage(user_id,
+                        app.config.get('MAX_SIGNS'),
+                        app.config.get('MAX_SIGN_UNIT'))['max_allowance_reached']
+
+
 '''
 Documents
 '''
@@ -315,6 +321,8 @@ def sign_document():
     document =  BytesIO(document_db['data'])
     filename = document_db['filename']
     sign_request_id = args.get('signRequestId', None)
+    if not sign_request_id and not can_sign_or_submit(session['user_id']):
+        abort(401)
     for signature in args['signatures']:
         signature['imgData'] = BytesIO(db.get_signature(signature['signatureId'], session['user_id']))
     for overlay in args['overlays']:
@@ -330,6 +338,8 @@ def sign_document():
 
 @app.route('/api/request_signatures', methods=['POST'])
 def request_signatures():
+    if not can_sign_or_submit(session['user_id']):
+        abort(401)
     args = request.get_json()
     link = get_service_url(request.url) + '/to_sign'
     users = invite_users([s['recipient'] for s in args['signatureRequests']], link, sender=session.get('name', 'User'))
@@ -350,6 +360,11 @@ def get_signature_requests():
 def get_contacts():
     return jsonify(db.get_contacts(session['user_id']))
 
+@app.route('/api/usage', methods=['GET'])
+def get_usage():
+    return jsonify(db.get_usage(session['user_id'],
+                        app.config.get('MAX_SIGNS'),
+                        app.config.get('MAX_SIGN_UNIT')))
 
 @app.route('/api/send_document', methods=['POST'])
 def email_document():
@@ -437,10 +452,12 @@ def login():
             user_data = response.json()
             user_data['user_id'] = user_data['id']
             user_data['name'] = user_data['name']
+            user_data['subscribed'] = 'CataLex Sign' in user_data['services']
 
+        print(user_data)
         db.upsert_user(user_data)
         session['user_id'] = user_data['user_id']
-        session['name'] = user_data['name']
+
 
         redirect_uri = request.args.get('next', url_for('catch_all'))
         return redirect(redirect_uri)
@@ -460,6 +477,9 @@ def logout():
 def catch_all(path):
     return send_from_directory(app.static_folder, 'index.html')
 
+@app.errorhandler(401)
+def custom_401(error):
+    return Response(json.dumps({'message': 'Unauthorized'}), 401)
 
 @app.errorhandler(404)
 def send_index(path):

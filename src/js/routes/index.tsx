@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IndexRoute, Route } from 'react-router';
-import App, { ContainerWithSideBar, Container } from '../components/app';
+import App, { ContainerWithStatusBar, Container } from '../components/app';
 import { SelectWorkflow, SelectAnnotation } from '../components/selectWorkflow';
 import DocumentView, { RequestedDocumentView}  from '../components/documentView';
 import { DocumentSetView, UploadDocumentsWithDocumentSetId } from '../components/uploadDocuments';
@@ -18,7 +18,7 @@ export default () => {
         <Route path='/' component={App}>
             <Route path='documents/:documentSetId/:documentId' component={ DocumentView } />
             <Route path='sign/:documentSetId/:documentId' component={ RequestedDocumentView } />
-            <Route component={Container}>
+            <Route component={ContainerWithStatusBar}>
                 <IndexRoute component={UploadDocumentsWithDocumentSetId} />
                 <Route path='faq' component={ Help } />
                 <Route component={Documents}>

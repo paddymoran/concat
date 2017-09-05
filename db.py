@@ -223,9 +223,9 @@ def upsert_user(user):
     database = get_db()
     if current_app.config.get('USE_DB_UPSERT'):
         query = """
-            INSERT INTO users (user_id, name, email)
-            VALUES (%(user_id)s, %(name)s, %(email)s)
-            ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s;
+            INSERT INTO users (user_id, name, email, subscribed)
+            VALUES (%(user_id)s, %(name)s, %(email)s, %(subscribed)s)
+            ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s, subscribed = %(subscribed)s;
         """
         with database.cursor() as cursor:
             cursor.execute(query, user)
@@ -233,8 +233,8 @@ def upsert_user(user):
     else:
         try:
             query = """
-                INSERT INTO users (user_id, name, email)
-                VALUES (%(user_id)s, %(name)s, %(email)s)
+                INSERT INTO users (user_id, name, email, subscribed)
+                VALUES (%(user_id)s, %(name)s, %(email)s, %(subscribed)s)
             """
             with database.cursor() as cursor:
                 cursor.execute(query, user)
@@ -242,7 +242,7 @@ def upsert_user(user):
         except:
             database.rollback()
             query = """
-                UPDATE users SET name = %(name)s, email = %(email)s where user_id = %(user_id)s;
+                UPDATE users SET name = %(name)s, email = %(email)s, subscribed = %(subscribed)s where user_id = %(user_id)s;
             """
             with database.cursor() as cursor:
                 cursor.execute(query, user)
@@ -495,3 +495,18 @@ def get_document_set_recipients(set_id):
         cursor.execute(query, {'set_id': set_id})
         data = cursor.fetchall()
         return [dict(x) for x in data]
+
+
+def get_usage(user_id, default_amount_per_unit, default_unit):
+    database = get_db()
+    query = """
+        SELECT * from usage(%(user_id)s, %(default_amount_per_unit)s, %(default_unit)s)
+    """
+
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, { 'user_id': user_id,
+                       'default_amount_per_unit': default_amount_per_unit,
+                       'default_unit': default_unit})
+        data = cursor.fetchone()
+        return dict(data)
+

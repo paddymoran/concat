@@ -2,7 +2,8 @@ import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
 import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import * as Axios from 'axios';
 import axios from 'axios';
-import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures, addPromptToDocument, updateModalData, addOverlays, defineRecipients, updateContacts } from '../actions';
+import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures,
+    addPromptToDocument, updateModalData, addOverlays, defineRecipients, updateContacts, updateUsage } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -10,6 +11,15 @@ import pdfStoreSagas from './pdfStoreSagas';
 import signatureSagas from './signatureSagas';
 import documentViewerSagas from './documentViewerSagas';
 
+
+
+function shouldFetch(status: Sign.DownloadStatus){
+    return [
+        Sign.DownloadStatus.NotStarted,
+        Sign.DownloadStatus.Failed,
+        Sign.DownloadStatus.Stale
+    ].indexOf(status) >= 0;
+}
 
 export default function *rootSaga(): any {
     yield all([
@@ -22,6 +32,7 @@ export default function *rootSaga(): any {
         deleteDocumentSaga(),
         emailDocumentSaga(),
         requestContactsSaga(),
+        requestUsageSaga(),
         ...pdfStoreSagas,
         ...signatureSagas,
         ...documentViewerSagas,
@@ -248,18 +259,23 @@ function *emailDocumentSaga() {
     }
 }
 
-interface ContactsResponse extends Axios.AxiosResponse {
-    data: {
-        user_id: number;
-        name: string;
-        email: string;
-    }[];
-}
 
 function *requestContactsSaga() {
+    interface ContactsResponse extends Axios.AxiosResponse {
+        data: {
+            user_id: number;
+            name: string;
+            email: string;
+        }[];
+    }
+
     yield takeEvery(Sign.Actions.Types.REQUEST_CONTACTS, requestContacts);
 
     function *requestContacts(action: Sign.Actions.RequestContacts) {
+        const status = yield select((state: Sign.State) => state.contacts.status);
+        if(!shouldFetch(status)){
+            return;
+        }
         yield put(updateContacts({ status: Sign.DownloadStatus.InProgress }));
 
         try {
@@ -282,6 +298,45 @@ function *requestContactsSaga() {
     }
 }
 
+function *requestUsageSaga() {
+    interface UsageResponse extends Axios.AxiosResponse {
+        data: {
+            amount_per_unit: number;
+            max_allowance_reached: boolean;
+            requested_this_unit: number;
+            signed_this_unit: number;
+            unit: string;
+        };
+    }
+
+    yield takeEvery(Sign.Actions.Types.REQUEST_USAGE, requestUsage);
+
+    function *requestUsage(action: Sign.Actions.RequestUsage) {
+        const status = yield select((state: Sign.State) => state.usage.status);
+        if(!shouldFetch(status)){
+            return;
+        }
+
+        yield put(updateUsage({ status: Sign.DownloadStatus.InProgress }));
+
+        try {
+            const response: UsageResponse = yield call(axios.get, '/api/usage');
+
+
+            yield put(updateUsage({
+                status: Sign.DownloadStatus.Complete,
+                amountPerUnit: response.data.amount_per_unit,
+                maxAllowanceReached: response.data.max_allowance_reached,
+                requestedThisUnit: response.data.requested_this_unit,
+                signedThisUnit: response.data.signed_this_unit,
+                unit: response.data.unit
+            }));
+        }
+        catch (e) {
+            yield put(updateUsage({ status: Sign.DownloadStatus.Failed }));
+        }
+    }
+}
 
 function *uploadDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.ADD_DOCUMENT, uploadDocument);

@@ -10,7 +10,8 @@ class TestPopulateSignatures(DBTestCase):
             upsert_user({
                         'user_id': 1,
                         'name': 'signatureuser',
-                        'email': 'signatureuser@email.com'
+                        'email': 'signatureuser@email.com',
+                        'subscribed': True
                         })
 
             add_signature(1, b'abc', 'signature')

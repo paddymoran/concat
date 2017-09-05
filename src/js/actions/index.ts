@@ -441,7 +441,7 @@ export function updateUsage(payload: Sign.Actions.UpdateUsagePayload): Sign.Acti
     }
 }
 
-export function showActivateControlModal(): Sign.Actions.ShowActivateControlModal {
-    return { type: Sign.Actions.Types.SHOW_ACTIVATE_CONTROL_MODAL };
+export function showActivateControlModal(payload: Sign.Actions.ShowActivateControlModalPayload): Sign.Actions.ShowActivateControlModal {
+    return { type: Sign.Actions.Types.SHOW_ACTIVATE_CONTROL_MODAL, payload };
 }
 

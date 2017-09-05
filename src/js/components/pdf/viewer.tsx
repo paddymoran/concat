@@ -225,27 +225,18 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
             <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
                    <div  className="controls-affix">
-                        <Controls
-                            documentSetId={this.props.documentSetId}
-                            documentId={this.props.documentId}
-                            requestedSignatureInfo={this.props.requestedSignatureInfo}
-                            requestPrompts={requestPrompts}
-                            showInvite={this.props.isDocumentOwner}
-                            showPrompts={this.props.isDocumentOwner}
-                            showSave={this.props.isDocumentOwner}
-                            showReject={!this.props.isDocumentOwner} />
+                        <Controls isDocumentOwner={this.props.isDocumentOwner} requestPrompts={requestPrompts} documentId={this.props.documentId} requestedSignatureInfo={this.props.requestedSignatureInfo} />
                    </div>
                 </AutoAffix>
 
                 <div className='pdf-container container'>
-                    <Row  >
+                    <Row>
                         <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true}  >
-                         <AutoAffix viewportOffsetTop={50} offsetTop={0}  bottomClassName="bottom" affixClassName="affixed" >
-                             <div>
-                            <PDFPreviewDimensions documentId={this.props.documentId} width={120}  pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
-                            </div>
-                          </AutoAffix>
-
+                            <AutoAffix viewportOffsetTop={50} offsetTop={0}  bottomClassName="bottom" affixClassName="affixed" >
+                                <div>
+                                    <PDFPreviewDimensions documentId={this.props.documentId} width={120}  pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
+                                </div>
+                            </AutoAffix>
                         </Col>
                         <Col lg={10} md={12} className="page-list">
                             <WidthSpy />
@@ -477,11 +468,11 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
             containerHeight: height,
             documentSetId: this.props.documentSetId,
             documentId: this.props.documentId
-        }
+        };
         const body = (
             <div className={className} style={{position: 'relative'}} onClick={this.addSelected}>
                {  this.props.signaturesIndexes.map(signatureIndex => <SignaturePositionable key={signatureIndex} index={signatureIndex} {...props} />)}
-               {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} index={dateIndex} {...props}/ >)}
+               {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} index={dateIndex} {...props} />) }
                {  this.props.textIndexes.map(textIndex => <TextPositionable key={textIndex} index={textIndex}  {...props} />)}
                {  this.props.promptIndexes.map(promptIndex => <PromptPositionable key={promptIndex} index={promptIndex}  {...props} />)}
                {  this.props.requestPrompts && this.props.requestPrompts.map((requestPrompt) => <RequestPrompt key={requestPrompt.promptIndex} requestPrompt={requestPrompt} {...props}  />) }

@@ -7,7 +7,7 @@ import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { OverlayTrigger, Popover, Modal } from 'react-bootstrap';
 import { setActiveSignControl, showInviteModal, showRejectConfirmationModal, closeModal, showActivateControlModal, showSignConfirmationModal, showSubmitConfirmationModal, saveDocumentView } from '../actions';
-import { dateDefaults, textDefaults } from '../utils';
+import { dateDefaults, textDefaults, findSetForDocument } from '../utils';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
 /**
@@ -26,7 +26,6 @@ interface DragProps {
     connectDragPreview?: Function;
     isDragging?: boolean;
 }
-
 
 interface AddSignatureControlProps extends DragProps {
     signatureId: number;
@@ -239,17 +238,15 @@ class ConditionalTooltip extends React.PureComponent<ConditionalTooltipProps> {
 }
 
 export interface ControlProps {
-    showInvite: boolean;
-    showPrompts: boolean;
-    showSave: boolean;
-    showReject: boolean;
-    documentSetId: string;
+    isDocumentOwner: boolean;
+    requestPrompts?: Sign.DocumentPrompt[];
     documentId: string;
     requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
-    requestPrompts?: Sign.DocumentPrompt[];
 }
 
-export interface ConnectedControlProps extends ControlProps{
+export interface ConnectedControlProps extends ControlProps {
+    documentSetId: string;
+
     selectedSignatureId?: number;
     selectedInitialId?: number;
     activeSignControl: Sign.SignControl;
@@ -264,6 +261,11 @@ export interface ConnectedControlProps extends ControlProps{
     nextInvalidOverlay?: string;
     reject: () => void;
     saveStatus: Sign.DownloadStatus;
+    
+    showInvite: boolean;
+    showPrompts: boolean;
+    showSave: boolean;
+    showReject: boolean;
 
     activateNone: () => void;
     activateSignature: () => void;
@@ -463,8 +465,8 @@ function findNextInvalidOverlay(documentViewer: Sign.DocumentViewer, documentId:
 }
 
 function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
+    const documentSetId = findSetForDocument(state.documentSets, ownProps.documentId);
     const nextInvalidOverlay = findNextInvalidOverlay(state.documentViewer, ownProps.documentId);
-
     const activeSignControl = state.documentViewer.activeSignControl;
 
     const hasSignature = !!Object.keys(state.documentViewer.signatures).length;
@@ -472,7 +474,7 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
     const hasDate = !!Object.keys(state.documentViewer.dates).length;
     const hasText = !!Object.keys(state.documentViewer.texts).length;
     const hasPrompt = !!Object.keys(state.documentViewer.prompts).length;
-    const hasRecipients = ((state.documentSets[ownProps.documentSetId] || {recipients: []}).recipients || []).length > 0;
+    const hasRecipients = ((state.documentSets[documentSetId] || {recipients: []}).recipients || []).length > 0;
 
     function getNextPrompt() {
         return ownProps.requestPrompts && ownProps.requestPrompts[0];
@@ -485,9 +487,14 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
         [Sign.SignControl.DATE]: activeSignControl === Sign.SignControl.DATE,
         [Sign.SignControl.TEXT]: activeSignControl === Sign.SignControl.TEXT,
         [Sign.SignControl.PROMPT]: activeSignControl === Sign.SignControl.PROMPT,
-    }
+    };
 
     return {
+        showInvite: ownProps.isDocumentOwner,
+        showPrompts: ownProps.isDocumentOwner,
+        showSave: ownProps.isDocumentOwner,
+        showReject: !ownProps.isDocumentOwner,
+        
         selectedSignatureId: state.documentViewer.selectedSignatureId,
         selectedInitialId: state.documentViewer.selectedInitialId,
         activeSignControl,
@@ -495,7 +502,6 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
         hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients,
 
         isButtonActive,
-
         
         overlayDefaults: state.overlayDefaults,
         nextInvalidOverlay,
@@ -505,13 +511,14 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
     }
 }
 
-function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
-    const { documentId, documentSetId } = ownProps;
+function mapDispatchToProps(stateProps: any, dispatch: Function, ownProps: ControlProps) {
+    const documentId = ownProps.documentId;
+    const documentSetId = stateProps.documentSetId;
 
     return {
         showInviteModal: () => dispatch(showInviteModal({ documentSetId })),
         reject: () => dispatch(showRejectConfirmationModal),
-        showActivateControlModal: () => dispatch(showActivateControlModal()),
+        showActivateControlModal: () => dispatch(showActivateControlModal({ isDocumentOwner: ownProps.isDocumentOwner, requestPrompts: ownProps.requestPrompts })),
 
         activateNone: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.NONE })),
         activateSignature: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.SIGNATURE })),

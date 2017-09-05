@@ -5,21 +5,24 @@ BEGIN
     RETURN NEW;
 END $$ LANGUAGE 'plpgsql';
 
+
 DROP TRIGGER IF EXISTS  document_hash_trigger on documents;
 CREATE TRIGGER document_hash_trigger
     BEFORE INSERT ON documents
     FOR EACH ROW
     EXECUTE PROCEDURE document_hash();
 
+
 CREATE OR REPLACE FUNCTION document_status(uuid)
     RETURNS text as
     $$
-    SELECT CASE WHEN every(sr.sign_request_id is null) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
+    SELECT CASE WHEN (every(sr.sign_request_id is null) and every(srr.sign_result_id is not null)) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
     FROM documents d
     LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
     LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
     WHERE d.document_id = $1
 $$ LANGUAGE sql;
+
 
 CREATE OR REPLACE FUNCTION latest_document_id(uuid)
 RETURNS uuid as

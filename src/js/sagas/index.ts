@@ -3,7 +3,7 @@ import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import * as Axios from 'axios';
 import axios from 'axios';
 import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures,
-    addPromptToDocument, updateModalData, addOverlays, defineRecipients, updateContacts, updateUsage } from '../actions';
+    addPromptToDocument, updateModalData, addOverlays, defineRecipients, updateContacts, updateUsage, removeDocument, showFailureModal } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -355,18 +355,25 @@ function *uploadDocumentSaga() {
 
         // Start the upload process
         const channel = yield call(uploadDocumentProgressEmitter, action.payload.documentSetId, action.payload.documentId, action.payload.file);
-
+        let state : any;
         try {
             while (true) {
-                let progress = yield take(channel);
-                yield put(updateDocument({ documentId: action.payload.documentId, progress }));
+                state = yield take(channel);
+                yield put(updateDocument({ documentId: action.payload.documentId, ...state }));
             }
         } finally {
             // Set the document upload status to complete
-            yield put(updateDocument({
-                documentId: action.payload.documentId,
-                uploadStatus: Sign.DocumentUploadStatus.Complete
-            }));
+
+            if(state && state.error){
+                yield put(removeDocument(action.payload.documentId));
+                yield put(showFailureModal({message: 'You do not have permission to upload documents'}))
+            }
+            else{
+                yield put(updateDocument({
+                    documentId: action.payload.documentId,
+                    uploadStatus: Sign.DocumentUploadStatus.Complete
+                }));
+            }
         }
     }
 
@@ -381,13 +388,17 @@ function *uploadDocumentSaga() {
             const onUploadProgress = function(progressEvent: any) {
                 // Update uploading percentage
                 const progress = progressEvent.loaded / progressEvent.total;
-                emitter(progress);
+                emitter({progress: progress});
             }
 
             // Upload the document
             const response = axios.post('/api/documents', data, { onUploadProgress })
                 .then((response) => {
                     return emitter(END);
+                })
+                .catch(() => {
+                    emitter({status: Sign.DocumentUploadStatus.Failed, error: true})
+                    emitter(END);
                 });
 
             const unsubscribe = () => {};

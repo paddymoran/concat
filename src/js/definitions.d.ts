@@ -7,7 +7,8 @@ declare namespace Sign {
     const enum DocumentUploadStatus {
         NotStarted,
         InProgress,
-        Complete
+        Complete,
+        Failed
     }
 
     const enum DocumentReadStatus {

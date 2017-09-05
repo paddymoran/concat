@@ -133,4 +133,4 @@ function *saveDocumentViewSaga() {
     }
 }
 
-export default [signDocumentSaga(), submitSignRequests(), saveDocumentViewSaga()];
+export default [submitDocumentSet(), saveDocumentViewSaga()];

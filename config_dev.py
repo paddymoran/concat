@@ -19,7 +19,7 @@ DB_USER = getpass.getuser()
 DB_PASS = ''
 DB_HOST = '127.0.0.1'
 
-MAX_SIGNS = 10
+MAX_SIGNS = 6
 MAX_SIGN_UNIT = 'month'
 
 #DEV_USER_ID = 1

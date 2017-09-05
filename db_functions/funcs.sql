@@ -147,24 +147,31 @@ AS $$
         WHERE u.user_id = 9
         LIMIT 1
     ),
+    requested_doc_ids as (
+        SELECT DISTINCT d.document_id
+        FROM sign_requests sr
+        JOIN documents d on d.document_id = sr.document_id
+        JOIN document_sets ds on d.document_set_id = ds.document_set_id
+        WHERE
+        ds.user_id = $1
+        AND d.created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+    ),
     total_signed as (
         SELECT
         count(*)::integer as "signed_this_unit"
         FROM sign_results sr
         JOIN documents d ON d.document_id = sr.result_document_id
+        LEFT OUTER JOIN requested_doc_ids rdi on rdi.document_id = sr.result_document_id
         WHERE
         sign_request_id IS NULL
         AND user_id = $1
         AND created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+        AND rdi.document_id IS NULL
+
     ),
     total_requested as (
-        SELECT count(DISTINCT d.document_id)::integer as "requested_this_unit"
-    FROM sign_requests sr
-    JOIN documents d on d.document_id = sr.document_id
-    JOIN document_sets ds on d.document_set_id = ds.document_set_id
-    WHERE
-    ds.user_id = $1
-    AND d.created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+    SELECT count(document_id)::integer as "requested_this_unit"
+    FROM requested_doc_ids
     )
     SELECT signed_this_unit, requested_this_unit, amount_per_unit, unit, (signed_this_unit + requested_this_unit) > amount_per_unit as max_allowance_reached
     FROM (

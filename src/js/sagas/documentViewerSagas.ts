@@ -54,11 +54,6 @@ function *signDocument(action: Sign.Actions.SignDocument) {
 }
 
 
-function *signDocumentSaga() {
-    yield takeEvery(Sign.Actions.Types.SIGN_DOCUMENT, signDocumentWithRedirect);
-}
-
-
 function hasSomethingToSign(documentViewer : Sign.DocumentViewer, documentId : string) {
     const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === documentId);
     const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === documentId);
@@ -66,7 +61,7 @@ function hasSomethingToSign(documentViewer : Sign.DocumentViewer, documentId : s
     return signatures.length || dates.length || texts.length;
 }
 
-function *submitSignRequests() {
+function *submitDocumentSet() {
     yield takeEvery(Sign.Actions.Types.SUBMIT_SIGN_REQUESTS, submit);
 
     function *submit(action: Sign.Actions.SubmitSignRequests) {
@@ -83,9 +78,11 @@ function *submitSignRequests() {
         if(status === Sign.DownloadStatus.InProgress){
             return;
         }
-        yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
         try {
-            const response = yield call(axios.post, '/api/request_signatures', action.payload);
+            if(action.payload.signatureRequests.length){
+                yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
+                const response = yield call(axios.post, '/api/request_signatures', action.payload);
+            }
 
             yield all([
                 put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
@@ -136,4 +133,4 @@ function *saveDocumentViewSaga() {
     }
 }
 
-export default [signDocumentSaga(), submitSignRequests(), saveDocumentViewSaga()];
+export default [submitDocumentSet(), saveDocumentViewSaga()];

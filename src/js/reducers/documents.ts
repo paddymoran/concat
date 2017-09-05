@@ -32,6 +32,18 @@ export default function documents(state: Sign.Documents = DEFAULT_STATE, action:
         case Sign.Actions.Types.REMOVE_DOCUMENT:
             return { ...state, [action.payload.documentId]: undefined };
 
+        case Sign.Actions.Types.UPDATE_DOCUMENT_SET:
+            if(action.payload.documents){
+                return {
+                    ...state,
+                    ...action.payload.documents.reduce((acc: any, doc: any) => {
+                        state = {...state};
+                        acc[doc.documentId] = {...doc, readStatus: Sign.DocumentReadStatus.NotStarted, ...acc[doc.documentId]};
+                        return acc;
+                    }, state)
+                }
+            }
+
         case Sign.Actions.Types.UPDATE_DOCUMENT_SETS:
         case Sign.Actions.Types.UPDATE_REQUESTED_SIGNATURES:
             {
@@ -43,7 +55,7 @@ export default function documents(state: Sign.Documents = DEFAULT_STATE, action:
                             acc = {...acc};
                             acc[doc.documentId] = doc;
                             if(acc[doc.documentId].readStatus === undefined){
-                                acc[doc.documentId] = {...acc[doc.documentId], readStatus: Sign.DocumentReadStatus.NotStarted}
+                                acc[doc.documentId] = {readStatus: Sign.DocumentReadStatus.NotStarted, ...acc[doc.documentId]}
                             }
                             return acc;
                          }, acc)}

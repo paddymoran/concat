@@ -6,10 +6,12 @@ from tests import DBTestCase
 import server
 from io import BytesIO
 from uuid import uuid4
+import json
 
-class TestPopulateSignatures(DBTestCase):
 
-    def test_signatures(self):
+class TestPopulateDocumentSets(DBTestCase):
+
+    def test_signing(self):
         USER_ID = 2
         with server.app.app_context():
             upsert_user({
@@ -27,9 +29,24 @@ class TestPopulateSignatures(DBTestCase):
             add_document(set_id, doc2, 'input2', b'edf')
             sign1 = str(uuid4())
             sign2 = str(uuid4())
-            add_document(None, sign1, 'sign2', b'abcd')
+            add_document(None, sign1, 'sign1', b'abcd')
             add_document(None, sign2, 'sign2', b'abcde')
+            results = get_document_set(USER_ID, set_id)
+            for doc in results['documents']:
+                self.assertEqual(doc['sign_status'], 'Pending')
+            self.assertEqual(results['status'], 'Pending')
             sign_document(USER_ID, doc1, sign1, None, {})
-            sign_document(USER_ID, sign1, sign2, None, {})
+            results = get_document_set(USER_ID, set_id)
+            self.assertEqual(results['status'], 'Pending')
+            for doc in results['documents']:
+                if doc1 in doc['versions']:
+                    self.assertEqual(doc['sign_status'], 'Signed')
+                else:
+                    self.assertEqual(doc['sign_status'], 'Pending')
+            sign_document(USER_ID, doc2, sign2, None, {})
+            results = get_document_set(USER_ID, set_id)
+            self.assertEqual(results['status'], 'Complete')
+            for doc in results['documents']:
+                self.assertEqual(doc['sign_status'], 'Signed')
 
             self.assertEqual(len(get_document_set(USER_ID, set_id)['documents']), 2)

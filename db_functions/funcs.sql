@@ -16,10 +16,11 @@ CREATE TRIGGER document_hash_trigger
 CREATE OR REPLACE FUNCTION document_status(uuid)
     RETURNS text as
     $$
-    SELECT CASE WHEN (every(sr.sign_request_id is null) and every(srr.sign_result_id is not null)) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
+    SELECT CASE WHEN (every(sr.sign_request_id is null) and every(srrr.sign_result_id is not null)) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
     FROM documents d
     LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
     LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
+    LEFT OUTER JOIN sign_results srrr on srrr.input_document_id  = d.document_id
     WHERE d.document_id = $1
 $$ LANGUAGE sql;
 
@@ -61,7 +62,8 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
         SELECT
             $1 as document_set_id,
              ds.name as name, ds.created_at as created_at,
-            array_to_json(array_agg(row_to_json(qq))) as documents
+            array_to_json(array_agg(row_to_json(qq))) as documents,
+            CASE WHEN EVERY(sign_status = 'Signed') THEN 'Complete' ELSE 'Pending' END as status
         FROM (
             SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status
             FROM (
@@ -74,9 +76,9 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
                    PARTITION BY original_id ORDER BY generation ASC
                    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
                 )
-        ) q
-        JOIN documents d on d.document_id = q.document_id
-        LEFT OUTER JOIN document_view dv ON d.document_id = dv.document_id
+            ) q
+            JOIN documents d on d.document_id = q.document_id
+            LEFT OUTER JOIN document_view dv ON d.document_id = dv.document_id
         ) qq
         JOIN document_sets ds ON ds.document_set_id = $1
         GROUP BY ds.name, ds.created_at

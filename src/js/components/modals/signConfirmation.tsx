@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { signDocument, closeModal } from '../../actions';
+import { signDocument, closeModal, markDocumentAsComplete } from '../../actions';
 import { push } from 'react-router-redux';
 import { signDocumentRoute } from '../../utils';
 
@@ -11,17 +11,19 @@ interface SignConfirmationProps {
     documentSetId: string;
     signRequestId: number;
     recipients: Sign.Recipients;
-    hideModal: () => void;
+    closeModal: () => void;
     signDocument: (payload: Sign.Actions.SignDocumentPayload) => void;
     nextDocumentId: string;
     push: (url: string) => void;
     isDocumentOwner: boolean;
+    markDocumentAsComplete: (payload: Sign.Actions.MarkDocumentAsCompletePayload) => void;
 }
 
 class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
     constructor(props: SignConfirmationProps) {
         super(props);
         this.sign = this.sign.bind(this);
+        this.next = this.next.bind(this);
     }
 
     sign() {
@@ -62,7 +64,9 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
     }
 
     next() {
+        this.props.markDocumentAsComplete({ documentId: this.props.documentId, complete: true });
         this.props.push(signDocumentRoute(this.props.documentSetId, this.props.documentId, this.props.isDocumentOwner));
+        this.props.closeModal();
     }
 
     render() {
@@ -79,7 +83,7 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
         }
 
         return (
-            <Modal backdrop='static' show={true} onHide={this.props.hideModal} className="icon-modal">
+            <Modal backdrop='static' show={true} onHide={this.props.closeModal} className="icon-modal">
                 <Modal.Header closeButton>
                     <Modal.Title>Sign Confirmation</Modal.Title>
                 </Modal.Header>
@@ -104,8 +108,8 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
     }
 }
 
-function getNextDocument(documentIds: string[], documents: Sign.DocumentViews): string {
-    return documentIds.find(documentId => !documents[documentId] || !documents[documentId].completed);
+function getNextDocument(documentIds: string[], documents: Sign.DocumentViews, currentDocumentId: string): string {
+    return documentIds.filter(d => d != currentDocumentId).find(documentId => !documents[documentId] || !documents[documentId].completed);
 }
 
 export default connect(
@@ -113,7 +117,7 @@ export default connect(
         const documentSet = state.documentSets[state.modals.documentSetId];
         const recipients = documentSet ? documentSet.recipients : null;
 
-        const nextDocumentId = getNextDocument(state.documentSets[state.modals.documentSetId].documentIds, state.documentViewer.documents);
+        const nextDocumentId = getNextDocument(state.documentSets[state.modals.documentSetId].documentIds, state.documentViewer.documents, state.modals.documentId);
 
         return {
             signRequestStatus: state.documentViewer.signRequestStatus,
@@ -125,5 +129,5 @@ export default connect(
             isDocumentOwner: state.modals.isDocumentOwner
         }
     },
-    { signDocument, push, hideModal: () => closeModal({modalName: Sign.ModalType.SIGN_CONFIRMATION})  },
+    { signDocument, push, closeModal: () => closeModal({modalName: Sign.ModalType.SIGN_CONFIRMATION}), markDocumentAsComplete },
 )(SignConfirmation);

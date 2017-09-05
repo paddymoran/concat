@@ -6,7 +6,7 @@ import { DateButton, TextButton, PromptButton } from './controlButtons';
 import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { OverlayTrigger, Popover, Modal } from 'react-bootstrap';
-import { setActiveSignControl, showInviteModal, showRejectConfirmationModal, closeModal, showActivateControlModal, showSignConfirmationModal, showSubmitConfirmationModal, saveDocumentView } from '../actions';
+import { setActiveSignControl, showInviteModal, showRejectConfirmationModal, closeModal, showActivateControlModal, showSignConfirmationModal, showSubmitConfirmationModal, saveDocumentView, finishedSigningDocument } from '../actions';
 import { dateDefaults, textDefaults, findSetForDocument } from '../utils';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
@@ -286,6 +286,8 @@ export interface ConnectedControlProps extends ControlProps {
     closeActivateControlModal: () => void;
 
     save: () => void;
+
+    finishedSigningDocument: () => void;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -304,17 +306,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
             this.scrollTo(this.props.nextInvalidOverlay);
         }
         else {
-            const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients }  = this.props;
-            const hasSigned = hasSignature || hasInitial || hasDate || hasText;
-            const selfSign = (hasSigned && !hasPrompt && !hasRecipients) || this.props.requestedSignatureInfo;
-
-            if (selfSign) {
-                const signRequestId = this.props.requestedSignatureInfo ? this.props.requestedSignatureInfo.signRequestId : null;
-                this.props.showSignConfirmationModal();
-            }
-            else {
-                this.props.showSubmitConfirmationModal();
-            }
+            this.props.finishedSigningDocument();
         }
     }
 
@@ -543,6 +535,8 @@ function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
         activateDate: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.DATE })),
         activateText: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.TEXT })),
         activatePrompt: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.PROMPT })),
+
+        finishedSigningDocument: () => dispatch(finishedSigningDocument({ documentId })),
 
         showSignConfirmationModal: () => {
             const signRequestId = ownProps.requestedSignatureInfo ? ownProps.requestedSignatureInfo.signRequestId : null;

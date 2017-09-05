@@ -406,6 +406,7 @@ declare namespace Sign.Actions {
         SET_SIGN_REQUEST_STATUS = "SET_SIGN_REQUEST_STATUS",
         NEXT_DOCUMENT = 'NEXT_DOCUMENT',
         MARK_DOCUMENT_AS_COMPLETE = 'MARK_DOCUMENT_AS_COMPLETE',
+        FINISHED_SIGNING_DOCUMENT = 'FINISHED_SIGNING_DOCUMENT',
 
         REQUEST_DOCUMENT_SET = 'REQUEST_DOCUMENT_SET',
         REQUEST_DOCUMENT_SETS = 'REQUEST_DOCUMENT_SETS',
@@ -807,6 +808,10 @@ declare namespace Sign.Actions {
         complete: boolean;
     }
 
+    interface FinishedSigningDocumentPayload {
+        documentId: string;
+    }
+
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}
@@ -851,6 +856,7 @@ declare namespace Sign.Actions {
     interface SetSignRequestStatus extends ActionCreator<SetSignRequestStatusPayload> {}
     interface NextDocument extends ActionCreator<NextDocumentPayload> {}
     interface MarkDocumentAsComplete extends ActionCreator<MarkDocumentAsCompletePayload> {}
+    interface FinishedSigningDocument extends ActionCreator<FinishedSigningDocumentPayload> {}
 
     interface RequestSignatures extends Action {}
     interface SetSignatureIds extends ActionCreator<SetSignatureIdsPayload> {}

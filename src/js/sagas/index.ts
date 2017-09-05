@@ -128,6 +128,9 @@ function *deleteDocumentSaga() {
     }
 }
 
+function formatDocument(d: any){
+    return {documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions, signStatus: d.sign_status};
+}
 
 function *requestDocumentSetSaga() {
     yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT_SET, requestDocumentSet);
@@ -156,10 +159,12 @@ function *requestDocumentSetSaga() {
         yield put(updateDocumentSet({
             documentSetId: action.payload.documentSetId,
             downloadStatus: Sign.DownloadStatus.Complete,
-            documentIds: (data.documents || []).map((d: any) => d.document_id)
+            documentIds: (data.documents || []).map((d: any) => d.document_id),
+            documents: data.documents.map(formatDocument)
         }));
 
         if(data.documents){
+
             const recipients : Sign.Recipients = data.documents.reduce((acc: Sign.Recipients, document: any) => {
                 if(document.field_data && document.field_data.recipients){
                     acc = [...acc, ...document.field_data.recipients];
@@ -171,7 +176,6 @@ function *requestDocumentSetSaga() {
                 yield put(defineRecipients({documentSetId: action.payload.documentSetId, recipients}));
             }
 
-            //todo add new action for mass setting views
             const payload : Sign.Actions.AddOverlaysPayload = data.documents.reduce((acc : any, document: any) => {
                 if(document.field_data && document.field_data.view){
                     ['signatures', 'prompts', 'texts', 'dates'].map(k => {
@@ -209,7 +213,7 @@ function *requestDocumentSetsSaga() {
         const data = response.data.map((d : any) => {
             return {createdAt: d.created_at, title: d.name, documentSetId: d.document_set_id,
                 documents: (d.documents || [])
-                .map((d : any) => ({documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions, signStatus: d.sign_status})) }
+                .map(formatDocument) }
         });
         yield put(updateDocumentSets({
             downloadStatus: Sign.DownloadStatus.Complete,

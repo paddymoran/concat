@@ -203,6 +203,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
             requestPrompts = prompts
                 .filter((prompt : Sign.DocumentPrompt) =>  prompt.documentId === this.props.documentId)
                 .filter((prompt : Sign.DocumentPrompt) => !sourceIds[prompt.promptIndex])
+            debugger;
             return requestPrompts;
         }
     }

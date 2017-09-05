@@ -108,6 +108,7 @@ SELECT json_agg(row_to_json(q)) as "signature_requests"
 FROM (
 SELECT json_agg(
     json_build_object(
+    'original_document_id', sr.document_id,
     'document_id', latest_document_id(sr.document_id),
     'filename', d.filename,
     'sign_request_id', sr.sign_request_id,

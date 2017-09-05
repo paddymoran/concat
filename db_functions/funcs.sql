@@ -77,6 +77,7 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
         ) qq
         JOIN document_sets ds ON ds.document_set_id = $1
         GROUP BY ds.name, ds.created_at
+        ORDER BY ds.created_at DESC
  ) qqq
 
 $$ LANGUAGE sql;
@@ -120,6 +121,7 @@ LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
 WHERE sr.user_id = $1
 
 GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id
+ORDER BY ds.created_at DESC
 ) q
 $$ LANGUAGE sql;
 

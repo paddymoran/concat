@@ -21,6 +21,9 @@ const DateTooltip = () => <Popover id="signature-tooltip" title="Dates">Click to
 const TextTooltip = () => <Popover id="signature-tooltip" title="Textbox">Click to toggle Textbox Mode, or drag the button onto the page.  You can edit the text once it was been placed.</Popover>;
 const PromptTooltip = () => <Popover id="signature-tooltip" title="Signature Request">Click to toggle Sign Here Mode, or drag the button onto the page.  You can edit who is prompt is intended for, and what they must enter, once it was been placed.</Popover>;
 
+const FAST_TOOLTIP_DELAY = 0;
+const SLOW_TOOLTIP_DELAY = 750;
+
 interface DragProps {
     connectDragSource?: Function;
     connectDragPreview?: Function;
@@ -293,6 +296,10 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
     }
 
     sign() {
+        if (!this.canSubmit()) {
+            return false;
+        }
+
         if (this.props.nextInvalidOverlay) {
             this.scrollTo(this.props.nextInvalidOverlay);
         }
@@ -320,6 +327,12 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         Scroll.scrollTo(`overlay-${id}`, {smooth: true, duration: 350, offset: -233});
     }
 
+    canSubmit() {
+        const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients }  = this.props;
+        const hasSigned = ( hasSignature || hasInitial || hasDate || hasText);
+        return hasSigned || hasRecipients;
+    }
+
     render() {
         const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients }  = this.props;
         const hasSigned = ( hasSignature || hasInitial || hasDate || hasText);
@@ -335,7 +348,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         }
         const nextPrompt = this.props.getNextPrompt();
 
-        const canSubmit = hasSigned || hasRecipients;
+        const canSubmit = this.canSubmit();
         
         const saveIcon = {
             [Sign.DownloadStatus.InProgress]: 'fa-spin fa-spinner fa-3x fa-fw',
@@ -354,7 +367,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
             <div className="controls" onClick={this.props.activateNone}>
                 <div className="container">
                     <div className="controls-left">
-                        <ConditionalTooltip condition={!this.props.selectedSignatureId} delay={this.props.hasSignature ? 0 : 750} tooltip={this.props.hasSignature ? SignatureTooltip() : SignatureDragTooltip()}>
+                        <ConditionalTooltip condition={!this.props.selectedSignatureId} delay={this.props.hasSignature ? FAST_TOOLTIP_DELAY : SLOW_TOOLTIP_DELAY} tooltip={this.props.hasSignature ? SignatureTooltip() : SignatureDragTooltip()}>
                             <DraggableAddSignatureControl signatureId={this.props.selectedSignatureId}  defaults={this.props.overlayDefaults.signature}>
                                 <div className="draggable">
                                     <SignatureButton
@@ -364,7 +377,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                             </DraggableAddSignatureControl>
                         </ConditionalTooltip>
 
-                        <ConditionalTooltip condition={!this.props.selectedInitialId} delay={this.props.hasInitial ? 0 : 750} tooltip={this.props.hasInitial ? InitialTooltip() : InitialDragTooltip()}>
+                        <ConditionalTooltip condition={!this.props.selectedInitialId} delay={this.props.hasInitial ? FAST_TOOLTIP_DELAY : SLOW_TOOLTIP_DELAY} tooltip={this.props.hasInitial ? InitialTooltip() : InitialDragTooltip()}>
                             <DraggableAddSignatureControl signatureId={this.props.selectedInitialId} defaults={this.props.overlayDefaults.signature}>
                                 <div className="draggable">
                                     <InitialButton
@@ -515,7 +528,7 @@ function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
 
     return {
         showInviteModal: () => dispatch(showInviteModal({ documentSetId })),
-        reject: () => dispatch(showRejectConfirmationModal),
+        reject: () => dispatch(showRejectConfirmationModal({ documentId })),
         showActivateControlModal: () => dispatch(showActivateControlModal({
             isDocumentOwner: ownProps.isDocumentOwner,
             requestPrompts: ownProps.requestPrompts,

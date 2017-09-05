@@ -221,6 +221,12 @@ def upsert_user(user):
     Create or update a user
     """
     database = get_db()
+
+    user_dict = defaultdict(lambda: False)
+    user_dict.update(user)
+
+    user = user_dict
+
     if current_app.config.get('USE_DB_UPSERT'):
         query = """
             INSERT INTO users (user_id, name, email, subscribed)

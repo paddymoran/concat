@@ -810,6 +810,8 @@ declare namespace Sign.Actions {
 
     interface FinishedSigningDocumentPayload {
         documentId: string;
+        documentSetId: string;
+        signRequestId: number;
     }
 
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}

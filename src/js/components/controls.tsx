@@ -277,8 +277,6 @@ export interface ConnectedControlProps extends ControlProps {
     activatePrompt: () => void;
 
     showActivateControlModal: () => void;
-    showSignConfirmationModal: () => void;
-    showSubmitConfirmationModal: () => void;
     getNextPrompt: () => Sign.DocumentPrompt;
 
     isButtonActive: { [key: string]: boolean };
@@ -536,15 +534,11 @@ function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
         activateText: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.TEXT })),
         activatePrompt: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.PROMPT })),
 
-        finishedSigningDocument: () => dispatch(finishedSigningDocument({ documentId })),
-
-        showSignConfirmationModal: () => {
+        finishedSigningDocument: () => {
             const signRequestId = ownProps.requestedSignatureInfo ? ownProps.requestedSignatureInfo.signRequestId : null;
-
-            dispatch(showSignConfirmationModal({ documentId, documentSetId, signRequestId  }));
+            dispatch(finishedSigningDocument({ documentId, documentSetId, signRequestId }))
         },
 
-        showSubmitConfirmationModal: () => dispatch(showSubmitConfirmationModal({ documentSetId })),
         closeActivateControlModal: () =>  dispatch(closeModal({ modalName: Sign.ModalType.ACTIVATE_CONTROL })),
 
         save: () =>  dispatch(saveDocumentView({ documentSetId, documentId }))

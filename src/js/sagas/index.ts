@@ -3,7 +3,7 @@ import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import * as Axios from 'axios';
 import axios from 'axios';
 import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures,
-    addPromptToDocument, updateModalData, addOverlays, defineRecipients, updateContacts, updateUsage, removeDocument, showFailureModal } from '../actions';
+    addPromptToDocument, updateModalData, addOverlays, defineRecipients, updateContacts, updateUsage, removeDocument, showFailureModal, showSignConfirmationModal } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -33,6 +33,7 @@ export default function *rootSaga(): any {
         emailDocumentSaga(),
         requestContactsSaga(),
         requestUsageSaga(),
+        finishedSigningDocumentSaga(),
         ...pdfStoreSagas,
         ...signatureSagas,
         ...documentViewerSagas,
@@ -404,5 +405,17 @@ function *uploadDocumentSaga() {
             const unsubscribe = () => {};
             return unsubscribe;
         });
+    }
+}
+
+function *finishedSigningDocumentSaga() {
+    yield takeEvery(Sign.Actions.Types.FINISHED_SIGNING_DOCUMENT, finishedSigningDocument);
+
+    function *finishedSigningDocument(action: Sign.Actions.FinishedSigningDocument) {
+        yield put(showSignConfirmationModal({
+            documentId: action.payload.documentId,
+            documentSetId: action.payload.documentSetId,
+            signRequestId: action.payload.signRequestId
+        }));
     }
 }

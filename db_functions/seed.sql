@@ -212,6 +212,55 @@ GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id
 $_$;
 
 
+--
+-- Name: usage(integer, integer, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION usage(user_id integer, default_amount_per_unit integer, default_unit text) RETURNS TABLE(signed_this_unit integer, requested_this_unit integer, amount_per_unit integer, unit text, max_allowance_reached boolean)
+    LANGUAGE sql
+    AS $_$
+
+    WITH 
+    usage_allowance as (
+        SELECT
+        CASE WHEN subscribed IS TRUE THEN NULL ELSE COALESCE(amount_per_unit, $2) END as amount_per_unit,
+        COALESCE(unit, $3) as unit
+        FROM public.users u
+        LEFT OUTER JOIN user_usage_limits uul ON uul.user_id = u.user_id
+        WHERE u.user_id = 9
+        LIMIT 1
+    ),
+    total_signed as (
+        SELECT
+        count(*)::integer as "signed_this_unit"
+        FROM sign_results sr
+        JOIN documents d ON d.document_id = sr.result_document_id
+        WHERE
+        sign_request_id IS NULL
+        AND user_id = $1
+        AND created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+    ),
+    total_requested as (
+        SELECT count(DISTINCT d.document_id)::integer as "requested_this_unit"
+    FROM sign_requests sr
+    JOIN documents d on d.document_id = sr.document_id
+    JOIN document_sets ds on d.document_set_id = ds.document_set_id
+    WHERE
+    ds.user_id = $1
+    AND d.created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+    )
+    SELECT signed_this_unit, requested_this_unit, amount_per_unit, unit, (signed_this_unit + requested_this_unit) > amount_per_unit as max_allowance_reached
+    FROM (
+    SELECT
+        (SELECT signed_this_unit FROM total_signed),
+        (SELECT requested_this_unit FROM total_requested),
+        (SELECT  amount_per_unit FROM usage_allowance),
+        (SELECT unit FROM usage_allowance)
+
+        ) q
+$_$;
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;

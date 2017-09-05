@@ -15,6 +15,7 @@ class UnconnectedActivateControlModal extends React.PureComponent<ConnectedContr
         this.activatePrompt = this.activatePrompt.bind(this);
         this.saveDraft = this.saveDraft.bind(this);
         this.showInviteModal = this.showInviteModal.bind(this);
+        this.reject = this.reject.bind(this);
     }
 
     activateSignature() {
@@ -52,6 +53,11 @@ class UnconnectedActivateControlModal extends React.PureComponent<ConnectedContr
         this.props.closeActivateControlModal();
     }
 
+    reject() {
+        this.props.reject();
+        this.props.closeActivateControlModal();
+    }
+
     render() {
         return (
             <Modal backdrop="static" show={true} onHide={this.props.closeActivateControlModal}>
@@ -64,9 +70,10 @@ class UnconnectedActivateControlModal extends React.PureComponent<ConnectedContr
                     <Button block bsSize="lg" onClick={this.activateInitial}>Initial</Button>
                     <Button block bsSize="lg" onClick={this.activateDate}>Date</Button>
                     <Button block bsSize="lg" onClick={this.activateText}>Text</Button>
-                    <Button block bsSize="lg" onClick={this.activatePrompt}>Request Signature</Button>
-                    <Button block bsSize="lg" onClick={this.saveDraft}>Save Draft</Button>
-                    <Button block bsSize="lg" onClick={this.showInviteModal}>Invite</Button>
+                    {this.props.showPrompts && <Button block bsSize="lg" onClick={this.activatePrompt}>Request Signature</Button>}
+                    {this.props.showSave && <Button block bsSize="lg" onClick={this.saveDraft}>Save Draft</Button>}
+                    {this.props.showInvite && <Button block bsSize="lg" onClick={this.showInviteModal}>Invite</Button>}
+                    {this.props.showReject && <Button block bsSize="lg" onClick={this.reject}>Reject</Button>}
                 </Modal.Body>
             </Modal>
         );

@@ -515,7 +515,7 @@ function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
 
     return {
         showInviteModal: () => dispatch(showInviteModal({ documentSetId })),
-        reject: () => dispatch(showRejectConfirmationModal),
+        reject: () => dispatch(showRejectConfirmationModal({ documentId })),
         showActivateControlModal: () => dispatch(showActivateControlModal({
             isDocumentOwner: ownProps.isDocumentOwner,
             requestPrompts: ownProps.requestPrompts,

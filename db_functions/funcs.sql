@@ -6,6 +6,19 @@ BEGIN
 END $$ LANGUAGE 'plpgsql';
 
 
+CREATE OR REPLACE FUNCTION rejection_explaination (uuid)
+RETURNS JSON as
+$$
+SELECT json_agg(row_to_json(q)) FROM (
+    SELECT u.user_id as user_id, name, email, srr.field_data, srr.created_at
+    FROM documents d
+    LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
+    LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
+    JOIN public.users u on srr.user_id = u.user_id
+    WHERE d.document_id = $1 AND NOT srr.accepted
+) q
+$$ LANGUAGE sql;
+
 DROP TRIGGER IF EXISTS  document_hash_trigger on documents;
 CREATE TRIGGER document_hash_trigger
     BEFORE INSERT ON documents
@@ -16,13 +29,18 @@ CREATE TRIGGER document_hash_trigger
 CREATE OR REPLACE FUNCTION document_status(uuid)
     RETURNS text as
     $$
-    SELECT CASE WHEN (every(sr.sign_request_id is null) and every(srrr.sign_result_id is not null)) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
+    SELECT CASE
+        WHEN (every(sr.sign_request_id is null) and every(srrr.sign_result_id is not null)) THEN 'Signed' -- self signed
+        WHEN bool_or(NOT srr.accepted) THEN 'Rejected'
+        WHEN every(srr.sign_request_id is not null) THEN 'Signed'
+        ELSE 'Pending' END as status
     FROM documents d
     LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
     LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
     LEFT OUTER JOIN sign_results srrr on srrr.input_document_id  = d.document_id
     WHERE d.document_id = $1
 $$ LANGUAGE sql;
+
 
 
 CREATE OR REPLACE FUNCTION latest_document_id(uuid)
@@ -63,9 +81,9 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
             $1 as document_set_id,
              ds.name as name, ds.created_at as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents,
-            CASE WHEN EVERY(sign_status = 'Signed') THEN 'Complete' ELSE 'Pending' END as status
+            CASE WHEN EVERY(sign_status != 'Pending') THEN 'Complete' ELSE 'Pending' END as status
         FROM (
-            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status
+            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status, rejection_explaination(start_id) as rejection_explaination
             FROM (
                 SELECT
                 DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions, first_value(document_id) over wnd as start_id
@@ -116,7 +134,10 @@ SELECT json_agg(
     'sign_request_id', sr.sign_request_id,
     'prompts', sr.field_data,
     'created_at', d.created_at,
-    'sign_status', CASE WHEN srr.sign_result_id IS NOT NULL THEN 'Signed' ELSE 'Pending' END
+    'sign_status', CASE WHEN srr.sign_result_id IS NOT NULL
+        THEN CASE WHEN srr.accepted THEN 'Signed' ELSE 'Rejected' END
+
+        ELSE 'Pending' END
     )) as documents,
     d.document_set_id, ds.name, ds.created_at, u.name as "requester", u.user_id
 FROM sign_requests sr
@@ -136,7 +157,7 @@ $$ LANGUAGE sql;
 CREATE OR REPLACE FUNCTION document_set_status(uuid)
 RETURNS text as
 $$
-SELECT CASE WHEN EVERY(document_status(document_id) = 'Signed') THEN 'Complete' ELSE 'Pending' END as status
+SELECT CASE WHEN EVERY(document_status(document_id) != 'Pending') THEN 'Complete' ELSE 'Pending' END as status
 FROM documents d
 WHERE document_set_id = $1
 $$ LANGUAGE sql;
@@ -173,7 +194,7 @@ AS $$
         WHERE
         sign_request_id IS NULL
         AND user_id = $1
-        AND created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+        AND d.created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
         AND rdi.document_id IS NULL
 
     ),

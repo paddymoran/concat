@@ -23,7 +23,7 @@ class RejectionInfo extends React.PureComponent<{document: Sign.Document}>{
         if(!this.props.document.rejectionExplaination || !this.props.document.rejectionExplaination.length){
             return false;
         }
-        return <div className="rejection-info">
+        return <div className="rejection-info ">
             { this.props.document.rejectionExplaination.map((r : Sign.RejectionExplaination, i: number) => {
                 if(r.rejectMessage){
                     return <div key={i}>Rejected by { r.name } - "{r.rejectMessage}"</div>
@@ -37,6 +37,7 @@ class RejectionInfo extends React.PureComponent<{document: Sign.Document}>{
 
 interface UnconnectedDocumentSetListProps {
     documentSetId: string;
+    showDownloadAll?: boolean;
 }
 
 interface DocumentSetListProps extends UnconnectedDocumentSetListProps {
@@ -53,15 +54,17 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
 
     render() {
         const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
+
         return (
             <div className="document-set">
                 <div className="document-set-title">{documentSetLabel}</div>
 
-                {this.props.documentSet.documentIds.map((documentId, i : number) => {
+                { this.props.documentSet.documentIds.map((documentId, i : number) => {
                     const document = this.props.documents[documentId]
 
                     return (
-                        <div key={i} className="document-line">
+                        <div key={i} className="document-info">
+                            <div  className="document-line">
                             <span className="icon-status">
                                 <SignStatus signStatus={document.signStatus}/>
                                 <i className="fa fa-file-pdf-o" />
@@ -71,10 +74,16 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                 <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}><i className="fa fa-download"/>Download</a>
                                 <a className="btn btn-default btn-xs" onClick={() => this.emailDocument(documentId) }><i className="fa fa-send"/>Email</a>
                             </span>
+                            </div>
                             { document.signStatus === 'Rejected' && <RejectionInfo document={document} /> }
                         </div>
                     );
-                })}
+                }) }
+
+                <div className="document-set-controls">
+                    { this.props.showDownloadAll && this.props.documentSet.documentIds.length > 1 &&
+                        <a className="btn btn-default btn-xs"  target="_blank" href={`/api/download_set/${this.props.documentSetId}`}><i className="fa fa-download"/>Download All</a> }
+                </div>
             </div>
         );
     }
@@ -102,7 +111,7 @@ class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>
         return (
             <div>
                 <div className="document-set-list">
-                    { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} />)}
+                    { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} showDownloadAll={true}/>)}
                 </div>
             </div>
         );

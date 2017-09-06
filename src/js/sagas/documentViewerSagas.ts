@@ -18,15 +18,20 @@ function *signDocument(action: Sign.Actions.SignDocument) {
     }
     yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
 
-    const { documentViewer, reject, rejectMessage } = yield select((state: Sign.State) => ({
+    const { documentViewer, reject, rejectMessage, signRequestId } = yield select((state: Sign.State) => ({
         documentViewer: state.documentViewer,
         reject: state.documentViewer.documents[action.payload.documentId].signStatus === Sign.SignStatus.REJECTED,
-        rejectMessage: state.documentViewer.documents[action.payload.documentId].rejectReason
+        rejectMessage: state.documentViewer.documents[action.payload.documentId].rejectReason,
+        signRequestId: state.requestedSignatures.documentSets &&
+            state.requestedSignatures.documentSets[action.payload.documentSetId] &&
+            state.requestedSignatures.documentSets[action.payload.documentSetId][action.payload.documentId] &&
+            state.requestedSignatures.documentSets[action.payload.documentSetId][action.payload.documentId].signRequestId
     }));
 
     const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === action.payload.documentId);
     const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === action.payload.documentId);
     const texts = Object.keys(documentViewer.texts).map(key => documentViewer.texts[key]).filter(text => text.documentId === action.payload.documentId);
+
 
     const overlays = [...dates, ...texts].map(o => {
         const canvas = stringToCanvas(o.height * 4, o.value);
@@ -39,7 +44,8 @@ function *signDocument(action: Sign.Actions.SignDocument) {
         signatures,
         overlays,
         reject,
-        rejectMessage
+        rejectMessage,
+        signRequestId
     };
 
     try {

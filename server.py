@@ -339,20 +339,24 @@ def sign_document():
     sign_request_id = args.get('signRequestId', None)
     if not sign_request_id and not can_sign_or_submit(session['user_id']):
         abort(401)
-    for signature in args['signatures']:
-        signature['imgData'] = BytesIO(db.get_signature(signature['signatureId'], session['user_id']))
-    for overlay in args['overlays']:
-        base64Image = overlay['dataUrl']
-        overlay['imgData'] = BytesIO(b64decode(base64Image.split(",")[1]))
-    if not args.get('reject'):
+
+    if args.get('reject'):
+        db.reject_document(session['user_id'], document_id, sign_request_id, {'rejectedMessage': args.get('rejectMessage')})
+    else:
+        for signature in args['signatures']:
+            signature['imgData'] = BytesIO(db.get_signature(signature['signatureId'], session['user_id']))
+        for overlay in args['overlays']:
+            base64Image = overlay['dataUrl']
+            overlay['imgData'] = BytesIO(b64decode(base64Image.split(",")[1]))
+        
         result = sign(document, args['signatures'], args['overlays'])
         saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
         db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
-    else:
-        db.reject_document(session['user_id'], document_id, sign_request_id, {'rejectedMessage': args.get('rejectMessage')})
+        
     if sign_request_id:
         check_document_set_completion(args['documentSetId'])
-    return jsonify({'document_id': saved_document_id})
+    
+    return jsonify({'message': 'done'})
 
 
 @app.route('/api/request_signatures', methods=['POST'])

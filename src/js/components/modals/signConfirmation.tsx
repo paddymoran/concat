@@ -8,10 +8,10 @@ import { signDocumentRoute, getNextDocument } from '../../utils';
 import { SignStatus } from '../requestedSignatures';
 
 
-function prepareSubmitPayload(documentSetId : string, documentSet : Sign.DocumentSet, documentViewer: Sign.DocumentViewer) : Sign.Actions.SubmitDocumentSetPayload {
-    const prompts = Object.keys(documentViewer.prompts).reduce((acc:any, key:string) => {
-        const prompt : Sign.DocumentPrompt = documentViewer.prompts[key];
-        if(documentSet.documentIds.indexOf(prompt.documentId) >= 0){
+function prepareSubmitPayload(documentSetId: string, documentSet: Sign.DocumentSet, documentViewer: Sign.DocumentViewer): Sign.Actions.SubmitDocumentSetPayload {
+    const prompts = Object.keys(documentViewer.prompts).reduce((acc: any, key: string) => {
+        const prompt: Sign.DocumentPrompt = documentViewer.prompts[key];
+        if (documentSet.documentIds.indexOf(prompt.documentId) >= 0) {
             acc[prompt.value.recipientEmail] = [...(acc[prompt.value.recipientEmail] || []), prompt];
         }
         return acc;
@@ -21,7 +21,7 @@ function prepareSubmitPayload(documentSetId : string, documentSet : Sign.Documen
         return acc;
     }, {});
 
-    if(Object.keys(prompts).length){
+    if (Object.keys(prompts).length) {
         return {
             documentSetId,
             signatureRequests: Object.keys(prompts).map((key:string) => {
@@ -145,7 +145,7 @@ class SignAndNext extends React.PureComponent<SignAndNextProps> {
     }
 
     next() {
-        this.goToDocument(this.props.currentDocumentId);
+        this.goToDocument(this.props.nextDocumentId);
     }
 
     goToDocument(documentId: string) {

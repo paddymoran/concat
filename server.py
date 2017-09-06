@@ -20,6 +20,8 @@ import codecs
 from copy import deepcopy
 from base64 import b64decode
 from urllib.parse import urlparse
+import zipfile
+from dateutil.parser import parse
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -258,7 +260,21 @@ def get_document(doc_id):
         print(e)
         raise InvalidUsage(e.message, status_code=500)
 
-
+@app.route('/api/download_set/<set_id>', methods=['GET'])
+def get_document_set_zip(set_id):
+    try:
+        documents = db.get_document_set(session['user_id'], set_id)
+        output = BytesIO()
+        with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as z:
+            for doc in documents['documents']:
+                document = db.get_document(session['user_id'], doc['document_id'])
+                z.writestr(document['filename'], document['data'])
+        output.seek(0)
+        # Do MMM, h:mm:ss a"
+        date_string = parse(documents['created_at']).strftime("%c")
+        return send_file(output, mimetype='application/pdf', attachment_filename=('CataLex Sign - %s.zip' % date_string), as_attachment=True)
+    except Exception as e:
+        raise InvalidUsage(e, status_code=500)
 '''
 Signatures
 '''

@@ -12,7 +12,8 @@ setup(name='catalex_sign',
           'requests',
           'psycopg2',
           'pdfrw',
-          'reportlab'
+          'reportlab',
+          'python-dateutil'
       ],
         dependency_links=[
             "git+https://github.com/pmaupin/pdfrw.git#egg=pdfrw"

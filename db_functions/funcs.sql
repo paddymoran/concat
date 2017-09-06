@@ -78,7 +78,7 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
 )
     SELECT row_to_json(qqq) FROM (
         SELECT
-            $1 as document_set_id,
+            $2 as document_set_id,
              ds.name as name, ds.created_at as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents,
             CASE WHEN EVERY(sign_status != 'Pending') THEN 'Complete' ELSE 'Pending' END as status
@@ -135,7 +135,7 @@ SELECT json_agg(
     'prompts', sr.field_data,
     'created_at', d.created_at,
     'sign_status', CASE WHEN srr.sign_result_id IS NOT NULL
-        THEN CASE WHEN srr.accepted THEN 'Signed' ELSE 'Rejected' END
+        THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
 
         ELSE 'Pending' END
     )) as documents,

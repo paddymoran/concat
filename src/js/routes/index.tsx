@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { IndexRoute, Route } from 'react-router';
 import App, { ContainerWithStatusBar, Container } from '../components/app';
-import { SelectWorkflow, SelectAnnotation } from '../components/selectWorkflow';
 import DocumentView, { RequestedDocumentView}  from '../components/documentView';
 import { DocumentSetView, UploadDocumentsWithDocumentSetId } from '../components/uploadDocuments';
 import SelectRecipients from '../components/selectRecipients';

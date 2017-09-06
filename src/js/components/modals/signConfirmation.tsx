@@ -5,9 +5,10 @@ import { closeModal, markDocumentAsComplete, submitDocumentSet } from '../../act
 import { push } from 'react-router-redux';
 import { signDocumentRoute, getNextDocument } from '../../utils';
 import { prepareSubmitPayload } from './submitConfirmation';
+import { SignStatus } from '../requestedSignatures';
 
 export interface DocumentWithComplete extends Sign.Document {
-    complete: boolean;
+    signStatus: Sign.SignStatus;
 }
 
 interface SignConfirmationProps {
@@ -66,7 +67,7 @@ export class DocumentsList extends React.PureComponent<DocumentsListProps> {
 
                     return (
                         <p key={document.id}>
-                            <a onClick={() => this.props.goToDocument(document.id)}>{document.filename}</a>: {document.complete ? 'complete' : 'pending'}
+                            <a onClick={() => this.props.goToDocument(document.id)}>{document.filename}</a>: <SignStatus signStatus={document.signStatus}/>
                         </p>
                     );
                 })}
@@ -175,7 +176,7 @@ export default connect(
         const documents = documentIds.map(documentId => ({
             id: documentId,
             ...state.documents[documentId],
-            complete: (state.documentViewer.documents[documentId] || { completed: false }).completed
+            signStatus: (state.documentViewer.documents[documentId] || { signStatus: Sign.SignStatus.PENDING }).signStatus
         }));
 
         return {

@@ -328,9 +328,12 @@ def sign_document():
     for overlay in args['overlays']:
         base64Image = overlay['dataUrl']
         overlay['imgData'] = BytesIO(b64decode(base64Image.split(",")[1]))
-    result = sign(document, args['signatures'], args['overlays'])
-    saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
-    db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
+    if not args.get('reject'):
+        result = sign(document, args['signatures'], args['overlays'])
+        saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
+        db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
+    else:
+        db.reject_document(session['user_id'], document_id, sign_request_id, {'rejectedMessage': args.get('rejectMessage')})
     if sign_request_id:
         check_document_set_completion(args['documentSetId'])
     return jsonify({'document_id': saved_document_id})

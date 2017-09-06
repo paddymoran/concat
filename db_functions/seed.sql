@@ -63,7 +63,7 @@ CREATE FUNCTION delete_document(user_id integer, document_id uuid) RETURNS void
     LANGUAGE sql
     AS $_$
 DELETE FROM document_data dd
-USING documents d 
+USING documents d
 JOIN document_sets ds ON ds.document_set_id = d.document_set_id
 WHERE d.document_data_id = dd.document_data_id and user_id = $1 AND document_id = $2 ;
 
@@ -84,10 +84,10 @@ END $$;
 
 
 --
--- Name: document_set_json(uuid); Type: FUNCTION; Schema: public; Owner: -
+-- Name: document_set_json(integer, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION document_set_json(uuid) RETURNS json
+CREATE FUNCTION document_set_json(user_id integer, uuid) RETURNS json
     LANGUAGE sql
     AS $_$
 WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generation) as (
@@ -102,25 +102,27 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
         SELECT
             $1 as document_set_id,
              ds.name as name, ds.created_at as created_at,
-            array_to_json(array_agg(row_to_json(qq))) as documents
+            array_to_json(array_agg(row_to_json(qq))) as documents,
+            CASE WHEN EVERY(sign_status = 'Signed') THEN 'Complete' ELSE 'Pending' END as status
         FROM (
             SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status
             FROM (
                 SELECT
                 DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions, first_value(document_id) over wnd as start_id
                 FROM docs d
-                WHERE document_set_id = $1
+                WHERE document_set_id = $2
 
                 WINDOW wnd AS (
                    PARTITION BY original_id ORDER BY generation ASC
                    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
                 )
-        ) q
-        JOIN documents d on d.document_id = q.document_id
-        LEFT OUTER JOIN document_view dv ON d.document_id = dv.document_id
+            ) q
+            JOIN documents d on d.document_id = q.document_id
+            LEFT OUTER JOIN document_view dv ON (d.document_id = dv.document_id and user_id = $1)
         ) qq
-        JOIN document_sets ds ON ds.document_set_id = $1
+        JOIN document_sets ds ON ds.document_set_id = $2
         GROUP BY ds.name, ds.created_at
+        ORDER BY ds.created_at DESC
  ) qqq
 
 $_$;
@@ -146,11 +148,12 @@ $_$;
 CREATE FUNCTION document_status(uuid) RETURNS text
     LANGUAGE sql
     AS $_$
-	SELECT CASE WHEN every(sr.sign_request_id is null) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
-	FROM documents d
-	LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
-	LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
-	WHERE d.document_id = $1
+    SELECT CASE WHEN (every(sr.sign_request_id is null) and every(srrr.sign_result_id is not null)) OR every(srr.sign_request_id is not null) THEN 'Signed' ELSE 'Pending' END as status
+    FROM documents d
+    LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
+    LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
+    LEFT OUTER JOIN sign_results srrr on srrr.input_document_id  = d.document_id
+    WHERE d.document_id = $1
 $_$;
 
 
@@ -161,23 +164,23 @@ $_$;
 CREATE FUNCTION latest_document_id(uuid) RETURNS uuid
     LANGUAGE sql
     AS $_$
-	WITH RECURSIVE docs(document_id, prev_id, original_id, generation) as (
-	    SELECT t.document_id, null::uuid, t.document_id, 0
-	    FROM documents t
-	    WHERE document_id = $1
-	    UNION
-	   SELECT result_document_id, input_document_id,original_id, generation + 1
-	    FROM sign_results tt, docs t
-	    WHERE t.document_id = tt.input_document_id
-	)
-	SELECT
-	DISTINCT last_value(document_id) over wnd AS document_id
-	FROM docs d
+    WITH RECURSIVE docs(document_id, prev_id, original_id, generation) as (
+        SELECT t.document_id, null::uuid, t.document_id, 0
+        FROM documents t
+        WHERE document_id = $1
+        UNION
+       SELECT result_document_id, input_document_id,original_id, generation + 1
+        FROM sign_results tt, docs t
+        WHERE t.document_id = tt.input_document_id
+    )
+    SELECT
+    DISTINCT last_value(document_id) over wnd AS document_id
+    FROM docs d
 
-	WINDOW wnd AS (
-	   PARTITION BY original_id ORDER BY generation ASC
-	   ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-	)
+    WINDOW wnd AS (
+       PARTITION BY original_id ORDER BY generation ASC
+       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+    )
 $_$;
 
 
@@ -192,6 +195,7 @@ SELECT json_agg(row_to_json(q)) as "signature_requests"
 FROM (
 SELECT json_agg(
     json_build_object(
+    'original_document_id', sr.document_id,
     'document_id', latest_document_id(sr.document_id),
     'filename', d.filename,
     'sign_request_id', sr.sign_request_id,
@@ -208,6 +212,7 @@ LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
 WHERE sr.user_id = $1
 
 GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id
+ORDER BY ds.created_at DESC
 ) q
 $_$;
 
@@ -220,7 +225,7 @@ CREATE FUNCTION usage(user_id integer, default_amount_per_unit integer, default_
     LANGUAGE sql
     AS $_$
 
-    WITH 
+    WITH
     usage_allowance as (
         SELECT
         CASE WHEN subscribed IS TRUE THEN NULL ELSE COALESCE(amount_per_unit, $2) END as amount_per_unit,
@@ -230,24 +235,31 @@ CREATE FUNCTION usage(user_id integer, default_amount_per_unit integer, default_
         WHERE u.user_id = 9
         LIMIT 1
     ),
+    requested_doc_ids as (
+        SELECT DISTINCT d.document_id
+        FROM sign_requests sr
+        JOIN documents d on d.document_id = sr.document_id
+        JOIN document_sets ds on d.document_set_id = ds.document_set_id
+        WHERE
+        ds.user_id = $1
+        AND d.created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+    ),
     total_signed as (
         SELECT
         count(*)::integer as "signed_this_unit"
         FROM sign_results sr
         JOIN documents d ON d.document_id = sr.result_document_id
+        LEFT OUTER JOIN requested_doc_ids rdi on rdi.document_id = sr.result_document_id
         WHERE
         sign_request_id IS NULL
         AND user_id = $1
         AND created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+        AND rdi.document_id IS NULL
+
     ),
     total_requested as (
-        SELECT count(DISTINCT d.document_id)::integer as "requested_this_unit"
-    FROM sign_requests sr
-    JOIN documents d on d.document_id = sr.document_id
-    JOIN document_sets ds on d.document_set_id = ds.document_set_id
-    WHERE
-    ds.user_id = $1
-    AND d.created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+    SELECT count(document_id)::integer as "requested_this_unit"
+    FROM requested_doc_ids
     )
     SELECT signed_this_unit, requested_this_unit, amount_per_unit, unit, (signed_this_unit + requested_this_unit) > amount_per_unit as max_allowance_reached
     FROM (
@@ -305,7 +317,8 @@ CREATE TABLE document_sets (
 
 CREATE TABLE document_view (
     document_id uuid NOT NULL,
-    field_data jsonb
+    field_data jsonb,
+    user_id integer NOT NULL
 );
 
 
@@ -379,7 +392,8 @@ CREATE TABLE sign_results (
     input_document_id uuid,
     result_document_id uuid,
     field_data jsonb,
-    sign_request_id integer
+    sign_request_id integer,
+    accepted boolean DEFAULT true
 );
 
 
@@ -477,7 +491,7 @@ ALTER TABLE ONLY document_sets
 --
 
 ALTER TABLE ONLY document_view
-    ADD CONSTRAINT document_view_pkey PRIMARY KEY (document_id);
+    ADD CONSTRAINT document_view_pkey PRIMARY KEY (document_id, user_id);
 
 
 --
@@ -557,6 +571,14 @@ ALTER TABLE ONLY document_sets
 
 ALTER TABLE ONLY document_view
     ADD CONSTRAINT document_view_document_id_fk FOREIGN KEY (document_id) REFERENCES documents(document_id);
+
+
+--
+-- Name: document_view_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY document_view
+    ADD CONSTRAINT document_view_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
 
 
 --

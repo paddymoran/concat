@@ -1,7 +1,8 @@
 from db import (
     upsert_user, add_document, get_document, get_document_set,
     find_or_create_and_validate_document_set, sign_document,
-    add_signature_requests, get_signature_requests
+    add_signature_requests, get_signature_requests,
+    reject_document
 )
 from tests import DBTestCase
 import server
@@ -230,4 +231,37 @@ class TestSigningFlows(DBTestCase):
 
 
 
+    def test_0005_simple_reject(self):
+        USER_ID_1 = 10
+        USER_ID_2 = 11
+        with server.app.app_context():
+            upsert_user({
+                        'user_id': USER_ID_1,
+                        'name': 'documentsetuser',
+                        'email': 'documentsetuser@email.com',
+                        'subscribed': True
+                        })
+            upsert_user({
+                        'user_id': USER_ID_2,
+                        'name': 'invitee',
+                        'email': 'invitee@email.com',
+                        'subscribed': True
+                        })
+            set_id = str(uuid4())
+            doc1 = str(uuid4())
+
+            find_or_create_and_validate_document_set(set_id, USER_ID_1)
+            add_document(set_id, doc1, 'input1', b'abc')
+
+            add_signature_requests(set_id,
+                                   [{'documentIds': [doc1], 'recipient': {'user_id': USER_ID_2}}])
+            requests = get_signature_requests(USER_ID_2)
+            self.assertEqual(len(requests), 1)
+            sign_request_id = requests[0]['documents'][0]['sign_request_id']
+            results = get_document_set(USER_ID_1, set_id)
+            self.assertEqual(results['status'], 'Pending')
+            reject_document(USER_ID_2, doc1, sign_request_id, {})
+            results = get_document_set(USER_ID_1, set_id)
+            self.assertEqual(results['documents'][0]['sign_status'], 'Signed')
+            self.assertEqual(results['status'], 'Complete')
 

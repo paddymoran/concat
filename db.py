@@ -316,7 +316,8 @@ def sign_document(user_id, input_document_id, result_document_id, sign_request_i
     """
     database = get_db()
     insert = """
-        INSERT INTO sign_results (user_id, input_document_id, result_document_id, sign_request_id, field_data) VALUES (%(user_id)s, %(input_document_id)s, %(result_document_id)s, %(sign_request_id)s, %(field_data)s)
+        INSERT INTO sign_results (user_id, input_document_id, result_document_id, sign_request_id, field_data)
+        VALUES (%(user_id)s, %(input_document_id)s, %(result_document_id)s, %(sign_request_id)s, %(field_data)s)
 
     """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
@@ -329,6 +330,24 @@ def sign_document(user_id, input_document_id, result_document_id, sign_request_i
         })
         database.commit()
 
+def reject_document(user_id, input_document_id, sign_request_id, data):
+    """
+    Sign a document
+    """
+    database = get_db()
+    insert = """
+        INSERT INTO sign_results (user_id, input_document_id, result_document_id, sign_request_id, field_data, accepted)
+        VALUES (%(user_id)s, %(input_document_id)s, %(input_document_id)s, %(sign_request_id)s, %(field_data)s, false)
+
+    """
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(insert, {
+            'user_id': user_id,
+            'input_document_id': input_document_id,
+            'sign_request_id': sign_request_id,
+            'field_data': psycopg2.extras.Json(data)
+        })
+        database.commit()
 
 def get_document_set(user_id, set_id):
     """

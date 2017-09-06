@@ -16,6 +16,14 @@
             .btn{
                 margin-left: 12px;
             }
+            .icon-status{
+                display:inline-block;
+                width: 100px;
+            }
+            .rejection-info{
+                margin-left: 100px;
+                color: $deep-red;
+            }
         }
     }
 }

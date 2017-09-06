@@ -14,25 +14,25 @@ interface DocumentSets {
     documentSets: Sign.DocumentSets
 }
 
+function statusComplete(status : string) {
+    return ['Signed', 'Rejected'].indexOf(status) >= 0
+}
 
-class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>  {
-    componentDidMount() {
-        this.props.requestDocumentSets()
-    }
+class RejectionInfo extends React.PureComponent<{document: Sign.Document}>{
     render() {
-
-        const keys = Object.keys(this.props.documentSets).filter((setId: string) => {
-            return this.props.documentSets[setId].documentIds.every(d => this.props.documents[d].signStatus === 'Signed')
-        });
-
-        return (
-            <div>
-                <div className="document-set-list">
-                    { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} />)}
-                </div>
-            </div>
-        );
+        if(!this.props.document.rejectionExplaination || !this.props.document.rejectionExplaination.length){
+            return false;
+        }
+        return <div className="rejection-info">
+            { this.props.document.rejectionExplaination.map((r : Sign.RejectionExplaination, i: number) => {
+                if(r.rejectMessage){
+                    return <div key={i}>Rejected by { r.name } - "{r.rejectMessage}"</div>
+                }
+                return <div key={i}>Rejected by { r.name }</div>
+            })}
+        </div>
     }
+
 }
 
 interface UnconnectedDocumentSetListProps {
@@ -59,15 +59,19 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
 
                 {this.props.documentSet.documentIds.map((documentId, i : number) => {
                     const document = this.props.documents[documentId]
-                    if(documentId === 'a75a79af-cb58-434c-8c07-ebe6f546a133') {
-                        //debugger;
-                    }
+
                     return (
                         <div key={i} className="document-line">
-                            <SignStatus signStatus={document.signStatus}/>
-                            <i className="fa fa-file-pdf-o" />{document.filename}
-                            <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}><i className="fa fa-download"/>Download</a>
-                            <a className="btn btn-default btn-xs" onClick={() => this.emailDocument(documentId) }><i className="fa fa-send"/>Email</a>
+                            <span className="icon-status">
+                                <SignStatus signStatus={document.signStatus}/>
+                                <i className="fa fa-file-pdf-o" />
+                            </span>
+                            <span className="filename">{document.filename}</span>
+                            <span className="file-controls">
+                                <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}><i className="fa fa-download"/>Download</a>
+                                <a className="btn btn-default btn-xs" onClick={() => this.emailDocument(documentId) }><i className="fa fa-send"/>Email</a>
+                            </span>
+                            { document.signStatus === 'Rejected' && <RejectionInfo document={document} /> }
                         </div>
                     );
                 })}
@@ -85,13 +89,33 @@ const DocumentSetList = connect(
     }
 )(UnconnectedDocumentSetList);
 
+class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>  {
+    componentDidMount() {
+        this.props.requestDocumentSets()
+    }
+    render() {
+
+        const keys = Object.keys(this.props.documentSets).filter((setId: string) => {
+            return this.props.documentSets[setId].documentIds.every(d => statusComplete(this.props.documents[d].signStatus))
+        });
+
+        return (
+            <div>
+                <div className="document-set-list">
+                    { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} />)}
+                </div>
+            </div>
+        );
+    }
+}
+
 class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  {
     componentDidMount() {
         this.props.requestDocumentSets()
     }
     render() {
         const keys = Object.keys(this.props.documentSets).filter((setId: string) => {
-            return this.props.documentSets[setId].documentIds.some(d => this.props.documents[d].signStatus === 'Pending')
+            return this.props.documentSets[setId].documentIds.some(d => !statusComplete(this.props.documents[d].signStatus))
         });
         return (
             <div>
@@ -112,7 +136,7 @@ export const CompletedDocumentSets = connect((state: Sign.State) => ({
 })(UnconnectedCompletedDocumentSets);
 
 export const PendingDocumentSets = connect((state: Sign.State) => ({
-    documentSets: state.documentSets, //.filter(set => !set.status),
+    documentSets: state.documentSets,
     documents: state.documents
 }), {
     showEmailDocumentModal,  requestDocumentSets

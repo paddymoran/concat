@@ -128,8 +128,15 @@ function *deleteDocumentSaga() {
     }
 }
 
+function formatRejection(r: any) : Sign.RejectionExplainations {
+    if(r){
+        return r.map((r: any) => ({userId: r.user_id, name: r.name, email: r.email, rejectMessage: r.field_data ? r.field_data.rejectMessage : null}))
+    }
+}
+
+
 function formatDocument(d: any){
-    return {documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions, signStatus: d.sign_status};
+    return {documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions, signStatus: d.sign_status, rejectionExplaination: formatRejection(d.rejection_explaination)};
 }
 
 function *requestDocumentSetSaga() {

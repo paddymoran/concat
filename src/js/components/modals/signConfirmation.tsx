@@ -5,8 +5,44 @@ import { connect } from 'react-redux';
 import { closeModal, markDocumentAsComplete, submitDocumentSet, rejectDocument } from '../../actions';
 import { push } from 'react-router-redux';
 import { signDocumentRoute, getNextDocument } from '../../utils';
-import { prepareSubmitPayload } from './submitConfirmation';
 import { SignStatus } from '../requestedSignatures';
+
+
+export function prepareSubmitPayload(documentSetId : string, documentSet : Sign.DocumentSet, documentViewer: Sign.DocumentViewer) : Sign.Actions.SubmitDocumentSetPayload {
+    const prompts = Object.keys(documentViewer.prompts).reduce((acc:any, key:string) => {
+        const prompt : Sign.DocumentPrompt = documentViewer.prompts[key];
+        if(documentSet.documentIds.indexOf(prompt.documentId) >= 0){
+            acc[prompt.value.recipientEmail] = [...(acc[prompt.value.recipientEmail] || []), prompt];
+        }
+        return acc;
+    }, {});
+    const recipients = (documentSet.recipients || []).reduce((acc: any, r) => {
+        acc[r.email] = r;
+        return acc;
+    }, {});
+
+    if(Object.keys(prompts).length){
+        return {
+            documentSetId,
+            signatureRequests: Object.keys(prompts).map((key:string) => {
+                return {
+                    recipient: recipients[key],
+                    prompts: prompts[key]
+                }
+            })
+        }
+    }
+
+    return {
+        documentSetId,
+        signatureRequests: (documentSet.recipients || []).map((recipient) => {
+            return {
+                recipient,
+                documentIds: documentSet.documentIds
+            }
+        })
+    }
+}
 
 export interface DocumentWithStatus extends Sign.Document {
     signStatus: Sign.SignStatus;

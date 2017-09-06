@@ -6,7 +6,7 @@ import { findSetForDocument, stringToCanvas } from '../utils';
 
 function *signDocumentWithRedirect(action: Sign.Actions.SignDocument){
     const success = yield signDocument(action);
-    if(success){
+    if (success) {
         yield put(push(`/documents/${action.payload.documentSetId}`));
     }
 }
@@ -39,17 +39,11 @@ function *signDocument(action: Sign.Actions.SignDocument) {
     try {
         const response = yield call(axios.post, '/api/sign', postPayload);
 
-        yield all([
-            put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
-            put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-        ]);
+        yield put(setSignRequestStatus(Sign.DownloadStatus.Complete));
         return true;
     }
     catch (e) {
-        yield all([
-            put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-            put(setSignRequestStatus(Sign.DownloadStatus.Failed))
-        ]);
+        yield put(setSignRequestStatus(Sign.DownloadStatus.Failed));
     }
 }
 
@@ -86,14 +80,16 @@ function *submitDocumentSet() {
 
             yield all([
                 put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
+                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
                 put(push(`/documents/${action.payload.documentSetId}`)),
             ]);
 
-            yield put(closeModal({ modalName: Sign.ModalType.SUBMIT_CONFIRMATION }));
+            // Must happen after push route - otherwise modal disappears before the page has changed
+            // yield put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION }));
         }
         catch (e) {
             yield all([
-                put(closeModal({ modalName: Sign.ModalType.SUBMIT_CONFIRMATION })),
+                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
                 put(showFailureModal({message: 'Sorry, we could not send invitations at this time.'})),
                 put(setSignRequestStatus(Sign.DownloadStatus.Failed))
             ]);

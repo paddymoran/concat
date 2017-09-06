@@ -31,13 +31,6 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
                 ...action.payload
             };
 
-        case Sign.Actions.Types.SHOW_SUBMIT_CONFIRMATION_MODAL:
-            return {
-                ...state,
-                showing: Sign.ModalType.SUBMIT_CONFIRMATION,
-                documentSetId: action.payload.documentSetId
-            };
-
         case Sign.Actions.Types.SHOW_FAILURE_MODAL:
             return {
                 ...state,

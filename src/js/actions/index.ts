@@ -291,13 +291,6 @@ export function showSignConfirmationModal(payload: Sign.Actions.ShowSignConfirma
     };
 }
 
-export function showSubmitConfirmationModal(payload: Sign.Actions.ShowSubmitConfirmationModalPayload): Sign.Actions.ShowSubmitConfirmationModal {
-    return {
-        type: Sign.Actions.Types.SHOW_SUBMIT_CONFIRMATION_MODAL,
-        payload
-    };
-}
-
 export function showFailureModal(payload: Sign.Actions.ShowFailureModalPayload): Sign.Actions.ShowFailureModal {
     return {
         type: Sign.Actions.Types.SHOW_FAILURE_MODAL,

@@ -341,7 +341,6 @@ declare namespace Sign {
 
     const enum ModalType {
         SIGN_CONFIRMATION = 'SIGN_CONFIRMATION',
-        SUBMIT_CONFIRMATION = 'SUBMIT_CONFIRMATION',
         FAILURE = 'FAILURE',
         INVITE = 'INVITE',
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
@@ -443,7 +442,6 @@ declare namespace Sign.Actions {
         CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
         UPDATE_MODAL_DATA = 'UPDATE_MODAL_DATA',
         SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
-        SHOW_SUBMIT_CONFIRMATION_MODAL = 'SHOW_SUBMIT_CONFIRMATION_MODAL',
         SHOW_FAILURE_MODAL = 'SHOW_FAILURE_MODAL',
         SHOW_INVITE_MODAL = 'SHOW_INVITE_MODAL',
         SHOW_EMAIL_DOCUMENT_MODAL = 'SHOW_EMAIL_DOCUMENT_MODAL',
@@ -721,10 +719,6 @@ declare namespace Sign.Actions {
         isDocumentOwner: boolean;
     }
 
-    interface ShowSubmitConfirmationModalPayload {
-        documentSetId: string;
-    }
-
     interface ShowFailureModalPayload {
         message: string;
     }
@@ -874,7 +868,6 @@ declare namespace Sign.Actions {
     interface UpdateModalData extends ActionCreator<UpdateModalDataPayload> {}
     interface ShowInitialSelectionModal extends Action {}
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
-    interface ShowSubmitConfirmationModal extends ActionCreator<ShowSubmitConfirmationModalPayload> {}
     interface ShowFailureModal extends ActionCreator<ShowFailureModalPayload> {}
     interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
     interface ShowEmailDocumentModal extends ActionCreator<ShowEmailDocumentModalPayload> {}

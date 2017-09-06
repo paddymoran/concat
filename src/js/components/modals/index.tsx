@@ -4,7 +4,6 @@ import { SignatureModal, InitialsModal } from '../signatureSelector';
 import { connect } from 'react-redux';
 import { closeModal } from '../../actions/index';
 import SignConfirmation from './signConfirmation';
-import SubmitConfirmation from './submitConfirmation';
 import Failure from './failure';
 import Invite from './invite';
 import EmailDocument from './emailDocument';
@@ -31,9 +30,6 @@ class Modals extends React.PureComponent<ModalsProps>{
 
             case Sign.ModalType.SIGN_CONFIRMATION:
                 return <SignConfirmation reject={payload.reject} />
-
-            case Sign.ModalType.SUBMIT_CONFIRMATION:
-                return <SubmitConfirmation />
 
             case Sign.ModalType.FAILURE:
                 return <Failure />

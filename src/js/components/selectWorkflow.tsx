@@ -3,7 +3,6 @@ import { Col, Row } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { generateUUID } from './uuid';
-import { showSubmitConfirmationModal } from '../actions'
 
 interface SelectWorkflowProps {
     openSelfSign: () => void;
@@ -53,22 +52,10 @@ export const SelectWorkflow = connect(
 
 
 interface SelectAnnotationProps {
-
     documentSetId: string;
-    showConfirmation: (documentSetId : string) => void;
 }
 
 class UnconnectedSelectAnnotation extends React.PureComponent<SelectAnnotationProps> {
-
-    constructor(props : SelectAnnotationProps){
-        super(props);
-        this.selectNoAnnotation = this.selectNoAnnotation.bind(this);
-    }
-
-    selectNoAnnotation() {
-        this.props.showConfirmation(this.props.documentSetId);
-    }
-
     render() {
         return (
             <div>
@@ -87,7 +74,7 @@ class UnconnectedSelectAnnotation extends React.PureComponent<SelectAnnotationPr
                     </Col>
 
                     <Col sm={6}>
-                        <a className='workflow-option-wrapper enabled' onClick={this.selectNoAnnotation}>
+                        <a className='workflow-option-wrapper enabled'>
                             <span className='workflow-option'>
                                 <span className='fa fa-send icon' aria-hidden='true'></span>
                                 <h2>No, just inform the recipients</h2>
@@ -106,8 +93,5 @@ export const SelectAnnotation = connect(
         return {
             documentSetId,
         };
-    },
-    {
-        showConfirmation: (documentSetId : string) => showSubmitConfirmationModal({documentSetId}),
     }
 )(UnconnectedSelectAnnotation);

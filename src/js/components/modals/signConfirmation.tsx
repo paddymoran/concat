@@ -8,7 +8,7 @@ import { signDocumentRoute, getNextDocument } from '../../utils';
 import { SignStatus } from '../requestedSignatures';
 
 
-export function prepareSubmitPayload(documentSetId : string, documentSet : Sign.DocumentSet, documentViewer: Sign.DocumentViewer) : Sign.Actions.SubmitDocumentSetPayload {
+function prepareSubmitPayload(documentSetId : string, documentSet : Sign.DocumentSet, documentViewer: Sign.DocumentViewer) : Sign.Actions.SubmitDocumentSetPayload {
     const prompts = Object.keys(documentViewer.prompts).reduce((acc:any, key:string) => {
         const prompt : Sign.DocumentPrompt = documentViewer.prompts[key];
         if(documentSet.documentIds.indexOf(prompt.documentId) >= 0){
@@ -141,11 +141,16 @@ class SignAndNext extends React.PureComponent<SignAndNextProps> {
     constructor(props: SignAndNextProps) {
         super(props);
         this.next = this.next.bind(this);
+        this.goToDocument = this.goToDocument.bind(this);
     }
 
     next() {
+        this.goToDocument(this.props.currentDocumentId);
+    }
+
+    goToDocument(documentId: string) {
         this.props.markDocumentAsComplete({ documentId: this.props.currentDocumentId, complete: true });
-        this.props.goToDocument(this.props.nextDocumentId)
+        this.props.goToDocument(documentId);
     }
 
     render() {
@@ -155,7 +160,7 @@ class SignAndNext extends React.PureComponent<SignAndNextProps> {
 
                 <p className='text-center'>Are you sure you want to move to the next document?</p>
 
-                <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.props.goToDocument} />
+                <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.goToDocument} />
 
                 <Button bsStyle='primary' bsSize="lg" onClick={this.next}>Next Document</Button>
             </div>
@@ -177,11 +182,17 @@ class SignAndSubmit extends React.PureComponent<SignAndSubmitProps> {
     constructor(props: SignAndSubmitProps) {
         super(props);
         this.sign = this.sign.bind(this);
+        this.goToDocument = this.goToDocument.bind(this);
     }
 
     sign() {
         this.props.markDocumentAsComplete({ documentId: this.props.currentDocumentId, complete: true });
         this.props.submitDocumentSet(this.props.submitPayload);
+    }
+
+    goToDocument(documentId: string) {
+        this.props.markDocumentAsComplete({ documentId: this.props.currentDocumentId, complete: true });
+        this.props.goToDocument(documentId);
     }
 
     render() {
@@ -193,7 +204,7 @@ class SignAndSubmit extends React.PureComponent<SignAndSubmitProps> {
 
                 {this.props.recipients && this.props.recipients.length && <RecipientsList recipients={this.props.recipients} />}
 
-                <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.props.goToDocument} />
+                <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.goToDocument} />
 
                 <Button bsStyle='primary' bsSize="lg" onClick={this.sign}>Sign Documents</Button>
             </div>
@@ -219,14 +230,19 @@ class UnconnectedRejectAndNext extends React.PureComponent<UnconnectedRejectAndN
     constructor(props: UnconnectedRejectAndNextProps) {
         super(props);
         this.reject = this.reject.bind(this);
+        this.goToDocument = this.goToDocument.bind(this);
     }
 
     reject() {
+        this.goToDocument(this.props.nextDocumentId);
+    }
+
+    goToDocument(documentId: string) {
         this.props.rejectDocument({
             documentId: this.props.currentDocumentId,
             reason: this.props.rejectReason
         });
-        this.props.goToDocument(this.props.nextDocumentId);
+        this.props.goToDocument(documentId);
     }
 
     render() {
@@ -238,7 +254,7 @@ class UnconnectedRejectAndNext extends React.PureComponent<UnconnectedRejectAndN
 
                 <RejectReduxForm />
                 
-                <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.props.goToDocument} />
+                <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.goToDocument} />
 
                 <Button bsStyle="primary" bsSize="lg" onClick={this.reject}>Next Document</Button>
             </div>
@@ -275,6 +291,7 @@ class UnconnectedRejectAndSubmit extends React.PureComponent<UnconnectedRejectAn
     constructor(props: UnconnectedRejectAndSubmitProps) {
         super(props);
         this.rejectAndSubmit = this.rejectAndSubmit.bind(this);
+        this.goToDocument = this.goToDocument.bind(this);
     }
 
     rejectAndSubmit() {
@@ -283,6 +300,14 @@ class UnconnectedRejectAndSubmit extends React.PureComponent<UnconnectedRejectAn
             reason: this.props.rejectReason
         });
         this.props.submitDocumentSet(this.props.submitPayload);
+    }
+
+    goToDocument(documentId: string) {
+        this.props.rejectDocument({
+            documentId: this.props.currentDocumentId,
+            reason: this.props.rejectReason
+        });
+        this.props.goToDocument(documentId);
     }
 
     render() {
@@ -294,7 +319,7 @@ class UnconnectedRejectAndSubmit extends React.PureComponent<UnconnectedRejectAn
 
                 <RejectReduxForm />
 
-                <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.props.goToDocument} />
+                <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.goToDocument} />
 
                 <Button bsStyle='primary' bsSize="lg" onClick={this.rejectAndSubmit}>Reject &amp; Submit</Button>
             </div>

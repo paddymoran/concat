@@ -6,18 +6,26 @@ BEGIN
 END $$ LANGUAGE 'plpgsql';
 
 
-CREATE OR REPLACE FUNCTION rejection_explaination (uuid)
+CREATE OR REPLACE FUNCTION request_info (uuid)
 RETURNS JSON as
 $$
 SELECT json_agg(row_to_json(q)) FROM (
-    SELECT u.user_id as user_id, name, email, srr.field_data, srr.created_at
+    SELECT
+    u.user_id as user_id, name, email, srr.created_at, sr.sign_request_id,
+    CASE
+        WHEN srr.accepted THEN 'Signed'
+        WHEN NOT srr.accepted THEN 'Rejected'
+        ELSE 'Pending'
+    END as status,
+    CASE WHEN NOT srr.accepted THEN srr.field_data ELSE NULL END as rejection_explaination
     FROM documents d
     LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
     LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
-    JOIN public.users u on srr.user_id = u.user_id
-    WHERE d.document_id = $1 AND NOT srr.accepted
+    JOIN public.users u on sr.user_id = u.user_id
+    WHERE d.document_id = $1
 ) q
 $$ LANGUAGE sql;
+
 
 DROP TRIGGER IF EXISTS  document_hash_trigger on documents;
 CREATE TRIGGER document_hash_trigger
@@ -83,7 +91,8 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
             array_to_json(array_agg(row_to_json(qq))) as documents,
             CASE WHEN EVERY(sign_status != 'Pending') THEN 'Complete' ELSE 'Pending' END as status
         FROM (
-            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status, rejection_explaination(start_id) as rejection_explaination
+            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status,
+                request_info(start_id) as request_info
             FROM (
                 SELECT
                 DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions, first_value(document_id) over wnd as start_id

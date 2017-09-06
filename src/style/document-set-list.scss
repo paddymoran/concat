@@ -7,38 +7,53 @@
 
         margin-bottom: 2em;
 
-        i {
-            margin-right: 12px;
-        }
-        .document-info {
-            .document-line{
-                padding: 8px 0;
+        table{
+            width:100%;
+            td{
+                padding: 8px;
             }
-
-
-            .btn{
-                margin-left: 12px;
+            tr.condensed td{
+                padding: 2px 8px;
             }
-
-            .icon-status{
-                display:inline-block;
-                width: 100px;
+            td.status{
+                width:100px;
+                text-align:right;
+                .sign-status{
+                    margin:0;
+                }
+            }
+            .filename-icon{
+                width:20px;
                 text-align:right;
             }
-            .rejection-info{
-                margin-left: 100px;
-                color: $deep-red;
-            }
-
-            // .file-controls{
-
-            //      padding: 8px 0;
-            //     margin-left: 100px;
-            // }
         }
-        .document-set-controls{
-            padding: 8px 0;
-            margin-left: 100px;
+
+
+        .btn{
+            margin-left: 12px;
+            i {
+                margin-right: 12px;
+            }
+        }
+        .rejection-info{
+            color: $deep-red;
+        }
+        .pending-info{
+            color: $state-warning-text;
+        }
+        .signed-info{
+            color: $state-success-text;
+        }
+        .document-set-controls .btn{
+            margin: 0;
+            margin-right:12px;
+        }
+        .document-set-controls:hover{
+            background-color: white;
+        }
+
+        .file-controls{
+            text-align:right;
         }
     }
 }

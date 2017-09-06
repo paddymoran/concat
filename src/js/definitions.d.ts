@@ -28,13 +28,17 @@ declare namespace Sign {
         'REJECTED' = 'Rejected',
         'PARTIAL' = 'Partial',
     }
-    interface RejectionExplaination {
+    interface SignatureRequestInfo {
         userId: number,
         name: string,
         email: string,
-        rejectMessage?: string;
+        status: string,
+        rejectMessage: string;
+        signRequestId: number;
     }
-    type RejectionExplainations = RejectionExplaination[];
+
+    type SignatureRequestInfos = SignatureRequestInfo[];
+
 
     interface Document extends DocumentData{
         id: string;
@@ -47,7 +51,7 @@ declare namespace Sign {
         pageViewports?: Viewport[];
         signRequestId: number;
         signStatus?:  SignStatus;
-        rejectionExplaination?: RejectionExplainations
+        signatureRequestInfos?: SignatureRequestInfos
     }
 
 

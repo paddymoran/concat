@@ -18,22 +18,7 @@ function statusComplete(status : string) {
     return ['Signed', 'Rejected'].indexOf(status) >= 0
 }
 
-class RejectionInfo extends React.PureComponent<{document: Sign.Document}>{
-    render() {
-        if(!this.props.document.rejectionExplaination || !this.props.document.rejectionExplaination.length){
-            return false;
-        }
-        return <div className="rejection-info ">
-            { this.props.document.rejectionExplaination.map((r : Sign.RejectionExplaination, i: number) => {
-                if(r.rejectMessage){
-                    return <div key={i}>Rejected by { r.name } - "{r.rejectMessage}"</div>
-                }
-                return <div key={i}>Rejected by { r.name }</div>
-            })}
-        </div>
-    }
 
-}
 
 interface UnconnectedDocumentSetListProps {
     documentSetId: string;
@@ -54,36 +39,69 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
 
     render() {
         const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
+        const hasDownloadAll =  this.props.showDownloadAll && this.props.documentSet.documentIds.length > 1;
+        const hasDeleteAll = true;
+        const hasSetControls = hasDownloadAll || hasDeleteAll;
 
         return (
             <div className="document-set">
                 <div className="document-set-title">{documentSetLabel}</div>
-
-                { this.props.documentSet.documentIds.map((documentId, i : number) => {
-                    const document = this.props.documents[documentId]
-
-                    return (
-                        <div key={i} className="document-info">
-                            <div  className="document-line">
-                            <span className="icon-status">
-                                <SignStatus signStatus={document.signStatus}/>
-                                <i className="fa fa-file-pdf-o" />
-                            </span>
-                            <span className="filename">{document.filename}</span>
-                            <span className="file-controls">
-                                <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}><i className="fa fa-download"/>Download</a>
-                                <a className="btn btn-default btn-xs" onClick={() => this.emailDocument(documentId) }><i className="fa fa-send"/>Email</a>
-                            </span>
-                            </div>
-                            { document.signStatus === 'Rejected' && <RejectionInfo document={document} /> }
-                        </div>
+                <table className="table-hover"><thead></thead>
+                <tbody>
+                { this.props.documentSet.documentIds.reduce((rows: any, documentId, i : number) => {
+                    const document = this.props.documents[documentId];
+                    rows.push(
+                            <tr key={i}>
+                                  <td className="status">
+                                       <SignStatus signStatus={document.signStatus}/>
+                                  </td>
+                                  <td className="filename-icon">
+                                      <i className="fa fa-file-pdf-o" />
+                                      </td>
+                                  <td className="filename">
+                                      {document.filename}
+                                  </td>
+                                  <td className="file-controls">
+                                        <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}><i className="fa fa-download"/>Download</a>
+                                        <a className="btn btn-default btn-xs" onClick={() => this.emailDocument(documentId) }><i className="fa fa-send"/>Email</a>
+                                        <a className="btn btn-default btn-xs"><i className="fa fa-trash"/>Delete</a>
+                                  </td>
+                            </tr>
                     );
-                }) }
+                    document.signatureRequestInfos && document.signatureRequestInfos.map((r: Sign.SignatureRequestInfo, i: number) => {
+                        if(r.status === 'Rejected'){
+                            const string = r.rejectMessage ? `Rejected by ${ r.name } - "${r.rejectMessage}"` : `Rejected by ${ r.name }`;
+                            rows.push(<tr key={`rejection-${i}`}  className="rejection-info condensed"><td/><td/><td >{ string }</td>
+                                      <td  className="file-controls"><a className="btn btn-default btn-xs"><i className="fa fa-trash"/>Revoke</a></td>
+                                      </tr>);
+                        }
+                        else if(r.status === 'Pending'){
+                            rows.push(<tr key={`pending-${i}`}  className="pending-info condensed"><td/><td/><td >Waiting on { r.name }</td>
+                                      <td  className="file-controls"><a className="btn btn-default btn-xs"><i className="fa fa-trash"/>Revoke</a></td>
+                                      </tr>);
+                        }
+                        else{
+                             rows.push(<tr key={`signed-${i}`}  className="signed-info condensed"><td/><td/><td  colSpan={2}>Signed by { r.name }</td></tr>);
+                        }
 
-                <div className="document-set-controls">
-                    { this.props.showDownloadAll && this.props.documentSet.documentIds.length > 1 &&
+                    });
+
+
+                    return rows;
+                }, []) }
+
+                { hasSetControls && <tr className="document-set-controls">
+                    <td/><td/><td colSpan={2}>
+                    { hasDownloadAll &&
                         <a className="btn btn-default btn-xs"  target="_blank" href={`/api/download_set/${this.props.documentSetId}`}><i className="fa fa-download"/>Download All</a> }
-                </div>
+
+                    { hasDeleteAll &&
+                        <a className="btn btn-default btn-xs"  ><i className="fa fa-trash"/>Delete All</a> }
+                    </td>
+
+                </tr> }
+                </tbody>
+                </table>
             </div>
         );
     }
@@ -109,10 +127,12 @@ class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>
         });
 
         return (
-            <div>
+            <div className="row">
+                <div className="col-md-8 col-md-offset-2">
                 <div className="document-set-list">
                     { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} showDownloadAll={true}/>)}
                 </div>
+            </div>
             </div>
         );
     }
@@ -127,9 +147,11 @@ class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  
             return this.props.documentSets[setId].documentIds.some(d => !statusComplete(this.props.documents[d].signStatus))
         });
         return (
-            <div>
+            <div className="row">
+                <div className="col-md-8 col-md-offset-2">
                 <div className="document-set-list">
-                    { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} />) }
+                    { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} showDownloadAll={true} />) }
+                </div>
                 </div>
             </div>
         );

@@ -8,38 +8,10 @@ import { stringToDateTime } from '../utils';
 import { SignStatus } from './requestedSignatures';
 
 
-interface FileListProps {
-    documents: Sign.DocumentData[],
-}
-
 interface DocumentSets {
     requestDocumentSets: () => void;
     documents: Sign.Documents,
     documentSets: Sign.DocumentSets
-}
-
-class FileList extends React.PureComponent<FileListProps> {
-
-    render() {
-        return <table className="table">
-            <thead>
-                <tr>
-                    <th>Status</th>
-                    <th>File Name</th>
-                    <th>Created Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                { this.props.documents.map((document : Sign.Document, i: number) => {
-                    return <tr>
-                          <td></td>
-                          <td>{ document.filename}</td>
-                          <td>{ moment(document.createdAt).format("Do MMM, h:mm:ss a") }</td>
-                     </tr>
-                }) }
-            </tbody>
-        </table>
-    }
 }
 
 
@@ -85,15 +57,17 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
             <div className="document-set">
                 <div className="document-set-title">{documentSetLabel}</div>
 
-                {this.props.documentSet.documentIds.map(documentId => {
+                {this.props.documentSet.documentIds.map((documentId, i : number) => {
                     const document = this.props.documents[documentId]
-
+                    if(documentId === 'a75a79af-cb58-434c-8c07-ebe6f546a133') {
+                        //debugger;
+                    }
                     return (
-                        <div key={documentId} className="document-line">
+                        <div key={i} className="document-line">
                             <SignStatus signStatus={document.signStatus}/>
                             <i className="fa fa-file-pdf-o" />{document.filename}
-                            &nbsp;<a target="_blank" href={`/api/document/${documentId}`}>Download</a>
-                            &nbsp;<a onClick={() => this.emailDocument(documentId) }>Email</a>
+                            <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}><i className="fa fa-download"/>Download</a>
+                            <a className="btn btn-default btn-xs" onClick={() => this.emailDocument(documentId) }><i className="fa fa-send"/>Email</a>
                         </div>
                     );
                 })}

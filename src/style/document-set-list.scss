@@ -6,12 +6,15 @@
         }
 
         margin-bottom: 2em;
-        
+
         .document-line {
             padding: 8px 0;
 
             i {
                 margin-right: 12px;
+            }
+            .btn{
+                margin-left: 12px;
             }
         }
     }

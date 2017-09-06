@@ -1,0 +1,1 @@
+ALTER TABLE sign_results ADD COLUMN created_at timestamp without time zone DEFAULT now();

@@ -276,7 +276,7 @@ def get_user_document_sets(user_id):
     """
     database = get_db()
     query = """
-        SELECT document_set_json(document_set_id)
+        SELECT document_set_json(%(user_id)s, document_set_id)
         FROM document_sets sets
         WHERE sets.user_id = %(user_id)s
     """
@@ -336,7 +336,7 @@ def get_document_set(user_id, set_id):
     """
     database = get_db()
     query = """
-    SELECT document_set_json(%(set_id)s)
+    SELECT document_set_json(%(user_id)s, %(set_id)s)
     """
     with database.cursor() as cursor:
         cursor.execute(query, {
@@ -370,12 +370,12 @@ def add_signature_requests(document_set_id, requests):
 
 def save_document_view(document_id, user_id, field_data):
     database = get_db()
-    args = {'document_id': document_id, 'field_data': psycopg2.extras.Json(field_data)}
+    args = {'document_id': document_id, 'field_data': psycopg2.extras.Json(field_data), 'user_id': user_id}
     if current_app.config.get('USE_DB_UPSERT'):
         query = """
-            INSERT INTO document_view (document_id, field_data)
-            VALUES (%(document_id)s,  %(field_data)s)
-            ON CONFLICT (document_id) DO UPDATE SET field_data = %(field_data)ss;
+            INSERT INTO document_view (document_id, field_data, user_id)
+            VALUES (%(document_id)s,  %(field_data)s, %(user_id)s)
+            ON CONFLICT (document_id, user_id) DO UPDATE SET field_data = %(field_data)s;
         """
         with database.cursor() as cursor:
             cursor.execute(query, args)
@@ -383,8 +383,8 @@ def save_document_view(document_id, user_id, field_data):
     else:
         try:
             query = """
-                INSERT INTO document_view (document_id, field_data)
-                VALUES(%(document_id)s,  %(field_data)s)
+                INSERT INTO document_view (document_id, field_data, user_id)
+                VALUES(%(document_id)s,  %(field_data)s, %(user_id)s)
             """
             with database.cursor() as cursor:
                 cursor.execute(query, args)
@@ -392,12 +392,13 @@ def save_document_view(document_id, user_id, field_data):
         except:
             database.rollback()
             query = """
-                UPDATE document_view SET field_data = %(field_data)s where document_id= %(document_id)s;
+                UPDATE document_view SET field_data = %(field_data)s where document_id= %(document_id)s and user_id = %(user_id)s;
             """
             with database.cursor() as cursor:
                 cursor.execute(query, args)
         database.commit()
     return
+
 
 def document_set_status(document_set_id):
     database = get_db()

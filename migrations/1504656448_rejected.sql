@@ -1,0 +1,1 @@
+ALTER TABLE sign_results ADD COLUMN accepted BOOLEAN DEFAULT TRUE;

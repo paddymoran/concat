@@ -47,7 +47,7 @@ $$
     )
 $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION document_set_json(uuid)
+CREATE OR REPLACE FUNCTION document_set_json(user_id integer, uuid)
 RETURNS JSON as
 $$
 WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generation) as (
@@ -70,7 +70,7 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
                 SELECT
                 DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions, first_value(document_id) over wnd as start_id
                 FROM docs d
-                WHERE document_set_id = $1
+                WHERE document_set_id = $2
 
                 WINDOW wnd AS (
                    PARTITION BY original_id ORDER BY generation ASC
@@ -78,9 +78,9 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
                 )
             ) q
             JOIN documents d on d.document_id = q.document_id
-            LEFT OUTER JOIN document_view dv ON d.document_id = dv.document_id
+            LEFT OUTER JOIN document_view dv ON (d.document_id = dv.document_id and user_id = $1)
         ) qq
-        JOIN document_sets ds ON ds.document_set_id = $1
+        JOIN document_sets ds ON ds.document_set_id = $2
         GROUP BY ds.name, ds.created_at
         ORDER BY ds.created_at DESC
  ) qqq

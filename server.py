@@ -259,16 +259,6 @@ def get_document(doc_id):
         raise InvalidUsage(e.message, status_code=500)
 
 
-@app.route('/api/documents/thumb/<uuid>', methods=['GET'])
-def thumbview(uuid):
-    try:
-        result = thumb(uuid)
-        return send_file(BytesIO(result),
-                         mimetype='image/png')
-    except Exception as e:
-        print(e)
-        raise InvalidUsage(e.message, status_code=500)
-
 '''
 Signatures
 '''

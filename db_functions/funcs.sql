@@ -35,7 +35,7 @@ $$
         UNION
        SELECT result_document_id, input_document_id,original_id, generation + 1
         FROM sign_results tt, docs t
-        WHERE t.document_id = tt.input_document_id
+        WHERE t.document_id = tt.input_document_id AND tt.result_document_id IS NOT NULL
     )
     SELECT
     DISTINCT last_value(document_id) over wnd AS document_id
@@ -56,7 +56,7 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
     UNION
    SELECT result_document_id, input_document_id,original_id, document_set_id, generation + 1
     FROM sign_results tt, docs t
-    WHERE t.document_id = tt.input_document_id
+    WHERE t.document_id = tt.input_document_id AND tt.result_document_id IS NOT NULL
 )
     SELECT row_to_json(qqq) FROM (
         SELECT

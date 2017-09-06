@@ -4,12 +4,10 @@ import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
 import { addDocument, requestDocumentSet, createDocumentSet, defineRecipients, setInviteSignatories } from '../actions';
 import { generateUUID } from './uuid';
-import  { Link } from 'react-router';
 import { push } from 'react-router-redux';
 import HorizontalDocumentList from './horizontalDocumentList';
-import SelectRecipients from './selectRecipients';
 import { InviteForm } from './selectRecipients';
-import { Checkbox, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { submit } from 'redux-form';
 
 
@@ -62,7 +60,6 @@ class DocumentSet extends React.PureComponent<DocumentSetProps> {
 const ConnectedDocumentSet = connect(
     (state: Sign.State, ownProps: ConnectedDocumentSetProps) => {
         const documentSet = state.documentSets[ownProps.documentSetId];
-        const documentIds = documentSet ? documentSet.documentIds : [];
 
         return {
             documentSet,

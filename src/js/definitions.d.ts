@@ -345,12 +345,9 @@ declare namespace Sign {
 
     const enum ModalType {
         SIGN_CONFIRMATION = 'SIGN_CONFIRMATION',
-        SUBMIT_CONFIRMATION = 'SUBMIT_CONFIRMATION',
         FAILURE = 'FAILURE',
         INVITE = 'INVITE',
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
-        REJECT_CONFIRMATION = 'REJECT_CONFIRMATION',
-        NEXT_DOCUMENT = 'NEXT_DOCUMENT',
         ACTIVATE_CONTROL = 'ACTIVATE_CONTROL',
     }
 
@@ -423,7 +420,6 @@ declare namespace Sign.Actions {
         SIGN_DOCUMENT = "SIGN_DOCUMENT",
         REJECT_DOCUMENT = 'REJECT_DOCUMENT',
         SET_SIGN_REQUEST_STATUS = "SET_SIGN_REQUEST_STATUS",
-        NEXT_DOCUMENT = 'NEXT_DOCUMENT',
         MARK_DOCUMENT_AS_COMPLETE = 'MARK_DOCUMENT_AS_COMPLETE',
         FINISHED_SIGNING_DOCUMENT = 'FINISHED_SIGNING_DOCUMENT',
 
@@ -450,11 +446,9 @@ declare namespace Sign.Actions {
         CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
         UPDATE_MODAL_DATA = 'UPDATE_MODAL_DATA',
         SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
-        SHOW_SUBMIT_CONFIRMATION_MODAL = 'SHOW_SUBMIT_CONFIRMATION_MODAL',
         SHOW_FAILURE_MODAL = 'SHOW_FAILURE_MODAL',
         SHOW_INVITE_MODAL = 'SHOW_INVITE_MODAL',
         SHOW_EMAIL_DOCUMENT_MODAL = 'SHOW_EMAIL_DOCUMENT_MODAL',
-        SHOW_REJECT_CONFIRMATION_MODAL = 'SHOW_REJECT_CONFIRMATION_MODAL',
         SHOW_ACTIVATE_CONTROL_MODAL = 'SHOW_ACTIVATE_CONTROL_MODAL',
 
         UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
@@ -725,12 +719,8 @@ declare namespace Sign.Actions {
     interface ShowSignConfirmationModalPayload {
         documentId: string;
         documentSetId: string;
-        signRequestId?: number;
+        reject: boolean;
         isDocumentOwner: boolean;
-    }
-
-    interface ShowSubmitConfirmationModalPayload {
-        documentSetId: string;
     }
 
     interface ShowFailureModalPayload {
@@ -783,10 +773,6 @@ declare namespace Sign.Actions {
         documentId: string;
     }
 
-    interface ShowRejectConfirmationModalPayload {
-        documentId: string;
-    }
-
     interface UpdateModalDataPayload {
         [key: string]: any;
     }
@@ -795,12 +781,6 @@ declare namespace Sign.Actions {
         documentId: string;
         reason?: string;
     }
-
-    interface NextDocumentPayload {
-        documentSetId: string;
-        documentId: string;
-    }
-
 
     interface UpdateContactsPayload {
         status?: DownloadStatus;
@@ -832,7 +812,7 @@ declare namespace Sign.Actions {
     interface FinishedSigningDocumentPayload {
         documentId: string;
         documentSetId: string;
-        signRequestId: number;
+        reject: boolean;
         isDocumentOwner: boolean;
     }
 
@@ -878,7 +858,6 @@ declare namespace Sign.Actions {
     interface SignDocument extends ActionCreator<SignDocumentPayload> {}
     interface RejectDocument extends ActionCreator<RejectDocumentPayload> {}
     interface SetSignRequestStatus extends ActionCreator<SetSignRequestStatusPayload> {}
-    interface NextDocument extends ActionCreator<NextDocumentPayload> {}
     interface MarkDocumentAsComplete extends ActionCreator<MarkDocumentAsCompletePayload> {}
     interface FinishedSigningDocument extends ActionCreator<FinishedSigningDocumentPayload> {}
 
@@ -893,11 +872,9 @@ declare namespace Sign.Actions {
     interface UpdateModalData extends ActionCreator<UpdateModalDataPayload> {}
     interface ShowInitialSelectionModal extends Action {}
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
-    interface ShowSubmitConfirmationModal extends ActionCreator<ShowSubmitConfirmationModalPayload> {}
     interface ShowFailureModal extends ActionCreator<ShowFailureModalPayload> {}
     interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
     interface ShowEmailDocumentModal extends ActionCreator<ShowEmailDocumentModalPayload> {}
-    interface ShowRejectConfirmationModal extends ActionCreator<ShowRejectConfirmationModalPayload> {}
     interface ShowActivateControlModal extends ActionCreator<ShowActivateControlModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}

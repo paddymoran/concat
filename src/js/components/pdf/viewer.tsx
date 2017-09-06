@@ -6,7 +6,7 @@ import PDFPreview from './preview';
 import PDFPage from './page';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import {  moveSignature, addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal, showSubmitConfirmationModal, saveDocumentView  } from '../../actions';
+import {  moveSignature, addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal, saveDocumentView  } from '../../actions';
 import { SignaturePositionable, DatePositionable, TextPositionable, PromptPositionable, RequestPrompt } from '../positionable';
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
@@ -46,7 +46,6 @@ interface ConnectedPDFViewerProps extends PDFViewerProps {
     addPromptToDocument: (data: Sign.Actions.AddPromptToDocumentPayload) => void;
     setActivePage: (payload: Sign.Actions.SetActivePagePayload) => void;
     showSignConfirmationModal: (payload: Sign.Actions.ShowSignConfirmationModalPayload) => void;
-    showSubmitConfirmationModal: (payload: Sign.Actions.ShowSubmitConfirmationModalPayload) => void;
     saveDocumentView: (payload: Sign.Actions.SaveDocumentViewPayload) => void;
 }
 
@@ -516,7 +515,7 @@ const ConnectedPDFViewer = connect(
             selectedSignatureId: state.documentViewer.selectedSignatureId,
             selectedInitialId: state.documentViewer.selectedInitialId,
     };
-}, { addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal, showSubmitConfirmationModal, saveDocumentView }
+}, { addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal, saveDocumentView }
 )(PDFViewer);
 
 

@@ -6,7 +6,7 @@ import { DateButton, TextButton, PromptButton } from './controlButtons';
 import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { OverlayTrigger, Popover, Modal } from 'react-bootstrap';
-import { setActiveSignControl, showInviteModal, showRejectConfirmationModal, closeModal, showActivateControlModal, showSignConfirmationModal, showSubmitConfirmationModal, saveDocumentView, finishedSigningDocument } from '../actions';
+import { setActiveSignControl, showInviteModal, closeModal, showActivateControlModal, showSignConfirmationModal, saveDocumentView, finishedSigningDocument } from '../actions';
 import { dateDefaults, textDefaults, findSetForDocument } from '../utils';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
@@ -261,7 +261,6 @@ export interface ConnectedControlProps extends ControlProps {
     showInviteModal: () => void;
     overlayDefaults: Sign.OverlayDefaults;
     nextInvalidOverlay?: string;
-    reject: () => void;
     saveStatus: Sign.DownloadStatus;
 
     showInvite: boolean;
@@ -285,7 +284,7 @@ export interface ConnectedControlProps extends ControlProps {
 
     save: () => void;
 
-    finishedSigningDocument: () => void;
+    finishedSigningDocument: (options: {reject: boolean}) => void;
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -304,7 +303,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
             this.scrollTo(this.props.nextInvalidOverlay);
         }
         else {
-            this.props.finishedSigningDocument();
+            this.props.finishedSigningDocument({ reject: false });
         }
     }
 
@@ -411,7 +410,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                         <ControlButton label={saveText} iconName={saveIcon} onClick={this.props.save} visible={this.props.showSave} />
                         <ControlButton label="Invite" iconName="fa-users" onClick={this.props.showInviteModal} visible={this.props.showInvite} />
                         <ControlButton label="Guide" iconName="fa-forward" onClick={this.nextPrompt} visible={!!nextPrompt} />
-                        <ControlButton label="Reject" iconName="fa-times" onClick={this.props.reject} visible={this.props.showReject} />
+                        <ControlButton label="Reject" iconName="fa-times" onClick={() => this.props.finishedSigningDocument({ reject: true })} visible={this.props.showReject} />
                         <ControlButton label={submitString} iconName="fa-pencil" classNames={`submit-button visible-mobile ${canSubmit ? '' : 'submit-disabled'}`} onClick={this.sign} />
                     </div>
                 </div>
@@ -518,7 +517,6 @@ function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
 
     return {
         showInviteModal: () => dispatch(showInviteModal({ documentSetId })),
-        reject: () => dispatch(showRejectConfirmationModal({ documentId })),
         showActivateControlModal: () => dispatch(showActivateControlModal({
             isDocumentOwner: ownProps.isDocumentOwner,
             requestPrompts: ownProps.requestPrompts,
@@ -534,10 +532,7 @@ function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
         activateText: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.TEXT })),
         activatePrompt: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.PROMPT })),
 
-        finishedSigningDocument: () => {
-            const signRequestId = ownProps.requestedSignatureInfo ? ownProps.requestedSignatureInfo.signRequestId : null;
-            dispatch(finishedSigningDocument({ documentId, documentSetId, signRequestId, isDocumentOwner: ownProps.isDocumentOwner }))
-        },
+        finishedSigningDocument: ({ reject }: { reject: boolean }) => dispatch(finishedSigningDocument({ documentId, documentSetId, reject, isDocumentOwner: ownProps.isDocumentOwner })),
 
         closeActivateControlModal: () =>  dispatch(closeModal({ modalName: Sign.ModalType.ACTIVATE_CONTROL })),
 

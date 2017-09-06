@@ -6,7 +6,7 @@ import { findSetForDocument, stringToCanvas } from '../utils';
 
 function *signDocumentWithRedirect(action: Sign.Actions.SignDocument){
     const success = yield signDocument(action);
-    if(success){
+    if (success) {
         yield put(push(`/documents/${action.payload.documentSetId}`));
     }
 }
@@ -18,7 +18,11 @@ function *signDocument(action: Sign.Actions.SignDocument) {
     }
     yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
 
-    const documentViewer = yield select((state: Sign.State) => state.documentViewer);
+    const { documentViewer, reject, rejectMessage } = yield select((state: Sign.State) => ({
+        documentViewer: state.documentViewer,
+        reject: state.documentViewer.documents[action.payload.documentId].signStatus === Sign.SignStatus.REJECTED,
+        rejectMessage: state.documentViewer.documents[action.payload.documentId].rejectReason
+    }));
 
     const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === action.payload.documentId);
     const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === action.payload.documentId);
@@ -33,23 +37,19 @@ function *signDocument(action: Sign.Actions.SignDocument) {
     const postPayload = {
         ...action.payload,
         signatures,
-        overlays
+        overlays,
+        reject,
+        rejectMessage
     };
 
     try {
         const response = yield call(axios.post, '/api/sign', postPayload);
 
-        yield all([
-            put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
-            put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-        ]);
+        yield put(setSignRequestStatus(Sign.DownloadStatus.Complete));
         return true;
     }
     catch (e) {
-        yield all([
-            put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-            put(setSignRequestStatus(Sign.DownloadStatus.Failed))
-        ]);
+        yield put(setSignRequestStatus(Sign.DownloadStatus.Failed));
     }
 }
 
@@ -58,7 +58,8 @@ function hasSomethingToSign(documentViewer : Sign.DocumentViewer, documentId : s
     const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === documentId);
     const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === documentId);
     const texts = Object.keys(documentViewer.texts).map(key => documentViewer.texts[key]).filter(text => text.documentId === documentId);
-    return signatures.length || dates.length || texts.length;
+    const rejected = documentViewer.documents[documentId].signStatus === Sign.SignStatus.REJECTED;
+    return signatures.length || dates.length || texts.length || rejected;
 }
 
 function *submitDocumentSet() {
@@ -86,13 +87,13 @@ function *submitDocumentSet() {
 
             yield all([
                 put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
-                put(closeModal({ modalName: Sign.ModalType.SUBMIT_CONFIRMATION })),
+                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
                 put(push(`/documents/${action.payload.documentSetId}`)),
             ]);
         }
         catch (e) {
             yield all([
-                put(closeModal({ modalName: Sign.ModalType.SUBMIT_CONFIRMATION })),
+                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
                 put(showFailureModal({message: 'Sorry, we could not send invitations at this time.'})),
                 put(setSignRequestStatus(Sign.DownloadStatus.Failed))
             ]);

@@ -32,7 +32,7 @@ class Modals extends React.PureComponent<ModalsProps>{
                 return <InitialsModal />
 
             case Sign.ModalType.SIGN_CONFIRMATION:
-                return <SignConfirmation />
+                return <SignConfirmation reject={payload.reject} />
 
             case Sign.ModalType.SUBMIT_CONFIRMATION:
                 return <SubmitConfirmation />
@@ -45,9 +45,6 @@ class Modals extends React.PureComponent<ModalsProps>{
 
             case Sign.ModalType.EMAIL_DOCUMENT:
                 return <EmailDocument />
-
-            case Sign.ModalType.REJECT_CONFIRMATION:
-                return <RejectConfirmation />
 
             case Sign.ModalType.NEXT_DOCUMENT:
                 return <NextDocument />

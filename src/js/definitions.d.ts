@@ -721,7 +721,7 @@ declare namespace Sign.Actions {
     interface ShowSignConfirmationModalPayload {
         documentId: string;
         documentSetId: string;
-        signRequestId?: number;
+        reject: boolean;
         isDocumentOwner: boolean;
     }
 
@@ -781,6 +781,7 @@ declare namespace Sign.Actions {
 
     interface ShowRejectConfirmationModalPayload {
         documentId: string;
+        documentSetId: string;
     }
 
     interface UpdateModalDataPayload {
@@ -828,7 +829,7 @@ declare namespace Sign.Actions {
     interface FinishedSigningDocumentPayload {
         documentId: string;
         documentSetId: string;
-        signRequestId: number;
+        reject: boolean;
         isDocumentOwner: boolean;
     }
 

@@ -54,7 +54,7 @@ class UnconnectedActivateControlModal extends React.PureComponent<ConnectedContr
     }
 
     reject() {
-        this.props.reject();
+        this.props.finishedSigningDocument({ reject: true });
         this.props.closeActivateControlModal();
     }
 

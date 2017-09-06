@@ -4,7 +4,7 @@ import { Modal, Button, Form, ControlLabel, FormGroup, FormControl } from 'react
 import { closeModal, rejectDocument, submitDocumentSet } from '../../actions';
 import { findSetForDocument, signDocumentRoute, getNextDocument } from '../../utils';
 import { reduxForm, Field, InjectedFormProps, formValueSelector, WrappedFieldProps } from 'redux-form';
-import { DocumentsList, DocumentWithComplete } from './signConfirmation';
+import { DocumentsList, DocumentWithStatus } from './signConfirmation';
 import { push } from 'react-router-redux';
 import { prepareSubmitPayload } from './submitConfirmation';
 
@@ -15,7 +15,7 @@ interface RejectConfirmationProps {
     rejectReason: string;
     closeModal: () => void;
     rejectDocument: (payload: Sign.Actions.RejectDocumentPayload) => void;
-    documents: DocumentWithComplete[];
+    documents: DocumentWithStatus[];
     push: (url: string) => void;
     submitDocumentSet: (payload: Sign.Actions.SubmitDocumentSetPayload) => void;
     submitPayload: Sign.Actions.SubmitDocumentSetPayload;
@@ -31,6 +31,10 @@ class RejectConfirmation extends React.PureComponent<RejectConfirmationProps> {
     }
 
     reject() {
+        this.props.rejectDocument({
+            documentId: this.props.documentId,
+            reason: this.props.rejectReason
+        });
         this.goToDocument(this.props.nextDocumentId);
     }
 

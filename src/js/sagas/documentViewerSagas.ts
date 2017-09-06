@@ -86,9 +86,10 @@ function *submitDocumentSet() {
 
             yield all([
                 put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
-                put(closeModal({ modalName: Sign.ModalType.SUBMIT_CONFIRMATION })),
                 put(push(`/documents/${action.payload.documentSetId}`)),
             ]);
+
+            yield put(closeModal({ modalName: Sign.ModalType.SUBMIT_CONFIRMATION }));
         }
         catch (e) {
             yield all([

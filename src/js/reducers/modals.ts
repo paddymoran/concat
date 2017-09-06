@@ -28,10 +28,7 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
             return {
                 ...state,
                 showing: Sign.ModalType.SIGN_CONFIRMATION,
-                documentId: action.payload.documentId,
-                documentSetId: action.payload.documentSetId,
-                signRequestId: action.payload.signRequestId,
-                isDocumentOwner: action.payload.isDocumentOwner
+                ...action.payload
             };
 
         case Sign.Actions.Types.SHOW_SUBMIT_CONFIRMATION_MODAL:

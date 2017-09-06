@@ -326,6 +326,7 @@ declare namespace Sign {
 
     const enum FormName {
         RECIPIENTS = 'recipients',
+        REJECT = 'reject',
     }
 
     const enum ModalType {
@@ -779,6 +780,7 @@ declare namespace Sign.Actions {
     interface RejectDocumentPayload {
         documentSetId: string;
         documentId: string;
+        reason?: string;
     }
 
     interface NextDocumentPayload {

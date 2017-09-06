@@ -89,24 +89,46 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
             }
         
         case Sign.Actions.Types.MARK_DOCUMENT_AS_COMPLETE:
-            return markDocumentAsComplete(state, action);
+            return completeDocument(state, action);
+
+        case Sign.Actions.Types.REJECT_DOCUMENT:
+            return rejectDocument(state, action);
 
         default:
             return state;
     }
 }
 
-function markDocumentAsComplete(state: Sign.DocumentViewer, action: Sign.Actions.MarkDocumentAsComplete): Sign.DocumentViewer {
+function rejectDocument(state: Sign.DocumentViewer, action: Sign.Actions.RejectDocument): Sign.DocumentViewer {
+    const updateData: Partial<Sign.DocumentView> = {
+        signStatus: Sign.SignStatus.REJECTED,
+        rejectReason: action.payload.reason
+    };
+
+    return updateDocument(state, action.payload.documentId, updateData);
+}
+
+function completeDocument(state: Sign.DocumentViewer, action: Sign.Actions.MarkDocumentAsComplete): Sign.DocumentViewer {
+    const updateData: Partial<Sign.DocumentView> = {
+        signStatus: Sign.SignStatus.SIGNED,
+        completed: action.payload.complete,
+        rejectReason: undefined
+    };
+
+    return updateDocument(state, action.payload.documentId, updateData);
+}
+
+function updateDocument(state: Sign.DocumentViewer, documentId: string, updateData: Partial<Sign.DocumentView>): Sign.DocumentViewer {
     return {
         ...state,
         documents: {
             ...state.documents,
-            [action.payload.documentId]: {
-                ...state.documents[action.payload.documentId],
-                completed: action.payload.complete
+            [documentId]: {
+                ...state.documents[documentId],
+                ...updateData
             }
         }
-    }
+    };
 }
 
 function setActiveSignButton(state: Sign.DocumentViewer, action: Sign.Actions.SetActiveSignControl): Sign.DocumentViewer {

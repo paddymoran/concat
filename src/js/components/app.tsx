@@ -14,32 +14,6 @@ interface AppProps {
     location:  Location,
     children: any
 }
-export  class ContainerWithSideBar extends React.PureComponent<AppProps> {
-    render() {
-        const { children, location: { pathname } } = this.props;
-        return (
-            <div className="container">
-                <Row>
-                <Col sm={2}>
-                    <Sidebar pathname={pathname}/>
-                </Col>
-
-                <Col sm={10}>
-                  <CSSTransitionGroup style={{position: 'relative', display:'block'}}
-                          transitionName={'slideInRight'}
-                          transitionEnterTimeout={400}
-                          transitionLeaveTimeout={400}
-                        >
-                            <div  key={pathname} className="main-content">
-                        { children }
-                        </div>
-                      </CSSTransitionGroup>
-                </Col>
-                </Row>
-            </div>
-        );
-    }
-}
 
 export  class Container extends React.PureComponent<AppProps> {
     render() {

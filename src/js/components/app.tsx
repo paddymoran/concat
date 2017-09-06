@@ -6,7 +6,6 @@ import CustomDragLayer from './dragLayer';
 import * as moment from 'moment';
 import * as momentLocalizer from 'react-widgets/lib/localizers/moment';
 import { Col, Row } from 'react-bootstrap';
-import Sidebar from './sidebar';
 import StatusBar from './statusBar'
 
 momentLocalizer(moment);
@@ -15,7 +14,7 @@ interface AppProps {
     location:  Location,
     children: any
 }
-export  class ContainerWithSideBar extends React.PureComponent<AppProps, {}> {
+export  class ContainerWithSideBar extends React.PureComponent<AppProps> {
     render() {
         const { children, location: { pathname } } = this.props;
         return (
@@ -42,7 +41,7 @@ export  class ContainerWithSideBar extends React.PureComponent<AppProps, {}> {
     }
 }
 
-export  class Container extends React.PureComponent<AppProps, {}> {
+export  class Container extends React.PureComponent<AppProps> {
     render() {
         const { children, location: { pathname } } = this.props;
         return (
@@ -57,7 +56,7 @@ export  class Container extends React.PureComponent<AppProps, {}> {
     }
 }
 
-export  class ContainerWithStatusBar extends React.PureComponent<AppProps, {}> {
+export  class ContainerWithStatusBar extends React.PureComponent<AppProps> {
     render() {
         const { children, location: { pathname } } = this.props;
         return (
@@ -76,17 +75,15 @@ export  class ContainerWithStatusBar extends React.PureComponent<AppProps, {}> {
 }
 
 
-export default class App extends React.PureComponent<AppProps, {}> {
+export default class App extends React.PureComponent<AppProps> {
     render() {
-        const { children, location: { pathname } } = this.props;
         return (
             <div>
                 <CustomDragLayer />
                 <Header />
-
-                        <div >
-                             {children}
-                      </div>
+                    <div>
+                        {this.props.children}
+                    </div>
                 <Modals />
             </div>
         );

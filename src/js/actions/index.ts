@@ -378,23 +378,9 @@ export function emailDocument(payload: Sign.Actions.EmailDocumentPayload): Sign.
     };
 }
 
-export function showRejectConfirmationModal(payload: Sign.Actions.ShowRejectConfirmationModalPayload): Sign.Actions.ShowRejectConfirmationModal {
-    return {
-        type: Sign.Actions.Types.SHOW_REJECT_CONFIRMATION_MODAL,
-        payload
-    };
-}
-
 export function rejectDocument(payload: Sign.Actions.RejectDocumentPayload): Sign.Actions.RejectDocument {
     return {
         type: Sign.Actions.Types.REJECT_DOCUMENT,
-        payload
-    };
-}
-
-export function nextDocument(payload: Sign.Actions.NextDocumentPayload): Sign.Actions.NextDocument {
-    return {
-        type: Sign.Actions.Types.NEXT_DOCUMENT,
         payload
     };
 }

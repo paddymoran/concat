@@ -6,7 +6,7 @@ import { DateButton, TextButton, PromptButton } from './controlButtons';
 import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { OverlayTrigger, Popover, Modal } from 'react-bootstrap';
-import { setActiveSignControl, showInviteModal, showRejectConfirmationModal, closeModal, showActivateControlModal, showSignConfirmationModal, showSubmitConfirmationModal, saveDocumentView, finishedSigningDocument } from '../actions';
+import { setActiveSignControl, showInviteModal, closeModal, showActivateControlModal, showSignConfirmationModal, showSubmitConfirmationModal, saveDocumentView, finishedSigningDocument } from '../actions';
 import { dateDefaults, textDefaults, findSetForDocument } from '../utils';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 

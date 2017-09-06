@@ -62,18 +62,6 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
                 showing: Sign.ModalType.EMAIL_DOCUMENT,
             };
 
-        case Sign.Actions.Types.SHOW_REJECT_CONFIRMATION_MODAL:
-            return {
-                showing: Sign.ModalType.REJECT_CONFIRMATION,
-                ...action.payload
-            };
-
-        case Sign.Actions.Types.NEXT_DOCUMENT:
-            return {
-                showing: Sign.ModalType.NEXT_DOCUMENT,
-                ...action.payload
-            };
-
         case Sign.Actions.Types.SHOW_ACTIVATE_CONTROL_MODAL:
             return {
                 ...state,

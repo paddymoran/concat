@@ -8,8 +8,6 @@ import SubmitConfirmation from './submitConfirmation';
 import Failure from './failure';
 import Invite from './invite';
 import EmailDocument from './emailDocument';
-import RejectConfirmation from './rejectConfirmation';
-import NextDocument from './nextDocument';
 import ActivateControl from './activateControl';
 
 interface ModalsProps {
@@ -45,9 +43,6 @@ class Modals extends React.PureComponent<ModalsProps>{
 
             case Sign.ModalType.EMAIL_DOCUMENT:
                 return <EmailDocument />
-
-            case Sign.ModalType.NEXT_DOCUMENT:
-                return <NextDocument />
 
             case Sign.ModalType.ACTIVATE_CONTROL:
                 return <ActivateControl documentId={payload.documentId} isDocumentOwner={payload.isDocumentOwner} requestPrompts={payload.requestPrompts} requestedSignatureInfo={payload.requestedSignatureInfo} documentSetId={payload.documentSetId} />

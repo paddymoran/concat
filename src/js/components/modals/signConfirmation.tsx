@@ -3,10 +3,10 @@ import { Button, Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { closeModal, markDocumentAsComplete, submitDocumentSet } from '../../actions';
 import { push } from 'react-router-redux';
-import { signDocumentRoute } from '../../utils';
+import { signDocumentRoute, getNextDocument } from '../../utils';
 import { prepareSubmitPayload } from './submitConfirmation';
 
-interface DocumentWithComplete extends Sign.Document {
+export interface DocumentWithComplete extends Sign.Document {
     complete: boolean;
 }
 
@@ -23,7 +23,56 @@ interface SignConfirmationProps {
     isDocumentOwner: boolean;
     markDocumentAsComplete: (payload: Sign.Actions.MarkDocumentAsCompletePayload) => void;
     documents: DocumentWithComplete[];
-    submitPayload: Sign.Actions.SubmitDocumentSetPayload
+    submitPayload: Sign.Actions.SubmitDocumentSetPayload;
+}
+
+interface RecipientsListProps {
+    recipients: Sign.Recipients;
+}
+
+export class RecipientsList extends React.PureComponent<RecipientsListProps> {
+    render() {
+        return (
+            <div>
+                <h3>Recipients</h3>
+
+                {this.props.recipients.map((recipient, index) =>
+                    <p key={index}>
+                        <strong>{recipient.name}:</strong> {recipient.email}
+                    </p>
+                )}
+            </div>
+        );
+    }
+}
+
+interface DocumentsListProps {
+    currentDocumentId: string;
+    documents: DocumentWithComplete[];
+    goToDocument: (documentId: string) => void;
+}
+
+export class DocumentsList extends React.PureComponent<DocumentsListProps> {
+    render() {
+        return (
+            <div>
+                <h3>Other Documents</h3>
+
+                {this.props.documents.length <= 1 && <em>None</em>}
+                {this.props.documents.map(document => {
+                    if (document.id === this.props.currentDocumentId) {
+                        return false;
+                    }
+
+                    return (
+                        <p key={document.id}>
+                            <a onClick={() => this.props.goToDocument(document.id)}>{document.filename}</a>: {document.complete ? 'complete' : 'pending'}
+                        </p>
+                    );
+                })}
+            </div>
+        );
+    }
 }
 
 class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
@@ -36,6 +85,7 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
 
     sign() {
         this.props.submitDocumentSet(this.props.submitPayload);
+        this.props.closeModal();
     }
 
     renderLoading() {
@@ -54,9 +104,9 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
 
                 <p className='text-center'>Are you sure you want to sign all documents?</p>
 
-                {this.props.recipients && this.props.recipients.length && this.renderRecipients()}
+                {this.props.recipients && this.props.recipients.length && <RecipientsList recipients={this.props.recipients} />}
 
-                {this.renderDocuments()}
+                <DocumentsList documents={this.props.documents} currentDocumentId={this.props.documentId} goToDocument={this.goToDocument} />
 
                 <Button bsStyle='primary' bsSize="lg" onClick={this.sign}>Sign Documents</Button>
             </div>
@@ -70,7 +120,7 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
 
                 <p className='text-center'>Are you sure you want to move to the next document?</p>
 
-                {this.renderDocuments()}
+                <DocumentsList documents={this.props.documents} currentDocumentId={this.props.documentId} goToDocument={this.goToDocument} />
 
                 <Button bsStyle='primary' bsSize="lg" onClick={this.next}>Next Document</Button>
             </div>
@@ -85,46 +135,6 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
         this.props.markDocumentAsComplete({ documentId: this.props.documentId, complete: true });
         this.props.push(signDocumentRoute(this.props.documentSetId, documentId, this.props.isDocumentOwner));
         this.props.closeModal();
-    }
-
-    renderRecipients() {
-        return (
-            <div>
-                <hr />
-
-                <h3>Recipients</h3>
-
-                {this.props.recipients.map((recipient, index) =>
-                    <p key={index}>
-                        <strong>{recipient.name}:</strong> {recipient.email}
-                    </p>
-                )}
-            </div>
-        );
-    }
-
-    renderDocuments() {
-        return (
-            <div>
-                <div>
-                    <h3>Documents</h3>
-
-                    {this.props.documents.map(document => {
-                        let documentStatus = document.complete ? 'complete' : 'pending';
-
-                        if (document.id === this.props.documentId) {
-                            documentStatus = 'current';
-                        }
-
-                        return (
-                            <p key={document.id}>
-                                <a onClick={() => this.goToDocument(document.id)}>{document.filename}</a>: {documentStatus}
-                            </p>
-                        );
-                    })}
-                </div>
-            </div>
-        )
     }
 
     render() {
@@ -152,10 +162,6 @@ class SignConfirmation extends React.PureComponent<SignConfirmationProps> {
             </Modal>
         );
     }
-}
-
-function getNextDocument(documentIds: string[], documents: Sign.DocumentViews, currentDocumentId: string): string {
-    return documentIds.filter(d => d != currentDocumentId).find(documentId => !documents[documentId] || !documents[documentId].completed);
 }
 
 export default connect(

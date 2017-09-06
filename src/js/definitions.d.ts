@@ -160,6 +160,8 @@ declare namespace Sign {
     interface DocumentView {
         activePage: number;
         completed: boolean;
+        signStatus: Sign.SignStatus;
+        rejectReason?: string;
     }
 
     interface DocumentViews {
@@ -778,7 +780,6 @@ declare namespace Sign.Actions {
     }
 
     interface RejectDocumentPayload {
-        documentSetId: string;
         documentId: string;
         reason?: string;
     }

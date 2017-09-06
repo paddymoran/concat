@@ -19,6 +19,8 @@ interface ModalsProps {
 
 class Modals extends React.PureComponent<ModalsProps>{
     render() {
+        const payload = this.props.payload;
+
         switch(this.props.showing){
             case 'selectSignature':
                 return <SignatureModal />
@@ -51,7 +53,6 @@ class Modals extends React.PureComponent<ModalsProps>{
                 return <NextDocument />
 
             case Sign.ModalType.ACTIVATE_CONTROL:
-                const payload = this.props.payload;
                 return <ActivateControl documentId={payload.documentId} isDocumentOwner={payload.isDocumentOwner} requestPrompts={payload.requestPrompts} requestedSignatureInfo={payload.requestedSignatureInfo} documentSetId={payload.documentSetId} />
 
             default:

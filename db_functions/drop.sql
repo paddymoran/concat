@@ -1,4 +1,5 @@
 DROP TRIGGER IF EXISTS document_hash_trigger ON public.documents;
+DROP FUNCTION IF EXISTS rejection_explaination(uuid);
 DROP FUNCTION IF EXISTS document_hash();
 DROP FUNCTION IF EXISTS delete_document(user_id integer, document_id uuid);
 DROP FUNCTION IF EXISTS document_set_json(user_id integer, uuid);

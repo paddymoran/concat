@@ -263,6 +263,5 @@ class TestSigningFlows(DBTestCase):
             reject_document(USER_ID_2, doc1, sign_request_id, {})
             results = get_document_set(USER_ID_1, set_id)
             self.assertEqual(results['documents'][0]['sign_status'], 'Rejected')
-            print(results['documents'][0])
             self.assertEqual(results['status'], 'Complete')
 

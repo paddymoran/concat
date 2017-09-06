@@ -131,7 +131,7 @@ export default connect(
         const documents = documentIds.map(documentId => ({
             id: documentId,
             ...state.documents[documentId],
-            complete: (state.documentViewer.documents[documentId] || { completed: false }).completed
+            signStatus: (state.documentViewer.documents[documentId] || { signStatus: Sign.SignStatus.PENDING }).signStatus
         }));
 
         return {

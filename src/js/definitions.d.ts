@@ -469,6 +469,7 @@ declare namespace Sign.Actions {
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
         
         DELETE_DOCUMENT = 'DELETE_DOCUMENT',
+        DELETE_DOCUMENT_SET = 'DELETE_DOCUMENT_SET',
 
         // To sign page
         TOGGLE_TO_SIGN_SHOW_COMPLETE = 'TOGGLE_TO_SIGN_SHOW_COMPLETE',
@@ -848,6 +849,10 @@ declare namespace Sign.Actions {
         documentId: string;
     }
 
+    interface DeleteDocumentSetPayload {
+        documentSetId: string;
+    }
+
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
@@ -928,6 +933,7 @@ declare namespace Sign.Actions {
 
     interface RevokeSignInvitation extends ActionCreator<RevokeSignInvitationPayload> {}
     interface DeleteDocument extends ActionCreator<DeleteDocumentPayload> {}
+    interface DeleteDocumentSet extends ActionCreator<DeleteDocumentSetPayload> {}
 
     // Contacts
     interface RequestContacts extends Action {}

@@ -56,12 +56,18 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
             };
 
         case Sign.Actions.Types.SHOW_ACTIVATE_CONTROL_MODAL:
+            return {
+                ...state,
+                ...action.payload,
+                showing: Sign.ModalType.ACTIVATE_CONTROL,
+            };
+
         case Sign.Actions.Types.CONFIRM_ACTION:
             return {
                 ...state,
                 ...action.payload,
-                showing: action.type,
-            }
+                showing: Sign.ModalType.CONFIRM_ACTION,
+            };
 
         default:
             return state;

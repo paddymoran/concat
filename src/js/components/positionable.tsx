@@ -8,7 +8,7 @@ import {
     movePrompt, removePromptFromDocument,
     showSignatureSelection,
     showInitialSelectionModal,
-    addSignatureToDocument, addDateToDocument, addTextToDocument
+    addSignatureToDocument, addDateToDocument, addTextToDocument, showInviteModal
  } from '../actions';
 import { connect } from 'react-redux';
 import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas, imageRatio } from '../utils';
@@ -74,6 +74,7 @@ interface TextControlProps extends ControlProps{
 interface PromptControlProps extends ControlProps{
     prompt: Sign.DocumentPrompt,
     updatePrompt: (payload: Sign.Actions.MovePromptPayload) => void;
+    showInviteModal: (payload: Sign.Actions.ShowInviteModalPayload) => void;
     recipients: Sign.Recipients;
 }
 
@@ -207,8 +208,12 @@ class PromptControls extends React.PureComponent<PromptControlProps, {show: bool
         this.show = this.show.bind(this);
         this.hide = this.hide.bind(this);
         this.state = {show: !props.prompt.value.recipientEmail}
+        this.showInvite = this.showInvite.bind(this);
     }
 
+    showInvite() {
+        this.props.showInviteModal({documentSetId:  this.props.documentSetId})
+    }
 
     onChangeRecipient(event : React.FormEvent<HTMLSelectElement>) {
         const value = event.currentTarget.value
@@ -263,6 +268,9 @@ class PromptControls extends React.PureComponent<PromptControlProps, {show: bool
             <button className="button-no-style "  ref="target" onClick={this.show}><span className="fa fa-edit"/></button>
              <Overlay placement="top" {...sharedProps}>
                     <Popover id={`popover-for-${this.props.index}`} className="prompt-controls">
+                        <div className="text-center form-group">
+                            <button className="btn btn-primary" onClick={this.showInvite}><i className="fa fa-users"/> Invite Recipients</button>
+                        </div>
                         <div className={`${"form-group " + (this.props.prompt.value.recipientEmail ? '' : 'has-error') }`}>
                             <label>Who</label>
                             <select className="form-control" value={this.props.prompt.value.recipientEmail} onChange={this.onChangeRecipient}>
@@ -293,7 +301,7 @@ const ConnectedPromptControls = connect((state, ownProps: ControlProps) => {
         recipients: (state.documentSets[ownProps.documentSetId] || {recipients: []}).recipients || []
         }
     }, {
-    updatePrompt: movePrompt
+    updatePrompt: movePrompt, showInviteModal
 })(PromptControls)
 
 

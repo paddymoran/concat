@@ -62,12 +62,12 @@ class ComboboxComponent extends React.PureComponent<ComboboxComponentProps> {
         if (meta.touched) {
             formProps.validationState = meta.valid ? 'success' : 'error';
         }
-        
+
         const showValidation = meta.touched && meta.error;
 
         return (
             <FormGroup {...formProps}>
-                <Combobox {...this.props.input} suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} />
+                <Combobox {...this.props.input} suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} placeholder={this.props.placeholder}/>
                 <FormControl.Feedback />
                 {showValidation && <HelpBlock>{ meta.error }</HelpBlock>}
             </FormGroup>
@@ -97,7 +97,7 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
             <li>
                 <Row>
                     <Col md={5}>
-                        <Field name={`${this.props.recipient}.name`} component={ComboboxComponent as any} props={{data: this.props.contacts, dataDisplayField: "name", onSelect: this.onSelect} as any} />
+                        <Field name={`${this.props.recipient}.name`} component={ComboboxComponent as any} props={{data: this.props.contacts, dataDisplayField: "name", onSelect: this.onSelect, placeholder: 'Name'} as any} />
                     </Col>
 
                     <Col md={5}>

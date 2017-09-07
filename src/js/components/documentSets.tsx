@@ -58,23 +58,23 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                 <div className="document-set-title">{documentSetLabel}</div>
                     <table className="table-hover">
                         <thead></thead>
-                        
+
                         <tbody>
                         {this.props.documentSet.documentIds.reduce((rows: any, documentId, i : number) => {
                             const document = this.props.documents[documentId];
-                            
+
                             rows.push(
                                 <tr key={i}>
                                     <td className="status">
                                         <SignStatus signStatus={document.signStatus} />
                                     </td>
-                                    
+
                                     <td className="filename-icon">
                                         <i className="fa fa-file-pdf-o" />
                                     </td>
-                                    
+
                                     <td className="filename">{document.filename}</td>
-                                    
+
                                     <td className="file-controls">
                                         <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}>
                                             <i className="fa fa-download"/> Download
@@ -92,7 +92,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                             );
 
                             document.signatureRequestInfos && document.signatureRequestInfos.map((r: Sign.SignatureRequestInfo, i: number) => {
-                                const keyModifier = documentId + '-' + r.signRequestId;
+                                const keyModifier = `${documentId}-${r.signRequestId}-${i}`;
 
                                 if (r.status === 'Rejected') {
                                     const string = r.rejectMessage ? `Rejected by ${r.name} - "${r.rejectMessage}"` : `Rejected by ${r.name}`;
@@ -117,7 +117,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                             <td >Waiting on { r.name }</td>
                                             <td className="file-controls">
                                                 <a className="btn btn-default btn-xs" onClick={() => this.props.revokeSignInvitation({ signRequestId: r.signRequestId })}>
-                                                    <i className="fa fa-trash" /> Revoke  
+                                                    <i className="fa fa-trash" /> Revoke
                                                 </a>
                                             </td>
                                         </tr>

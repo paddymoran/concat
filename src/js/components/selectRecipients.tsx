@@ -52,6 +52,7 @@ interface ComboboxComponentProps extends WrappedFieldProps {
     dataDisplayField: string;
     data: any[];
     onSelect: (value: Sign.Recipient) => void;
+    placeholder?: string;
 }
 
 class ComboboxComponent extends React.PureComponent<ComboboxComponentProps> {

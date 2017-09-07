@@ -2,6 +2,7 @@ DROP TRIGGER IF EXISTS document_hash_trigger ON public.documents;
 DROP FUNCTION IF EXISTS request_info(uuid);
 DROP FUNCTION IF EXISTS document_hash();
 DROP FUNCTION IF EXISTS delete_document(user_id integer, document_id uuid);
+DROP FUNCTION IF EXISTS revoke_signature_request(user_id integer, integer);
 DROP FUNCTION IF EXISTS document_set_json(user_id integer, uuid);
 DROP FUNCTION IF EXISTS delete_document(user_id integer, document_id uuid);
 DROP FUNCTION IF EXISTS signature_requests(user_id integer);

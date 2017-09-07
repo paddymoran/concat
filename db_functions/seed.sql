@@ -192,24 +192,6 @@ $_$;
 
 
 --
--- Name: pending_invites(uuid); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION pending_invites(uuid) RETURNS json
-    LANGUAGE sql
-    AS $_$
-SELECT json_agg(row_to_json(q)) FROM (
-    SELECT u.user_id as user_id, name, email,sr.sign_request_id
-    FROM documents d
-    LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
-    LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
-    JOIN public.users u on sr.user_id = u.user_id
-    WHERE d.document_id = $1 AND srr.sign_result_id IS NULL
-) q
-$_$;
-
-
---
 -- Name: request_info(uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 

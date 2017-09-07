@@ -17,7 +17,6 @@ interface EmailDocumentProps {
 class EmailDocument extends React.PureComponent<EmailDocumentProps> {
     constructor(props: EmailDocumentProps) {
         super(props);
-
         this.onSubmit = this.onSubmit.bind(this);
     }
 

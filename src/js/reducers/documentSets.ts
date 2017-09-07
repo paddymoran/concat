@@ -29,11 +29,13 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
             {
                 const { documentSetId, ...rest } = action.payload;
 
+                const documentIds = rest.documents ? rest.documents.map((d: any) => d.documentId) : state[documentSetId].documentIds;
+
                 return {
                     ...state,
                     [documentSetId]: {
                         ...state[documentSetId],
-                        documentIds: rest.documents.map((d: any) => d.documentId),
+                        documentIds,
                         ...rest,
                     }
                 };

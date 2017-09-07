@@ -100,12 +100,14 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
 )
     SELECT row_to_json(qqq) FROM (
         SELECT
-            $1 as document_set_id,
+            $2 as document_set_id,
              ds.name as name, ds.created_at as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents,
-            CASE WHEN EVERY(sign_status != 'Pending') THEN 'Complete' ELSE 'Pending' END as status
+            CASE WHEN EVERY(sign_status != 'Pending') THEN 'Complete' ELSE 'Pending' END as status,
+            ds.user_id = $1 as is_owner
         FROM (
-            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status, rejection_explaination(start_id) as rejection_explaination
+            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status,
+                request_info(start_id) as request_info
             FROM (
                 SELECT
                 DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions, first_value(document_id) over wnd as start_id
@@ -121,7 +123,8 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
             LEFT OUTER JOIN document_view dv ON (d.document_id = dv.document_id and user_id = $1)
         ) qq
         JOIN document_sets ds ON ds.document_set_id = $2
-        GROUP BY ds.name, ds.created_at
+        GROUP BY ds.name, ds.created_at, ds.user_id
+
         ORDER BY ds.created_at DESC
  ) qqq
 
@@ -189,20 +192,59 @@ $_$;
 
 
 --
--- Name: rejection_explaination(uuid); Type: FUNCTION; Schema: public; Owner: -
+-- Name: pending_invites(uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION rejection_explaination(uuid) RETURNS json
+CREATE FUNCTION pending_invites(uuid) RETURNS json
     LANGUAGE sql
     AS $_$
 SELECT json_agg(row_to_json(q)) FROM (
-    SELECT u.user_id as user_id, name, email, srr.field_data, srr.created_at
+    SELECT u.user_id as user_id, name, email,sr.sign_request_id
     FROM documents d
     LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
     LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
-    JOIN public.users u on srr.user_id = u.user_id
-    WHERE d.document_id = $1 AND NOT srr.accepted
+    JOIN public.users u on sr.user_id = u.user_id
+    WHERE d.document_id = $1 AND srr.sign_result_id IS NULL
 ) q
+$_$;
+
+
+--
+-- Name: request_info(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION request_info(uuid) RETURNS json
+    LANGUAGE sql
+    AS $_$
+SELECT json_agg(row_to_json(q)) FROM (
+    SELECT
+    u.user_id as user_id, name, email, srr.created_at, sr.sign_request_id,
+    CASE
+        WHEN srr.accepted THEN 'Signed'
+        WHEN NOT srr.accepted THEN 'Rejected'
+        ELSE 'Pending'
+    END as status,
+    CASE WHEN NOT srr.accepted THEN srr.field_data ELSE NULL END as rejection_explaination
+    FROM documents d
+    LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
+    LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
+    JOIN public.users u on sr.user_id = u.user_id
+    WHERE d.document_id = $1
+) q
+$_$;
+
+
+--
+-- Name: revoke_signature_request(integer, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION revoke_signature_request(user_id integer, sign_request_id integer) RETURNS void
+    LANGUAGE sql
+    AS $_$
+DELETE FROM sign_requests sr
+USING documents d
+JOIN document_sets ds ON ds.document_set_id = d.document_set_id
+WHERE d.document_id = sr.document_id and ds.user_id = $1 AND sr.sign_request_id = $2 ;
 $_$;
 
 
@@ -224,11 +266,11 @@ SELECT json_agg(
     'prompts', sr.field_data,
     'created_at', d.created_at,
     'sign_status', CASE WHEN srr.sign_result_id IS NOT NULL
-        THEN CASE WHEN srr.accepted THEN 'Signed' ELSE 'Rejected' END
+        THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
 
         ELSE 'Pending' END
     )) as documents,
-    d.document_set_id, ds.name, ds.created_at, u.name as "requester", u.user_id
+    d.document_set_id, ds.name, ds.created_at, u.name as "requester", u.user_id,  ds.user_id = $1 as is_owner
 FROM sign_requests sr
 JOIN documents d ON d.document_id = sr.document_id
 JOIN document_sets ds ON ds.document_set_id = d.document_set_id
@@ -236,7 +278,7 @@ JOIN users u ON u.user_id = ds.user_id
 LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
 WHERE sr.user_id = $1
 
-GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id
+GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id, ds.user_id
 ORDER BY ds.created_at DESC
 ) q
 $_$;

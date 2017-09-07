@@ -483,3 +483,15 @@ export function deleteDocument(payload: Sign.Actions.DeleteDocumentPayload): Sig
         }
     });
 }
+
+export function deleteDocumentSet(payload: Sign.Actions.DeleteDocumentSetPayload): Sign.Actions.ConfirmAction<Sign.Actions.DeleteDocumentSet> {
+    return confirmAction<Sign.Actions.DeleteDocumentSet>({
+        title: 'Delete Document Set',
+        message: 'Are you sure you want to this document set?',
+        submitText: 'Delete Document Set',
+        action: {
+            type: Sign.Actions.Types.DELETE_DOCUMENT_SET,
+            payload
+        }
+    });
+}

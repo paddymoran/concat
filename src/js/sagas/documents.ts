@@ -26,7 +26,20 @@ function *deleteDocumentSaga() {
     }
 }
 
+function *deleteDocumentSetSaga() {
+    yield takeEvery(Sign.Actions.Types.DELETE_DOCUMENT_SET, deleteDocumentSet);
+
+    function *deleteDocumentSet(action: Sign.Actions.DeleteDocumentSet) {
+        yield call(axios.delete, `/api/documents/${action.payload.documentSetId}`);
+        yield all([
+            put(resetDocuments()),
+            put(closeModal({ modalName: Sign.ModalType.CONFIRM_ACTION }))
+        ]);
+    }
+}
+
 export default [
     revokeSignInvitationSaga(),
     deleteDocumentSaga(),
+    deleteDocumentSetSaga(),
 ];

@@ -95,7 +95,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                 const keyModifier = `${documentId}-${r.signRequestId}-${i}`;
 
                                 if (r.status === 'Rejected') {
-                                    const string = r.rejectMessage ? `Rejected by ${r.name} - "${r.rejectMessage}"` : `Rejected by ${r.name}`;
+                                    const string = r.rejectedMessage ? `Rejected by ${r.name} - "${r.rejectedMessage}"` : `Rejected by ${r.name}`;
                                     rows.push(
                                         <tr key={`rejection-${keyModifier}`} className="rejection-info condensed">
                                             <td/>

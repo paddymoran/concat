@@ -155,36 +155,71 @@ def join_and(names):
     else:
         return ''
 
-def check_document_set_completion(document_set_id):
-    if db.document_set_status(document_set_id)[0] == 'Complete':
-        try:
+def is_set_complete(document_set_id):
+    return db.document_set_status(document_set_id)[0] == 'Complete'
 
-            user = db.get_document_set_owner(document_set_id)
-            recipients = db.get_document_set_recipients(document_set_id)
+def send_completion_email(document_set_id):
+    try:
+        user = db.get_document_set_owner(document_set_id)
+        recipients = db.get_document_set_recipients(document_set_id)
 
-            params = {
-                'client_id': app.config.get('OAUTH_CLIENT_ID'),
-                'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
-                'template': 'emails.sign.signing-complete',
-                'email': user['email'],
+        params = {
+            'client_id': app.config.get('OAUTH_CLIENT_ID'),
+            'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
+            'template': 'emails.sign.signing-complete',
+            'email': user['email'],
+            'name': user['name'],
+            'subject': 'Documents Signed & Ready in CataLex Sign',
+            'data': json.dumps({
                 'name': user['name'],
-                'subject': 'Documents Signed & Ready in CataLex Sign',
-                'data': json.dumps({
-                    'name': user['name'],
-                    'setDescription': 'Documents signed by %s' % ([r['name'] for r in recipients]),
-                    'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
-                })
-            }
+                'setDescription': 'Documents signed by %s' % (join_and([r['name'] for r in recipients])),
+                'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
+            })
+        }
 
-            response = requests.post(
-                app.config.get('AUTH_SERVER') + '/mail/send',
-                data=params
-            )
-            return jsonify(response.json())
-        except Exception as e:
-            print(e)
-            raise InvalidUsage('Failed to send completion email', status_code=500)
+        response = requests.post(
+            app.config.get('AUTH_SERVER') + '/mail/send',
+            data=params
+        )
+        return response.json()
+    except Exception as e:
+        print(e)
+        raise InvalidUsage('Failed to send completion email', status_code=500)
 
+def are_user_requests_complete(user_id, document_set_id):
+    for doc_set in db.get_signature_requests(session['user_id']):
+        if doc_set['document_set_id'] == document_set_id:
+            return all([doc['sign_status'] != 'Pending' for doc in doc_set['documents']])
+    return False
+
+def send_rejection_email(user_id, document_set_id):
+    try:
+        raise 'paddy do this'
+        user = db.get_document_set_owner(document_set_id)
+        recipients = db.get_document_set_recipients(document_set_id)
+
+        params = {
+            'client_id': app.config.get('OAUTH_CLIENT_ID'),
+            'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
+            'template': 'emails.sign.signing-complete',
+            'email': user['email'],
+            'name': user['name'],
+            'subject': 'Documents Signed & Ready in CataLex Sign',
+            'data': json.dumps({
+                'name': user['name'],
+                'setDescription': 'Documents signed by %s' % (join_and([r['name'] for r in recipients])),
+                'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
+            })
+        }
+
+        response = requests.post(
+            app.config.get('AUTH_SERVER') + '/mail/send',
+            data=params
+        )
+        return response.json()
+    except Exception as e:
+        print(e)
+        raise InvalidUsage('Failed to send completion email', status_code=500)
 
 def can_sign_or_submit(user_id):
     return not db.get_usage(user_id,
@@ -364,9 +399,13 @@ def sign_document():
     else:
         db.reject_document(session['user_id'], document_id, sign_request_id, {'rejectedMessage': args.get('rejectMessage')})
     if sign_request_id:
-        check_document_set_completion(args['documentSetId'])
 
-        # Check if a user has rejected any documents - and they have finished siging - and the set is not complete (so we don't send them two emails at once)
+        is_complete = is_set_complete(args['documentSetId'])
+        if is_complete:
+            send_completion_email(args['documentSetId'])
+        elif are_user_requests_complete(session['user'], args['documentSetId']):
+            send_rejection_email(session['user'], args['documentSetId'])
+
     return jsonify({'document_id': saved_document_id})
 
 

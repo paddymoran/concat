@@ -1,6 +1,7 @@
 from db import (
-    upsert_user, add_document, get_document, get_document_set,
-    find_or_create_and_validate_document_set, sign_document
+    upsert_user, add_document, get_document, get_document_set, get_user_document_sets,
+    find_or_create_and_validate_document_set, sign_document,
+    remove_document_from_set
 )
 from tests import DBTestCase
 import server
@@ -50,3 +51,28 @@ class TestPopulateDocumentSets(DBTestCase):
                 self.assertEqual(doc['sign_status'], 'Signed')
 
             self.assertEqual(len(get_document_set(USER_ID, set_id)['documents']), 2)
+
+
+    def test_deleting(self):
+        USER_ID = 3
+        with server.app.app_context():
+            upsert_user({
+                        'user_id': USER_ID,
+                        'name': 'documentsetuser',
+                        'email': 'documentsetuser@email.com',
+                        'subscribed': True
+                        })
+            set_id = str(uuid4())
+            doc1 = str(uuid4())
+            sets = get_user_document_sets(USER_ID)
+            self.assertEqual(len(sets), 0)
+
+            find_or_create_and_validate_document_set(set_id, USER_ID)
+            add_document(set_id, doc1, 'input1', b'abc')
+            sets = get_user_document_sets(USER_ID)
+            self.assertEqual(len(sets), 1)
+
+            remove_document_from_set(USER_ID, doc1)
+            sets = get_user_document_sets(USER_ID)
+            self.assertEqual(len(sets), 0)
+

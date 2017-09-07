@@ -59,15 +59,27 @@ CREATE TYPE signature_type AS ENUM (
 -- Name: delete_document(integer, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION delete_document(user_id integer, document_id uuid) RETURNS void
+CREATE FUNCTION delete_document(user_id integer, document_id uuid) RETURNS uuid
     LANGUAGE sql
     AS $_$
 DELETE FROM document_data dd
 USING documents d
 JOIN document_sets ds ON ds.document_set_id = d.document_set_id
-WHERE d.document_data_id = dd.document_data_id and user_id = $1 AND document_id = $2 ;
-
+WHERE d.document_data_id = dd.document_data_id and user_id = $1 AND document_id = $2
+RETURNING ds.document_set_id
 $_$;
+
+
+--
+-- Name: delete_document_set_if_empty(integer, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION delete_document_set_if_empty(user_id integer, document_set_id uuid) RETURNS void
+    LANGUAGE sql
+    AS $_$
+	DELETE FROM document_sets ds
+	WHERE user_id = $1 AND ds.document_set_id = $2 AND NOT EXISTS(SELECT * FROM documents WHERE document_set_id = $2)
+	$_$;
 
 
 --

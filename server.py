@@ -230,13 +230,24 @@ def save_document_view(document_id):
 def remove_document_from_set(document_id):
     try:
         user_id = session['user_id']
-        db.remove_document_from_set(document_id, user_id)
-        # todo if empty, delete set
+        db.remove_document_from_set(user_id, document_id)
         return jsonify({'message': 'Document removed'})
     except Exception as e:
         print(e)
         raise InvalidUsage('Failed to removed document', status_code=500)
 
+
+@app.route('/api/documents/<doc_id>', methods=['DELETE'])
+def remove_document_set(doc_id):
+    try:
+        user_id = session['user_id']
+        documents = db.get_document_set(session['user_id'], doc_id)
+        for document in documents['documents']:
+            db.remove_document_from_set(user_id, document['document_id'])
+        return jsonify({'message': 'Document set removed'})
+    except Exception as e:
+        print(e)
+        raise InvalidUsage('Failed to removed document set', status_code=500)
 
 @app.route('/api/documents/<doc_id>', methods=['GET'])
 def get_documents(doc_id):

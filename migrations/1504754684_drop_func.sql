@@ -1,0 +1,1 @@
+DROP FUNCTION delete_document(integer,uuid);

@@ -208,21 +208,29 @@ function *requestDocumentSetsSaga() {
     yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT_SETS, requestDocumentSets);
 
      function *requestDocumentSets(action: Sign.Actions.RequestDocumentSet) {
-         const status = yield select((state : Sign.State) => state.documentSetsStatus);
-         if(status !== Sign.DownloadStatus.NotStarted && status !== Sign.DownloadStatus.Stale){
-             return;
-         }
-         yield put(updateDocumentSets({
-             downloadStatus: Sign.DownloadStatus.InProgress,
-             documentSets: []
-         }));
+        const status = yield select((state : Sign.State) => state.documentSetsStatus);
+        
+        if (status !== Sign.DownloadStatus.NotStarted && status !== Sign.DownloadStatus.Stale) {
+            return;
+        }
+
+        yield put(updateDocumentSets({
+            downloadStatus: Sign.DownloadStatus.InProgress,
+            documentSets: []
+        }));
+
         const response = yield call(axios.get, `/api/documents`);
 
         const data = response.data.map((d : any) => {
-            return {createdAt: d.created_at, title: d.name, documentSetId: d.document_set_id, isOwner: d.is_owner,
-                documents: (d.documents || [])
-                .map(formatDocument) }
+            return {
+                createdAt: d.created_at,
+                title: d.name,
+                documentSetId: d.document_set_id,
+                isOwner: d.is_owner,
+                documents: (d.documents || []).map(formatDocument)
+            }
         });
+
         yield put(updateDocumentSets({
             downloadStatus: Sign.DownloadStatus.Complete,
             documentSets: data

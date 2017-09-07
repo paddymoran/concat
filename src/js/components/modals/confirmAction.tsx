@@ -25,24 +25,35 @@ interface DispatchProps {
     fireAction: (action: any) => void;
 }
 
-class ConfirmActionModal extends React.PureComponent<ConnectedConfirmActionModalProps> {
+class ConfirmActionModal extends React.PureComponent<ConnectedConfirmActionModalProps, {loading: boolean}> {
+    constructor(props: ConnectedConfirmActionModalProps) {
+        super(props);
+        this.submit = this.submit.bind(this);
+        this.state = {loading: false}
+    }
+
+    submit() {
+        this.props.fireAction();
+        this.setState({loading: true});
+    }
     render() {
         return (
             <Modal backdrop="static" show={true} onHide={this.props.closeModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>{ this.props.title }</Modal.Title>
                 </Modal.Header>
-                
+
                 <Modal.Body>
-                    <p>{ this.props.message }</p>
+                   { !this.state.loading && <p>{ this.props.message }</p> }
+                   { this.state.loading && <div className="loading"/> }
                 </Modal.Body>
 
-                <Modal.Footer>
+                 { !this.state.loading &&  <Modal.Footer>
                     <ButtonToolbar className="pull-right">
                         <Button onClick={this.props.closeModal}>Cancel</Button>
-                        <Button onClick={this.props.fireAction} bsStyle="primary">{ this.props.submitText }</Button>
+                        <Button onClick={this.submit} bsStyle="primary">{ this.props.submitText }</Button>
                     </ButtonToolbar>
-                </Modal.Footer>
+                </Modal.Footer> }
             </Modal>
         );
     }

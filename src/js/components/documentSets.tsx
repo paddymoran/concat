@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { requestDocumentSets, showEmailDocumentModal, revokeSignInvitation } from '../actions';
+import { requestDocumentSets, showEmailDocumentModal, revokeSignInvitation, deleteDocument } from '../actions';
 import * as moment from 'moment';
 import { Link } from 'react-router';
 import { Nav, NavItem } from 'react-bootstrap';
@@ -30,6 +30,7 @@ interface DocumentSetListProps extends UnconnectedDocumentSetListProps {
     documents: Sign.Documents;
     emailDocument: (id: string) => void;
     revokeSignInvitation: (payload: Sign.Actions.RevokeSignInvitationPayload) => void;
+    deleteDocument: (payload: Sign.Actions.DeleteDocumentPayload) => void;
 }
 
 class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProps> {
@@ -55,22 +56,26 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                 { this.props.documentSet.documentIds.reduce((rows: any, documentId, i : number) => {
                     const document = this.props.documents[documentId];
                     rows.push(
-                            <tr key={i}>
-                                  <td className="status">
-                                       <SignStatus signStatus={document.signStatus}/>
-                                  </td>
-                                  <td className="filename-icon">
-                                      <i className="fa fa-file-pdf-o" />
-                                      </td>
-                                  <td className="filename">
-                                      {document.filename}
-                                  </td>
-                                  <td className="file-controls">
-                                       <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}><i className="fa fa-download"/>Download</a>
-                                        <a className="btn btn-default btn-xs" onClick={() => this.emailDocument(documentId) }><i className="fa fa-send"/>Email</a>
-                                         { this.props.documentSet.isOwner && <a className="btn btn-default btn-xs"><i className="fa fa-trash"/>Delete</a> }
-                                  </td>
-                            </tr>
+                        <tr key={i}>
+                            <td className="status">
+                                <SignStatus signStatus={document.signStatus}/>
+                            </td>
+                            <td className="filename-icon">
+                                <i className="fa fa-file-pdf-o" />
+                                </td>
+                            <td className="filename">
+                                {document.filename}
+                            </td>
+                            <td className="file-controls">
+                                <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}><i className="fa fa-download"/>Download</a>
+                                <a className="btn btn-default btn-xs" onClick={() => this.emailDocument(documentId) }><i className="fa fa-send"/>Email</a>
+                                { this.props.documentSet.isOwner &&
+                                    <a className="btn btn-default btn-xs" onClick={() => this.props.deleteDocument({ documentId })}>
+                                        <i className="fa fa-trash"/> Delete
+                                    </a>
+                                }
+                            </td>
+                        </tr>
                     );
                     document.signatureRequestInfos && document.signatureRequestInfos.map((r: Sign.SignatureRequestInfo, i: number) => {
                         const keyModifier = documentId + '-' + r.signRequestId;
@@ -137,7 +142,7 @@ const DocumentSetList = connect(
         documents: state.documents,
         documentSet: state.documentSets[ownProps.documentSetId]
     }),
-    { emailDocument: showEmailDocumentModal, revokeSignInvitation }
+    { emailDocument: showEmailDocumentModal, revokeSignInvitation, deleteDocument }
 )(UnconnectedDocumentSetList);
 
 class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>  {

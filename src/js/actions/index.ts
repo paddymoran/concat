@@ -471,3 +471,15 @@ export function revokeSignInvitation(payload: Sign.Actions.RevokeSignInvitationP
         }
     });
 }
+
+export function deleteDocument(payload: Sign.Actions.DeleteDocumentPayload): Sign.Actions.ConfirmAction<Sign.Actions.DeleteDocument> {
+    return confirmAction<Sign.Actions.DeleteDocument>({
+        title: 'Delete Document',
+        message: 'Are you sure you want to this document?',
+        submitText: 'Delete Document',
+        action: {
+            type: Sign.Actions.Types.DELETE_DOCUMENT,
+            payload
+        }
+    });
+}

@@ -482,6 +482,8 @@ declare namespace Sign.Actions {
         RESET_STATE = 'RESET_STATE',
 
         RESET_DOCUMENTS = 'RESET_DOCUMENTS',
+
+        REVOKE_SIGN_INVITATION = 'REVOKE_SIGN_INVITATION',
     }
 
 
@@ -829,11 +831,15 @@ declare namespace Sign.Actions {
         isDocumentOwner: boolean;
     }
 
-    interface ConfirmActionPayload {
+    interface ConfirmActionPayload<T> {
         title: string;
         message: string;
         submitText: string;
-        action: any;
+        action: T;
+    }
+
+    interface RevokeSignInvitationPayload {
+        signRequestId: number;
     }
 
     interface ResetState extends ActionCreator<ResetStatePayload> {}
@@ -898,7 +904,7 @@ declare namespace Sign.Actions {
     interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
     interface ShowEmailDocumentModal extends ActionCreator<ShowEmailDocumentModalPayload> {}
     interface ShowActivateControlModal extends ActionCreator<ShowActivateControlModalPayload> {}
-    interface ConfirmAction extends ActionCreator<ConfirmActionPayload> {}
+    interface ConfirmAction<T> extends ActionCreator<ConfirmActionPayload<T>> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}
@@ -913,6 +919,8 @@ declare namespace Sign.Actions {
 
     interface ToggleToSignShowComplete extends Action {}
     interface SetSaveStatus extends ActionCreator<SetSaveStatusPayload> {}
+
+    interface RevokeSignInvitation extends ActionCreator<RevokeSignInvitationPayload> {}
 
     // Contacts
     interface RequestContacts extends Action {}

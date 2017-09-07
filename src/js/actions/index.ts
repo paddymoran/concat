@@ -453,9 +453,21 @@ export function finishedSigningDocument(payload: Sign.Actions.FinishedSigningDoc
     };
 }
 
-export function confirmAction(payload: Sign.Actions.ConfirmActionPayload): Sign.Actions.ConfirmAction {
+export function confirmAction<T>(payload: Sign.Actions.ConfirmActionPayload<T>): Sign.Actions.ConfirmAction<T> {
     return {
         type: Sign.Actions.Types.CONFIRM_ACTION,
         payload
     };
+}
+
+export function revokeSignInvitation(payload: Sign.Actions.RevokeSignInvitationPayload): Sign.Actions.ConfirmAction<Sign.Actions.RevokeSignInvitation> {
+    return confirmAction<Sign.Actions.RevokeSignInvitation>({
+        title: 'Revoke Sign Invitation',
+        message: 'Are you sure you want to revoke this sign invitation?',
+        submitText: 'Revoke Invitation',
+        action: {
+            type: Sign.Actions.Types.REVOKE_SIGN_INVITATION,
+            payload
+        }
+    });
 }

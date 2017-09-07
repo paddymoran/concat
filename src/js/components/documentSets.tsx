@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { requestDocumentSets, showEmailDocumentModal } from '../actions';
+import { requestDocumentSets, showEmailDocumentModal, revokeSignInvitation } from '../actions';
 import * as moment from 'moment';
 import { Link } from 'react-router';
 import { Nav, NavItem } from 'react-bootstrap';
@@ -29,6 +29,7 @@ interface DocumentSetListProps extends UnconnectedDocumentSetListProps {
     documentSet: Sign.DocumentSet;
     documents: Sign.Documents;
     emailDocument: (id: string) => void;
+    revokeSignInvitation: (payload: Sign.Actions.RevokeSignInvitationPayload) => void;
 }
 
 class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProps> {
@@ -72,19 +73,42 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                             </tr>
                     );
                     document.signatureRequestInfos && document.signatureRequestInfos.map((r: Sign.SignatureRequestInfo, i: number) => {
+                        const keyModifier = documentId + '-' + r.signRequestId;
+
                         if(r.status === 'Rejected'){
                             const string = r.rejectMessage ? `Rejected by ${ r.name } - "${r.rejectMessage}"` : `Rejected by ${ r.name }`;
-                            rows.push(<tr key={`rejection-${i}`}  className="rejection-info condensed"><td/><td/><td >{ string }</td>
-                                      <td  className="file-controls"><a className="btn btn-default btn-xs"><i className="fa fa-trash"/>Revoke</a></td>
-                                      </tr>);
+                            rows.push(
+                                <tr key={`rejection-${keyModifier}`}  className="rejection-info condensed">
+                                    <td/>
+                                    <td/>
+                                    <td>{ string }</td>
+                                    <td className="file-controls">
+                                        <a className="btn btn-default btn-xs" onClick={() => this.props.revokeSignInvitation({ signRequestId: r.signRequestId })}>
+                                            <i className="fa fa-trash" /> Revoke
+                                        </a>
+                                    </td>
+                                </tr>
+                            );
                         }
                         else if(r.status === 'Pending'){
-                            rows.push(<tr key={`pending-${i}`}  className="pending-info condensed"><td/><td/><td >Waiting on { r.name }</td>
-                                      <td  className="file-controls"><a className="btn btn-default btn-xs"><i className="fa fa-trash"/>Revoke</a></td>
-                                      </tr>);
+                            rows.push(
+                                <tr key={`pending-${keyModifier}`}  className="pending-info condensed"><td/><td/><td >Waiting on { r.name }</td>
+                                    <td className="file-controls">
+                                        <a className="btn btn-default btn-xs" onClick={() => this.props.revokeSignInvitation({ signRequestId: r.signRequestId })}>
+                                            <i className="fa fa-trash" /> Revoke  
+                                        </a>
+                                    </td>
+                                </tr>
+                            );
                         }
                         else{
-                             rows.push(<tr key={`signed-${i}`}  className="signed-info condensed"><td/><td/><td  colSpan={2}>Signed by { r.name }</td></tr>);
+                             rows.push(
+                                 <tr key={`signed-${keyModifier}`} className="signed-info condensed">
+                                     <td/>
+                                     <td/>
+                                     <td colSpan={2}>Signed by { r.name }</td>
+                                </tr>
+                            );
                         }
 
                     });
@@ -112,9 +136,8 @@ const DocumentSetList = connect(
     (state: Sign.State, ownProps: UnconnectedDocumentSetListProps) => ({
         documents: state.documents,
         documentSet: state.documentSets[ownProps.documentSetId]
-    }), {
-         emailDocument: showEmailDocumentModal
-    }
+    }),
+    { emailDocument: showEmailDocumentModal, revokeSignInvitation }
 )(UnconnectedDocumentSetList);
 
 class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>  {
@@ -204,11 +227,12 @@ export const PendingDocumentSets = connect((state: Sign.State) => ({
     showEmailDocumentModal,  requestDocumentSets
 })(UnconnectedPendingDocumentSets);
 
-export const DocumentSet = connect((state: Sign.State, ownProps: any) => ({
-    documentSetId: ownProps.params.documentSetId
-}), {
-    showEmailDocumentModal,  requestDocumentSets
-})(UnconnectedDocumentSet);
+export const DocumentSet = connect(
+    (state: Sign.State, ownProps: any) => ({
+        documentSetId: ownProps.params.documentSetId
+    }),
+    { showEmailDocumentModal, requestDocumentSets }
+)(UnconnectedDocumentSet);
 
 export class AllDocumentSets extends React.PureComponent<DocumentSets>  {
     render() {

@@ -8,6 +8,7 @@ import Failure from './failure';
 import Invite from './invite';
 import EmailDocument from './emailDocument';
 import ActivateControl from './activateControl';
+import ConfirmAction from './ConfirmAction';
 
 interface ModalsProps {
     showing: string;
@@ -42,6 +43,9 @@ class Modals extends React.PureComponent<ModalsProps>{
 
             case Sign.ModalType.ACTIVATE_CONTROL:
                 return <ActivateControl documentId={payload.documentId} isDocumentOwner={payload.isDocumentOwner} requestPrompts={payload.requestPrompts} requestedSignatureInfo={payload.requestedSignatureInfo} documentSetId={payload.documentSetId} />
+
+            case Sign.ModalType.CONFIRM_ACTION:
+                return <ConfirmAction />
 
             default:
                 return false;

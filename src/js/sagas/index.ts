@@ -10,6 +10,7 @@ import { generateUUID } from '../components/uuid';
 import pdfStoreSagas from './pdfStoreSagas';
 import signatureSagas from './signatureSagas';
 import documentViewerSagas from './documentViewerSagas';
+import documentSagas from './documents';
 
 
 
@@ -37,6 +38,7 @@ export default function *rootSaga(): any {
         ...pdfStoreSagas,
         ...signatureSagas,
         ...documentViewerSagas,
+        ...documentSagas,
     ]);
 }
 

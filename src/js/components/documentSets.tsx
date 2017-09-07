@@ -14,6 +14,14 @@ interface DocumentSets {
     documentSets: Sign.DocumentSets
 }
 
+interface BufferedDocumentSets {
+    requestDocumentSets: () => void;
+    documents: Sign.Documents,
+    documentSets: Sign.DocumentSets,
+    filter: (documentSets: Sign.DocumentSets, documents: Sign.Documents) => string[],
+    documentSetsStatus: Sign.DownloadStatus
+}
+
 function statusComplete(status : string) {
     return ['Signed', 'Rejected'].indexOf(status) >= 0
 }
@@ -21,13 +29,13 @@ function statusComplete(status : string) {
 
 
 interface UnconnectedDocumentSetListProps {
-    documentSetId: string;
     showDownloadAll?: boolean;
+    documentSet: Sign.DocumentSet;
+    documents: Sign.Documents;
+    documentSetId: string;
 }
 
 interface DocumentSetListProps extends UnconnectedDocumentSetListProps {
-    documentSet: Sign.DocumentSet;
-    documents: Sign.Documents;
     emailDocument: (payload: Sign.Actions.ShowEmailDocumentModalPayload) => void;
     revokeSignInvitation: (payload: Sign.Actions.RevokeSignInvitationPayload) => void;
     deleteDocument: (payload: Sign.Actions.DeleteDocumentPayload) => void;
@@ -158,57 +166,41 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
     }
 }
 
-const DocumentSetList = connect(
-    (state: Sign.State, ownProps: UnconnectedDocumentSetListProps) => ({
-        documents: state.documents,
-        documentSet: state.documentSets[ownProps.documentSetId]
-    }),
+const DocumentSetList = connect<{}, {}, UnconnectedDocumentSetListProps>(undefined,
     { emailDocument: showEmailDocumentModal, revokeSignInvitation, deleteDocument, deleteDocumentSet }
 )(UnconnectedDocumentSetList);
 
-class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>  {
+
+class UnconnectedBufferedDocumentSets extends React.PureComponent<BufferedDocumentSets, {documents: Sign.Documents, documentSets: Sign.DocumentSets}>  {
+    constructor(props: BufferedDocumentSets) {
+        super(props);
+        this.state = {documents: props.documents, documentSets: props.documentSets}
+    }
     componentDidMount() {
         this.props.requestDocumentSets()
     }
     componentDidUpdate() {
         this.props.requestDocumentSets()
     }
+    componentWillReceiveProps(newProps: BufferedDocumentSets) {
+        if(newProps.documentSetsStatus === Sign.DownloadStatus.Complete) {
+            this.setState({documents: newProps.documents, documentSets: newProps.documentSets})
+        }
+    }
     render() {
-
-        const keys = Object.keys(this.props.documentSets).filter((setId: string) => {
-            return this.props.documentSets[setId].documentIds.every(d => statusComplete(this.props.documents[d].signStatus))
+        const keys = this.props.filter(this.state.documentSets, this.state.documents).sort((a, b) => {
+            return moment(this.state.documentSets[b].createdAt).valueOf() - moment(this.state.documentSets[a].createdAt).valueOf()
         });
-
         return (
             <div className="row">
                 <div className="col-md-12">
                 <div className="document-set-list">
-                    { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} showDownloadAll={true}/>)}
-                </div>
-            </div>
-            </div>
-        );
-    }
-}
-
-class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  {
-    componentDidMount() {
-        this.props.requestDocumentSets()
-    }
-    componentDidUpdate() {
-        this.props.requestDocumentSets()
-    }
-    render() {
-        const keys = Object.keys(this.props.documentSets).filter((setId: string) => {
-            return this.props.documentSets[setId].documentIds.some(d => !statusComplete(this.props.documents[d].signStatus))
-        }).sort((a, b) => {
-            return moment(this.props.documentSets[b].createdAt).valueOf() - moment(this.props.documentSets[a].createdAt).valueOf()
-        })
-        return (
-            <div className="row">
-                <div className="col-md-12">
-                <div className="document-set-list">
-                    { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} showDownloadAll={true} />) }
+                    { keys.map(documentSetId => <DocumentSetList
+                        key={documentSetId}
+                        documentSetId={documentSetId}
+                        documentSet={this.state.documentSets[documentSetId]}
+                        documents={this.state.documents}
+                        showDownloadAll={true} />) }
                 </div>
                 </div>
             </div>
@@ -216,7 +208,8 @@ class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  
     }
 }
 
-class UnconnectedDocumentSet extends React.PureComponent<{documentSetId: string, requestDocumentSets: () => void;}>  {
+
+class UnconnectedDocumentSet extends React.PureComponent<{documentSetId: string, documents: Sign.Documents, documentSet: Sign.DocumentSet, requestDocumentSets: () => void;}>  {
     componentDidMount() {
         this.props.requestDocumentSets()
     }
@@ -229,7 +222,11 @@ class UnconnectedDocumentSet extends React.PureComponent<{documentSetId: string,
             <div className="row">
                 <div className="col-md-12">
                 <div className="document-set-list">
-                     <DocumentSetList documentSetId={documentSetId} showDownloadAll={true} />
+                     <DocumentSetList documentSetId={this.props.documentSetId}
+                            documentSet={this.props.documentSet}
+                            documents={this.props.documents}
+
+                     showDownloadAll={true} />
                 </div>
                 </div>
             </div>
@@ -238,24 +235,36 @@ class UnconnectedDocumentSet extends React.PureComponent<{documentSetId: string,
 }
 
 
+export const PendingDocumentSets = connect((state: Sign.State) => ({
+    documentSets: state.documentSets,
+    documents: state.documents,
+    documentSetsStatus: state.documentSetsStatus,
+    filter: (documentSets: Sign.DocumentSets, documents: Sign.Documents) : string[] => {
+        return Object.keys(documentSets).filter((setId: string) => documentSets[setId].documentIds.some(d => !statusComplete(documents[d].signStatus)))
+    }
+}), {
+    showEmailDocumentModal, requestDocumentSets
+})(UnconnectedBufferedDocumentSets);
+
 
 export const CompletedDocumentSets = connect((state: Sign.State) => ({
     documentSets: state.documentSets,
-    documents: state.documents
-}), {
-    showEmailDocumentModal, requestDocumentSets
-})(UnconnectedCompletedDocumentSets);
-
-export const PendingDocumentSets = connect((state: Sign.State) => ({
-    documentSets: state.documentSets,
-    documents: state.documents
+    documents: state.documents,
+    documentSetsStatus: state.documentSetsStatus,
+    filter: (documentSets: Sign.DocumentSets, documents: Sign.Documents) : string[] => {
+        return Object.keys(documentSets).filter((setId: string) => {
+            return documentSets[setId].documentIds.every(d => statusComplete(documents[d].signStatus))
+        })
+    }
 }), {
     showEmailDocumentModal,  requestDocumentSets
-})(UnconnectedPendingDocumentSets);
+})(UnconnectedBufferedDocumentSets);
 
 export const DocumentSet = connect(
     (state: Sign.State, ownProps: any) => ({
-        documentSetId: ownProps.params.documentSetId
+        documentSetId: ownProps.params.documentSetId,
+        documentSet: state.documentSets[ownProps.params.documentSetId],
+        documents: state.documents,
     }),
     { showEmailDocumentModal, requestDocumentSets }
 )(UnconnectedDocumentSet);

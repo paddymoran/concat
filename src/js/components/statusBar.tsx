@@ -35,7 +35,7 @@ class StatusBar extends React.PureComponent<ConnectedStatusBarProps> {
             Click <a href="/signup">here</a> to upgrade your account.</span >
         }
         else{
-            return <span  className="status-message">You have signed or requested the signing of <strong>{ this.props.usage.requestedThisUnit + this.props.usage.signedThisUnit }</strong> documents this { this.props.usage.unit }.</span>
+            return false;
         }
     }
 

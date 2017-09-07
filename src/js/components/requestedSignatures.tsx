@@ -11,7 +11,7 @@ export function getNonCompletedRequestKeys(requestedSignatures: Sign.RequestedSi
     let docSetKeys = Object.keys(documentSets);
     return  docSetKeys.filter((key: string) => {
         const docSet = documentSets[key];
-        const setComplete = Object.keys(docSet).every(docKey => documents[docKey].signStatus === Sign.SignStatus.SIGNED)
+        const setComplete = Object.keys(docSet).every(docKey => documents[docKey].signStatus != Sign.SignStatus.PENDING)
         return !setComplete;
     });
 }

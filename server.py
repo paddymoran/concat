@@ -172,7 +172,7 @@ def check_document_set_completion(document_set_id):
                 'data': json.dumps({
                     'name': user['name'],
                     'setDescription': 'Documents signed by %s' % ([r['name'] for r in recipients]),
-                    'link': get_service_url(request.url) + '/completed'
+                    'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
                 })
             }
 
@@ -365,6 +365,8 @@ def sign_document():
         db.reject_document(session['user_id'], document_id, sign_request_id, {'rejectedMessage': args.get('rejectMessage')})
     if sign_request_id:
         check_document_set_completion(args['documentSetId'])
+
+        # Check if a user has rejected any documents - and they have finished siging - and the set is not complete (so we don't send them two emails at once)
     return jsonify({'document_id': saved_document_id})
 
 

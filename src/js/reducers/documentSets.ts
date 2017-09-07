@@ -58,7 +58,11 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
 
             return {
                 ...state,
-                [action.payload.documentSetId]: { ...state[action.payload.documentSetId], documentIds }
+                [action.payload.documentSetId]: {
+                    ...state[action.payload.documentSetId],
+                    documentIds,
+                    isOwner: true
+                }
             };
 
          case Sign.Actions.Types.REMOVE_DOCUMENT:

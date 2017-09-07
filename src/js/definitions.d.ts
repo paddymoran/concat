@@ -350,6 +350,7 @@ declare namespace Sign {
         INVITE = 'INVITE',
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
         ACTIVATE_CONTROL = 'ACTIVATE_CONTROL',
+        CONFIRM_ACTION = 'CONFIRM_ACTION',
     }
 
     interface SignatureRequest {
@@ -383,7 +384,6 @@ declare namespace Sign.Components {
 
 declare namespace Sign.Actions {
     const enum Types {
-
         ADD_DOCUMENT = 'ADD_DOCUMENT',
         REQUEST_DOCUMENT = 'REQUEST_DOCUMENT',
         REQUEST_DOCUMENT_PAGE = 'REQUEST_DOCUMENT_PAGE',
@@ -463,7 +463,8 @@ declare namespace Sign.Actions {
 
         SAVE_DOCUMENT_VIEW = 'SAVE_DOCUMENT_VIEW',
         UPDATE_SAVE_STATUS = 'UPDATE_SAVE_STATUS',
-
+        
+        CONFIRM_ACTION = 'CONFIRM_ACTION',
 
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
 
@@ -480,7 +481,7 @@ declare namespace Sign.Actions {
 
         RESET_STATE = 'RESET_STATE',
 
-        RESET_DOCUMENTS = 'RESET_DOCUMENTS'
+        RESET_DOCUMENTS = 'RESET_DOCUMENTS',
     }
 
 
@@ -828,6 +829,13 @@ declare namespace Sign.Actions {
         isDocumentOwner: boolean;
     }
 
+    interface ConfirmActionPayload {
+        title: string;
+        message: string;
+        submitText: string;
+        action: any;
+    }
+
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
@@ -890,6 +898,7 @@ declare namespace Sign.Actions {
     interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
     interface ShowEmailDocumentModal extends ActionCreator<ShowEmailDocumentModalPayload> {}
     interface ShowActivateControlModal extends ActionCreator<ShowActivateControlModalPayload> {}
+    interface ConfirmAction extends ActionCreator<ConfirmActionPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}

@@ -452,3 +452,10 @@ export function finishedSigningDocument(payload: Sign.Actions.FinishedSigningDoc
         payload
     };
 }
+
+export function confirmAction(payload: Sign.Actions.ConfirmActionPayload): Sign.Actions.ConfirmAction {
+    return {
+        type: Sign.Actions.Types.CONFIRM_ACTION,
+        payload
+    };
+}

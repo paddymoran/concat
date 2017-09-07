@@ -14,8 +14,16 @@ form{
     }
 }
 
-.form-group.has-error {
-    .rw-widget {
-        border: 1px solid #a94442; //ugh im lazy
+.form-group.has-feedback {
+    &.has-error {
+        .rw-widget {
+            border: 1px solid #a94442; //ugh im lazy
+        }
+    }
+
+    &.has-success {
+        .rw-widget {
+            border: 1px solid #3c763d; //ugh im lazy
+        }
     }
 }

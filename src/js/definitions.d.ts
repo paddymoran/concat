@@ -742,6 +742,7 @@ declare namespace Sign.Actions {
     }
 
     interface ShowFailureModalPayload {
+        title?: string;
         message: string;
     }
 

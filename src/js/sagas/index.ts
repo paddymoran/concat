@@ -101,21 +101,25 @@ function *requestDocumentSaga() {
             documentId: action.payload.documentId,
             readStatus: Sign.DocumentReadStatus.InProgress
         }));
-        const response = yield call(axios.get, `/api/document/${action.payload.documentId}`, {responseType: 'arraybuffer'});
-        const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(response.headers['content-disposition'])[1].replace(/"/g, '');
-        const data = response.data;
-        yield all([
-            // Finish the file upload to the document store
-            put(updateDocument({
-                documentId: action.payload.documentId,
-                filename,
-                data,
-                readStatus: Sign.DocumentReadStatus.Complete
-            })),
+        try {
+            const response = yield call(axios.get, `/api/document/${action.payload.documentId}`, {responseType: 'arraybuffer'});
+            const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(response.headers['content-disposition'])[1].replace(/"/g, '');
+            const data = response.data;
+            yield all([
+                // Finish the file upload to the document store
+                put(updateDocument({
+                    documentId: action.payload.documentId,
+                    filename,
+                    data,
+                    readStatus: Sign.DocumentReadStatus.Complete
+                })),
 
-            // Add the document to the PDF store
-            put(addPDFToStore({ id: action.payload.documentId, data }))
-        ]);
+                // Add the document to the PDF store
+                put(addPDFToStore({ id: action.payload.documentId, data }))
+            ]);
+        } catch(e) {
+            //swallow
+        }
      }
 }
 

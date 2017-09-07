@@ -4,20 +4,22 @@ import { connect } from 'react-redux';
 import { closeModal } from '../../actions';
 
 interface FailureProps {
-    message: string
-    hideModal: () => void;
+    message: string;
+    title: string;
+    closeModal: () => void;
 }
 
 class FailureModal  extends React.PureComponent<FailureProps> {
     render() {
         return (
-            <Modal backdrop='static' show={true} onHide={this.props.hideModal} className="icon-modal">
+            <Modal backdrop='static' show={true} onHide={this.props.closeModal} className="icon-modal">
                 <Modal.Header closeButton>
-                    <Modal.Title>Action Failure</Modal.Title>
+                    <Modal.Title>{this.props.title || 'Action Failure'}</Modal.Title>
                 </Modal.Header>
+                
                 <Modal.Body>
-                <p>{ this.props.message }</p>
-                 <Button onClick={this.props.hideModal}>Close</Button>
+                    <p>{this.props.message}</p>
+                    <Button onClick={this.props.closeModal}>Close</Button>
                 </Modal.Body>
             </Modal>
         );
@@ -26,7 +28,8 @@ class FailureModal  extends React.PureComponent<FailureProps> {
 
 export default connect(
     (state: Sign.State) => ({
-        message: state.modals.message
+        message: state.modals.message,
+        title: state.modals.title
     }),
-    { hideModal: () => closeModal({modalName: Sign.ModalType.FAILURE})  },
+    { closeModal: () => closeModal({modalName: Sign.ModalType.FAILURE})  },
 )(FailureModal);

@@ -1,3 +1,15 @@
+export function resetState(payload?: Sign.Actions.ResetStatePayload): Sign.Actions.ResetState {
+    return {
+        type: Sign.Actions.Types.RESET_STATE,
+        payload
+    };
+}
+export function resetDocuments(payload?: Sign.Actions.ResetDocumentsPayload): Sign.Actions.ResetDocuments {
+    return {
+        type: Sign.Actions.Types.RESET_DOCUMENTS,
+        payload
+    };
+}
 export function addDocument(payload: Sign.Actions.AddDocumentPayload): Sign.Actions.AddDocument {
     return {
         type: Sign.Actions.Types.ADD_DOCUMENT,

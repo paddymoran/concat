@@ -4,6 +4,8 @@ const DEFAULT_STATE: Sign.Usage  = {
 
 export default function(state: Sign.Usage = DEFAULT_STATE, action: any): Sign.Usage {
     switch (action.type) {
+        case Sign.Actions.Types.RESET_DOCUMENTS:
+            return DEFAULT_STATE;
         case Sign.Actions.Types.UPDATE_USAGE:
             return { ...state, ...action.payload};
 

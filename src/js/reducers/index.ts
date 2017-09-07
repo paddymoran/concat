@@ -17,7 +17,7 @@ import contacts from './contacts';
 import usage from './usage';
 
 
-const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
+const appReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     routing,
     documentSets,
     documentSetsStatus,
@@ -35,5 +35,13 @@ const rootReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     contacts,
     usage
 });
+
+const rootReducer = (state : Sign.State, action: any) => {
+  if (action.type === Sign.Actions.Types.RESET_STATE) {
+        return appReducer(undefined, action);
+  }
+  return appReducer(state, action)
+}
+
 
 export default rootReducer;

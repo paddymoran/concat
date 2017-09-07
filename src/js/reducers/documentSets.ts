@@ -6,6 +6,9 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
     let setId, documents, i;
 
     switch(action.type) {
+        case Sign.Actions.Types.RESET_DOCUMENTS:
+            return DEFAULT_STATE;
+
         case Sign.Actions.Types.CREATE_DOCUMENT_SET:
             {
                 const { documentSetId, ...rest } = action.payload;
@@ -39,7 +42,7 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
                     ...state,
                     ...documentSets.reduce((acc : any, set : any) => {
                         acc = {...acc};
-                        acc[set.documentSetId] = {documentIds: set.documents.map((d: any) => d.documentId), downloadStatus: Sign.DownloadStatus.Complete, title: set.title, owner: set.owner, createdAt: set.createdAt}
+                        acc[set.documentSetId] = {documentIds: set.documents.map((d: any) => d.documentId), downloadStatus: Sign.DownloadStatus.Complete, title: set.title, owner: set.owner, createdAt: set.createdAt, isOwner: set.isOwner}
                         return acc;
                     }, state)
                 };

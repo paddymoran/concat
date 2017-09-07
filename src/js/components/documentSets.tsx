@@ -38,9 +38,12 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
     }
 
     render() {
+        if(!this.props.documentSet){
+            return false;
+        }
         const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
         const hasDownloadAll =  this.props.showDownloadAll && this.props.documentSet.documentIds.length > 1;
-        const hasDeleteAll = true;
+        const hasDeleteAll =  this.props.documentSet.isOwner
         const hasSetControls = hasDownloadAll || hasDeleteAll;
 
         return (
@@ -62,9 +65,9 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                       {document.filename}
                                   </td>
                                   <td className="file-controls">
-                                        <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}><i className="fa fa-download"/>Download</a>
+                                       <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}><i className="fa fa-download"/>Download</a>
                                         <a className="btn btn-default btn-xs" onClick={() => this.emailDocument(documentId) }><i className="fa fa-send"/>Email</a>
-                                        <a className="btn btn-default btn-xs"><i className="fa fa-trash"/>Delete</a>
+                                         { this.props.documentSet.isOwner && <a className="btn btn-default btn-xs"><i className="fa fa-trash"/>Delete</a> }
                                   </td>
                             </tr>
                     );
@@ -85,8 +88,6 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                         }
 
                     });
-
-
                     return rows;
                 }, []) }
 
@@ -120,6 +121,9 @@ class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>
     componentDidMount() {
         this.props.requestDocumentSets()
     }
+    componentDidUpdate() {
+        this.props.requestDocumentSets()
+    }
     render() {
 
         const keys = Object.keys(this.props.documentSets).filter((setId: string) => {
@@ -128,7 +132,7 @@ class UnconnectedCompletedDocumentSets extends React.PureComponent<DocumentSets>
 
         return (
             <div className="row">
-                <div className="col-md-8 col-md-offset-2">
+                <div className="col-md-12">
                 <div className="document-set-list">
                     { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} showDownloadAll={true}/>)}
                 </div>
@@ -142,13 +146,18 @@ class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  
     componentDidMount() {
         this.props.requestDocumentSets()
     }
+    componentDidUpdate() {
+        this.props.requestDocumentSets()
+    }
     render() {
         const keys = Object.keys(this.props.documentSets).filter((setId: string) => {
             return this.props.documentSets[setId].documentIds.some(d => !statusComplete(this.props.documents[d].signStatus))
-        });
+        }).sort((a, b) => {
+            return moment(this.props.documentSets[b].createdAt).valueOf() - moment(this.props.documentSets[a].createdAt).valueOf()
+        })
         return (
             <div className="row">
-                <div className="col-md-8 col-md-offset-2">
+                <div className="col-md-12">
                 <div className="document-set-list">
                     { keys.map(documentSetId => <DocumentSetList key={documentSetId} documentSetId={documentSetId} showDownloadAll={true} />) }
                 </div>
@@ -157,6 +166,28 @@ class UnconnectedPendingDocumentSets extends React.PureComponent<DocumentSets>  
         );
     }
 }
+
+class UnconnectedDocumentSet extends React.PureComponent<{documentSetId: string, requestDocumentSets: () => void;}>  {
+    componentDidMount() {
+        this.props.requestDocumentSets()
+    }
+    componentDidUpdate() {
+        this.props.requestDocumentSets()
+    }
+    render() {
+        const { documentSetId } = this.props;
+        return (
+            <div className="row">
+                <div className="col-md-12">
+                <div className="document-set-list">
+                     <DocumentSetList documentSetId={documentSetId} showDownloadAll={true} />
+                </div>
+                </div>
+            </div>
+        );
+    }
+}
+
 
 
 export const CompletedDocumentSets = connect((state: Sign.State) => ({
@@ -172,6 +203,12 @@ export const PendingDocumentSets = connect((state: Sign.State) => ({
 }), {
     showEmailDocumentModal,  requestDocumentSets
 })(UnconnectedPendingDocumentSets);
+
+export const DocumentSet = connect((state: Sign.State, ownProps: any) => ({
+    documentSetId: ownProps.params.documentSetId
+}), {
+    showEmailDocumentModal,  requestDocumentSets
+})(UnconnectedDocumentSet);
 
 export class AllDocumentSets extends React.PureComponent<DocumentSets>  {
     render() {

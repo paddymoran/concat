@@ -61,22 +61,31 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
         const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
 
         return (
-            <div className="request-signature">
-                <div className="request-signature-title">
+            <div className="document-set">
+                <div className="document-set-title">
                     <span className="inviter">{ inviter }</span> has requested that you sign the following ({documentSetLabel}):
                 </div>
-
-                {Object.keys(this.props.requestDocumentSet).map((documentId: string, index: number) => {
+                <table className="table-hover"><thead></thead>
+                <tbody>
+                {Object.keys(this.props.requestDocumentSet).map((documentId: string, i: number) => {
                     const document : Sign.Document = this.props.documents[documentId]
-                    const url = `/sign/${this.props.documentSetId}/${documentId}`;
-
-                    return (
-                        <div key={index} className="document-line">
-                            <SignStatus signStatus={document.signStatus}/>
-                            <Link to={url}><i className="fa fa-file-pdf-o" /> { document.filename }</Link>
-                        </div>
-                    );
+                    return <tr key={i}>
+                                  <td className="status">
+                                       <SignStatus signStatus={document.signStatus}/>
+                                  </td>
+                                  <td className="filename-icon">
+                                      <i className="fa fa-file-pdf-o" />
+                                      </td>
+                                  <td className="filename">
+                                      {document.filename}
+                                  </td>
+                                  <td className="file-controls">
+                                        <Link className="btn btn-default btn-xs" to={`/sign/${this.props.documentSetId}/${documentId}`}><i className="fa fa-pencil-square-o"/>Sign</Link>
+                                  </td>
+                            </tr>
                 }) }
+                </tbody>
+                </table>
             </div>
         );
     }
@@ -104,7 +113,7 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
             docSetKeys = getNonCompletedRequestKeys(this.props.requestedSignatures, this.props.documents);
         }
         return (
-            <div>
+            <div className="document-set-list">
                 <Checkbox onChange={this.props.toggleShowComplete}>Show completed document sets</Checkbox>
 
                 <hr />

@@ -80,7 +80,8 @@ declare namespace Sign {
         title?: string;
         recipients?: Recipients;
         createdAt?: string;
-        owner?: User
+        owner?: User,
+        isOwner?: boolean;
     }
 
     interface DocumentSets {
@@ -382,6 +383,7 @@ declare namespace Sign.Components {
 
 declare namespace Sign.Actions {
     const enum Types {
+
         ADD_DOCUMENT = 'ADD_DOCUMENT',
         REQUEST_DOCUMENT = 'REQUEST_DOCUMENT',
         REQUEST_DOCUMENT_PAGE = 'REQUEST_DOCUMENT_PAGE',
@@ -474,8 +476,13 @@ declare namespace Sign.Actions {
         SET_SAVE_STATUS = 'SET_SAVE_STATUS',
 
         REQUEST_USAGE = 'REQUEST_USAGE',
-        UPDATE_USAGE = 'UPDATE_USAGE'
+        UPDATE_USAGE = 'UPDATE_USAGE',
+
+        RESET_STATE = 'RESET_STATE',
+
+        RESET_DOCUMENTS = 'RESET_DOCUMENTS'
     }
+
 
     interface ActionCreator<T> {
         type: Sign.Actions.Types;
@@ -485,7 +492,12 @@ declare namespace Sign.Actions {
     interface Action {
         type: Sign.Actions.Types;
     }
-
+    interface ResetStatePayload {
+        type: Sign.Actions.Types.RESET_STATE
+    }
+    interface ResetDocumentsPayload {
+        type: Sign.Actions.Types.RESET_DOCUMENTS
+    }
     interface AddDocumentPayload {
         documentSetId: string;
         documentId: string;
@@ -816,6 +828,8 @@ declare namespace Sign.Actions {
         isDocumentOwner: boolean;
     }
 
+    interface ResetState extends ActionCreator<ResetStatePayload> {}
+    interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}

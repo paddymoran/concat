@@ -11,6 +11,9 @@ const DEFAULT_STATE: Sign.DocumentViewer = {
 
 export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STATE, action: any): Sign.DocumentViewer {
     switch (action.type) {
+        case Sign.Actions.Types.RESET_DOCUMENTS:
+            return DEFAULT_STATE;
+
         case Sign.Actions.Types.SELECT_SIGNATURE:
             return selectSignature(state, action);
 
@@ -87,7 +90,7 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
             if(action.payload.status === Sign.DownloadStatus.InProgress){
                 return {...state, saveStatus: Sign.DownloadStatus.InProgress}
             }
-        
+
         case Sign.Actions.Types.MARK_DOCUMENT_AS_COMPLETE:
             return completeDocument(state, action);
 

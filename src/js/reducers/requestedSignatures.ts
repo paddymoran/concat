@@ -7,6 +7,8 @@ export default function requestedSignatures(state: Sign.RequestedSignatures = DE
     let setId, documents, i;
 
     switch(action.type) {
+        case Sign.Actions.Types.RESET_DOCUMENTS:
+            return DEFAULT_STATE;
         case Sign.Actions.Types.UPDATE_REQUESTED_SIGNATURES:
             {
                 const { downloadStatus, documentSets} = action.payload;

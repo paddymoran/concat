@@ -5,7 +5,6 @@ import DocumentList from './documentList';
 import { addDocument, requestDocumentSet, createDocumentSet, defineRecipients, setInviteSignatories } from '../actions';
 import { generateUUID } from './uuid';
 import { push } from 'react-router-redux';
-import HorizontalDocumentList from './horizontalDocumentList';
 import { InviteForm } from './selectRecipients';
 import { Button } from 'react-bootstrap';
 import { submit } from 'redux-form';
@@ -19,55 +18,6 @@ interface UploadDocumentsProps {
     documentSetId: string;
 }
 
-interface ConnectedDocumentSetProps {
-    documentSetId: string;
-}
-
-interface DocumentSetProps extends ConnectedDocumentSetProps {
-    documentSet: Sign.DocumentSet;
-    documentIds: string[];
-    loaded: boolean;
-    requestDocumentSet: (documentSetId: string) => void;
-}
-
-export class DocumentSetView extends React.PureComponent<Sign.Components.RouteDocumentSet> {
-    render() {
-        return <ConnectedDocumentSet documentSetId={this.props.params.documentSetId} />
-    }
-}
-
-class DocumentSet extends React.PureComponent<DocumentSetProps> {
-    componentWillMount() {
-        this.props.requestDocumentSet(this.props.documentSetId);
-    }
-
-    render() {
-        if (!this.props.loaded) {
-            return false;
-        }
-
-        return (
-            <div >
-                <div className='page-heading'>
-                    <h1 className="title question">{this.props.documentSet.title ? this.props.documentSet.title : 'New Document Set'}</h1>
-                </div>
-                <HorizontalDocumentList documentSetId={this.props.documentSetId} />
-            </div>
-        );
-    }
-}
-
-const ConnectedDocumentSet = connect(
-    (state: Sign.State, ownProps: ConnectedDocumentSetProps) => {
-        const documentSet = state.documentSets[ownProps.documentSetId];
-
-        return {
-            documentSet,
-            loaded: documentSet && documentSet.downloadStatus === Sign.DownloadStatus.Complete
-        };
-    },
-    { requestDocumentSet }
-)(DocumentSet);
 
 
 class Upload extends React.PureComponent<UploadDocumentsProps> {

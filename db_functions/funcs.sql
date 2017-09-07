@@ -89,7 +89,8 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
             $2 as document_set_id,
              ds.name as name, ds.created_at as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents,
-            CASE WHEN EVERY(sign_status != 'Pending') THEN 'Complete' ELSE 'Pending' END as status
+            CASE WHEN EVERY(sign_status != 'Pending') THEN 'Complete' ELSE 'Pending' END as status,
+            ds.user_id = $1 as is_owner
         FROM (
             SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status,
                 request_info(start_id) as request_info
@@ -108,7 +109,8 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
             LEFT OUTER JOIN document_view dv ON (d.document_id = dv.document_id and user_id = $1)
         ) qq
         JOIN document_sets ds ON ds.document_set_id = $2
-        GROUP BY ds.name, ds.created_at
+        GROUP BY ds.name, ds.created_at, ds.user_id
+
         ORDER BY ds.created_at DESC
  ) qqq
 
@@ -148,7 +150,7 @@ SELECT json_agg(
 
         ELSE 'Pending' END
     )) as documents,
-    d.document_set_id, ds.name, ds.created_at, u.name as "requester", u.user_id
+    d.document_set_id, ds.name, ds.created_at, u.name as "requester", u.user_id,  ds.user_id = $1 as is_owner
 FROM sign_requests sr
 JOIN documents d ON d.document_id = sr.document_id
 JOIN document_sets ds ON ds.document_set_id = d.document_set_id

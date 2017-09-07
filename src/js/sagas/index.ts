@@ -217,7 +217,7 @@ function *requestDocumentSetsSaga() {
         const response = yield call(axios.get, `/api/documents`);
 
         const data = response.data.map((d : any) => {
-            return {createdAt: d.created_at, title: d.name, documentSetId: d.document_set_id,
+            return {createdAt: d.created_at, title: d.name, documentSetId: d.document_set_id, isOwner: d.is_owner,
                 documents: (d.documents || [])
                 .map(formatDocument) }
         });
@@ -247,6 +247,7 @@ function *requestRequestedSignaturesSaga() {
             title: d.name,
             documentSetId: d.document_set_id,
             owner: {name: d.requester, user_id: d.user_id},
+            isOwner: d.is_owner,
             documents: (d.documents || []).map((d: any) => ({
                 documentId: d.document_id,
                 createdAt: d.created_at,

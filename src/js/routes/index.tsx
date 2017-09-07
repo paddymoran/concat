@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { IndexRoute, Route } from 'react-router';
 import App, { ContainerWithStatusBar } from '../components/app';
-import DocumentView, { RequestedDocumentView}  from '../components/documentView';
-import { DocumentSetView, UploadDocumentsWithDocumentSetId } from '../components/uploadDocuments';
-import { CompletedDocumentSets, PendingDocumentSets, AllDocumentSets } from '../components/documentSets';
+import DocumentView, { RequestedDocumentView }  from '../components/documentView';
+import { UploadDocumentsWithDocumentSetId } from '../components/uploadDocuments';
+import { CompletedDocumentSets, PendingDocumentSets, AllDocumentSets, DocumentSet } from '../components/documentSets';
 import RequestedSignatures from '../components/requestedSignatures';
 import NotFound from '../components/notFound';
 import Documents from '../components/documents';
@@ -21,8 +21,8 @@ export default () => {
                     <Route path='to_sign' component={ RequestedSignatures } />
                     <Route path='pending' component={ PendingDocumentSets } />
                     <Route path='completed' component={ CompletedDocumentSets  } />
+                    <Route path='documents/:documentSetId' component={ DocumentSet } />
                 </Route>
-                <Route path='documents/:documentSetId' component={ DocumentSetView } />
                 <Route path='*' component={ NotFound } />
             </Route>
         </Route>

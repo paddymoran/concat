@@ -97,11 +97,13 @@ interface DocumentsListProps {
 
 export class DocumentsList extends React.PureComponent<DocumentsListProps> {
     render() {
+         if(this.props.documents.length){
+             return false;
+         }
         return (
             <div>
                 <h3>Other Documents</h3>
 
-                {this.props.documents.length <= 1 && <em>None</em>}
                 {this.props.documents.map(document => {
                     if (document.id === this.props.currentDocumentId) {
                         return false;
@@ -196,17 +198,19 @@ class SignAndSubmit extends React.PureComponent<SignAndSubmitProps> {
     }
 
     render() {
+        const message = this.props.documents.length === 1 ? 'Are you sure you want to sign this document?': 'Are you sure you want to sign all documents?';
+        const signString = this.props.documents.length === 1 ? 'Sign Document': 'Sign Documents';
         return (
             <div>
                 <i className="fa fa-pencil modal-icon" aria-hidden="true"></i>
 
-                <p className='text-center'>Are you sure you want to sign all documents?</p>
+                <p className='text-center'>{message}</p>
 
                 {this.props.recipients && this.props.recipients.length && <RecipientsList recipients={this.props.recipients} />}
 
                 <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.goToDocument} />
 
-                <Button bsStyle='primary' bsSize="lg" onClick={this.sign}>Sign Documents</Button>
+                <Button bsStyle='primary' bsSize="lg" onClick={this.sign}>{ signString }</Button>
             </div>
         );
     }
@@ -253,7 +257,7 @@ class UnconnectedRejectAndNext extends React.PureComponent<UnconnectedRejectAndN
                 <p className='text-center'>Are you sure you want to <strong>reject</strong> signing this document and go to the next document? The inviter will be notified.</p>
 
                 <RejectReduxForm />
-                
+
                 <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.goToDocument} />
 
                 <Button bsStyle="primary" bsSize="lg" onClick={this.reject}>Next Document</Button>

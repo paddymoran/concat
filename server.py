@@ -147,7 +147,7 @@ def invite_users(users, link, sender):
     return response.json()
 
 def join_and(names):
-    n = len(authors)
+    n = len(names)
     if n > 1:
         return ('{}, '*(n-2) + '{} & {}').format(*names)
     elif n > 0:
@@ -163,6 +163,11 @@ def send_completion_email(document_set_id):
         user = db.get_document_set_owner(document_set_id)
         recipients = db.get_document_set_recipients(document_set_id)
 
+        if len(recipients) == 1:
+            set_description = """%s has responded to your sign request.""" % recipients[0]['name']
+        else:
+            set_description = """%s have all responded to your sign requests.""" % join_and([r['name'] for r in recipients])
+
         params = {
             'client_id': app.config.get('OAUTH_CLIENT_ID'),
             'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
@@ -172,7 +177,7 @@ def send_completion_email(document_set_id):
             'subject': 'Documents Signed & Ready in CataLex Sign',
             'data': json.dumps({
                 'name': user['name'],
-                'setDescription': 'Documents signed by %s' % (join_and([r['name'] for r in recipients])),
+                'setDescription': set_description,
                 'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
             })
         }
@@ -403,10 +408,10 @@ def sign_document():
         is_complete = is_set_complete(args['documentSetId'])
         if is_complete:
             send_completion_email(args['documentSetId'])
-        elif are_user_requests_complete(session['user'], args['documentSetId']):
-            send_rejection_email(session['user'], args['documentSetId'])
+        elif are_user_requests_complete(session['user_id'], args['documentSetId']):
+            send_rejection_email(session['user_id'], args['documentSetId'])
 
-    return jsonify({'document_id': saved_document_id})
+    return jsonify({'message': 'done'})
 
 
 @app.route('/api/request_signatures', methods=['POST'])

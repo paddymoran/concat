@@ -132,7 +132,7 @@ function *deleteDocumentSaga() {
 
 function formatRequests(r: any) : Sign.SignatureRequestInfos {
     if(r){
-        return r.map((r: any) => ({userId: r.user_id, name: r.name, email: r.email, status: r.status, signRequestId: r.sign_request_id, rejectMessage: r.rejection_explaination ? r.rejection_explaination.rejectMessage : null}))
+        return r.map((r: any) => ({userId: r.user_id, name: r.name, email: r.email, status: r.status, signRequestId: r.sign_request_id, rejectedMessage: r.rejection_explaination ? r.rejection_explaination.rejectedMessage : null}))
     }
 }
 

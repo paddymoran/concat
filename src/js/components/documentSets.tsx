@@ -28,7 +28,7 @@ interface UnconnectedDocumentSetListProps {
 interface DocumentSetListProps extends UnconnectedDocumentSetListProps {
     documentSet: Sign.DocumentSet;
     documents: Sign.Documents;
-    emailDocument: (id: string) => void;
+    emailDocument: (payload: Sign.Actions.ShowEmailDocumentModalPayload) => void;
     revokeSignInvitation: (payload: Sign.Actions.RevokeSignInvitationPayload) => void;
     deleteDocument: (payload: Sign.Actions.DeleteDocumentPayload) => void;
     deleteDocumentSet: (payload: Sign.Actions.DeleteDocumentSetPayload) => void;
@@ -79,7 +79,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                         <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}>
                                             <i className="fa fa-download"/> Download
                                         </a>
-                                        <a className="btn btn-default btn-xs" onClick={() => this.props.emailDocument(documentId)}>
+                                        <a className="btn btn-default btn-xs" onClick={() => this.props.emailDocument({ documentId })}>
                                             <i className="fa fa-send"/> Email
                                         </a>
                                         {this.props.documentSet.isOwner &&
@@ -95,17 +95,12 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                 const keyModifier = `${documentId}-${r.signRequestId}-${i}`;
 
                                 if (r.status === 'Rejected') {
-                                    const string = r.rejectMessage ? `Rejected by ${r.name} - "${r.rejectMessage}"` : `Rejected by ${r.name}`;
+                                    const string = r.rejectedMessage ? `Rejected by ${r.name} - "${r.rejectedMessage}"` : `Rejected by ${r.name}`;
                                     rows.push(
                                         <tr key={`rejection-${keyModifier}`} className="rejection-info condensed">
                                             <td/>
                                             <td/>
                                             <td>{ string }</td>
-                                            <td className="file-controls">
-                                                <a className="btn btn-default btn-xs" onClick={() => this.props.revokeSignInvitation({ signRequestId: r.signRequestId })}>
-                                                    <i className="fa fa-trash" /> Revoke
-                                                </a>
-                                            </td>
                                         </tr>
                                     );
                                 }

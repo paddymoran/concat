@@ -18,10 +18,10 @@ function *signDocument(action: Sign.Actions.SignDocument) {
     }
     yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
 
-    const { documentViewer, reject, rejectMessage, signRequestId } = yield select((state: Sign.State) => ({
+    const { documentViewer, reject, rejectedMessage, signRequestId } = yield select((state: Sign.State) => ({
         documentViewer: state.documentViewer,
         reject: state.documentViewer.documents[action.payload.documentId].signStatus === Sign.SignStatus.REJECTED,
-        rejectMessage: state.documentViewer.documents[action.payload.documentId].rejectReason,
+        rejectedMessage: state.documentViewer.documents[action.payload.documentId].rejectReason,
         signRequestId: state.requestedSignatures.documentSets &&
             state.requestedSignatures.documentSets[action.payload.documentSetId] &&
             state.requestedSignatures.documentSets[action.payload.documentSetId][action.payload.documentId] &&
@@ -44,7 +44,7 @@ function *signDocument(action: Sign.Actions.SignDocument) {
         signatures,
         overlays,
         reject,
-        rejectMessage,
+        rejectedMessage,
         signRequestId
     };
 

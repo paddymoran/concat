@@ -33,7 +33,7 @@ declare namespace Sign {
         name: string,
         email: string,
         status: string,
-        rejectMessage: string;
+        rejectedMessage: string;
         signRequestId: number;
     }
 

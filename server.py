@@ -372,9 +372,9 @@ def request_signatures():
     return jsonify({'message': 'Requests sent'})
 
 
-@app.route('/api/request_signatures/<id>', methods=['DELETE'])
+@app.route('/api/request_signatures/<sign_request_id>', methods=['DELETE'])
 def revoke_request_signatures(sign_request_id):
-    db.revoke_signature_request(session['user_id'], sign_request_id)
+    db.revoke_signature_requests(session['user_id'], sign_request_id)
     return jsonify({'message': 'Requests revoked'})
 
 

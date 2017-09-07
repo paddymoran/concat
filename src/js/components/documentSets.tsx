@@ -101,11 +101,6 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                             <td/>
                                             <td/>
                                             <td>{ string }</td>
-                                            <td className="file-controls">
-                                                <a className="btn btn-default btn-xs" onClick={() => this.props.revokeSignInvitation({ signRequestId: r.signRequestId })}>
-                                                    <i className="fa fa-trash" /> Revoke
-                                                </a>
-                                            </td>
                                         </tr>
                                     );
                                 }

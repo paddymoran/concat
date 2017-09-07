@@ -8,7 +8,7 @@ import Failure from './failure';
 import Invite from './invite';
 import EmailDocument from './emailDocument';
 import ActivateControl from './activateControl';
-import ConfirmAction from './ConfirmAction';
+import ConfirmAction from './confirmAction';
 
 interface ModalsProps {
     showing: string;

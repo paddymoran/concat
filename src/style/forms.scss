@@ -16,6 +16,6 @@ form{
 
 .form-group.has-error {
     .rw-widget {
-        border: 1px solid $state-danger-border;
+        border: 1px solid #a94442; //ugh im lazy
     }
 }

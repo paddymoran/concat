@@ -565,7 +565,7 @@ declare namespace Sign.Actions {
         documentSetId: string;
         title?: string;
         createdAt?: string;
-        documentIds?: string[];
+        isOwner?: boolean;
         documents?: Sign.Document[],
         downloadStatus?: Sign.DownloadStatus;
     }

@@ -13,3 +13,9 @@ form{
         }
     }
 }
+
+.form-group.has-error {
+    .rw-widget {
+        border: 1px solid $state-danger-border;
+    }
+}

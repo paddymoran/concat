@@ -56,7 +56,22 @@ interface ComboboxComponentProps extends WrappedFieldProps {
 
 class ComboboxComponent extends React.PureComponent<ComboboxComponentProps> {
     render() {
-        return <Combobox {...this.props.input} suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} />
+        const { meta } = this.props;
+        const formProps : FormGroupProps = {};
+
+        if (meta.touched) {
+            formProps.validationState = meta.valid ? 'success' : 'error';
+        }
+        
+        const showValidation = meta.touched && meta.error;
+
+        return (
+            <FormGroup {...formProps}>
+                <Combobox {...this.props.input} suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} />
+                <FormControl.Feedback />
+                {showValidation && <HelpBlock>{ meta.error }</HelpBlock>}
+            </FormGroup>
+        );
     }
 }
 

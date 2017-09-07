@@ -141,6 +141,17 @@ function formatDocument(d: any){
     return {documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions, signStatus: d.sign_status, signatureRequestInfos: formatRequests(d.request_info)};
 }
 
+function formatDocumentSet(d: any): Sign.Actions.DocumentSetPayload {
+    return {
+        createdAt: d.created_at,
+        title: d.name,
+        documentSetId: d.document_set_id,
+        isOwner: d.is_owner,
+        documents: (d.documents || []).map(formatDocument),
+        downloadStatus: Sign.DownloadStatus.Complete,
+    };
+}
+
 function *requestDocumentSetSaga() {
     yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT_SET, requestDocumentSet);
 
@@ -153,7 +164,7 @@ function *requestDocumentSetSaga() {
 
         documentSet = yield select((state: Sign.State) => state.documentSets[action.payload.documentSetId]);
 
-        if(documentSet.downloadStatus === Sign.DownloadStatus.InProgress){
+        if (documentSet.downloadStatus === Sign.DownloadStatus.InProgress) {
             return;
         }
 
@@ -163,16 +174,21 @@ function *requestDocumentSetSaga() {
         }));
 
         const response = yield call(axios.get, `/api/documents/${action.payload.documentSetId}`);
-        const data = response.data || {};
+        const data = response.data;
 
-        yield put(updateDocumentSet({
-            documentSetId: action.payload.documentSetId,
-            downloadStatus: Sign.DownloadStatus.Complete,
-            documentIds: (data.documents || []).map((d: any) => d.document_id),
-            documents: (data.documents || []).map(formatDocument)
-        }));
+        if (data) {
+            yield put(updateDocumentSet(formatDocumentSet(data)));
+        }
+        else {
+            yield put(updateDocumentSet({
+                isOwner: true,
+                documents: [],
+                downloadStatus: Sign.DownloadStatus.Complete,
+                documentSetId: action.payload.documentSetId
+            }));
+        }
 
-        if(data.documents){
+        if (data && data.documents) {
             const recipients : Sign.Recipients = data.documents.reduce((acc: Sign.Recipients, document: any) => {
                 if(document.field_data && document.field_data.recipients){
                     acc = [...acc, ...document.field_data.recipients];
@@ -184,7 +200,7 @@ function *requestDocumentSetSaga() {
                 yield put(defineRecipients({documentSetId: action.payload.documentSetId, recipients}));
             }
 
-            const payload : Sign.Actions.AddOverlaysPayload = data.documents.reduce((acc : any, document: any) => {
+            const payload: Sign.Actions.AddOverlaysPayload = data.documents.reduce((acc : any, document: any) => {
                 if(document.field_data && document.field_data.view){
                     ['signatures', 'prompts', 'texts', 'dates'].map(k => {
                         Object.keys(document.field_data.view[k]).map(s => {
@@ -219,15 +235,7 @@ function *requestDocumentSetsSaga() {
 
         const response = yield call(axios.get, `/api/documents`);
 
-        const data = response.data.map((d : any) => {
-            return {
-                createdAt: d.created_at,
-                title: d.name,
-                documentSetId: d.document_set_id,
-                isOwner: d.is_owner,
-                documents: (d.documents || []).map(formatDocument)
-            }
-        });
+        const data = response.data.map(formatDocumentSet);
 
         yield put(updateDocumentSets({
             downloadStatus: Sign.DownloadStatus.Complete,

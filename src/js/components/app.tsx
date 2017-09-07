@@ -20,11 +20,9 @@ export  class Container extends React.PureComponent<AppProps> {
         const { children, location: { pathname } } = this.props;
         return (
             <div className="container">
-
                 <div  key={pathname} className="main-content">
-                { children }
+                    { children }
                 </div>
-
             </div>
         );
     }
@@ -34,15 +32,14 @@ export  class ContainerWithStatusBar extends React.PureComponent<AppProps> {
     render() {
         const { children, location: { pathname } } = this.props;
         return (
-               <div>
-               <StatusBar />
-            <div className="container">
-
-                <div  key={pathname} className="main-content">
-                { children }
+            <div>
+                <StatusBar />
+                
+                <div className="container">
+                    <div  key={pathname} className="main-content">
+                        { children }
+                    </div>
                 </div>
-
-            </div>
             </div>
         );
     }

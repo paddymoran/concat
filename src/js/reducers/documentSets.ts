@@ -31,7 +31,11 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
 
                 return {
                     ...state,
-                    [documentSetId]: { ...state[documentSetId], ...rest }
+                    [documentSetId]: {
+                        ...state[documentSetId],
+                        documentIds: rest.documents.map((d: any) => d.documentId),
+                        ...rest,
+                    }
                 };
             }
         case Sign.Actions.Types.UPDATE_DOCUMENT_SETS:

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocument, requestDocumentSet, createDocumentSet, defineRecipients, setInviteSignatories } from '../actions';
+import { addDocument, requestDocumentSet, defineRecipients, setInviteSignatories } from '../actions';
 import { generateUUID } from './uuid';
 import { push } from 'react-router-redux';
 import { InviteForm } from './selectRecipients';
@@ -13,7 +13,6 @@ import { submit } from 'redux-form';
 interface UploadDocumentsProps {
     documentIds: string[];
     addDocument: (payload: Sign.Actions.AddDocumentPayload) => void;
-    createDocumentSet: (payload: Sign.Actions.DocumentSetPayload) => void;
     requestDocumentSet: (documentSetId: string) => void;
     documentSetId: string;
 }
@@ -79,7 +78,7 @@ export const UploadDocuments = connect(
             documentSetId,
         };
     },
-    { addDocument, createDocumentSet,  requestDocumentSet }
+    { addDocument,  requestDocumentSet }
 )(Upload);
 
 

@@ -141,6 +141,17 @@ function formatDocument(d: any){
     return {documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions, signStatus: d.sign_status, signatureRequestInfos: formatRequests(d.request_info)};
 }
 
+function formatDocumentSet(d: any): Sign.Actions.DocumentSetPayload {
+    return {
+        createdAt: d.created_at,
+        title: d.name,
+        documentSetId: d.document_set_id,
+        isOwner: d.is_owner,
+        documents: (d.documents || []).map(formatDocument),
+        downloadStatus: Sign.DownloadStatus.Complete,
+    };
+}
+
 function *requestDocumentSetSaga() {
     yield takeEvery(Sign.Actions.Types.REQUEST_DOCUMENT_SET, requestDocumentSet);
 
@@ -165,12 +176,7 @@ function *requestDocumentSetSaga() {
         const response = yield call(axios.get, `/api/documents/${action.payload.documentSetId}`);
         const data = response.data || {};
 
-        yield put(updateDocumentSet({
-            documentSetId: action.payload.documentSetId,
-            downloadStatus: Sign.DownloadStatus.Complete,
-            documentIds: (data.documents || []).map((d: any) => d.document_id),
-            documents: (data.documents || []).map(formatDocument)
-        }));
+        yield put(updateDocumentSet(formatDocumentSet(data)));
 
         if(data.documents){
             const recipients : Sign.Recipients = data.documents.reduce((acc: Sign.Recipients, document: any) => {
@@ -221,15 +227,7 @@ function *requestDocumentSetsSaga() {
 
         const response = yield call(axios.get, `/api/documents`);
 
-        const data = response.data.map((d : any) => {
-            return {
-                createdAt: d.created_at,
-                title: d.name,
-                documentSetId: d.document_set_id,
-                isOwner: d.is_owner,
-                documents: (d.documents || []).map(formatDocument)
-            }
-        });
+        const data = response.data.map(formatDocumentSet);
 
         yield put(updateDocumentSets({
             downloadStatus: Sign.DownloadStatus.Complete,

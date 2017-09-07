@@ -387,6 +387,20 @@ def add_signature_requests(document_set_id, requests):
         database.commit()
 
 
+def revoke_signature_requests(user_id, sign_request_id):
+    database = get_db()
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        query = """
+            SELECT revoke_signature_request(%(user_id)s, %(sign_request_id)s)
+        """
+        with database.cursor() as cursor:
+            cursor.execute(query, {
+                           'user_id': user_id,
+                           'sign_request_id': sign_request_id
+                           })
+        database.commit()
+
+
 def save_document_view(document_id, user_id, field_data):
     database = get_db()
     args = {'document_id': document_id, 'field_data': psycopg2.extras.Json(field_data), 'user_id': user_id}

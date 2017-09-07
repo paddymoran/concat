@@ -231,6 +231,7 @@ def remove_document_from_set(document_id):
     try:
         user_id = session['user_id']
         db.remove_document_from_set(document_id, user_id)
+        # todo if empty, delete set
         return jsonify({'message': 'Document removed'})
     except Exception as e:
         print(e)
@@ -259,6 +260,7 @@ def get_document(doc_id):
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500)
+
 
 @app.route('/api/download_set/<set_id>', methods=['GET'])
 def get_document_set_zip(set_id):
@@ -368,6 +370,12 @@ def request_signatures():
         req['recipient']['user_id'] =  users[req['recipient']['email']]['id']
     db.add_signature_requests(args['documentSetId'], args['signatureRequests'])
     return jsonify({'message': 'Requests sent'})
+
+
+@app.route('/api/request_signatures/<id>', methods=['DELETE'])
+def revoke_request_signatures(sign_request_id):
+    db.revoke_signature_request(session['user_id'], sign_request_id)
+    return jsonify({'message': 'Requests revoked'})
 
 
 @app.route('/api/requested_signatures', methods=['GET'])

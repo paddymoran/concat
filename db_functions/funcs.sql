@@ -116,6 +116,18 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
 
 $$ LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION revoke_signature_request(
+    user_id integer,
+    sign_request_id integer)
+  RETURNS void AS
+$BODY$
+DELETE FROM sign_requests sr
+USING documents d
+JOIN document_sets ds ON ds.document_set_id = d.document_set_id
+WHERE d.document_id = sr.document_id and ds.user_id = $1 AND sr.sign_request_id = $2 ;
+$BODY$
+  LANGUAGE sql VOLATILE;
+
 
 CREATE OR REPLACE FUNCTION delete_document(
     user_id integer,
@@ -158,7 +170,7 @@ JOIN users u ON u.user_id = ds.user_id
 LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
 WHERE sr.user_id = $1
 
-GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id
+GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id, ds.user_id
 ORDER BY ds.created_at DESC
 ) q
 $$ LANGUAGE sql;

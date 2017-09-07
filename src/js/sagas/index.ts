@@ -204,9 +204,7 @@ function *requestDocumentSetSaga() {
             })
             yield put(addOverlays(payload));
         }
-
     }
-
 }
 
 
@@ -215,7 +213,7 @@ function *requestDocumentSetsSaga() {
 
      function *requestDocumentSets(action: Sign.Actions.RequestDocumentSet) {
         const status = yield select((state : Sign.State) => state.documentSetsStatus);
-        
+
         if (status !== Sign.DownloadStatus.NotStarted && status !== Sign.DownloadStatus.Stale) {
             return;
         }

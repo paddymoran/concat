@@ -247,28 +247,46 @@ def upsert_user(user):
     user = user_dict
 
     if current_app.config.get('USE_DB_UPSERT'):
-        query = """
-            INSERT INTO users (user_id, name, email, subscribed)
-            VALUES (%(user_id)s, %(name)s, %(email)s, %(subscribed)s)
-            ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s, subscribed = %(subscribed)s;
-        """
+        if user.get('subscribed', None) is not None:
+            query = """
+                INSERT INTO users (user_id, name, email, subscribed)
+                VALUES (%(user_id)s, %(name)s, %(email)s, %(subscribed)s)
+                ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s, subscribed = %(subscribed)s;
+            """
+        else:
+            query = """
+                INSERT INTO users (user_id, name, email)
+                VALUES (%(user_id)s, %(name)s, %(email)s)
+                ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s
+            """
         with database.cursor() as cursor:
             cursor.execute(query, user)
         database.commit()
     else:
         try:
-            query = """
-                INSERT INTO users (user_id, name, email, subscribed)
-                VALUES (%(user_id)s, %(name)s, %(email)s, %(subscribed)s)
-            """
+            if user.get('subscribed', None) is not None:
+                query = """
+                    INSERT INTO users (user_id, name, email, subscribed)
+                    VALUES (%(user_id)s, %(name)s, %(email)s, %(subscribed)s)
+                """
+            else:
+                query = """
+                    INSERT INTO users (user_id, name, email)
+                    VALUES (%(user_id)s, %(name)s, %(email)s)
+                """
             with database.cursor() as cursor:
                 cursor.execute(query, user)
 
         except:
             database.rollback()
-            query = """
-                UPDATE users SET name = %(name)s, email = %(email)s, subscribed = %(subscribed)s where user_id = %(user_id)s;
-            """
+            if user.get('subscribed', None) is not None:
+                query = """
+                    UPDATE users SET name = %(name)s, email = %(email)s, subscribed = %(subscribed)s where user_id = %(user_id)s;
+                """
+            else:
+                query = """
+                    UPDATE users SET name = %(name)s, email = %(email)s where user_id = %(user_id)s;
+                """
             with database.cursor() as cursor:
                 cursor.execute(query, user)
         database.commit()

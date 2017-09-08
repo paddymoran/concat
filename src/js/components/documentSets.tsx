@@ -84,14 +84,14 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                     <td className="filename">{document.filename}</td>
 
                                     <td className="file-controls">
-                                        <a className="btn btn-default btn-xs" target="_blank" href={`/api/document/${documentId}`}>
+                                        <a className="btn btn-default btn-sm" target="_blank" href={`/api/document/${documentId}`}>
                                             <i className="fa fa-download"/> Download
                                         </a>
-                                        <a className="btn btn-default btn-xs" onClick={() => this.props.emailDocument({ documentId })}>
+                                        <a className="btn btn-default btn-sm" onClick={() => this.props.emailDocument({ documentId })}>
                                             <i className="fa fa-send"/> Email
                                         </a>
                                         {this.props.documentSet.isOwner &&
-                                            <a className="btn btn-default btn-xs" onClick={() => this.props.deleteDocument({ documentId })}>
+                                            <a className="btn btn-default btn-sm" onClick={() => this.props.deleteDocument({ documentId })}>
                                                 <i className="fa fa-trash"/> Delete
                                             </a>
                                         }
@@ -119,7 +119,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                             <td/>
                                             <td >Waiting on { r.name }</td>
                                             <td className="file-controls">
-                                                <a className="btn btn-default btn-xs" onClick={() => this.props.revokeSignInvitation({ signRequestId: r.signRequestId })}>
+                                                <a className="btn btn-default btn-sm" onClick={() => this.props.revokeSignInvitation({ signRequestId: r.signRequestId })}>
                                                     <i className="fa fa-trash" /> Revoke
                                                 </a>
                                             </td>
@@ -146,13 +146,13 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                 <td/>
                                 <td colSpan={2}>
                                     {hasDownloadAll &&
-                                        <a className="btn btn-default btn-xs" target="_blank" href={`/api/download_set/${this.props.documentSetId}`}>
+                                        <a className="btn btn-default btn-sm" target="_blank" href={`/api/download_set/${this.props.documentSetId}`}>
                                             <i className="fa fa-download" /> Download All
                                         </a>
                                     }
 
                                     {hasDeleteAll &&
-                                        <a className="btn btn-default btn-xs" onClick={this.deleteSet}>
+                                        <a className="btn btn-default btn-sm" onClick={this.deleteSet}>
                                             <i className="fa fa-trash" /> Delete All
                                         </a>
                                     }

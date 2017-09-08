@@ -9,8 +9,6 @@
 
 
 .fake-drop-zone{
-        font-weight: 200;
-        letter-spacing: 2px;
     text-align: center;
     cursor: pointer;
     margin: auto 15px;
@@ -19,7 +17,9 @@
 
     padding: 50px;
     color: $gray;
-    font-size: 1.2em;
+    font-size: 1.5em;
+    font-weight: 100;
+    letter-spacing: 2px;
     .drop-instruction{
         display:none;
     }

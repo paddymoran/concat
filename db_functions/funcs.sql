@@ -254,7 +254,7 @@ AS $$
         COALESCE(unit, $3) as unit
         FROM public.users u
         LEFT OUTER JOIN user_usage_limits uul ON uul.user_id = u.user_id
-        WHERE u.user_id = 9
+        WHERE u.user_id = $1
         LIMIT 1
     ),
     requested_doc_ids as (

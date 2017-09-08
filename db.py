@@ -566,5 +566,6 @@ def get_usage(user_id, default_amount_per_unit, default_unit):
                        'default_amount_per_unit': default_amount_per_unit,
                        'default_unit': default_unit})
         data = cursor.fetchone()
+
         return dict(data)
 

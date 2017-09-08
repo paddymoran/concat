@@ -16,6 +16,7 @@ export class AccountControls extends React.PureComponent {
 
                     <li className="separator" />
 
+                    <MenuItem rel="noopener noreferrer" target="_blank" href='https://goodcompanies.catalex.nz'>Good Companies</MenuItem>
                     <MenuItem rel="noopener noreferrer" target="_blank" href='https://browser.catalex.nz'>Law Browser</MenuItem>
                     <MenuItem rel="noopener noreferrer" target="_blank" href='https://workingdays.catalex.nz'>Working Days</MenuItem>
                     <MenuItem rel="noopener noreferrer" target="_blank" href='https://concat.catalex.nz'>ConCat</MenuItem>

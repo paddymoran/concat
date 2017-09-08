@@ -60,13 +60,24 @@ CREATE TYPE signature_type AS ENUM (
 --
 
 CREATE FUNCTION delete_document(user_id integer, document_id uuid) RETURNS uuid
-    LANGUAGE sql
+    LANGUAGE plpgsql
     AS $_$
-DELETE FROM document_data dd
-USING documents d
-JOIN document_sets ds ON ds.document_set_id = d.document_set_id
-WHERE d.document_data_id = dd.document_data_id and user_id = $1 AND document_id = $2
-RETURNING ds.document_set_id
+DECLARE
+    start_id uuid;
+    result_document_set_id uuid;
+    user_id integer;
+    loop_id uuid;
+BEGIN
+    start_id := (SELECT original_document_id($2));
+    result_document_set_id := (SELECT d.document_set_id FROM documents d WHERE d.document_id = start_id);
+    user_id := (SELECT ds.user_id FROM document_sets ds WHERE ds.document_set_id = result_document_set_id);
+    IF user_id != $1 THEN RETURN NULL; END IF;
+    FOR loop_id IN (SELECT subsequent_document_ids(start_id)) LOOP
+        DELETE FROM document_data dd USING documents d WHERE d.document_data_id = dd.document_data_id AND d.document_id =  loop_id;
+    END LOOP;
+    PERFORM delete_document_set_if_empty($1, result_document_set_id);
+    RETURN result_document_set_id;
+END
 $_$;
 
 
@@ -204,6 +215,26 @@ $_$;
 
 
 --
+-- Name: original_document_id(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION original_document_id(uuid) RETURNS uuid
+    LANGUAGE sql
+    AS $_$
+WITH RECURSIVE back_docs(document_id, prev_id, original_id, document_set_id, generation) as (
+    SELECT t.document_id, null::uuid, t.document_id,  document_set_id, 0
+    FROM documents t
+    WHERE t.document_id = $1
+    UNION
+   SELECT input_document_id, result_document_id, original_id, document_set_id, generation + 1
+    FROM sign_results tt, back_docs t
+    WHERE t.document_id = tt.result_document_id 
+)
+SELECT document_id FROM back_docs order by generation DESC limit 1
+$_$;
+
+
+--
 -- Name: request_info(uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -275,6 +306,29 @@ WHERE sr.user_id = $1
 GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id, ds.user_id
 ORDER BY ds.created_at DESC
 ) q
+$_$;
+
+
+--
+-- Name: subsequent_document_ids(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION subsequent_document_ids(uuid) RETURNS SETOF uuid
+    LANGUAGE sql
+    AS $_$
+    WITH RECURSIVE docs(document_id, prev_id, original_id, generation) as (
+        SELECT t.document_id, null::uuid, t.document_id, 0
+        FROM documents t
+        WHERE document_id = $1
+        UNION
+       SELECT result_document_id, input_document_id,original_id, generation + 1
+        FROM sign_results tt, docs t
+        WHERE t.document_id = tt.input_document_id AND tt.result_document_id IS NOT NULL
+    )
+    SELECT
+    DISTINCT document_id
+    FROM docs d
+
 $_$;
 
 

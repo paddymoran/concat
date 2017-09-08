@@ -180,9 +180,9 @@ BEGIN
     user_id := (SELECT ds.user_id FROM document_sets ds WHERE ds.document_set_id = result_document_set_id);
     IF user_id != $1 THEN RETURN NULL; END IF;
     FOR loop_id IN (SELECT subsequent_document_ids(start_id)) LOOP
-    DELETE FROM document_data dd USING documents d WHERE d.document_data_id = dd.document_data_id AND d.document_id =  loop_id;
+        DELETE FROM document_data dd USING documents d WHERE d.document_data_id = dd.document_data_id AND d.document_id =  loop_id;
     END LOOP;
-
+    PERFORM delete_document_set_if_empty($1, result_document_set_id);
     RETURN result_document_set_id;
 END
 $$

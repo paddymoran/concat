@@ -151,25 +151,6 @@ def remove_document_from_set(user_id, document_id):
         """
         cursor.execute(delete_query, {'user_id': user_id, 'document_id': document_id})
         document_set_id = cursor.fetchone()[0]
-        delete_query = """
-            SELECT delete_document_set_if_empty(%(user_id)s, %(document_set_id)s)
-        """
-        cursor.execute(delete_query, {'user_id': user_id, 'document_set_id': document_set_id})
-        database.commit()
-
-
-
-def remove_document_set_if_empty(user_id, document_set_id):
-    database = get_db()
-    with database.cursor() as cursor:
-        # Create the document data record
-        delete_query = """
-            SELECT delete_document_set_if_empty(%(user_id)s, %(document_set_id)s)
-        """
-        cursor.execute(delete_query, {'user_id': user_id, 'document_set_id': document_set_id})
-        cursor.fetchone()
-
-
         database.commit()
 
 

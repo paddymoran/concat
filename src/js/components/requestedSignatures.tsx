@@ -81,7 +81,7 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                                       {document.filename}
                                   </td>
                                   <td className="file-controls">
-                                        <Link className="btn btn-primary btn-sm" to={`/sign/${this.props.documentSetId}/${documentId}`}><i className="fa fa-pencil-square-o"/>Sign</Link>
+                                        <Link className="btn btn-primary btn-sm" to={`/sign/${this.props.documentSetId}/${documentId}`}><i className="fa fa-pencil-square-o"/>Review & Sign</Link>
                                   </td>
                             </tr>
                 }) }

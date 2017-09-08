@@ -50,6 +50,22 @@ CREATE OR REPLACE FUNCTION document_status(uuid)
 $$ LANGUAGE sql;
 
 
+CREATE OR REPLACE FUNCTION original_document_id(uuid)
+RETURNS uuid as
+$$
+WITH RECURSIVE back_docs(document_id, prev_id, original_id, document_set_id, generation) as (
+    SELECT t.document_id, null::uuid, t.document_id,  document_set_id, 0
+    FROM documents t
+    WHERE t.document_id = $1
+    UNION
+   SELECT input_document_id, result_document_id, original_id, document_set_id, generation + 1
+    FROM sign_results tt, back_docs t
+    WHERE t.document_id = tt.result_document_id
+)
+SELECT document_id FROM back_docs order by generation DESC limit 1
+$$ LANGUAGE sql;
+
+
 
 CREATE OR REPLACE FUNCTION latest_document_id(uuid)
 RETURNS uuid as
@@ -71,6 +87,25 @@ $$
        PARTITION BY original_id ORDER BY generation ASC
        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
     )
+$$ LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION subsequent_document_ids(uuid)
+RETURNS setof uuid as
+$$
+    WITH RECURSIVE docs(document_id, prev_id, original_id, generation) as (
+        SELECT t.document_id, null::uuid, t.document_id, 0
+        FROM documents t
+        WHERE document_id = $1
+        UNION
+       SELECT result_document_id, input_document_id,original_id, generation + 1
+        FROM sign_results tt, docs t
+        WHERE t.document_id = tt.input_document_id AND tt.result_document_id IS NOT NULL
+    )
+    SELECT
+    DISTINCT document_id
+    FROM docs d
+
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION document_set_json(user_id integer, uuid)
@@ -113,7 +148,6 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
 
         ORDER BY ds.created_at DESC
  ) qqq
-
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION revoke_signature_request(
@@ -129,18 +163,33 @@ $BODY$
   LANGUAGE sql VOLATILE;
 
 
+
 CREATE OR REPLACE FUNCTION delete_document(
     user_id integer,
     document_id uuid)
   RETURNS uuid AS
-$BODY$
-DELETE FROM document_data dd
-USING documents d
-JOIN document_sets ds ON ds.document_set_id = d.document_set_id
-WHERE d.document_data_id = dd.document_data_id and user_id = $1 AND document_id = $2
-RETURNING ds.document_set_id
-$BODY$
-  LANGUAGE sql VOLATILE;
+$$
+DECLARE
+    start_id uuid;
+    result_document_set_id uuid;
+    user_id integer;
+    loop_id uuid;
+BEGIN
+    start_id := (SELECT original_document_id($2));
+    result_document_set_id := (SELECT d.document_set_id FROM documents d WHERE d.document_id = start_id);
+    user_id := (SELECT ds.user_id FROM document_sets ds WHERE ds.document_set_id = result_document_set_id);
+    IF user_id != $1 THEN RETURN NULL; END IF;
+    FOR loop_id IN (SELECT subsequent_document_ids(start_id)) LOOP
+    DELETE FROM document_data dd USING documents d WHERE d.document_data_id = dd.document_data_id AND d.document_id =  loop_id;
+    END LOOP;
+
+    RETURN result_document_set_id;
+END
+$$
+  LANGUAGE plpgsql VOLATILE;
+
+
+
 
 CREATE OR REPLACE FUNCTION delete_document_set_if_empty(
     user_id integer,

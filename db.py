@@ -319,7 +319,7 @@ def get_user_document_sets(user_id):
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {'user_id': user_id})
         data = cursor.fetchall()
-        return [x['document_set_json'] for x in data]
+        return [x['document_set_json'] for x in data if x['document_set_json']]
 
 
 def get_document(user_id, document_id):

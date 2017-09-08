@@ -5,6 +5,11 @@ DROP FUNCTION IF EXISTS delete_document(user_id integer, document_id uuid);
 DROP FUNCTION IF EXISTS delete_document_set_if_empty(user_id integer, document_set_id uuid);
 DROP FUNCTION IF EXISTS revoke_signature_request(user_id integer, integer);
 DROP FUNCTION IF EXISTS document_set_json(user_id integer, uuid);
+DROP FUNCTION IF EXISTS latest_document_id(uuid);
+DROP FUNCTION IF EXISTS subsequent_document_ids(uuid);
+DROP FUNCTION IF EXISTS original_document_id(uuid);
+
+
 DROP FUNCTION IF EXISTS delete_document(user_id integer, document_id uuid);
 DROP FUNCTION IF EXISTS signature_requests(user_id integer);
 DROP FUNCTION IF EXISTS latest_document_id(uuid);

@@ -422,7 +422,7 @@ def request_signatures():
         abort(401)
     args = request.get_json()
     link = get_service_url(request.url) + '/to_sign'
-    users = invite_users([s['recipient'] for s in args['signatureRequests']], link, sender=session.get('name', 'User'))
+    users = invite_users([s['recipient'] for s in args['signatureRequests']], link, sender=db.get_user_info(session['user_id'])['name'])
     [db.upsert_user({'name': user['name'], 'email': user['email'], 'user_id': user['id']}) for user in users]
     users = {user['email']: user for user in users}
     for req in args['signatureRequests']:

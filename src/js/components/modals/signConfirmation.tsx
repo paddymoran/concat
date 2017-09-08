@@ -172,16 +172,24 @@ class SignAndNext extends React.PureComponent<SignAndNextProps> {
 
 interface SignAndSubmitProps {
     currentDocumentId: string;
+    documentSetId: string;
     documents: DocumentWithStatus[];
-    recipients: Sign.Recipients;
     submitPayload: Sign.Actions.SubmitDocumentSetPayload;
     goToDocument: (documentId: string) => void;
     submitDocumentSet: (payload: Sign.Actions.SubmitDocumentSetPayload) => void;
     markDocumentAsComplete: (payload: Sign.Actions.MarkDocumentAsCompletePayload) => void;
 }
 
-class SignAndSubmit extends React.PureComponent<SignAndSubmitProps> {
-    constructor(props: SignAndSubmitProps) {
+interface InjectedSignAndSubmitProps {
+    isSigning: boolean;
+    isRequestingSignatures: boolean;
+    recipients: Sign.Recipients;
+}
+
+type UnconnectedSignAndSubmitProps = SignAndSubmitProps & InjectedSignAndSubmitProps;
+
+class UnconnectedSignAndSubmit extends React.PureComponent<UnconnectedSignAndSubmitProps> {
+    constructor(props: UnconnectedSignAndSubmitProps) {
         super(props);
         this.sign = this.sign.bind(this);
         this.goToDocument = this.goToDocument.bind(this);
@@ -198,8 +206,26 @@ class SignAndSubmit extends React.PureComponent<SignAndSubmitProps> {
     }
 
     render() {
-        const message = this.props.documents.length === 1 ? 'Are you sure you want to sign this document?': 'Are you sure you want to sign all documents?';
-        const signString = this.props.documents.length === 1 ? 'Sign Document': 'Sign Documents';
+        const documentsNoun = this.props.documents.length === 1 ? { titleCase: 'Document', sentenceCase: 'this document' }: { titleCase: 'Documents', sentenceCase: 'these documents' };
+        
+        let message = null;
+        let signString = null;
+
+        if (this.props.isSigning) {
+            if (this.props.isRequestingSignatures) {
+                message = 'Are you sure you want to sign and send ' + documentsNoun.sentenceCase + '?';
+                signString = 'Sign & Send ' + documentsNoun.titleCase;
+            }
+            else {
+                message = 'Are you sure you want to sign ' + documentsNoun.sentenceCase + '?';
+                signString = 'Sign ' + documentsNoun.titleCase;
+            }
+        }
+        else {
+            message = 'Are you sure you want to send ' + documentsNoun.sentenceCase + '?';
+            signString = 'Send ' + documentsNoun.titleCase;
+        }
+
         return (
             <div>
                 <i className="fa fa-pencil modal-icon" aria-hidden="true"></i>
@@ -210,11 +236,22 @@ class SignAndSubmit extends React.PureComponent<SignAndSubmitProps> {
 
                 <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.goToDocument} />
 
-                <Button bsStyle='primary' bsSize="lg" onClick={this.sign}>{ signString }</Button>
+                <Button bsStyle='primary' bsSize="lg" onClick={this.sign}>{signString}</Button>
             </div>
         );
     }
 }
+
+const SignAndSubmit = connect<{}, {}, SignAndSubmitProps>(
+    (state: Sign.State, ownProps: SignAndSubmitProps) => {
+        const documentSet = state.documentSets[ownProps.documentSetId];
+        return {
+            isSigning: Object.keys(state.documentViewer.signatures).length > 0,
+            isRequestingSignatures: documentSet.recipients ? documentSet.recipients.length > 0 : false,
+            recipients: documentSet.recipients,
+        }
+    }
+)(UnconnectedSignAndSubmit);
 
 interface RejectAndNextProps {
     currentDocumentId: string;
@@ -384,8 +421,8 @@ class SignConfirmation extends React.PureComponent<UnconnectedSignConfirmationPr
                 title = 'Sign & Submit All';
                 body = <SignAndSubmit
                             currentDocumentId={this.props.documentId}
+                            documentSetId={this.props.documentSetId}
                             documents={this.props.documents}
-                            recipients={this.props.recipients}
                             submitPayload={this.props.submitPayload}
                             markDocumentAsComplete={this.props.markDocumentAsComplete}
                             goToDocument={this.goToDocument}

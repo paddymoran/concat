@@ -264,20 +264,24 @@ class PromptControls extends React.PureComponent<PromptControlProps, {show: bool
           shouldUpdatePosition: true
         };
 
+        const hasRecipients = !!this.props.recipients.length;
+
         return <div className="positionable-controls">
             <button className="button-no-style "  ref="target" onClick={this.show}><span className="fa fa-edit"/></button>
              <Overlay placement="top" {...sharedProps}>
                     <Popover id={`popover-for-${this.props.index}`} className="prompt-controls">
                         <div className="text-center form-group">
-                            <button className="btn btn-primary" onClick={this.showInvite}><i className="fa fa-users"/> Invite Recipients</button>
+                            <button className="btn btn-default" onClick={this.showInvite}><i className="fa fa-users"/> {hasRecipients ? 'Invite Others' : 'Invite Recipients'}</button>
                         </div>
-                        <div className={`${"form-group " + (this.props.prompt.value.recipientEmail ? '' : 'has-error') }`}>
-                            <label>Who</label>
-                            <select className="form-control" value={this.props.prompt.value.recipientEmail} onChange={this.onChangeRecipient}>
-                                <option value="">Please select recipient</option>
-                                { this.props.recipients.map((recipient, i) => <option key={recipient.email} value={recipient.email}>{ recipient.name }</option> ) }
-                            </select>
-                        </div>
+                        {hasRecipients &&
+                            <div className={`${"form-group " + (this.props.prompt.value.recipientEmail ? '' : 'has-error') }`}>
+                                <label>Who</label>
+                                <select className="form-control" value={this.props.prompt.value.recipientEmail} onChange={this.onChangeRecipient}>
+                                    <option value="">Please select recipient</option>
+                                    { this.props.recipients.map((recipient, i) => <option key={recipient.email} value={recipient.email}>{ recipient.name }</option> ) }
+                                </select>
+                            </div>
+                        }
                         <div className="form-group">
                             <label>Type</label>
                             <select className="form-control" value={this.props.prompt.value.type} onChange={this.onChangeType}>

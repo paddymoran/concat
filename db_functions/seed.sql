@@ -628,11 +628,11 @@ ALTER TABLE ONLY document_sets
 
 
 --
--- Name: document_view_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: document_view_document_id_fkk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY document_view
-    ADD CONSTRAINT document_view_document_id_fk FOREIGN KEY (document_id) REFERENCES documents(document_id);
+    ADD CONSTRAINT document_view_document_id_fkk FOREIGN KEY (document_id) REFERENCES documents(document_id) ON DELETE CASCADE;
 
 
 --
@@ -664,7 +664,7 @@ ALTER TABLE ONLY documents
 --
 
 ALTER TABLE ONLY sign_requests
-    ADD CONSTRAINT sign_requests_document_id_fk FOREIGN KEY (document_id) REFERENCES documents(document_id);
+    ADD CONSTRAINT sign_requests_document_id_fk FOREIGN KEY (document_id) REFERENCES documents(document_id) ON DELETE CASCADE;
 
 
 --
@@ -680,7 +680,7 @@ ALTER TABLE ONLY sign_requests
 --
 
 ALTER TABLE ONLY sign_results
-    ADD CONSTRAINT sign_results_input_document_id_fk FOREIGN KEY (input_document_id) REFERENCES documents(document_id);
+    ADD CONSTRAINT sign_results_input_document_id_fk FOREIGN KEY (input_document_id) REFERENCES documents(document_id) ON DELETE CASCADE;
 
 
 --
@@ -688,7 +688,7 @@ ALTER TABLE ONLY sign_results
 --
 
 ALTER TABLE ONLY sign_results
-    ADD CONSTRAINT sign_results_result_document_id_fk FOREIGN KEY (result_document_id) REFERENCES documents(document_id);
+    ADD CONSTRAINT sign_results_result_document_id_fk FOREIGN KEY (result_document_id) REFERENCES documents(document_id) ON DELETE CASCADE;
 
 
 --

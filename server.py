@@ -282,8 +282,10 @@ def remove_document_set(doc_id):
     try:
         user_id = session['user_id']
         documents = db.get_document_set(session['user_id'], doc_id)
+
         for document in documents['documents']:
-            db.remove_document_from_set(user_id, document['document_id'])
+            for document_id in document['versions']:
+                db.remove_document_from_set(user_id, document_id)
         return jsonify({'message': 'Document set removed'})
     except Exception as e:
         print(e)

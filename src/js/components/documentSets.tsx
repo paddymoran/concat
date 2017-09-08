@@ -33,6 +33,7 @@ interface UnconnectedDocumentSetListProps {
     documentSet: Sign.DocumentSet;
     documents: Sign.Documents;
     documentSetId: string;
+    showNotFound?: boolean;
 }
 
 interface DocumentSetListProps extends UnconnectedDocumentSetListProps {
@@ -53,7 +54,10 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
     }
 
     render() {
-        if(!this.props.documentSet){
+        if(!this.props.documentSet || !this.props.documentSet.documentIds.length){
+            if(this.props.showNotFound) {
+                return <p className="text-center">This document set does not exist.</p>
+            }
             return false;
         }
         const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
@@ -166,7 +170,9 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
     }
 }
 
-const DocumentSetList = connect<{}, {}, UnconnectedDocumentSetListProps>(undefined,
+const DocumentSetList = connect<{}, {}, UnconnectedDocumentSetListProps>(() => ({
+        showNotFound: true
+    }),
     { emailDocument: showEmailDocumentModal, revokeSignInvitation, deleteDocument, deleteDocumentSet }
 )(UnconnectedDocumentSetList);
 

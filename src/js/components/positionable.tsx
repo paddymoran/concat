@@ -11,14 +11,13 @@ import {
     addSignatureToDocument, addDateToDocument, addTextToDocument, showInviteModal
  } from '../actions';
 import { connect } from 'react-redux';
-import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas, imageRatio } from '../utils';
+import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas, imageRatio, textDefaults, dateDefaults } from '../utils';
 import { generateUUID } from './uuid';
 import * as Calendar from 'react-widgets/lib/Calendar';
 import * as Popover from 'react-bootstrap/lib/Popover'
 import * as OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
 import { Overlay } from 'react-bootstrap';
 import * as Moment from 'moment';
-import { debounce, textDefaults, dateDefaults  } from '../utils';
 import * as Promise from 'bluebird';
 
 
@@ -134,10 +133,12 @@ class DateControls extends React.PureComponent<DateControlProps> {
         return <div className="positionable-controls">
              <OverlayTrigger  trigger="click" rootClose placement="top" overlay={
                 <Popover id={`popover-for-${this.props.index}`} >
+                     <div className="form-group" >
                     <Calendar value={new Date(this.props.date.timestamp)} onChange={this.onChangeDate}/>
+                    </div>
                     <select className="form-control" value={this.props.date.format} onChange={this.onChangeFormat}>
                         { DATE_FORMATS.map((d, i) => {
-                            return <option key={i} value={d}>{ d }</option>
+                            return <option key={i} value={d}>{ Moment(this.props.date.timestamp).format(d) }</option>
                         }) }
                     </select>
                 </Popover>
@@ -156,10 +157,13 @@ const ConnectedDateControls = connect((state, ownProps: ControlProps) => ({
     updateDate: moveDate
 })(DateControls)
 
-class TextControls extends React.PureComponent<TextControlProps> {
+class TextControls extends React.PureComponent<TextControlProps, {show: boolean}> {
     constructor(props: TextControlProps){
         super(props);
         this.onChangeValue = this.onChangeValue.bind(this);
+        this.show = this.show.bind(this);
+        this.hide = this.hide.bind(this);
+        this.state = {show: props.text.value === textDefaults().value}
     }
 
     onChangeValue(event : React.FormEvent<HTMLTextAreaElement>) {
@@ -176,17 +180,35 @@ class TextControls extends React.PureComponent<TextControlProps> {
         });
     }
 
+    hide() {
+        this.setState({show: false});
+    }
+
+    show() {
+       this.setState({show: true});
+    }
+
     render(){
+        const sharedProps = {
+          show: this.state.show,
+          container: window.document.body,
+          rootClose: true,
+          onHide: this.hide,
+          target: () => findDOMNode(this.refs.target),
+          shouldUpdatePosition: true
+        };
+
+
+
         return <div className="positionable-controls">
-             <OverlayTrigger  trigger="click" rootClose placement="top" overlay={
+                <button className="button-no-style "   ref="target" onClick={this.show}><span className="fa fa-font"/></button>
+             <Overlay placement="top" {...sharedProps}>
                     <Popover id={`popover-for-${this.props.index}`} >
                         <div className="form-group">
                             <textarea className="form-control" rows={2} value={this.props.text.value} onChange={this.onChangeValue}></textarea>
                         </div>
                     </Popover>
-                 }>
-                <button className="button-no-style "><span className="fa fa-font"/></button>
-            </OverlayTrigger>
+              </Overlay>
             <button className="button-no-style" onClick={this.props.onDelete}><span className="fa fa-trash-o"/></button>
         </div>
     }

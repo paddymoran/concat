@@ -31,10 +31,10 @@ function *signDocument(action: Sign.Actions.SignDocument) {
     const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === action.payload.documentId);
     const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === action.payload.documentId);
     const texts = Object.keys(documentViewer.texts).map(key => documentViewer.texts[key]).filter(text => text.documentId === action.payload.documentId);
-
+    const scaleFactor = 4;
 
     const overlays = [...dates, ...texts].map(o => {
-        const canvas = stringToCanvas(o.height * 4, o.value);
+        const canvas = stringToCanvas(o.height * scaleFactor, o.value, Sign.DefaultSignatureSize.MIN_WIDTH * scaleFactor);
         const dataUrl = canvas.toDataURL();
         return {...o, dataUrl}
     });

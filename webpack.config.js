@@ -106,10 +106,10 @@ module.exports = {
                 });
             }
         },
-        !DEV ? new CleanWebpackPlugin(['public'], {
+       /* !DEV ? new CleanWebpackPlugin(['public'], {
           verbose: true,
           dry: false
-        }) : function(){},
+        }) : function(){}, */
 
         !DEV ? new webpack.optimize.UglifyJsPlugin() : function(){},
         new CopyWebpackPlugin([

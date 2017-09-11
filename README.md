@@ -37,3 +37,17 @@ To generate the dump, run the following command from project root.
 
 `pg_dump catalex_sign --schema-only --no-owner --no-acl > db_functions/seed.sql`
 
+
+
+
+     if (!-f /var/www/sign/serviceIsLive.flag) {
+                return 503;
+        }
+
+
+            error_page 503 @maintenance;
+
+    location @maintenance {
+        root /var/www/sign/public;
+        rewrite ^(.*)$ /maintenance.html break;
+    }

@@ -34,7 +34,7 @@ export  class ContainerWithStatusBar extends React.PureComponent<AppProps> {
         return (
             <div>
                 <StatusBar />
-                
+
                 <div className="container">
                     <div  key={pathname} className="main-content">
                         { children }

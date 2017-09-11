@@ -469,12 +469,19 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
     const documentSetId = ownProps.documentSetId;
     const nextInvalidOverlay = findNextInvalidOverlay(state.documentViewer, ownProps.documentId);
     const activeSignControl = state.documentViewer.activeSignControl;
+    const documentId = ownProps.documentId;
 
-    const hasSignature = !!Object.keys(state.documentViewer.signatures).length;
-    const hasInitial = !!Object.keys(state.documentViewer.signatures).length;
-    const hasDate = !!Object.keys(state.documentViewer.dates).length;
-    const hasText = !!Object.keys(state.documentViewer.texts).length;
-    const hasPrompt = !!Object.keys(state.documentViewer.prompts).length;
+    const signaturesIndexes = Object.keys(state.documentViewer.signatures).filter(signatureIndex => state.documentViewer.signatures[signatureIndex].documentId === documentId);
+    const dateIndexes = Object.keys(state.documentViewer.dates).filter(dateIndex => state.documentViewer.dates[dateIndex].documentId === documentId);
+    const textIndexes = Object.keys(state.documentViewer.texts).filter(textIndex =>  state.documentViewer.texts[textIndex].documentId === documentId);
+    const promptIndexes = Object.keys(state.documentViewer.prompts).filter(textIndex => state.documentViewer.prompts[textIndex].documentId === documentId);
+
+
+    const hasSignature = !!signaturesIndexes.length;
+    const hasInitial = !!signaturesIndexes.length;
+    const hasDate = !!dateIndexes.length;
+    const hasText = !!textIndexes.length;
+    const hasPrompt = !!promptIndexes.length;
     const hasRecipients = ((state.documentSets[documentSetId] || {recipients: []}).recipients || []).length > 0;
 
     function getNextPrompt() {

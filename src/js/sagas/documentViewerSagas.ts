@@ -160,7 +160,7 @@ export function* preloader() {
   let downloaded;
   let viewing : Sign.Actions.ViewDocumentPayload;
   while (true) {
-    const result = yield take([Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE , Sign.Actions.Types.VIEW_DOCUMENT])
+    const result = yield take([Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE , Sign.Actions.Types.VIEW_DOCUMENT]);
     switch (result.type) {
       case Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE: downloaded = result.payload; break;
       case Sign.Actions.Types.VIEW_DOCUMENT: viewing = result.payload; break;

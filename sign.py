@@ -4,11 +4,14 @@ from io import BytesIO
 from reportlab.lib.utils import ImageReader
 from collections import defaultdict
 from PIL import Image
+
 # Get all the filenames
+
 
 def sign(input_file, signatures, overlays):
 
     pdf = PdfReader(input_file)
+    input_file = None
     # group by page
     page_map = defaultdict(list)
     for signature in signatures:

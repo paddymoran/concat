@@ -8,8 +8,6 @@ python server.py config.py
 # Dev setup
 
 
-
-
 **Requirements:** npm, virtualenv, python 3.4, imagemagick, and ghostscript, python-dev build-essential libfreetype6 libfreetype6-dev
 
 2. create `catalex_sign` database
@@ -39,15 +37,4 @@ To generate the dump, run the following command from project root.
 
 
 
-
-     if (!-f /var/www/sign/serviceIsLive.flag) {
-                return 503;
-        }
-
-
-            error_page 503 @maintenance;
-
-    location @maintenance {
-        root /var/www/sign/public;
-        rewrite ^(.*)$ /maintenance.html break;
-    }
+# deployment

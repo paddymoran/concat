@@ -28,6 +28,8 @@ except ImportError:
     import os
     DEVNULL = open(os.devnull, 'wb')
 
+
+
 logging.basicConfig()
 
 app = Flask(__name__, static_url_path='', static_folder='public')
@@ -418,6 +420,7 @@ def sign_document():
     if not args.get('reject'):
         result = sign(document, args['signatures'], args['overlays'])
         saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
+        result.close()
         db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
     else:
         db.reject_document(session['user_id'], document_id, sign_request_id, {'rejectedMessage': args.get('rejectMessage')})

@@ -13,7 +13,6 @@ import documentViewerSagas from './documentViewerSagas';
 import documentSagas from './documents';
 
 
-
 function shouldFetch(status: Sign.DownloadStatus){
     return [
         Sign.DownloadStatus.NotStarted,
@@ -113,7 +112,6 @@ function *requestDocumentSaga() {
                     data,
                     readStatus: Sign.DocumentReadStatus.Complete
                 })),
-
                 // Add the document to the PDF store
                 put(addPDFToStore({ id: action.payload.documentId, data }))
             ]);

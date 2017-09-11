@@ -6,8 +6,9 @@ import PDFPreview from './preview';
 import PDFPage from './page';
 import { connect } from 'react-redux';
 import { findSetForDocument } from '../../utils';
-import {  moveSignature, addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal, saveDocumentView  } from '../../actions';
-import { SignaturePositionable, DatePositionable, TextPositionable, PromptPositionable, RequestPrompt } from '../positionable';
+import {  moveSignature, addSignatureToDocument, addDateToDocument, addTextToDocument,
+    addPromptToDocument, setActivePage, showSignConfirmationModal, saveDocumentView, viewDocument   } from '../../actions';
+import { SignaturePositionable, DatePositionable, TextPositionable, PromptPositionable, RequestPrompt} from '../positionable';
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
@@ -47,6 +48,7 @@ interface ConnectedPDFViewerProps extends PDFViewerProps {
     setActivePage: (payload: Sign.Actions.SetActivePagePayload) => void;
     showSignConfirmationModal: (payload: Sign.Actions.ShowSignConfirmationModalPayload) => void;
     saveDocumentView: (payload: Sign.Actions.SaveDocumentViewPayload) => void;
+    viewDocument: (payload: Sign.Actions.ViewDocumentPayload) => void;
 }
 
 interface PDFPageWrapperProps {
@@ -168,6 +170,16 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
         super(props);
         this.setActivePage = this.setActivePage.bind(this);
         this.save = this.save.bind(this);
+    }
+
+    componentDidMount() {
+        this.props.viewDocument({documentId: this.props.documentId, documentSetId: this.props.documentSetId});
+    }
+
+    componentDidUpdate(oldProps: ConnectedPDFViewerProps) {
+        if(this.props.documentId !== oldProps.documentId){
+            this.props.viewDocument({documentId: this.props.documentId, documentSetId: this.props.documentSetId});
+        }
     }
 
     setActivePage(pageNumber: number) {
@@ -515,7 +527,7 @@ const ConnectedPDFViewer = connect(
             selectedSignatureId: state.documentViewer.selectedSignatureId,
             selectedInitialId: state.documentViewer.selectedInitialId,
     };
-}, { addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal, saveDocumentView }
+}, { addSignatureToDocument, addDateToDocument, addTextToDocument, addPromptToDocument, setActivePage, showSignConfirmationModal, saveDocumentView, viewDocument }
 )(PDFViewer);
 
 

@@ -231,6 +231,12 @@ def can_sign_or_submit(user_id):
                         app.config.get('MAX_SIGNS'),
                         app.config.get('MAX_SIGN_UNIT'))['max_allowance_reached']
 
+def has_sign_request(user_id, sign_request_id):
+    return not db.get_sign_request(user_id, sign_request_id) is not None
+
+
+def document_is_latest(document_id):
+    return document_id == db.get_latest_version(document_id)
 
 '''
 Documents
@@ -378,22 +384,32 @@ def signature(id):
         print(e)
         raise InvalidUsage('Failed', status_code=500)
 
+
 '''
 Sign
 '''
-
-
 @app.route('/api/sign', methods=['POST'])
 def sign_document():
     args = request.get_json()
     saveable = deepcopy(args)
     document_db = db.get_document(session['user_id'], args['documentId'])
     document_id = args['documentId']
-    document =  BytesIO(document_db['data'])
+    document = BytesIO(document_db['data'])
     filename = document_db['filename']
     sign_request_id = args.get('signRequestId', None)
-    if not sign_request_id and not can_sign_or_submit(session['user_id']):
-        abort(401)
+    if not sign_request_id:
+        # if signing a new doc, confirm they are allowed
+        if not can_sign_or_submit(session['user_id']):
+            abort(401)
+    else:
+        # if signing a request, confirm they are invited and haven't signed yet
+        if not has_sign_request(session['user_id'], sign_request_id):
+            abort(401)
+
+    # confirm that this document is the latest in the series
+    if not document_is_latest(document_id):
+        raise InvalidUsage('Could not sign document', status_code=500, payload={'type': 'OLD_VERSION'})
+
     for signature in args['signatures']:
         signature['imgData'] = BytesIO(db.get_signature(signature['signatureId'], session['user_id']))
     for overlay in args['overlays']:
@@ -570,6 +586,7 @@ def catch_all(path):
 @app.errorhandler(401)
 def custom_401(error):
     return Response(json.dumps({'message': 'Unauthorized'}), 401)
+
 
 @app.errorhandler(404)
 def send_index(path):

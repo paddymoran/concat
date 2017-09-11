@@ -151,7 +151,6 @@ export function getNextDocument(documentIds: string[], documents: Sign.DocumentV
     return documentIds.filter(d => d != currentDocumentId).find(documentId => {
         const document = documents[documentId];
         let needsSigned = true;
-
         if (document) {
             if (document.signStatus === Sign.SignStatus.SIGNED || document.signStatus === Sign.SignStatus.REJECTED) {
                 needsSigned = false;

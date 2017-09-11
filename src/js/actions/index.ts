@@ -10,6 +10,13 @@ export function resetDocuments(payload?: Sign.Actions.ResetDocumentsPayload): Si
         payload
     };
 }
+export function viewDocument(payload: Sign.Actions.ViewDocumentPayload): Sign.Actions.ViewDocument {
+    return {
+        type: Sign.Actions.Types.VIEW_DOCUMENT,
+        payload
+    };
+}
+
 export function addDocument(payload: Sign.Actions.AddDocumentPayload): Sign.Actions.AddDocument {
     return {
         type: Sign.Actions.Types.ADD_DOCUMENT,

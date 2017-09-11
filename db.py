@@ -503,6 +503,29 @@ def get_contacts(user_id):
         return [dict(x) for x in data]
 
 
+def get_sign_request(user_id, sign_request_id):
+    database = get_db()
+    query = """
+        SELECT sign_request_id
+        FROM sign_requests
+        WHERE user_id = %(user_id)s AND sign_request_id = %(sign_request_id)
+    """
+
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, {'user_id': user_id, 'sign_request_id': sign_request_id})
+        return cursor.fetchone()
+
+
+def get_latest_version(document_id):
+    database = get_db()
+    query = """
+        SELECT latest_document_id(%(document_id)s)
+    """
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, {'document_id': document_id})
+        return cursor.fetchone()['latest_document_id']
+
+
 def get_document_set_owner(set_id):
     """
     Get the owner of a document set

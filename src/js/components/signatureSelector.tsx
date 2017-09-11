@@ -97,7 +97,7 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
                 </Modal.Header>
                 <Modal.Body>
                     <Tabs activeKey={this.state.currentTab} onSelect={this.changeTab.bind(this)} animation={false} id='select-signature-tabs'>
-                        <Tab eventKey={SELECT_SIGNATURE_TAB} title="Select Signature" className="select-signature">
+                        <Tab eventKey={SELECT_SIGNATURE_TAB} title={`Select ${this.props.title}`} className="select-signature">
                             <div className="row">
                                 {this.props.loadStatus === Sign.DownloadStatus.InProgress && <Loading />}
 
@@ -115,13 +115,13 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
 
                                 {this.props.loadStatus === Sign.DownloadStatus.Complete && this.props.ids.length == 0 &&
                                     <div className="col-xs-12">
-                                        <p className="alert alert-warning">No saved signatures</p>
+                                        <p className="alert alert-warning">Please draw or upload your {this.props.title} by selecting the tabs above.</p>
                                     </div>
                                 }
                             </div>
                         </Tab>
 
-                        <Tab eventKey={DRAW_SIGNATURE_TAB} title="Draw Signature">
+                        <Tab eventKey={DRAW_SIGNATURE_TAB} title={`Draw ${this.props.title}`}>
                             <div className='signature-canvas-container clearfix'>
                                 { this.props.uploading && <Loading />}
                                 { !this.props.uploading &&
@@ -133,7 +133,7 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
                             </div>
                         </Tab>
 
-                        <Tab eventKey={UPLOAD_SIGNATURE_TAB} title="Upload Signature">
+                        <Tab eventKey={UPLOAD_SIGNATURE_TAB} title={`Upload ${this.props.title}`}>
                             <div className='signature-upload-container clearfix'>
                             { this.state.signatureUploaderErrors &&
                                 <Alert bsStyle='danger'>

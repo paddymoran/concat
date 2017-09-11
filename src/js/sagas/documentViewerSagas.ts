@@ -1,8 +1,8 @@
-import { all, takeEvery, put, call, select } from 'redux-saga/effects';
+import { all, takeEvery, put, call, select, take } from 'redux-saga/effects';
 import axios from 'axios';
-import { setSignRequestStatus, showResults, closeModal, showFailureModal, setSaveStatus, resetDocuments} from '../actions';
+import { setSignRequestStatus, showResults, closeModal, showFailureModal, setSaveStatus, resetDocuments, requestDocument } from '../actions';
 import { push } from 'react-router-redux';
-import { findSetForDocument, stringToCanvas } from '../utils';
+import { findSetForDocument, stringToCanvas, getNextDocument } from '../utils';
 
 function *signDocumentWithRedirect(action: Sign.Actions.SignDocument){
     const success = yield signDocument(action);
@@ -56,6 +56,7 @@ function *signDocument(action: Sign.Actions.SignDocument) {
     }
     catch (e) {
         yield put(setSignRequestStatus(Sign.DownloadStatus.Failed));
+        throw e;
     }
 }
 
@@ -75,14 +76,28 @@ function *submitDocumentSet() {
         const documentViewer = yield select((state: Sign.State) => state.documentViewer);
         const documentSets = yield select((state: Sign.State) => state.documentSets);
         const documentIds = documentSets[action.payload.documentSetId].documentIds;
-
-        for(let documentId of documentIds){
-            if(hasSomethingToSign(documentViewer, documentId)){
-                yield signDocument({type: Sign.Actions.Types.SIGN_DOCUMENT, payload: {documentSetId: action.payload.documentSetId, documentId}} as Sign.Actions.SignDocument);
+        try{
+            for(let documentId of documentIds){
+                if(hasSomethingToSign(documentViewer, documentId)){
+                    yield signDocument({type: Sign.Actions.Types.SIGN_DOCUMENT, payload: {documentSetId: action.payload.documentSetId, documentId}} as Sign.Actions.SignDocument);
+                }
             }
-        }
-        const status = yield select((state: Sign.State) => state.documentViewer.signRequestStatus);
-        if(status === Sign.DownloadStatus.InProgress){
+            const status = yield select((state: Sign.State) => state.documentViewer.signRequestStatus);
+            if(status === Sign.DownloadStatus.InProgress){
+                return;
+            }
+        }catch (e) {
+            yield  put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION }));
+            if(e.response && e.response.data && e.response.data.type === 'OLD_VERSION'){
+                yield put(showFailureModal({message: 'Sorry, this version of the document has already been signed.'}));
+                yield all([
+                          put(resetDocuments()),
+                          put(push(`/documents/${action.payload.documentSetId}`))
+                          ]);
+            }
+            else{
+                yield put(showFailureModal({message: 'Sorry, we could not sign at this time.'}));
+            }
             return;
         }
         try {
@@ -141,4 +156,27 @@ function *saveDocumentViewSaga() {
     }
 }
 
-export default [submitDocumentSet(), saveDocumentViewSaga()];
+export function* preloader() {
+  let downloaded;
+  let viewing : Sign.Actions.ViewDocumentPayload;
+  while (true) {
+    const result = yield take([Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE , Sign.Actions.Types.VIEW_DOCUMENT])
+    switch (result.type) {
+      case Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE: downloaded = result.payload; break;
+      case Sign.Actions.Types.VIEW_DOCUMENT: viewing = result.payload; break;
+    }
+    if(downloaded && viewing && downloaded.id === viewing.documentId){
+        const data = yield select((state: Sign.State) => ({
+            documentSet: state.documentSets[viewing.documentSetId],
+            documents: state.documentViewer.documents
+        }));
+        const nextDocumentId = getNextDocument(data.documentSet.documentIds, data.documents, viewing.documentId);
+        if(nextDocumentId){
+            yield put(requestDocument(nextDocumentId))
+        }
+
+    }
+  }
+}
+
+export default [submitDocumentSet(), saveDocumentViewSaga(), preloader()];

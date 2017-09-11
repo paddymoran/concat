@@ -359,8 +359,9 @@ declare namespace Sign {
         documentIds?: string[];
     }
 
-
 }
+
+
 
 declare namespace Sign.Components {
 
@@ -384,6 +385,7 @@ declare namespace Sign.Components {
 
 declare namespace Sign.Actions {
     const enum Types {
+        VIEW_DOCUMENT = 'VIEW_DOCUMENT',
         ADD_DOCUMENT = 'ADD_DOCUMENT',
         REQUEST_DOCUMENT = 'REQUEST_DOCUMENT',
         REQUEST_DOCUMENT_PAGE = 'REQUEST_DOCUMENT_PAGE',
@@ -498,12 +500,20 @@ declare namespace Sign.Actions {
     interface Action {
         type: Sign.Actions.Types;
     }
+
     interface ResetStatePayload {
         type: Sign.Actions.Types.RESET_STATE
     }
+
     interface ResetDocumentsPayload {
         type: Sign.Actions.Types.RESET_DOCUMENTS
     }
+
+    interface ViewDocumentPayload {
+        documentSetId: string;
+        documentId: string;
+    }
+
     interface AddDocumentPayload {
         documentSetId: string;
         documentId: string;
@@ -856,6 +866,7 @@ declare namespace Sign.Actions {
 
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
+    interface ViewDocument extends ActionCreator<ViewDocumentPayload> {}
     interface AddDocument extends ActionCreator<AddDocumentPayload> {}
     interface UpdateDocument extends ActionCreator<UpdateDocumentPayload> {}
     interface RequestDocument extends ActionCreator<RequestDocumentPayload> {}

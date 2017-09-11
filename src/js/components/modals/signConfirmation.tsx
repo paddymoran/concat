@@ -6,7 +6,7 @@ import { closeModal, markDocumentAsComplete, submitDocumentSet, rejectDocument }
 import { push } from 'react-router-redux';
 import { signDocumentRoute, getNextDocument } from '../../utils';
 import { SignStatus } from '../requestedSignatures';
-
+import { Checkbox } from 'react-bootstrap';
 
 function prepareSubmitPayload(documentSetId: string, documentSet: Sign.DocumentSet, documentViewer: Sign.DocumentViewer): Sign.Actions.SubmitDocumentSetPayload {
     const prompts = Object.keys(documentViewer.prompts).reduce((acc: any, key: string) => {
@@ -71,9 +71,42 @@ type UnconnectedSignConfirmationProps = SignConfirmationProps & InjectedSignConf
 
 interface RecipientsListProps {
     recipients: Sign.Recipients;
+    showMessage: boolean;
 }
 
+class ShowMessageField extends React.PureComponent<WrappedFieldProps> {
+    render() {
+        return <Checkbox {...this.props.input}>Send a custom message to recipients</Checkbox>
+    }
+}
+
+
+class MessageField extends React.PureComponent<WrappedFieldProps> {
+    render() {
+        return <FormControl {...this.props.input} componentClass="textarea" placeholder="Custom Message" />
+    }
+}
+
+class SendMessageForm extends React.PureComponent<InjectedFormProps & {showMessage: boolean}> {
+    render() {
+        return (
+            <Form className="text-left">
+                <FormGroup>
+                <div className="text-center"><Field name="showMessage" component={ShowMessageField as any} /></div>
+                    { this.props.showMessage &&  <Field name="message" component={MessageField as any} /> }
+                </FormGroup>
+            </Form>
+        );
+    }
+}
+
+export const ConnectedSendMessageForm = reduxForm<{ showMessage: boolean; }>(
+    { form: Sign.FormName.RECIPIENT_MESSAGE }
+)(SendMessageForm) as any;
+
+
 export class RecipientsList extends React.PureComponent<RecipientsListProps> {
+
     render() {
         return (
             <div>
@@ -84,6 +117,9 @@ export class RecipientsList extends React.PureComponent<RecipientsListProps> {
                         <strong>{recipient.name}:</strong> {recipient.email}
                     </p>
                 )}
+
+              <ConnectedSendMessageForm showMessage={this.props.showMessage}/>
+
             </div>
         );
     }
@@ -184,6 +220,8 @@ interface InjectedSignAndSubmitProps {
     isSigning: boolean;
     isRequestingSignatures: boolean;
     recipients: Sign.Recipients;
+    showMessage: boolean;
+    message: string;
 }
 
 type UnconnectedSignAndSubmitProps = SignAndSubmitProps & InjectedSignAndSubmitProps;
@@ -196,8 +234,15 @@ class UnconnectedSignAndSubmit extends React.PureComponent<UnconnectedSignAndSub
     }
 
     sign() {
+        let payload = this.props.submitPayload;
         this.props.markDocumentAsComplete({ documentId: this.props.currentDocumentId, complete: true });
-        this.props.submitDocumentSet(this.props.submitPayload);
+        if(this.props.recipients && this.props.recipients.length && this.props.showMessage && this.props.message){
+            payload = {...payload};
+            payload.signatureRequests = payload.signatureRequests.map((r: Sign.SignatureRequest) => {
+                return {...r, recipient: {...r.recipient, message: this.props.message}}
+            })
+        }
+        this.props.submitDocumentSet(payload);
     }
 
     goToDocument(documentId: string) {
@@ -207,7 +252,7 @@ class UnconnectedSignAndSubmit extends React.PureComponent<UnconnectedSignAndSub
 
     render() {
         const documentsNoun = this.props.documents.length === 1 ? { titleCase: 'Document', sentenceCase: 'this document' }: { titleCase: 'Documents', sentenceCase: 'these documents' };
-        
+
         let message = null;
         let signString = null;
 
@@ -232,7 +277,7 @@ class UnconnectedSignAndSubmit extends React.PureComponent<UnconnectedSignAndSub
 
                 <p className='text-center'>{message}</p>
 
-                {this.props.recipients && this.props.recipients.length && <RecipientsList recipients={this.props.recipients} />}
+                {this.props.recipients && this.props.recipients.length && <RecipientsList recipients={this.props.recipients} ref="recipients" showMessage={this.props.showMessage}/> }
 
                 <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.goToDocument} />
 
@@ -241,11 +286,13 @@ class UnconnectedSignAndSubmit extends React.PureComponent<UnconnectedSignAndSub
         );
     }
 }
-
+const messageSelector = formValueSelector(Sign.FormName.RECIPIENT_MESSAGE);
 const SignAndSubmit = connect<{}, {}, SignAndSubmitProps>(
     (state: Sign.State, ownProps: SignAndSubmitProps) => {
         const documentSet = state.documentSets[ownProps.documentSetId];
+        const { message, showMessage } = messageSelector(state, 'message', 'showMessage');
         return {
+            message, showMessage,
             isSigning: Object.keys(state.documentViewer.signatures).length > 0,
             isRequestingSignatures: documentSet.recipients ? documentSet.recipients.length > 0 : false,
             recipients: documentSet.recipients,
@@ -303,11 +350,10 @@ class UnconnectedRejectAndNext extends React.PureComponent<UnconnectedRejectAndN
     }
 }
 
+const rejectSelector = formValueSelector(Sign.FormName.REJECT);
 const RejectAndNext = connect<{}, {}, RejectAndNextProps>(
     (state: Sign.State) => {
-        const selector = formValueSelector(Sign.FormName.REJECT);
-        const rejectReason = selector(state, 'rejectReason');
-
+        const rejectReason = rejectSelector(state, 'rejectReason');
         return { rejectReason };
     },
     { rejectDocument }

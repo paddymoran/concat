@@ -342,6 +342,7 @@ declare namespace Sign {
     const enum FormName {
         RECIPIENTS = 'recipients',
         REJECT = 'reject',
+        RECIPIENT_MESSAGE = 'recipientMessage'
     }
 
     const enum ModalType {
@@ -357,6 +358,7 @@ declare namespace Sign {
         recipient: Recipient;
         prompts?: DocumentPrompt[],
         documentIds?: string[];
+        message?: string;
     }
 
 }

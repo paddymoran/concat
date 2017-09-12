@@ -61,7 +61,14 @@ class DocumentVerity extends React.PureComponent<DocumentVerityProps> {
         if (this.props.loading) {
             return (
                 <div className="verification">
-                    <div className="text-warning">Loading</div>
+                    <span className="verification-icon fa fa-stack fa-lg verify-heading-icon">
+                        <i className="fa fa-certificate fa-stack-2x" style={{ color: "#555" }} />
+                        <i className="fa fa-refresh fa-spin fa-fw fa-stack-1x fa-inverse" />
+                    </span>
+                    <div>
+                        <div className="filename">{ this.props.filename }</div>
+                        <div>Loading...</div>
+                    </div>
                 </div>
             );
         }

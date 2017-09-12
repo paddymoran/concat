@@ -36,7 +36,8 @@ class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showi
         super(props);
         this.fileDrop = this.fileDrop.bind(this);
         this.collectFiles = this.collectFiles.bind(this);
-        this.state = {showing: []}
+        this.onClick = this.onClick.bind(this);
+        this.state = {showing: []};
     }
 
 

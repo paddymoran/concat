@@ -158,11 +158,25 @@ a {
     margin-bottom:45px;
     .title{
         font-size:2.5em;
-        color: $gray;
+        color: $gray-dark;
         margin:0;
-        font-weight: 100;
+        // font-weight: 100;
+        font-weight: 400;
         letter-spacing: 1px;
+        position: relative;
+
+        &::after {
+            content: ' ';
+            position: absolute;
+            background: $gray-dark;
+            width: 65px;
+            height: 3px;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
     }
+
     .sub-title {
         font-size: 1.2em;
         text-align: center;

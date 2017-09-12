@@ -29,6 +29,8 @@ interface Showing {
     hash: string;
 }
 
+// class 
+
 class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showing: Showing[]}> {
     _fileInput: HTMLInputElement;
 
@@ -63,26 +65,28 @@ class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showi
     }
 
     summaries() {
-        return <div className="row">
-            <div className="verifications col-md-6 col-md-offset-3">
-            { this.state.showing.map((showing: Showing, i: number) => {
-                const result = this.props.verifications[showing.hash];
-                const loaded = result && result.status === Sign.DownloadStatus.Complete;
-                return <div key={i} className="verification">
-                    <div className="filename">{ showing.filename }</div>
-                    { !loaded && <div className="text-warning">Loading</div> }
-                    { loaded && (!result.users || !result.users.length) &&  <div className="text-danger">No Records Found </div> }
-                    { loaded && (result.users && result.users.length) &&  <div>
-                            { result.users.map((user, i: number) => {
-                                return <div key={i}  className="text-success">Signed by { user.name } ({ user.email })</div>
-                            }) }
-
-                    </div> }
+        return (
+            <div className="row">
+                <div className="verifications col-md-6 col-md-offset-3">
+                    {this.state.showing.map((showing: Showing, i: number) => {
+                        const result = this.props.verifications[showing.hash];
+                        const loaded = result && result.status === Sign.DownloadStatus.Complete;
+                        return (
+                            <div key={i} className="verification">
+                                <div className="filename">{ showing.filename }</div>
+                                { !loaded && <div className="text-warning">Loading</div> }
+                                { loaded && (!result.users || !result.users.length) &&  <div className="text-danger">No Records Found</div> }
+                                { loaded && (result.users && result.users.length) &&
+                                    <div>
+                                        {result.users.map((user, index) => <div key={index}  className="text-success">Signed by {user.name} ({user.email})</div>)}
+                                    </div>
+                                }
+                            </div>
+                        );
+                    })}
                 </div>
-            }) }
-
-        </div>
-        </div>
+            </div>
+        )
     }
 
     render() {
@@ -90,10 +94,18 @@ class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showi
             <FileDropZone onDrop={this.fileDrop}>
                 <div>
                 <div className='page-heading'>
-                <h1 className="title question">Select Documents to Verify</h1>
+                    <h1 className="title question">
+                        <span className="fa fa-stack fa-lg verify-heading-icon">
+                            <i className="fa fa-certificate fa-stack-2x text-success" />
+                            <i className="fa fa-check fa-stack-1x fa-inverse"></i>
+                        </span>
+                        Verify Signed Documents
+                    </h1>
                 </div>
 
+
                 <div className="explanation fake-drop-zone" onClick={this.onClick}>
+                    
                     <span className="drag-instruction">Drag PDFs here, or click to select</span>
                     <span className="drop-instruction">DROP HERE</span>
                         <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
@@ -104,6 +116,12 @@ class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showi
         );
     }
 }
+
+
+                    {/*<span className="fa fa-stack fa-lg">
+                        <i className="fa fa-certificate fa-stack-2x" style={{color: "green"}} />
+                        <i className="fa fa-check fa-stack-1x fa-inverse"></i>
+                    </span>*/}
 
 
 

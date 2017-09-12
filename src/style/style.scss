@@ -56,6 +56,7 @@ $fa-font-path: '~font-awesome/fonts';
 @import "~font-awesome/scss/core";
 @import "~font-awesome/scss/icons";
 @import "~font-awesome/scss/animated";
+@import "~font-awesome/scss/stacked";
 
 // React widgets
 @import "~react-widgets/dist/css/react-widgets.css";
@@ -154,13 +155,13 @@ a {
     text-align:center;
 }
 
-.page-heading{
-    margin-bottom:45px;
+.page-heading {
+    margin-bottom: 45px;
+    
     .title{
         font-size:2.5em;
         color: $gray-dark;
         margin:0;
-        // font-weight: 100;
         font-weight: 400;
         letter-spacing: 1px;
         position: relative;
@@ -174,6 +175,17 @@ a {
             bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
+        }
+    }
+
+    .verify-heading-icon {
+        font-size: .7em;
+        margin-right: .3em;
+        position: relative;
+        margin-top: -6px;
+
+        .fa-stack-1x {
+            text-shadow: 2px 2px 4px hsla(0, 0%, 25%, .3);
         }
     }
 

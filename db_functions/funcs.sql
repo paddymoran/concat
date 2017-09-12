@@ -257,7 +257,7 @@ SELECT json_agg(
 
         ELSE 'Pending' END
     )) as documents,
-    d.document_set_id, ds.name, format_iso_date(ds.created_at), u.name as "requester", u.user_id,  ds.user_id = $1 as is_owner
+    d.document_set_id, ds.name, format_iso_date(ds.created_at) as created_at, u.name as "requester", u.user_id,  ds.user_id = $1 as is_owner
 FROM sign_requests sr
 JOIN documents d ON d.document_id = sr.document_id
 JOIN document_sets ds ON ds.document_set_id = d.document_set_id

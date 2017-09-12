@@ -74,8 +74,8 @@ BEGIN
     user_id := (SELECT ds.user_id FROM document_sets ds WHERE ds.document_set_id = result_document_set_id);
     IF user_id != $1 THEN RETURN NULL; END IF;
     FOR loop_id IN (SELECT subsequent_document_ids(start_id)) LOOP
-        data_id := (SELECT document_data_id FROM documents WHERE document_id = loop_id);
-        UPDATE document SET deleted_at = now(), document_data_id = NULL WHERE document_id = loop_id;
+        data_id := (SELECT document_data_id  FROM documents dd WHERE dd.document_id = loop_id);
+        UPDATE documents dd SET deleted_at = now(), document_data_id = NULL WHERE dd.document_id = loop_id;
         DELETE FROM document_data dd WHERE dd.document_data_id = data_id;
     END LOOP;
     PERFORM delete_document_set_if_empty($1, result_document_set_id);
@@ -127,18 +127,18 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
     SELECT row_to_json(qqq) FROM (
         SELECT
             $2 as document_set_id,
-             ds.name as name, ds.created_at as created_at,
+             ds.name as name, format_iso_date(ds.created_at) as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents,
             CASE WHEN EVERY(sign_status != 'Pending') THEN 'Complete' ELSE 'Pending' END as status,
             ds.user_id = $1 as is_owner
         FROM (
-            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status,
+            SELECT d.document_id, filename, format_iso_date(created_at), versions, dv.field_data, document_status(start_id) as sign_status,
                 request_info(start_id) as request_info
             FROM (
                 SELECT
                 DISTINCT last_value(d.document_id) over wnd AS document_id, array_agg(d.document_id) OVER wnd as versions, first_value(d.document_id) over wnd as start_id
                 FROM docs d
-                JOIN documents dd on d.document_id = d.document_id
+                JOIN documents dd on d.document_id = dd.document_id
                 WHERE d.document_set_id = $2 and dd.deleted_at IS NULL
 
                 WINDOW wnd AS (
@@ -187,6 +187,17 @@ CREATE FUNCTION document_status(uuid) RETURNS text
     LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
     LEFT OUTER JOIN sign_results srrr on srrr.input_document_id  = d.document_id
     WHERE d.document_id = $1
+$_$;
+
+
+--
+-- Name: format_iso_date(timestamp with time zone); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION format_iso_date(d timestamp with time zone) RETURNS text
+    LANGUAGE sql
+    AS $_$
+    SELECT to_char($1 at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
 $_$;
 
 
@@ -246,7 +257,7 @@ CREATE FUNCTION request_info(uuid) RETURNS json
     AS $_$
 SELECT json_agg(row_to_json(q)) FROM (
     SELECT
-    u.user_id as user_id, name, email, srr.created_at, sr.sign_request_id,
+    u.user_id as user_id, name, email, format_iso_date(srr.created_at), sr.sign_request_id,
     CASE
         WHEN srr.accepted THEN 'Signed'
         WHEN NOT srr.accepted THEN 'Rejected'
@@ -292,13 +303,13 @@ SELECT json_agg(
     'filename', d.filename,
     'sign_request_id', sr.sign_request_id,
     'prompts', sr.field_data,
-    'created_at', d.created_at,
+    'created_at', format_iso_date(d.created_at),
     'sign_status', CASE WHEN srr.sign_result_id IS NOT NULL
         THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
 
         ELSE 'Pending' END
     )) as documents,
-    d.document_set_id, ds.name, ds.created_at, u.name as "requester", u.user_id,  ds.user_id = $1 as is_owner
+    d.document_set_id, ds.name, format_iso_date(ds.created_at) as created_at, u.name as "requester", u.user_id,  ds.user_id = $1 as is_owner
 FROM sign_requests sr
 JOIN documents d ON d.document_id = sr.document_id
 JOIN document_sets ds ON ds.document_set_id = d.document_set_id
@@ -455,7 +466,7 @@ CREATE TABLE document_sets (
     user_id integer,
     name text,
     created_at timestamp without time zone DEFAULT now(),
-    deleted_at timestamp without time zone
+    deleted_at timestamp with time zone
 );
 
 
@@ -480,9 +491,9 @@ CREATE TABLE documents (
     document_data_id uuid,
     filename text,
     hash text,
-    created_at timestamp without time zone DEFAULT now(),
+    created_at timestamp with time zone DEFAULT now(),
     order_index integer DEFAULT 0,
-    deleted_at timestamp without time zone
+    deleted_at timestamp with time zone
 );
 
 
@@ -543,7 +554,7 @@ CREATE TABLE sign_results (
     field_data jsonb,
     sign_request_id integer,
     accepted boolean DEFAULT true,
-    created_at timestamp without time zone DEFAULT now()
+    created_at timestamp with time zone DEFAULT now()
 );
 
 
@@ -555,7 +566,7 @@ CREATE TABLE signatures (
     signature_id integer NOT NULL,
     user_id integer NOT NULL,
     signature bytea NOT NULL,
-    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
     deleted boolean DEFAULT false NOT NULL,
     type signature_type DEFAULT 'signature'::signature_type
 );
@@ -600,7 +611,7 @@ CREATE TABLE users (
     name text,
     email text,
     shadow boolean DEFAULT false,
-    created_at timestamp without time zone DEFAULT now(),
+    created_at timestamp with time zone DEFAULT now(),
     subscribed boolean DEFAULT false,
     email_verified boolean DEFAULT false
 );

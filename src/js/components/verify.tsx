@@ -99,7 +99,7 @@ class DocumentVerity extends React.PureComponent<DocumentVerityProps> {
             <div className="verification">
                 <UnverifiedIcon />
                 <div className="filename">{ this.props.filename }</div>
-                <div className="text-danger">No Records Found</div>
+                <div className="text-danger">No Records Found - File has not be signed with CataLex Sign or it has been modified.</div>
             </div>
         );
     }

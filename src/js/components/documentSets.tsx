@@ -246,7 +246,7 @@ export const PendingDocumentSets = connect((state: Sign.State) => ({
     documents: state.documents,
     documentSetsStatus: state.documentSetsStatus,
     filter: (documentSets: Sign.DocumentSets, documents: Sign.Documents) : string[] => {
-        return Object.keys(documentSets).filter((setId: string) => documentSets[setId].documentIds.some(d => !statusComplete(documents[d].signStatus)))
+        return Object.keys(documentSets).filter((setId: string) => documentSets[setId].isOwner && documentSets[setId].documentIds.some(d => !statusComplete(documents[d].signStatus)))
     }
 }), {
     showEmailDocumentModal, requestDocumentSets
@@ -259,7 +259,7 @@ export const CompletedDocumentSets = connect((state: Sign.State) => ({
     documentSetsStatus: state.documentSetsStatus,
     filter: (documentSets: Sign.DocumentSets, documents: Sign.Documents) : string[] => {
         return Object.keys(documentSets).filter((setId: string) => {
-            return documentSets[setId].documentIds.every(d => statusComplete(documents[d].signStatus))
+            return documentSets[setId].isOwner && documentSets[setId].documentIds.every(d => statusComplete(documents[d].signStatus))
         })
     }
 }), {

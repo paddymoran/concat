@@ -4,5 +4,5 @@ python migrate.py config.py
 rm serviceIsLive.flag
 rm -rf public/*
 cp src/static/maintenance.html public/maintenance.html
-NODE_ENV=production webpack
+NODE_ENV=production node_modules/.bin/webpack
 touch serviceIsLive.flag

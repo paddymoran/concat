@@ -24,7 +24,7 @@ interface VerifyDocumentsProps {
 
 interface Showing {
     filename: string;
-    hash: string;
+    hash?: string;
 }
 
 interface DocumentVerityProps {
@@ -103,11 +103,26 @@ class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showi
 
 
     fileDrop(files: File[]) {
-        const filenames = files.map(f => f.name);
+        const oldShowing = this.state.showing;
+
+        const fileInfo: Showing[] = files.map(f => ({filename: f.name, hash: null}));
+
+        this.setState({
+            showing: [
+                ...oldShowing,
+                ...fileInfo
+            ]
+        })
+
         Promise.all(files.map(readAsArrayBuffer))
             .then((buffers) => {
                 const hashes = buffers.map(file => shajs('sha256').update(file).digest('hex'));
-                this.setState({showing: hashes.map((h, i) => ({hash: h, filename: filenames[i]}))});
+                this.setState({
+                    showing: [
+                        ...oldShowing,
+                        ...hashes.map((h, i) => ({hash: h, filename: fileInfo[i].filename}))
+                    ]
+                });
                 hashes.map(hash => this.props.requestVerification({hash}))
             })
     }

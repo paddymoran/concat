@@ -69,6 +69,7 @@ declare namespace Sign {
     interface User {
         name: string;
         user_id: number;
+        email?: string;
     }
 
 
@@ -202,6 +203,13 @@ declare namespace Sign {
         }
     }
 
+    interface Verifications {
+        [hash: string]: {
+            users: User[];
+            status: Sign.DownloadStatus
+        }
+    }
+
     interface Signatures {
         status: DownloadStatus;
         signatureIds?: number[];
@@ -272,6 +280,7 @@ declare namespace Sign {
         toSignPage: ToSignPage;
         contacts: Contacts;
         usage: Usage;
+        verifications: Verifications;
     }
 
     interface ToSignPage {
@@ -491,6 +500,9 @@ declare namespace Sign.Actions {
         RESET_DOCUMENTS = 'RESET_DOCUMENTS',
 
         REVOKE_SIGN_INVITATION = 'REVOKE_SIGN_INVITATION',
+
+        REQUEST_VERIFICATION = 'REQUEST_VERIFICATION',
+        UPDATE_VERIFICATION = 'UPDATE_VERIFICATION'
     }
 
 
@@ -866,6 +878,16 @@ declare namespace Sign.Actions {
         documentSetId: string;
     }
 
+    interface RequestVerificationPayload {
+        hash: string;
+    }
+
+    interface UpdateVerificationPayload {
+        hash: string;
+        status: Sign.DownloadStatus;
+        users?: Sign.User[]
+    }
+
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
     interface ViewDocument extends ActionCreator<ViewDocumentPayload> {}
@@ -955,6 +977,9 @@ declare namespace Sign.Actions {
 
     interface RequestUsage extends Action {}
     interface UpdateUsage extends ActionCreator<UpdateUsagePayload> {}
+
+    interface RequestVerification extends ActionCreator<RequestVerificationPayload> {}
+    interface UpdateVerification extends ActionCreator<UpdateVerificationPayload> {}
 
 }
 
@@ -1119,3 +1144,9 @@ declare module 'react-sizeme' {
     export default function sizeMe<P>(options?: Options): ComponentDecorator<P>
 }
 
+
+declare module 'sha.js' {
+    function createHash(type: string): any;
+    namespace createHash {}
+    export = createHash;
+}

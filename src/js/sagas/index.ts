@@ -11,6 +11,7 @@ import pdfStoreSagas from './pdfStoreSagas';
 import signatureSagas from './signatureSagas';
 import documentViewerSagas from './documentViewerSagas';
 import documentSagas from './documents';
+import verificationsSagas from './verifications';
 
 
 function shouldFetch(status: Sign.DownloadStatus){
@@ -38,6 +39,7 @@ export default function *rootSaga(): any {
         ...signatureSagas,
         ...documentViewerSagas,
         ...documentSagas,
+        ...verificationsSagas
     ]);
 }
 
@@ -379,6 +381,10 @@ function *requestUsageSaga() {
         }
     }
 }
+/*
+import * as shajs from 'sha.js'
+const sha256 = shajs('sha256');
+        console.log(sha256.update(action.payload.file).digest('hex'));*/
 
 function *uploadDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.ADD_DOCUMENT, uploadDocument);

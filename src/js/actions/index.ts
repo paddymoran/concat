@@ -502,3 +502,17 @@ export function deleteDocumentSet(payload: Sign.Actions.DeleteDocumentSetPayload
         }
     });
 }
+
+export function requestVerification(payload: Sign.Actions.RequestVerificationPayload): Sign.Actions.RequestVerification {
+    return {
+        type: Sign.Actions.Types.REQUEST_VERIFICATION,
+        payload
+    };
+}
+
+export function updateVerification(payload: Sign.Actions.UpdateVerificationPayload): Sign.Actions.UpdateVerification {
+    return {
+        type: Sign.Actions.Types.UPDATE_VERIFICATION,
+        payload
+    };
+}

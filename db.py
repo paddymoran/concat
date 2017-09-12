@@ -592,3 +592,15 @@ def get_usage(user_id, default_amount_per_unit, default_unit):
 
         return dict(data)
 
+
+def signed_by(user_id, file_hash):
+    database = get_db()
+    query = """
+        SELECT signed_by(%(hash)s)
+    """
+
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, { 'user_id': user_id,
+                       'hash': file_hash})
+        data = cursor.fetchone()
+        return data['signed_by']

@@ -105,8 +105,35 @@ $$
     SELECT
     DISTINCT document_id
     FROM docs d
-
 $$ LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION signed_by(hash text)
+RETURNS JSON as
+$$
+    WITH RECURSIVE back_docs(document_id, prev_id, original_id, document_set_id, generation) as (
+        SELECT t.document_id, null::uuid, t.document_id,  document_set_id, 0
+        FROM documents t
+        UNION
+       SELECT input_document_id, result_document_id, original_id, document_set_id, generation + 1
+        FROM sign_results tt, back_docs t
+        WHERE t.document_id = tt.result_document_id
+    )
+    SELECT json_agg(row_to_json(q)) FROM (
+        SELECT u.name, u.email, u.user_id
+        FROM
+        documents d
+        JOIN back_docs bd ON d.document_id = bd.original_id
+        JOIN sign_results sr ON sr.result_document_id = bd.document_id
+        JOIN users u ON sr.user_id = u.user_id
+        WHERE
+        hash = $1
+        AND accepted = TRUE
+        ORDER BY generation DESC
+    ) q
+$$ LANGUAGE sql;
+
+
 
 CREATE OR REPLACE FUNCTION document_set_json(user_id integer, uuid)
 RETURNS JSON as

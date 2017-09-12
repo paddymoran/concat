@@ -15,6 +15,7 @@ import uploadDocuments from './uploadDocuments';
 import toSignPage from './toSignPage';
 import contacts from './contacts';
 import usage from './usage';
+import verifications from './verifications';
 
 
 const appReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
@@ -33,7 +34,8 @@ const appReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     overlayDefaults,
     toSignPage,
     contacts,
-    usage
+    usage,
+    verifications
 });
 
 const rootReducer = (state : Sign.State, action: any) => {

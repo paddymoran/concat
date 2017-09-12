@@ -7,6 +7,7 @@ import { CompletedDocumentSets, PendingDocumentSets, AllDocumentSets, DocumentSe
 import RequestedSignatures from '../components/requestedSignatures';
 import NotFound from '../components/notFound';
 import Documents from '../components/documents';
+import Verify from '../components/verify';
 
 
 export default () => {
@@ -16,6 +17,7 @@ export default () => {
             <Route path='sign/:documentSetId/:documentId' component={ RequestedDocumentView } />
             <Route component={ContainerWithStatusBar}>
                 <IndexRoute component={UploadDocumentsWithDocumentSetId} />
+                <Route path='verify' component={ Verify } />
                 <Route component={Documents}>
                     <Route path='all' component={ AllDocumentSets } />
                     <Route path='to_sign' component={ RequestedSignatures } />

@@ -80,6 +80,7 @@ $fa-font-path: '~font-awesome/fonts';
 @import "forms";
 @import "sidebar";
 @import "document-set-list";
+@import "verifications";
 
 html {
     position: relative;
@@ -154,12 +155,13 @@ a {
 }
 
 .page-heading{
-            margin-bottom:45px;
+    margin-bottom:45px;
     .title{
         font-size:2.5em;
         color: $gray;
         margin:0;
         font-weight: 100;
+        letter-spacing: 1px;
     }
     .sub-title {
         font-size: 1.2em;

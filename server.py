@@ -471,6 +471,12 @@ def get_usage():
                         app.config.get('MAX_SIGNS'),
                         app.config.get('MAX_SIGN_UNIT')))
 
+
+@app.route('/api/verify/<doc_hash>', methods=['GET'])
+def verify(doc_hash):
+    print('hi')
+    return jsonify(db.signed_by(session['user_id'], doc_hash))
+
 @app.route('/api/send_document', methods=['POST'])
 def email_document():
     try:

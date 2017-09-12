@@ -8,6 +8,7 @@ DROP FUNCTION IF EXISTS document_set_json(user_id integer, uuid);
 DROP FUNCTION IF EXISTS latest_document_id(uuid);
 DROP FUNCTION IF EXISTS subsequent_document_ids(uuid);
 DROP FUNCTION IF EXISTS original_document_id(uuid);
+DROP FUNCTION IF EXISTS signed_by(text);
 
 
 DROP FUNCTION IF EXISTS delete_document(user_id integer, document_id uuid);

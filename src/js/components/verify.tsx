@@ -17,16 +17,92 @@ function readAsArrayBuffer(file: File) {
     })
 }
 
-
 interface VerifyDocumentsProps {
     verifications: Sign.Verifications;
     requestVerification: (payload: Sign.Actions.RequestVerificationPayload) => void;
 }
 
-
 interface Showing {
     filename: string;
-    hash: string;
+    hash?: string;
+}
+
+interface DocumentVerityProps {
+    loading: boolean;
+    filename: string;
+    verified: boolean;
+    users?: Sign.User[];
+}
+
+class VerifiedIcon extends React.PureComponent {
+    render() {
+        return (
+            <span className="verification-icon fa fa-stack fa-lg verify-heading-icon">
+                <i className="fa fa-certificate fa-stack-2x text-success" />
+                <i className="fa fa-check fa-stack-1x fa-inverse" />
+            </span>
+        );
+    }
+}
+
+class UnverifiedIcon extends React.PureComponent {
+    render() {
+        return (
+            <span className="verification-icon fa fa-stack fa-lg">
+                <i className="fa fa-certificate fa-stack-2x text-danger" />
+                <i className="fa fa-close fa-stack-1x fa-inverse" />
+            </span>
+        );
+    }
+}
+
+class LoadingVerityIcon extends React.PureComponent {
+    render() {
+        return (
+            <span className="verification-icon fa fa-stack fa-lg verify-heading-icon">
+                <i className="fa fa-certificate fa-stack-2x" style={{ color: "#555" }} />
+                <i className="fa fa-spinner fa-spin fa-fw fa-stack-1x fa-inverse" />
+            </span>
+        );
+    }
+}
+
+class DocumentVerity extends React.PureComponent<DocumentVerityProps> {
+    render() {
+        if (this.props.loading) {
+            return (
+                <div className="verification">
+                    <LoadingVerityIcon />
+                    <div>
+                        <div className="filename">{ this.props.filename }</div>
+                        <div>Loading...</div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (this.props.verified) {
+            return (
+                <div className="verification">
+                    <VerifiedIcon />
+                    <div>
+                        <div className="filename">{ this.props.filename }</div>
+                        <div>
+                            {this.props.users.map((user, index) => <div key={index} className="text-success">Signed by {user.name} ({user.email})</div>)}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="verification">
+                <UnverifiedIcon />
+                <div className="filename">{ this.props.filename }</div>
+                <div className="text-danger">No Records Found</div>
+            </div>
+        );
+    }
 }
 
 class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showing: Showing[]}> {
@@ -42,11 +118,26 @@ class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showi
 
 
     fileDrop(files: File[]) {
-        const filenames = files.map(f => f.name);
+        const oldShowing = this.state.showing;
+
+        const fileInfo: Showing[] = files.map(f => ({filename: f.name, hash: null}));
+
+        this.setState({
+            showing: [
+                ...oldShowing,
+                ...fileInfo
+            ]
+        })
+
         Promise.all(files.map(readAsArrayBuffer))
             .then((buffers) => {
                 const hashes = buffers.map(file => shajs('sha256').update(file).digest('hex'));
-                this.setState({showing: hashes.map((h, i) => ({hash: h, filename: filenames[i]}))});
+                this.setState({
+                    showing: [
+                        ...oldShowing,
+                        ...hashes.map((h, i) => ({hash: h, filename: fileInfo[i].filename}))
+                    ]
+                });
                 hashes.map(hash => this.props.requestVerification({hash}))
             })
     }
@@ -63,39 +154,37 @@ class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showi
     }
 
     summaries() {
-        return <div className="row">
-            <div className="verifications col-md-6 col-md-offset-3">
-            { this.state.showing.map((showing: Showing, i: number) => {
-                const result = this.props.verifications[showing.hash];
-                const loaded = result && result.status === Sign.DownloadStatus.Complete;
-                return <div key={i} className="verification">
-                    <div className="filename">{ showing.filename }</div>
-                    { !loaded && <div className="text-warning">Loading</div> }
-                    { loaded && (!result.users || !result.users.length) &&  <div className="text-danger">No Records Found </div> }
-                    { loaded && (result.users && result.users.length) &&  <div>
-                            { result.users.map((user, i: number) => {
-                                return <div key={i}  className="text-success">Signed by { user.name } ({ user.email })</div>
-                            }) }
+        return (
+            <div className="row">
+                <div className="verifications col-md-10 col-md-offset-1">
+                    {this.state.showing.map((showing, index) => {
+                        const result = this.props.verifications[showing.hash];
+                        const loading = result === undefined ? true : result.status !== Sign.DownloadStatus.Complete;
 
-                    </div> }
+                        const users = loading ? null : result.users;
+                        const verified = users ? users.length > 0 : false;
+
+                        return <DocumentVerity key={index} loading={loading} verified={verified} filename={showing.filename} users={users} />
+                    })}
                 </div>
-            }) }
-
-        </div>
-        </div>
+            </div>
+        )
     }
 
     render() {
         return (
             <FileDropZone onDrop={this.fileDrop}>
                 <div>
-                <div className='page-heading'>
-                <h1 className="title question">Select Documents to Verify</h1>
-                </div>
+                    <div className='page-heading'>
+                        <h1 className="title question">
+                            <VerifiedIcon />
+                            Verify Signed Documents
+                        </h1>
+                    </div>
 
-                <div className="explanation fake-drop-zone" onClick={this.onClick}>
-                    <span className="drag-instruction">Drag PDFs here, or click to select</span>
-                    <span className="drop-instruction">DROP HERE</span>
+                    <div className="explanation fake-drop-zone" onClick={this.onClick}>
+                        <span className="drag-instruction">Drag PDFs here, or click to select</span>
+                        <span className="drop-instruction">DROP HERE</span>
                         <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
                     </div>
                 </div>
@@ -106,16 +195,11 @@ class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showi
 }
 
 
-
-
-
 const Verify = connect(
     (state: Sign.State, ownProps: VerifyDocumentsProps) => ({
         verifications: state.verifications
     }),
-    {
-        requestVerification
-    }
+    { requestVerification }
 )(UnconnectedVerify);
 
 

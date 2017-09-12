@@ -158,9 +158,10 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
                 request_info(start_id) as request_info
             FROM (
                 SELECT
-                DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions, first_value(document_id) over wnd as start_id
+                DISTINCT last_value(d.document_id) over wnd AS document_id, array_agg(d.document_id) OVER wnd as versions, first_value(d.document_id) over wnd as start_id
                 FROM docs d
-                WHERE document_set_id = $2
+                JOIN documents dd on d.document_id = d.document_id
+                WHERE d.document_set_id = $2 and dd.deleted_at IS NULL
 
                 WINDOW wnd AS (
                    PARTITION BY original_id ORDER BY generation ASC
@@ -201,13 +202,16 @@ DECLARE
     result_document_set_id uuid;
     user_id integer;
     loop_id uuid;
+    data_id uuid;
 BEGIN
     start_id := (SELECT original_document_id($2));
     result_document_set_id := (SELECT d.document_set_id FROM documents d WHERE d.document_id = start_id);
     user_id := (SELECT ds.user_id FROM document_sets ds WHERE ds.document_set_id = result_document_set_id);
     IF user_id != $1 THEN RETURN NULL; END IF;
     FOR loop_id IN (SELECT subsequent_document_ids(start_id)) LOOP
-        DELETE FROM document_data dd USING documents d WHERE d.document_data_id = dd.document_data_id AND d.document_id =  loop_id;
+        data_id := (SELECT document_data_id  FROM documents dd WHERE dd.document_id = loop_id);
+        UPDATE documents dd SET deleted_at = now(), document_data_id = NULL WHERE dd.document_id = loop_id;
+        DELETE FROM document_data dd WHERE dd.document_data_id = data_id;
     END LOOP;
     PERFORM delete_document_set_if_empty($1, result_document_set_id);
     RETURN result_document_set_id;
@@ -223,8 +227,8 @@ CREATE OR REPLACE FUNCTION delete_document_set_if_empty(
     document_set_id uuid)
   RETURNS void AS
     $BODY$
-    DELETE FROM document_sets ds
-    WHERE user_id = $1 AND ds.document_set_id = $2 AND NOT EXISTS(SELECT * FROM documents WHERE document_set_id = $2)
+    UPDATE document_sets ds SET deleted_at = now()
+    WHERE user_id = $1 AND ds.document_set_id = $2 AND NOT EXISTS(SELECT * FROM documents WHERE document_set_id = $2 AND deleted_at IS NULL)
     $BODY$
   LANGUAGE sql VOLATILE;
 
@@ -253,7 +257,7 @@ JOIN documents d ON d.document_id = sr.document_id
 JOIN document_sets ds ON ds.document_set_id = d.document_set_id
 JOIN users u ON u.user_id = ds.user_id
 LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
-WHERE sr.user_id = $1
+WHERE sr.user_id = $1 AND d.deleted_at IS NULL and ds.deleted_at IS NULL
 
 GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id, ds.user_id
 ORDER BY ds.created_at DESC

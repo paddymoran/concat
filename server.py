@@ -234,7 +234,7 @@ def can_sign_or_submit(user_id):
                         app.config.get('MAX_SIGN_UNIT'))['max_allowance_reached']
 
 def has_sign_request(user_id, sign_request_id):
-    return not db.get_sign_request(user_id, sign_request_id) is not None
+    return db.get_sign_request(user_id, sign_request_id) is not None
 
 
 def document_is_latest(document_id):

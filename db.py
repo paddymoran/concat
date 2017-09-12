@@ -95,6 +95,15 @@ def find_or_create_and_validate_document_set(set_id, user_id):
                 pass
         elif result[0] != user_id:
             raise Exception
+        else:
+            update_document_set = """
+                UPDATE document_sets SET deleted_at = NULL
+                WHERE document_set_id = %(set_id)s
+            """
+            cursor.execute(find_doc_set_query, {
+                'set_id': set_id,
+            })
+            database.commit()
 
 
 def add_document(set_id, document_id, filename, binary_file_data):
@@ -295,7 +304,7 @@ def get_user_document_sets(user_id):
     query = """
         SELECT document_set_json(%(user_id)s, document_set_id)
         FROM document_sets sets
-        WHERE sets.user_id = %(user_id)s
+        WHERE sets.user_id = %(user_id)s AND deleted_at IS NULL
     """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {'user_id': user_id})
@@ -508,7 +517,7 @@ def get_sign_request(user_id, sign_request_id):
     query = """
         SELECT sign_request_id
         FROM sign_requests
-        WHERE user_id = %(user_id)s AND sign_request_id = %(sign_request_id)
+        WHERE user_id = %(user_id)s AND sign_request_id = %(sign_request_id)s
     """
 
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:

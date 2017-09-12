@@ -148,7 +148,7 @@ export function signDocumentRoute(documentSetId: string, documentId: string, isD
 }
 
 export function getNextDocument(documentIds: string[], documents: Sign.DocumentViews, currentDocumentId: string): string {
-    return documentIds.filter(d => d != currentDocumentId).find(documentId => {
+    return (documentIds||[]).filter(d => d != currentDocumentId).find(documentId => {
         const document = documents[documentId];
         let needsSigned = true;
         if (document) {

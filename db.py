@@ -230,8 +230,8 @@ def upsert_user(user):
     if current_app.config.get('USE_DB_UPSERT'):
         if user.get('subscribed', None) is not None:
             query = """
-                INSERT INTO users (user_id, name, email, subscribed)
-                VALUES (%(user_id)s, %(name)s, %(email)s, %(subscribed)s)
+                INSERT INTO users (user_id, name, email, subscribed, email_verified)
+                VALUES (%(user_id)s, %(name)s, %(email)s, %(subscribed)s, %(email_verified)s)
                 ON CONFLICT (user_id) DO UPDATE SET name = %(name)s, email = %(email)s, subscribed = %(subscribed)s;
             """
         else:
@@ -247,8 +247,8 @@ def upsert_user(user):
         try:
             if user.get('subscribed', None) is not None:
                 query = """
-                    INSERT INTO users (user_id, name, email, subscribed)
-                    VALUES (%(user_id)s, %(name)s, %(email)s, %(subscribed)s)
+                    INSERT INTO users (user_id, name, email, subscribed, email_verified)
+                    VALUES (%(user_id)s, %(name)s, %(email)s, %(subscribed)s, %(email_verified)s)
                 """
             else:
                 query = """
@@ -262,7 +262,7 @@ def upsert_user(user):
             database.rollback()
             if user.get('subscribed', None) is not None:
                 query = """
-                    UPDATE users SET name = %(name)s, email = %(email)s, subscribed = %(subscribed)s where user_id = %(user_id)s;
+                    UPDATE users SET name = %(name)s, email = %(email)s, subscribed = %(subscribed)s, email_verified = %(email_verified)s where user_id = %(user_id)s;
                 """
             else:
                 query = """

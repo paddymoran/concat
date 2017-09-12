@@ -474,7 +474,6 @@ def get_usage():
 
 @app.route('/api/verify/<doc_hash>', methods=['GET'])
 def verify(doc_hash):
-    print('hi')
     return jsonify(db.signed_by(session['user_id'], doc_hash))
 
 @app.route('/api/send_document', methods=['POST'])

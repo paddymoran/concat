@@ -310,6 +310,36 @@ $_$;
 
 
 --
+-- Name: signed_by(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION signed_by(hash text) RETURNS json
+    LANGUAGE sql
+    AS $_$
+    WITH RECURSIVE back_docs(document_id, prev_id, original_id, document_set_id, generation) as (
+        SELECT t.document_id, null::uuid, t.document_id,  document_set_id, 0
+        FROM documents t
+        UNION
+       SELECT input_document_id, result_document_id, original_id, document_set_id, generation + 1
+        FROM sign_results tt, back_docs t
+        WHERE t.document_id = tt.result_document_id
+    )
+    SELECT json_agg(row_to_json(q)) FROM (
+        SELECT u.name, u.email, u.user_id
+        FROM
+        documents d
+        JOIN back_docs bd ON d.document_id = bd.original_id
+        JOIN sign_results sr ON sr.result_document_id = bd.document_id
+        JOIN users u ON sr.user_id = u.user_id
+        WHERE
+        hash = $1
+        AND accepted = TRUE
+        ORDER BY generation DESC
+    ) q
+$_$;
+
+
+--
 -- Name: subsequent_document_ids(uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -567,7 +597,8 @@ CREATE TABLE users (
     email text,
     shadow boolean DEFAULT false,
     created_at timestamp without time zone DEFAULT now(),
-    subscribed boolean DEFAULT false
+    subscribed boolean DEFAULT false,
+    email_verified boolean DEFAULT false
 );
 
 

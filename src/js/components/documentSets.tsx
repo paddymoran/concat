@@ -150,7 +150,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                 <td/>
                                 <td colSpan={2}>
                                     {hasDownloadAll &&
-                                        <a className="btn btn-default btn-sm" target="_blank" href={`/api/download_set/${this.props.documentSetId}`}>
+                                        <a className="btn btn-default btn-sm" target="_blank" href={`/api/download_set/${this.props.documentSetId}?datestring=${encodeURIComponent(documentSetLabel)}`}>
                                             <i className="fa fa-download" /> Download All
                                         </a>
                                     }
@@ -171,7 +171,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
 }
 
 const DocumentSetList = connect<{}, {}, UnconnectedDocumentSetListProps>(() => ({
-        showNotFound: true
+        showNotFound: false
     }),
     { emailDocument: showEmailDocumentModal, revokeSignInvitation, deleteDocument, deleteDocumentSet }
 )(UnconnectedDocumentSetList);

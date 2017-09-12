@@ -333,8 +333,7 @@ def get_document_set_zip(set_id):
                 document = db.get_document(session['user_id'], doc['document_id'])
                 z.writestr(document['filename'], document['data'])
         output.seek(0)
-        # Do MMM, h:mm:ss a"
-        date_string = parse(documents['created_at']).strftime("%a, %-I:%-M:%-S %p")
+        date_string = request.args.get('datestring', parse(documents['created_at']).strftime("%a, %-I:%-M:%-S %p"))
         return send_file(output, mimetype='application/pdf', attachment_filename=('CataLex Sign - %s.zip' % date_string), as_attachment=True)
     except Exception as e:
         raise InvalidUsage(e, status_code=500)

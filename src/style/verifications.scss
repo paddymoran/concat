@@ -1,9 +1,18 @@
-.verifications{
-    padding-top:20px;
-    .verification{
-        padding-bottom: 20px;
-        .filename{
-            font-weight:bold;
+.verifications {
+    padding-top: 30px;
+    
+    .verification {
+        padding-bottom: 24px;
+        
+        .verification-icon {
+            float: left;
+            margin-right: 18px;
+            font-size: 1.2em;
+            margin-top: 4px;
+        }
+
+        .filename {
+            font-size: 1.3em;
         }
     }
 }

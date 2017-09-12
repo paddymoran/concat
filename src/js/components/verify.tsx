@@ -52,7 +52,18 @@ class UnverifiedIcon extends React.PureComponent {
                 <i className="fa fa-certificate fa-stack-2x text-danger" />
                 <i className="fa fa-close fa-stack-1x fa-inverse" />
             </span>
-        )
+        );
+    }
+}
+
+class LoadingVerityIcon extends React.PureComponent {
+    render() {
+        return (
+            <span className="verification-icon fa fa-stack fa-lg verify-heading-icon">
+                <i className="fa fa-certificate fa-stack-2x" style={{ color: "#555" }} />
+                <i className="fa fa-spinner fa-spin fa-fw fa-stack-1x fa-inverse" />
+            </span>
+        );
     }
 }
 
@@ -61,10 +72,7 @@ class DocumentVerity extends React.PureComponent<DocumentVerityProps> {
         if (this.props.loading) {
             return (
                 <div className="verification">
-                    <span className="verification-icon fa fa-stack fa-lg verify-heading-icon">
-                        <i className="fa fa-certificate fa-stack-2x" style={{ color: "#555" }} />
-                        <i className="fa fa-refresh fa-spin fa-fw fa-stack-1x fa-inverse" />
-                    </span>
+                    <LoadingVerityIcon />
                     <div>
                         <div className="filename">{ this.props.filename }</div>
                         <div>Loading...</div>

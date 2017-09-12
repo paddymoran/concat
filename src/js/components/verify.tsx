@@ -17,19 +17,15 @@ function readAsArrayBuffer(file: File) {
     })
 }
 
-
 interface VerifyDocumentsProps {
     verifications: Sign.Verifications;
     requestVerification: (payload: Sign.Actions.RequestVerificationPayload) => void;
 }
 
-
 interface Showing {
     filename: string;
     hash: string;
 }
-
-// class 
 
 class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showing: Showing[]}> {
     _fileInput: HTMLInputElement;
@@ -118,22 +114,11 @@ class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showi
 }
 
 
-                    {/*<span className="fa fa-stack fa-lg">
-                        <i className="fa fa-certificate fa-stack-2x" style={{color: "green"}} />
-                        <i className="fa fa-check fa-stack-1x fa-inverse"></i>
-                    </span>*/}
-
-
-
-
-
 const Verify = connect(
     (state: Sign.State, ownProps: VerifyDocumentsProps) => ({
         verifications: state.verifications
     }),
-    {
-        requestVerification
-    }
+    { requestVerification }
 )(UnconnectedVerify);
 
 

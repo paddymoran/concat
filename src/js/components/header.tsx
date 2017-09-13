@@ -48,7 +48,7 @@ export class Header extends React.PureComponent {
                 <Navbar.Collapse>
                     <ul className="nav navbar-nav navbar-right">
                         <li ><Link to='/' activeClassName="active">Upload</Link></li>
-                        <li><Link to='/all' activeClassName="active">Documents</Link></li>
+                        <li><Link to='/completed' activeClassName="active">Documents</Link></li>
                         <li><Link to='/verify' activeClassName="active">Verify</Link></li>
                         <AccountControls />
                     </ul>

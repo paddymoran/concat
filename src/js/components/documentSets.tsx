@@ -147,9 +147,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
 
                         { hasSetControls &&
                             <tr className="document-set-controls">
-                                <td/>
-                                <td/>
-                                <td colSpan={2}>
+                                <td colSpan={4} className="text-center">
                                     {hasDownloadAll &&
                                         <a className="btn btn-default btn-sm" target="_blank" href={`/api/download_set/${this.props.documentSetId}?datestring=${encodeURIComponent(documentSetLabel)}`}>
                                             <i className="fa fa-download" /> Download All

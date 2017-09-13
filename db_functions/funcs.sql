@@ -2,6 +2,7 @@ CREATE OR REPLACE FUNCTION document_hash()
 RETURNS trigger AS $$
 BEGIN
     NEW.hash = encode(digest(data, 'sha256'), 'hex') FROM document_data WHERE document_data_id = NEW.document_data_id;
+    NEW.length = octet_length(data) FROM document_data WHERE document_data_id = NEW.document_data_id;
     RETURN NEW;
 END $$ LANGUAGE 'plpgsql';
 
@@ -158,9 +159,10 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
              ds.name as name, format_iso_date(ds.created_at) as created_at,
             array_to_json(array_agg(row_to_json(qq))) as documents,
             CASE WHEN EVERY(sign_status != 'Pending') THEN 'Complete' ELSE 'Pending' END as status,
+            sum(size) as size,
             ds.user_id = $1 as is_owner
         FROM (
-            SELECT d.document_id, filename, format_iso_date(created_at), versions, dv.field_data, document_status(start_id) as sign_status,
+            SELECT d.document_id, filename, format_iso_date(created_at), versions, dv.field_data, document_status(start_id) as sign_status, d.length as size,
                 request_info(start_id) as request_info
             FROM (
                 SELECT
@@ -252,6 +254,7 @@ SELECT json_agg(
     'sign_request_id', sr.sign_request_id,
     'prompts', sr.field_data,
     'created_at', format_iso_date(d.created_at),
+    'size',  d.length,
     'sign_status', CASE WHEN srr.sign_result_id IS NOT NULL
         THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
 

@@ -259,7 +259,7 @@ def get_user_usage():
                             app.config.get('MAX_SIGNS'),
                             app.config.get('MAX_SIGN_UNIT'))
 
-def login_required(f):
+def login_redirect(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
@@ -267,6 +267,13 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def protected(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return Response(json.dumps({'message': 'Unauthorized'}), 401)
+        return f(*args, **kwargs)
+    return decorated_function
 
 def nocache(view):
     @wraps(view)
@@ -281,13 +288,13 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 @app.route('/api/documents', methods=['GET'])
-@login_required
+@protected
 def get_document_set_list():
     return jsonify(db.get_user_document_sets(session['user_id']))
 
 
 @app.route('/api/documents', methods=['POST'])
-@login_required
+@protected
 def document_upload():
     try:
         if not can_sign_or_submit(session['user_id']):
@@ -302,7 +309,7 @@ def document_upload():
 
 
 @app.route('/api/save_view/<document_id>', methods=['POST'])
-@login_required
+@protected
 def save_document_view(document_id):
     try:
         db.save_document_view(document_id, session['user_id'], request.get_json())
@@ -313,7 +320,7 @@ def save_document_view(document_id):
 
 
 @app.route('/api/document/<document_id>', methods=['DELETE'])
-@login_required
+@protected
 def remove_document_from_set(document_id):
     try:
         user_id = session['user_id']
@@ -325,7 +332,7 @@ def remove_document_from_set(document_id):
 
 
 @app.route('/api/documents/<doc_id>', methods=['DELETE'])
-@login_required
+@protected
 def remove_document_set(doc_id):
     try:
         user_id = session['user_id']
@@ -340,7 +347,7 @@ def remove_document_set(doc_id):
         raise InvalidUsage('Failed to removed document set', status_code=500)
 
 @app.route('/api/documents/<doc_id>', methods=['GET'])
-@login_required
+@protected
 def get_documents(doc_id):
     try:
         documents = db.get_document_set(session['user_id'], doc_id)
@@ -351,7 +358,7 @@ def get_documents(doc_id):
 
 
 @app.route('/api/document/<doc_id>', methods=['GET'])
-@login_required
+@protected
 def get_document(doc_id):
     try:
         document = db.get_document(session['user_id'], doc_id)
@@ -366,7 +373,7 @@ def get_document(doc_id):
 
 
 @app.route('/api/download_set/<set_id>', methods=['GET'])
-@login_required
+@protected
 def get_document_set_zip(set_id):
     try:
         documents = db.get_document_set(session['user_id'], set_id)
@@ -386,7 +393,7 @@ Signatures
 
 
 @app.route('/api/signatures/upload', methods=['POST'])
-@login_required
+@protected
 def signature_upload():
     try:
         base64Image = request.get_json()['base64Image']
@@ -397,7 +404,7 @@ def signature_upload():
         raise InvalidUsage(e.message, status_code=500)
 
 @app.route('/api/signatures/<id>', methods=['DELETE'])
-@login_required
+@protected
 def signature_delete(id):
     try:
         return jsonify(delete_signature(id))
@@ -407,7 +414,7 @@ def signature_delete(id):
 
 
 @app.route('/api/signatures', methods=['GET'])
-@login_required
+@protected
 def signatures_list():
     try:
         signatures = db.get_signatures_for_user(session['user_id'])
@@ -418,7 +425,7 @@ def signatures_list():
 
 
 @app.route('/api/signatures/<id>', methods=['GET'])
-@login_required
+@protected
 def signature(id):
     try:
         signature = db.get_signature(id, session['user_id'])
@@ -437,7 +444,7 @@ def signature(id):
 Sign
 '''
 @app.route('/api/sign', methods=['POST'])
-@login_required
+@protected
 def sign_document():
     args = request.get_json()
     saveable = deepcopy(args)
@@ -483,7 +490,7 @@ def sign_document():
 
 
 @app.route('/api/request_signatures', methods=['POST'])
-@login_required
+@protected
 def request_signatures():
     if not can_sign_or_submit(session['user_id']):
         abort(401)
@@ -499,25 +506,25 @@ def request_signatures():
 
 
 @app.route('/api/request_signatures/<sign_request_id>', methods=['DELETE'])
-@login_required
+@protected
 def revoke_request_signatures(sign_request_id):
     db.revoke_signature_requests(session['user_id'], sign_request_id)
     return jsonify({'message': 'Requests revoked'})
 
 
 @app.route('/api/requested_signatures', methods=['GET'])
-@login_required
+@protected
 def get_signature_requests():
     return jsonify(db.get_signature_requests(session['user_id']))
 
 
 @app.route('/api/contacts', methods=['GET'])
-@login_required
+@protected
 def get_contacts():
     return jsonify(db.get_contacts(session['user_id']))
 
 @app.route('/api/usage', methods=['GET'])
-@login_required
+@protected
 def get_usage():
     return jsonify(get_user_usage())
 
@@ -528,7 +535,7 @@ def verify_hash(doc_hash):
 
 
 @app.route('/api/send_documents', methods=['POST'])
-@login_required
+@protected
 def email_documents():
     try:
         args = request.get_json()
@@ -652,7 +659,7 @@ def render_root():
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-@login_required
+@login_redirect
 def catch_all(path):
     return render_root()
 

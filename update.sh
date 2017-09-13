@@ -1,3 +1,4 @@
+source bin/activate
 git pull
 npm install
 python migrate.py config.py

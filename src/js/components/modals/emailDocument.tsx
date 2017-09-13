@@ -38,7 +38,7 @@ class EmailDocuments extends React.PureComponent<EmailDocumentsProps> {
                 <div>
                     <i className="fa fa-check modal-icon" aria-hidden="true"></i>
 
-                    <p className='text-center'>Document Sent!</p>
+                    <p className='text-center'>{this.props.documentIds.length > 1 ? 'Documents' : 'Document'} Sent!</p>
                 </div>
             }
             {this.props.status === Sign.DownloadStatus.Failed &&

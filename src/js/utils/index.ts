@@ -133,7 +133,7 @@ export function textDefaults(){
 }
 
 
-export const datetimeFormat = "Do MMMM YYYY, h:mm:ss a";
+export const datetimeFormat = "D MMMM YYYY, h:mm:ss a";
 
 export function stringToDateTime(string : string) : string {
     return moment(string).format(datetimeFormat);

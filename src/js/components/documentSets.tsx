@@ -62,6 +62,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
         }
         const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
         const hasDownloadAll =  this.props.showDownloadAll && this.props.documentSet.documentIds.length > 1;
+        const hasEmailAll =  this.props.documentSet.documentIds.length > 1;
         const hasDeleteAll =  this.props.documentSet.isOwner && this.props.documentSet.documentIds.length > 1;
         const hasSetControls = hasDownloadAll || hasDeleteAll;
 
@@ -144,7 +145,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                             return rows;
                         }, []) }
 
-                        {hasSetControls &&
+                        { hasSetControls &&
                             <tr className="document-set-controls">
                                 <td/>
                                 <td/>
@@ -154,11 +155,17 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                             <i className="fa fa-download" /> Download All
                                         </a>
                                     }
+                                    { hasEmailAll &&
+                                        <a className="btn btn-default btn-sm" onClick={() => this.props.emailDocuments({ documentIds: this.props.documentSet.documentIds })}>
+                                            <i className="fa fa-send" /> Email All
+                                        </a>
+                                    }
 
                                     {hasDeleteAll &&
                                         <a className="btn btn-default btn-sm" onClick={this.deleteSet}>
                                             <i className="fa fa-trash" /> Delete All
                                         </a>
+
                                     }
                                 </td>
                             </tr>

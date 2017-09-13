@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { requestDocumentSets, showEmailDocumentModal, revokeSignInvitation, deleteDocument, deleteDocumentSet } from '../actions';
+import { requestDocumentSets, showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet } from '../actions';
 import * as moment from 'moment';
 import { Link } from 'react-router';
 import { Nav, NavItem } from 'react-bootstrap';
@@ -37,7 +37,7 @@ interface UnconnectedDocumentSetListProps {
 }
 
 interface DocumentSetListProps extends UnconnectedDocumentSetListProps {
-    emailDocument: (payload: Sign.Actions.ShowEmailDocumentModalPayload) => void;
+    emailDocuments: (payload: Sign.Actions.ShowEmailDocumentsModalPayload) => void;
     revokeSignInvitation: (payload: Sign.Actions.RevokeSignInvitationPayload) => void;
     deleteDocument: (payload: Sign.Actions.DeleteDocumentPayload) => void;
     deleteDocumentSet: (payload: Sign.Actions.DeleteDocumentSetPayload) => void;
@@ -91,7 +91,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                         <a className="btn btn-default btn-sm" target="_blank" href={`/api/document/${documentId}`}>
                                             <i className="fa fa-download"/> Download
                                         </a>
-                                        <a className="btn btn-default btn-sm" onClick={() => this.props.emailDocument({ documentId })}>
+                                        <a className="btn btn-default btn-sm" onClick={() => this.props.emailDocuments({ documentIds: [documentId] })}>
                                             <i className="fa fa-send"/> Email
                                         </a>
                                         {this.props.documentSet.isOwner &&
@@ -173,7 +173,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
 const DocumentSetList = connect<{}, {}, UnconnectedDocumentSetListProps>(() => ({
         showNotFound: false
     }),
-    { emailDocument: showEmailDocumentModal, revokeSignInvitation, deleteDocument, deleteDocumentSet }
+    { emailDocuments: showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet }
 )(UnconnectedDocumentSetList);
 
 
@@ -249,7 +249,7 @@ export const PendingDocumentSets = connect((state: Sign.State) => ({
         return Object.keys(documentSets).filter((setId: string) => documentSets[setId].isOwner && documentSets[setId].documentIds.some(d => !statusComplete(documents[d].signStatus)))
     }
 }), {
-    showEmailDocumentModal, requestDocumentSets
+    showEmailDocumentsModal, requestDocumentSets
 })(UnconnectedBufferedDocumentSets);
 
 
@@ -263,7 +263,7 @@ export const CompletedDocumentSets = connect((state: Sign.State) => ({
         })
     }
 }), {
-    showEmailDocumentModal,  requestDocumentSets
+    showEmailDocumentsModal,  requestDocumentSets
 })(UnconnectedBufferedDocumentSets);
 
 export const DocumentSet = connect(
@@ -272,7 +272,7 @@ export const DocumentSet = connect(
         documentSet: state.documentSets[ownProps.params.documentSetId],
         documents: state.documents,
     }),
-    { showEmailDocumentModal, requestDocumentSets }
+    { showEmailDocumentsModal, requestDocumentSets }
 )(UnconnectedDocumentSet);
 
 export class AllDocumentSets extends React.PureComponent<DocumentSets>  {

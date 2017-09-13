@@ -376,14 +376,14 @@ export function updateSaveStatus(payload: Sign.Actions.UpdateSaveStatusPayload):
     }
 }
 
-export function showEmailDocumentModal(payload: Sign.Actions.ShowEmailDocumentModalPayload): Sign.Actions.ShowEmailDocumentModal {
+export function showEmailDocumentsModal(payload: Sign.Actions.ShowEmailDocumentsModalPayload): Sign.Actions.ShowEmailDocumentsModal {
     return {
         type: Sign.Actions.Types.SHOW_EMAIL_DOCUMENT_MODAL,
         payload
     }
 }
 
-export function emailDocument(payload: Sign.Actions.EmailDocumentPayload): Sign.Actions.EmailDocument {
+export function emailDocuments(payload: Sign.Actions.EmailDocumentsPayload): Sign.Actions.EmailDocuments {
     return {
         type: Sign.Actions.Types.EMAIL_DOCUMENT,
         payload

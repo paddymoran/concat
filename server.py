@@ -514,9 +514,10 @@ def get_usage():
 def verify_hash(doc_hash):
     return jsonify(db.signed_by(session.get('user_id', None), doc_hash))
 
-@app.route('/api/send_document', methods=['POST'])
+
+@app.route('/api/send_documents', methods=['POST'])
 @login_required
-def email_document():
+def email_documents():
     try:
         args = request.get_json()
 
@@ -531,12 +532,10 @@ def email_document():
             'sender_name': user_info['name'],
             'sender_email': user_info['email']
         }
-
-        document = db.get_document(session['user_id'], args['documentId'])
-
-        files = [
-            ('file', (document['filename'], BytesIO(document['data']), 'application/pdf'))
-        ]
+        files = []
+        for document_id in args['documentIds']:
+            document = db.get_document(session['user_id'], document_id)
+            files.append(('file', (document['filename'], BytesIO(document['data']), 'application/pdf')))
 
         response = requests.post(
             app.config.get('AUTH_SERVER') + '/mail/send-documents',

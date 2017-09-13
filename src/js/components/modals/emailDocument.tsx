@@ -1,69 +1,89 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Modal, ButtonToolbar, Button } from 'react-bootstrap';
-import { closeModal, emailDocument } from '../../actions';
+import { closeModal, emailDocuments } from '../../actions';
 import { InviteForm } from '../selectRecipients';
 import { submit } from 'redux-form';
 import Loading from '../loading';
 
-interface EmailDocumentProps {
-    documentId: string;
+interface EmailDocumentsProps {
+    documentIds: string[];
     status: Sign.DownloadStatus;
     closeModal: () => void;
     submit: () => void;
-    emailDocument: (payload: Sign.Actions.EmailDocumentPayload) => void;
+    emailDocuments: (payload: Sign.Actions.EmailDocumentsPayload) => void;
+    totalSize: number;
 }
 
-class EmailDocument extends React.PureComponent<EmailDocumentProps> {
-    constructor(props: EmailDocumentProps) {
+const MAX_SIZE = 20000000;
+
+class EmailDocuments extends React.PureComponent<EmailDocumentsProps> {
+    constructor(props: EmailDocumentsProps) {
         super(props);
         this.onSubmit = this.onSubmit.bind(this);
     }
 
     onSubmit(values: { recipients: Sign.Recipients }) {
-        this.props.emailDocument({
-            documentId: this.props.documentId,
+        this.props.emailDocuments({
+            documentIds: this.props.documentIds,
             recipients: values.recipients
         });
     }
 
+    renderBody() {
+        return <div>
+            {this.props.status === Sign.DownloadStatus.NotStarted && <InviteForm initialValues={{ recipients: [{}] }} onSubmit={this.onSubmit} />}
+            {this.props.status === Sign.DownloadStatus.InProgress && <Loading />}
+            {this.props.status === Sign.DownloadStatus.Complete &&
+                <div>
+                    <i className="fa fa-check modal-icon" aria-hidden="true"></i>
+
+                    <p className='text-center'>Document Sent!</p>
+                </div>
+            }
+            {this.props.status === Sign.DownloadStatus.Failed &&
+                <div>
+                    <i className="fa fa-exclamation modal-icon" aria-hidden="true"></i>
+
+                    <p className='text-center'>An error occurred, please close and try again.</p>
+                </div>
+            }
+
+        </div>
+    }
+
+    renderTooLarge() {
+        return  <div>
+                    <i className="fa fa-exclamation modal-icon" aria-hidden="true"></i>
+
+                    <p className='text-center'>Sorry, we can not send {this.props.documentIds.length > 1 ? 'files' : 'a file'} this large.</p>
+                </div>
+    }
+
     render() {
         let classes = '';
-
-        if (this.props.status === Sign.DownloadStatus.Complete || this.props.status === Sign.DownloadStatus.Failed) {
+        const valid = this.props.totalSize < MAX_SIZE;
+        if (this.props.status === Sign.DownloadStatus.Complete || this.props.status === Sign.DownloadStatus.Failed || !valid) {
             classes += ' icon-modal'
         }
 
         return (
             <Modal backdrop='static' show={true} onHide={this.props.closeModal} className={classes}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Email Document</Modal.Title>
+                    <Modal.Title>Email {this.props.documentIds.length > 1 ? 'Documents' : 'Document'}</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
-                    {this.props.status === Sign.DownloadStatus.NotStarted && <InviteForm initialValues={{ recipients: [{}] }} onSubmit={this.onSubmit} />}
-                    {this.props.status === Sign.DownloadStatus.InProgress && <Loading />}
-                    {this.props.status === Sign.DownloadStatus.Complete &&
-                        <div>
-                            <i className="fa fa-check modal-icon" aria-hidden="true"></i>
 
-                            <p className='text-center'>Document Sent!</p>
-                        </div>
-                    }
-                    {this.props.status === Sign.DownloadStatus.Failed &&
-                        <div>
-                            <i className="fa fa-exclamation modal-icon" aria-hidden="true"></i>
-
-                            <p className='text-center'>An error occurred, please close and try again.</p>
-                        </div>
-                    }
+                { valid && this.renderBody() }
+                { !valid && this.renderTooLarge() }
 
                 </Modal.Body>
 
                 <Modal.Footer>
                     <ButtonToolbar className="pull-right">
                         <Button onClick={this.props.closeModal}>Close</Button>
-                        {this.props.status === Sign.DownloadStatus.NotStarted && <Button bsStyle="primary" onClick={this.props.submit}>Send</Button>}
+                        { valid && this.props.status === Sign.DownloadStatus.NotStarted && <Button bsStyle="primary" onClick={this.props.submit}>Send</Button>}
                     </ButtonToolbar>
                 </Modal.Footer>
             </Modal>
@@ -73,12 +93,15 @@ class EmailDocument extends React.PureComponent<EmailDocumentProps> {
 
 export default connect(
     (state: Sign.State) => ({
-        documentId: state.modals.documentId,
+        documentIds: state.modals.documentIds,
         status: state.modals.status,
+        totalSize: state.modals.documentIds.reduce((size: number, documentId: string) => {
+             return size + (state.documents[documentId].size || 0)
+        }, 0)
     }),
     {
-        emailDocument,
+        emailDocuments,
         submit: () => submit(Sign.FormName.RECIPIENTS),
         closeModal: () => closeModal({ modalName: Sign.ModalType.EMAIL_DOCUMENT })
     }
-)(EmailDocument)
+)(EmailDocuments)

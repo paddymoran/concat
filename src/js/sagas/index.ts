@@ -299,13 +299,13 @@ function *requestRequestedSignaturesSaga() {
 }
 
 function *emailDocumentSaga() {
-    yield takeEvery(Sign.Actions.Types.EMAIL_DOCUMENT, emailDocument);
+    yield takeEvery(Sign.Actions.Types.EMAIL_DOCUMENT, emailDocuments);
 
-    function *emailDocument(action: Sign.Actions.EmailDocument) {
+    function *emailDocuments(action: Sign.Actions.EmailDocuments) {
         yield put(updateModalData({ status: Sign.DownloadStatus.InProgress }));
 
         try {
-            yield call(axios.post, '/api/send_document', { documentId: action.payload.documentId, recipients: action.payload.recipients });
+            yield call(axios.post, '/api/send_documents', { documentIds: action.payload.documentIds, recipients: action.payload.recipients });
             yield put(updateModalData({ status: Sign.DownloadStatus.Complete }));
         }
         catch (e) {

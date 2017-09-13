@@ -821,13 +821,13 @@ declare namespace Sign.Actions {
         status: Sign.SaveStatus;
     }
 
-    interface EmailDocumentPayload {
-        documentId: string;
+    interface EmailDocumentsPayload {
+        documentIds: string[];
         recipients: Sign.Recipients;
     }
 
-    interface ShowEmailDocumentModalPayload {
-        documentId: string;
+    interface ShowEmailDocumentsModalPayload {
+        documentIds: string[];
     }
 
     interface UpdateModalDataPayload {
@@ -963,7 +963,7 @@ declare namespace Sign.Actions {
     interface ShowSignConfirmationModal extends ActionCreator<ShowSignConfirmationModalPayload> {}
     interface ShowFailureModal extends ActionCreator<ShowFailureModalPayload> {}
     interface ShowInviteModal extends ActionCreator<ShowInviteModalPayload> {}
-    interface ShowEmailDocumentModal extends ActionCreator<ShowEmailDocumentModalPayload> {}
+    interface ShowEmailDocumentsModal extends ActionCreator<ShowEmailDocumentsModalPayload> {}
     interface ShowActivateControlModal extends ActionCreator<ShowActivateControlModalPayload> {}
     interface ConfirmAction<T> extends ActionCreator<ConfirmActionPayload<T>> {}
 
@@ -976,7 +976,7 @@ declare namespace Sign.Actions {
     interface SaveDocumentView extends ActionCreator<SaveDocumentViewPayload> {}
     interface UpdateSaveStatus extends ActionCreator<UpdateSaveStatusPayload> {}
 
-    interface EmailDocument extends ActionCreator<EmailDocumentPayload> {}
+    interface EmailDocuments extends ActionCreator<EmailDocumentsPayload> {}
 
     interface ToggleToSignShowComplete extends Action {}
     interface SetSaveStatus extends ActionCreator<SetSaveStatusPayload> {}

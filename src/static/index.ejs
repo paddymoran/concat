@@ -9,6 +9,9 @@
     </head>
 
     <body>
+        <script type="application/json" id="data">
+        {{ store|tojson|safe }}
+        </script>
         <div id="main"></div>
 
         <div class="ribbon-wrapper">

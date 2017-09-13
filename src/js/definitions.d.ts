@@ -65,11 +65,18 @@ declare namespace Sign {
     }
 
 
-
     interface User {
         name: string;
         user_id: number;
         email?: string;
+    }
+
+    interface CurrentUser {
+        name?: string;
+        userId?: number;
+        email?: string;
+        emailVerified?: boolean;
+        subscribed?: boolean;
     }
 
 
@@ -281,6 +288,7 @@ declare namespace Sign {
         contacts: Contacts;
         usage: Usage;
         verifications: Verifications;
+        user: CurrentUser;
     }
 
     interface ToSignPage {

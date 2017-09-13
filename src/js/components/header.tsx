@@ -32,7 +32,7 @@ export class AccountControls extends React.PureComponent {
 }
 
 
-export default class Header extends React.PureComponent {
+export class Header extends React.PureComponent {
     render() {
         return (
             <Navbar collapseOnSelect>
@@ -51,6 +51,32 @@ export default class Header extends React.PureComponent {
                         <li><Link to='/all' activeClassName="active">Documents</Link></li>
                         <li><Link to='/verify' activeClassName="active">Verify</Link></li>
                         <AccountControls />
+                    </ul>
+                </Navbar.Collapse>
+            </Navbar>
+        );
+    }
+}
+
+
+
+export class HeaderPublic extends React.PureComponent {
+    render() {
+        return (
+            <Navbar collapseOnSelect>
+                <Navbar.Header>
+                    <Navbar.Brand>
+                        <Navbar.Toggle />
+                        <Link to="/" >
+                            <img src="/images/catalex-sign-sml.png" alt="CataLex Sign"/>
+                        </Link>
+                    </Navbar.Brand>
+                </Navbar.Header>
+
+                <Navbar.Collapse>
+                    <ul className="nav navbar-nav navbar-right">
+                        <li><Link to='/verify' activeClassName="active">Verify</Link></li>
+                        <li><a href="https://users.catalex.nz">Sign In</a></li>
                     </ul>
                 </Navbar.Collapse>
             </Navbar>

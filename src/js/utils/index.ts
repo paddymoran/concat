@@ -160,3 +160,25 @@ export function getNextDocument(documentIds: string[], documents: Sign.DocumentV
         return needsSigned;
     });
 }
+
+
+export function formatUsage(data: any) : Sign.Usage {
+    return {
+        status: Sign.DownloadStatus.Complete,
+        amountPerUnit: data.amount_per_unit,
+        maxAllowanceReached: data.max_allowance_reached,
+        requestedThisUnit: data.requested_this_unit,
+        signedThisUnit: data.signed_this_unit,
+        unit: data.unit
+    }
+}
+
+export function formatUser(data: any) : Sign.CurrentUser {
+    return {
+        userId: data.user_id,
+        name: data.name,
+        email: data.email,
+        emailVerified: data.email_verified,
+        subscribed: data.subscribed
+    }
+}

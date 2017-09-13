@@ -16,6 +16,7 @@ import toSignPage from './toSignPage';
 import contacts from './contacts';
 import usage from './usage';
 import verifications from './verifications';
+import user from './user'
 
 
 const appReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
@@ -35,7 +36,8 @@ const appReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     toSignPage,
     contacts,
     usage,
-    verifications
+    verifications,
+    user
 });
 
 const rootReducer = (state : Sign.State, action: any) => {

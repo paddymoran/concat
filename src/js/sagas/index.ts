@@ -12,6 +12,7 @@ import signatureSagas from './signatureSagas';
 import documentViewerSagas from './documentViewerSagas';
 import documentSagas from './documents';
 import verificationsSagas from './verifications';
+import { formatUsage } from '../utils'
 
 
 function shouldFetch(status: Sign.DownloadStatus){
@@ -367,14 +368,7 @@ function *requestUsageSaga() {
             const response: UsageResponse = yield call(axios.get, '/api/usage');
 
 
-            yield put(updateUsage({
-                status: Sign.DownloadStatus.Complete,
-                amountPerUnit: response.data.amount_per_unit,
-                maxAllowanceReached: response.data.max_allowance_reached,
-                requestedThisUnit: response.data.requested_this_unit,
-                signedThisUnit: response.data.signed_this_unit,
-                unit: response.data.unit
-            }));
+            yield put(updateUsage(formatUsage(response.data)));
         }
         catch (e) {
             yield put(updateUsage({ status: Sign.DownloadStatus.Failed }));

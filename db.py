@@ -290,10 +290,10 @@ def get_user_info(user_id):
     database = get_db()
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         query = """
-            SELECT user_id, name, email from users where user_id = %(user_id)s
+            SELECT user_id, name, email, email_verified, subscribed from users where user_id = %(user_id)s
         """
         cursor.execute(query, {'user_id': user_id})
-        return cursor.fetchone()
+        return dict(cursor.fetchone())
 
 
 def get_user_document_sets(user_id):

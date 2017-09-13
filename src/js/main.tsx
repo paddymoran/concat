@@ -5,8 +5,24 @@ import Root from "./root";
 import configureStore from './configureStore';
 import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
+import { formatUsage, formatUser } from './utils'
 
-const store = configureStore(browserHistory);
+let data : any = {};
+
+try{
+    const input : any = JSON.parse(document.getElementById("data").textContent)
+    if(input.usage){
+        data.usage = formatUsage(input.usage)
+    }
+    if(input.user){
+        data.user = formatUser(input.user)
+    }
+
+}catch(e){
+    //do nothing
+}
+
+const store = configureStore(browserHistory, data);
 const history = syncHistoryWithStore(browserHistory, store);
 
 ReactDOM.render(

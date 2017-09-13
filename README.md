@@ -44,11 +44,14 @@ curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 
 
 sudo service apache2 stop
+sudo apt-get install software-properties-common
+sudo add-apt-repository ppa:certbot/certbot
 sudo apt-get update
-sudo apt-get install -y git nodejs libjpeg-dev npm python3-pip python3-psycopg2 python3-dev imagemagick ghostscript python-dev build-essential libfreetype6 libfreetype6-dev postgresql postgresql-contrib nginx libpq-dev
+
+sudo apt-get install -y git nodejs python-certbot-nginx libjpeg-dev npm python3-pip python3-psycopg2 python3-dev imagemagick ghostscript python-dev build-essential libfreetype6 libfreetype6-dev postgresql postgresql-contrib nginx libpq-dev
 sudo pip3 install --upgrade pip
 sudo pip3 install virtualenv
-sudo npm install -g npm
+sudo npm install -g npm webpack
 sudo adduser --disabled-password sign
 
 sudo touch /var/log/sign.log
@@ -108,6 +111,15 @@ server {
         root /var/www/sign/src/static;
         rewrite ^(.*)$ /maintenance.html break;
     }
+     gzip on;
+     gzip_disable "msie6";
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 9;
+    gzip_buffers 16 8k;
+    gzip_http_version 1.1;
+    gzip_types text/plain text/css application/json application/x-font-woff application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript;
+
 }
 """
 
@@ -141,7 +153,11 @@ threads = 2
 logto = /var/log/sign.log
 #virtualenv = /var/www/sign/
 #pp = /var/www/sign/bin/python
-
+wsgi-disable-file-wrapper = true
 # set chdir for production
 chdir = /var/www/sign
 """
+
+
+
+sudo certbot --nginx

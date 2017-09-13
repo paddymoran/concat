@@ -10,6 +10,7 @@ interface StatusBarProps {
 }
 
 interface ConnectedStatusBarProps extends StatusBarProps{
+    emailVerified: boolean;
     requestUsage: () => void;
     requestRequestedSignatures: () => void;
     usage: Sign.Usage;
@@ -46,21 +47,39 @@ class StatusBar extends React.PureComponent<ConnectedStatusBarProps> {
         }
     }
 
+    renderVerifyEmail() {
+        return <span  className="status-message">For security, you should verify your email address. Click <a href='/verify_email'>here</a> here for more information.</span>
+    }
+
     render() {
         return <div className="status-bar">
         <div className="container">
             { this.props.usage.status === Sign.DownloadStatus.Complete && this.renderUsage() }
             { this.props.requestedSignatures.downloadStatus === Sign.DownloadStatus.Complete && this.renderRequested() }
+            { !this.props.emailVerified && this.renderVerifyEmail() }
         </div>
         </div>
     }
 }
 
 
+export class PublicStatusBar extends React.PureComponent<{}> {
+    render() {
+        return <div className="status-bar">
+        <div className="container">
+              <span  className="status-message">Try CataLex Sign for free today, click <a href="/signup">here</a> to sign in.</span >
+        </div>
+        </div>
+    }
+
+}
+
+
 export default connect<{}, {}, StatusBarProps>((state: Sign.State) => ({
     usage: state.usage,
+    emailVerified: state.user.emailVerified,
     requestedSignatures: state.requestedSignatures,
-    documents: state.documents
+    documents: state.documents,
 }), {
     requestUsage, requestRequestedSignatures
 })(StatusBar)

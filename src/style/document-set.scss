@@ -26,11 +26,21 @@
 
     ul {
         list-style-type: none;
-        padding-left: 12px;
+        padding-left: 0;
+        margin-top: 4px;
 
         li {
             font-size: 1.1em;
             line-height: 1.5em;
+
+            a {
+                display: block;
+                padding: 4px 16px;
+
+                &.active {
+                    font-weight: bold;
+                }
+            }
         }
     }
 }

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { requestRequestedSignatures, toggleToSignShowComplete } from '../actions';
 import * as moment from 'moment';
-import { stringToDateTime } from '../utils';
+import { stringToDateTime, fileSize } from '../utils';
 import { Link } from 'react-router';
 import { Checkbox } from 'react-bootstrap';
 
@@ -80,7 +80,7 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                                       <i className="fa fa-file-pdf-o" />
                                       </td>
                                   <td className="filename">
-                                      {document.filename}
+                                      {document.filename} ({fileSize(document.size)})
                                   </td>
                                   <td className="file-controls">
                                         { showLink && <Link className="btn btn-primary btn-sm" to={`/sign/${this.props.documentSetId}/${documentId}`}><i className="fa fa-pencil-square-o"/>Review & Sign</Link> }

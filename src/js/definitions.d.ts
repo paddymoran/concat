@@ -54,7 +54,8 @@ declare namespace Sign {
         pageViewports?: Viewport[];
         signRequestId: number;
         signStatus?:  SignStatus;
-        signatureRequestInfos?: SignatureRequestInfos
+        signatureRequestInfos?: SignatureRequestInfos,
+        size?: number;
     }
 
 
@@ -93,6 +94,7 @@ declare namespace Sign {
         createdAt?: string;
         owner?: User,
         isOwner?: boolean;
+        size?: number;
     }
 
     interface DocumentSets {
@@ -603,6 +605,7 @@ declare namespace Sign.Actions {
         isOwner?: boolean;
         documents?: Sign.Document[],
         downloadStatus?: Sign.DownloadStatus;
+        size?: number;
     }
 
     interface DocumentSetsPayload {

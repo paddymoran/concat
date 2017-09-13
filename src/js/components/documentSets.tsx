@@ -4,7 +4,7 @@ import { requestDocumentSets, showEmailDocumentModal, revokeSignInvitation, dele
 import * as moment from 'moment';
 import { Link } from 'react-router';
 import { Nav, NavItem } from 'react-bootstrap';
-import { stringToDateTime } from '../utils';
+import { stringToDateTime, fileSize } from '../utils';
 import { SignStatus } from './requestedSignatures';
 
 
@@ -85,7 +85,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                         <i className="fa fa-file-pdf-o" />
                                     </td>
 
-                                    <td className="filename">{document.filename}</td>
+                                    <td className="filename">{document.filename} ({fileSize(document.size)})</td>
 
                                     <td className="file-controls">
                                         <a className="btn btn-default btn-sm" target="_blank" href={`/api/document/${documentId}`}>

@@ -143,7 +143,15 @@ function formatRequests(r: any) : Sign.SignatureRequestInfos {
 
 
 function formatDocument(d: any){
-    return {documentId: d.document_id, createdAt: d.created_at, filename: d.filename, versions: d.versions, signStatus: d.sign_status, signatureRequestInfos: formatRequests(d.request_info)};
+    return {
+        documentId: d.document_id,
+        createdAt: d.created_at,
+        filename: d.filename,
+        versions: d.versions,
+        signStatus: d.sign_status,
+        signatureRequestInfos: formatRequests(d.request_info),
+        size: d.size
+    };
 }
 
 function formatDocumentSet(d: any): Sign.Actions.DocumentSetPayload {
@@ -154,6 +162,7 @@ function formatDocumentSet(d: any): Sign.Actions.DocumentSetPayload {
         isOwner: d.is_owner,
         documents: (d.documents || []).map(formatDocument),
         downloadStatus: Sign.DownloadStatus.Complete,
+        size: d.size
     };
 }
 
@@ -277,7 +286,8 @@ function *requestRequestedSignaturesSaga() {
                     return {...p, documentId: d.document_id}
                 }),
                 signRequestId: d.sign_request_id,
-                signStatus: d.sign_status
+                signStatus: d.sign_status,
+                size: d.size
             }))
         }));
 

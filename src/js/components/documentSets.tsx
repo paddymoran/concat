@@ -62,7 +62,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
         }
         const documentSetLabel = stringToDateTime(this.props.documentSet.createdAt);
         const hasDownloadAll =  this.props.showDownloadAll && this.props.documentSet.documentIds.length > 1;
-        const hasDeleteAll =  this.props.documentSet.isOwner
+        const hasDeleteAll =  this.props.documentSet.isOwner && this.props.documentSet.documentIds.length > 1;
         const hasSetControls = hasDownloadAll || hasDeleteAll;
 
         return (

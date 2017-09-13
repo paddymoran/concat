@@ -61,19 +61,20 @@
     }
 
     .remove{
-         position: absolute;
+        position: absolute;
         right: 10px;
         background-color: #666;
         top: 10px;
         border: none;
-        border-radius: 8px;
-        width: 29px;
+        border-radius: 16px;
+        width: 30px;
         cursor: pointer;
         color: white;
-        display:none;
+        line-height: 30px;
+        font-size: 20px;
     }
     &:hover .remove{
-        display:block;
+         background-color: #333;
     }
 
 }

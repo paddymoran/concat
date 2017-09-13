@@ -13,12 +13,17 @@ export default function configureStore(history :any, initialState={}) {
 const loggerMiddleware = createLogger();
 const sagaMiddleware = createSagaMiddleware();
 
-    const middleware = applyMiddleware(
+
+    const middleware =  DEV ?  applyMiddleware(
         sagaMiddleware,
         <any>thunk.default,
         loggerMiddleware,
         routerMiddleware(history)
-    );
+    ) : applyMiddleware(
+        sagaMiddleware,
+        <any>thunk.default,
+        routerMiddleware(history)
+    )
 
     const createStoreWithMiddleware = compose(middleware)(createStore);
     const store = createStoreWithMiddleware(rootReducer, initialState);

@@ -1,3 +1,6 @@
+
+declare let DEV : boolean;
+
 declare namespace Sign {
     interface Viewport {
         width: number,

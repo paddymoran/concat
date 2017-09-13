@@ -1,12 +1,12 @@
 from __future__ import print_function
-from functools import wraps
+from functools import wraps, update_wrapper
 import errno
 import logging
 import json
 import sys
 from flask import (
     Flask, request, redirect, send_file, jsonify, session, abort, url_for,
-    send_from_directory, Response, render_template
+    send_from_directory, Response, render_template, make_response
 )
 import db
 import requests
@@ -23,6 +23,7 @@ from base64 import b64decode
 from urllib.parse import urlparse
 import zipfile
 from dateutil.parser import parse
+from datetime import datetime
 try:
     from subprocess import DEVNULL  # py3k
 except ImportError:
@@ -267,6 +268,17 @@ def login_required(f):
     return decorated_function
 
 
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Last-Modified'] = datetime.now()
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        return response
+
+    return update_wrapper(no_cache, view)
 
 @app.route('/api/documents', methods=['GET'])
 @login_required
@@ -633,7 +645,7 @@ def logout():
     session.clear()
     return redirect(app.config.get('USER_LOGOUT_URL'))
 
-
+@nocache
 def render_root():
     return render_template('index.html', store={'user': get_user_info(), 'usage': get_user_usage()})
 

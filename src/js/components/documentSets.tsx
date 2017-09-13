@@ -56,7 +56,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
     render() {
         if(!this.props.documentSet || !this.props.documentSet.documentIds.length){
             if(this.props.showNotFound) {
-                return <p className="text-center">This document set does not exist.</p>
+                return <p >This document set does not exist.</p>
             }
             return false;
         }

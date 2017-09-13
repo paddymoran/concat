@@ -4,6 +4,7 @@
         .document-set-title {
             font-weight: 700;
             border-bottom: 1px solid $gray-lighter;
+            color: $gray-dark;
         }
 
         margin-bottom: 2em;
@@ -55,6 +56,9 @@
 
         .file-controls{
             text-align:right;
+            @media(min-width: $screen-md-min) {
+                min-width: 300px;
+            }
         }
     }
 }

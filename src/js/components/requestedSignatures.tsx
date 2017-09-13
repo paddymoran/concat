@@ -133,7 +133,7 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
                        You must verify your email address before you can respond to a sign request.  Click <a href='/verify_email'>here</a> here for more information.
                 </div>  }
 
-                { docSetKeys.length === 0 && <p className="text-center">No { this.props.title } signature requests.</p> }
+                { docSetKeys.length === 0 && <p>No { this.props.title } signature requests.</p> }
 
                 {docSetKeys.map((documentSetId: string, index: number) =>
                     <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={docSets[documentSetId]} showLink={hasEmailVerified} />

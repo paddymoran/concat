@@ -111,5 +111,8 @@ class Integration(DBTestCase):
         pass
 
 
+def test_0008_revoke_requests(self):
+    # revoke some requests or sometthing
+    pass
 
 

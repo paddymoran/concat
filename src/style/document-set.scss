@@ -13,3 +13,24 @@
         width: 120px;
     }
 }
+
+.documents-nav {
+    .documents-nav-section {
+        margin-bottom: 24px;
+    }
+
+    .documents-nav-title {
+        font-weight: 400;
+        font-size: 1.2em;
+    }
+
+    ul {
+        list-style-type: none;
+        padding-left: 12px;
+
+        li {
+            font-size: 1.1em;
+            line-height: 1.5em;
+        }
+    }
+}

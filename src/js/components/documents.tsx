@@ -9,22 +9,21 @@ export default class Documents extends React.PureComponent {
 
                 <div className="row">
                     <div className="col-sm-3 documents-nav">
-                        <ul>
-                            <li>
-                                <ul>
-                                    <li>Requested Signatures</li>
-                                    <li><Link to="/to_sign"  activeClassName="active">To Sign</Link></li>
-                                    <li><Link to="/signed"  activeClassName="active">Completed</Link></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <ul>
-                                    <li>My Documents</li>
-                                    <li><Link to="/pending"  activeClassName="active">Waiting on Others</Link></li>
-                                    <li><Link to="/completed"  activeClassName="active">Completed</Link></li>
-                                </ul>
-                            </li>
-                        </ul>
+                        <div className="documents-nav-section">
+                            <div className="documents-nav-title">Requested Signatures</div>
+                            <ul>
+                                <li><Link to="/to_sign"  activeClassName="active">To Sign</Link></li>
+                                <li><Link to="/signed"  activeClassName="active">Completed</Link></li>
+                            </ul>
+                        </div>
+
+                        <div className="documents-nav-section">
+                            <div className="documents-nav-title">My Documents</div>
+                            <ul>
+                                <li><Link to="/pending"  activeClassName="active">Waiting on Others</Link></li>
+                                <li><Link to="/completed"  activeClassName="active">Completed</Link></li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div className="col-sm-9">

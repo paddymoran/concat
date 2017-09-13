@@ -4,7 +4,7 @@ import App, { RequiresLogin, ContainerWithStatusBar } from '../components/app';
 import DocumentView, { RequestedDocumentView }  from '../components/documentView';
 import { UploadDocumentsWithDocumentSetId } from '../components/uploadDocuments';
 import { CompletedDocumentSets, PendingDocumentSets, AllDocumentSets, DocumentSet } from '../components/documentSets';
-import RequestedSignatures from '../components/requestedSignatures';
+import { RequestedSignaturesPending, RequestedSignaturesComplete } from '../components/requestedSignatures';
 import NotFound from '../components/notFound';
 import Documents from '../components/documents';
 import Verify from '../components/verify';
@@ -23,7 +23,8 @@ export default () => {
                     <IndexRoute component={UploadDocumentsWithDocumentSetId} />
                     <Route component={Documents}>
                         <Route path='all' component={ AllDocumentSets } />
-                        <Route path='to_sign' component={ RequestedSignatures } />
+                        <Route path='to_sign' component={ RequestedSignaturesPending } />
+                        <Route path='signed' component={ RequestedSignaturesComplete } />
                         <Route path='pending' component={ PendingDocumentSets } />
                         <Route path='completed' component={ CompletedDocumentSets  } />
                         <Route path='documents/:documentSetId' component={ DocumentSet } />

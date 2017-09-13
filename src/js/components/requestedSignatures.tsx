@@ -12,8 +12,16 @@ export function getNonCompletedRequestKeys(requestedSignatures: Sign.RequestedSi
     let docSetKeys = Object.keys(documentSets);
     return  docSetKeys.filter((key: string) => {
         const docSet = documentSets[key];
-        const setComplete = Object.keys(docSet).every(docKey => documents[docKey].signStatus != Sign.SignStatus.PENDING)
-        return !setComplete;
+        return  Object.keys(docSet).some(docKey => documents[docKey].signStatus === Sign.SignStatus.PENDING)
+    });
+}
+
+export function getCompletedRequestKeys(requestedSignatures: Sign.RequestedSignatures, documents: Sign.Documents ) {
+    const documentSets = requestedSignatures.documentSets;
+    let docSetKeys = Object.keys(documentSets);
+    return  docSetKeys.filter((key: string) => {
+        const docSet = documentSets[key];
+       return  Object.keys(docSet).every(docKey => documents[docKey].signStatus != Sign.SignStatus.PENDING)
     });
 }
 
@@ -26,6 +34,7 @@ interface RequestedSignatureProps {
     };
     toggleShowComplete: () => void;
     hasEmailVerified: boolean;
+    title: string;
 }
 
 interface RequestedSignatureDocumentSetProps {
@@ -112,9 +121,10 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
         const docSets = this.props.requestedSignatures.documentSets;
         let docSetKeys = Object.keys(docSets);
         if (!this.props.showComplete) {
-
-        // Filter out complete document sets - if needed
             docSetKeys = getNonCompletedRequestKeys(this.props.requestedSignatures, this.props.documents);
+        }
+        else{
+            docSetKeys = getCompletedRequestKeys(this.props.requestedSignatures, this.props.documents);
         }
         return (
 
@@ -122,11 +132,8 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
                { !hasEmailVerified && <div className="alert alert-danger">
                        You must verify your email address before you can respond to a sign request.  Click <a href='/verify_email'>here</a> here for more information.
                 </div>  }
-                <Checkbox onChange={this.props.toggleShowComplete} checked={this.props.showComplete}>Show completed document sets</Checkbox>
 
-                <hr />
-
-                { docSetKeys.length === 0 && <p className="text-center">No pending signature requests.</p> }
+                { docSetKeys.length === 0 && <p className="text-center">No { this.props.title } signature requests.</p> }
 
                 {docSetKeys.map((documentSetId: string, index: number) =>
                     <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={docSets[documentSetId]} showLink={hasEmailVerified} />
@@ -136,17 +143,26 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
     }
 }
 
-const ConnectedRequestedSignature = connect((state: Sign.State) => ({
+export const RequestedSignaturesPending = connect((state: Sign.State) => ({
     requestedSignatures: state.requestedSignatures,
     documents: state.documents,
     hasEmailVerified: state.user.emailVerified,
-    showComplete: state.toSignPage.showComplete
+    showComplete: false,
+    title: 'pending'
 }), {
     requestRequestedSignatures,
     toggleShowComplete: toggleToSignShowComplete
 })(RequestedSignatures);
 
 
+export const RequestedSignaturesComplete = connect((state: Sign.State) => ({
+    requestedSignatures: state.requestedSignatures,
+    documents: state.documents,
+    hasEmailVerified: state.user.emailVerified,
+    showComplete: true,
+    title: 'completed'
+}), {
+    requestRequestedSignatures,
+    toggleShowComplete: toggleToSignShowComplete
+})(RequestedSignatures);
 
-
-export default ConnectedRequestedSignature;

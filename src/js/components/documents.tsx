@@ -9,10 +9,10 @@ export default class Documents extends React.PureComponent {
 
                 <div className="center-nav-pills">
                     <ul className="nav nav-pills">
-                        <li><Link to="/all" activeClassName="active">All</Link></li>
-                        <li><Link to="/to_sign"  activeClassName="active">To Sign</Link></li>
-                        <li><Link to="/pending"  activeClassName="active">Pending</Link></li>
-                        <li><Link to="/completed"  activeClassName="active">Completed</Link></li>
+                        <li><Link to="/to_sign"  activeClassName="active">For Me to Sign</Link></li>
+                        <li><Link to="/signed"  activeClassName="active">Signed For Others</Link></li>
+                        <li><Link to="/pending"  activeClassName="active">My Pending Documents</Link></li>
+                        <li><Link to="/completed"  activeClassName="active">My Completed Documents</Link></li>
                     </ul>
                 </div>
 

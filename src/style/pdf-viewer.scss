@@ -234,6 +234,9 @@ $submit-control-hover-background: darken($submit-control-background, 8%);
                 &.loaded{
                     box-shadow:0 0 10px 2px rgba(0, 0, 0, 0.3);
                 }
+                .loading{
+                    font-size: 30px
+                }
             }
 
         .pdf-page-number{

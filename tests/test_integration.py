@@ -12,6 +12,9 @@ from io import BytesIO
 
 USER_ID = 1
 
+SIGNATURE_USER_ID = 2
+SIGNATURE_STEALER_ID = 3
+
 class Integration(DBTestCase):
 
     def setUp(self):
@@ -24,7 +27,25 @@ class Integration(DBTestCase):
                         'email': 'testuser@email.com',
                         'subscribed': True
                         })
+            upsert_user({
+                        'user_id': SIGNATURE_USER_ID,
+                        'name': 'siggy',
+                        'email': 'siggy@email.com',
+                        'subscribed': True
+                        })
+            upsert_user({
+                        'user_id': SIGNATURE_STEALER_ID,
+                        'name': 'siggy stealer',
+                        'email': 'siggystealer@email.com',
+                        'subscribed': True
+                        })
 
+
+
+    def login(self, user_id):
+         with self.app.session_transaction() as sess:
+            # Modify the session in this context block.
+            sess["user_id"] = user_id
 
     def test_0001_protected_routes(self):
         index = self.app.get('/')
@@ -39,13 +60,16 @@ class Integration(DBTestCase):
         upload = self.app.post('/api/documents')
         self.assertEqual(upload.status_code, 401)
 
-        with self.app.session_transaction() as sess:
-            # Modify the session in this context block.
-            sess["user_id"] = USER_ID
+        self.login(USER_ID)
 
         # now logged in
         index = self.app.get('/')
         self.assertEqual(index.status_code, 200)
+
+        self.app.get('/logout')
+        index = self.app.get('/')
+        # root does redirect
+        self.assertEqual(index.status_code, 302)
 
 
     def test_0002_upload_document_set(self):
@@ -134,11 +158,11 @@ class Integration(DBTestCase):
         # confirm cannot request that signature
         # confirm cannot sign with that signature
         # confirm cannot delete that signature
-        pass
+        self.login(SIGNATURE_USER_ID)
+
 
 
     def test_0008_revoke_requests(self):
         # revoke some requests or sometthing
         pass
-
 

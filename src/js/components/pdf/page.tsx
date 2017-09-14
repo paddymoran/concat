@@ -66,8 +66,7 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
             }
             return <Loading />;
         }
-
-        return <span className={this.props.className || ''}>
+        return <span className={this.props.className || ''} style={{height: '100%', display: 'block', width: '100%'}}>
             <div ref="loading" className="loading-container"><Loading /></div>
             <canvas style={{display: 'none'}} key={this._count++}  ref={(ref) => {
                   if (!ref) return;
@@ -81,7 +80,8 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
                     .then(() => {
                         const element = (findDOMNode(this.refs.loading) as HTMLElement);
                         if(element){
-                            (findDOMNode(this.refs.loading) as HTMLElement).style.display = 'none';
+                            const el = (findDOMNode(this.refs.loading) as HTMLElement);
+                            el.className += " finished";
                             canvas.style.display= 'block';
                         }
                     });

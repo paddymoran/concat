@@ -1,6 +1,8 @@
 dist: trusty
 
 language: python
+node_js:
+  - "6.9.1"
 
 python:
   - 3.5
@@ -11,5 +13,8 @@ addons:
 before_install:
   - psql -c 'create database catalex_sign_test;' -U postgres
 
-install: python setup.py install
+install:
+  - python setup.py install
+  - npm install
+  - webpack
 script: CONFIG_FILE=config_test.py python -m unittest discover

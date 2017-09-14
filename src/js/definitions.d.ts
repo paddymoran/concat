@@ -48,6 +48,7 @@ declare namespace Sign {
         file: File;
         data: ArrayBuffer;
         uploadStatus: DocumentUploadStatus;
+        downloadProgress: number;
         readStatus: DocumentReadStatus;
         progress?: number;
         pageCount?: number;
@@ -565,6 +566,7 @@ declare namespace Sign.Actions {
         filename?: string;
         progress?: number;
         pageViewports?: Sign.Viewport[];
+        downloadProgress?: number;
     }
 
     interface FinishAddPDFToStoreActionPayload {

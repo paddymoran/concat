@@ -89,9 +89,7 @@ class Integration(DBTestCase):
             data = { 'file[]': file, 'document_id': doc_id, 'document_set_id': set_id }
             self.app.post('/api/documents', data=data, content_type='multipart/form-data')
 
-        with self.app.session_transaction() as sess:
-            # Modify the session in this context block.
-            sess["user_id"] = USER_ID
+        self.login(USER_ID)
 
         document_set_id = str(uuid4())
         document_ids = [str(uuid4()), str(uuid4()), str(uuid4()), str(uuid4())]

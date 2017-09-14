@@ -43,6 +43,18 @@ class Integration(DBTestCase):
                         'email': 'siggystealer@email.com',
                         'subscribed': True
                         })
+            upsert_user({
+                        'user_id': UPLOAD_DOC_USER_ID,
+                        'name': 'asdf asdf',
+                        'email': 'asdf@email.com',
+                        'subscribed': True
+                        })
+            upsert_user({
+                        'user_id': SIGN_AND_VERIFY_USER_ID,
+                        'name': 'qweqwe',
+                        'email': 'qweqwe@email.com',
+                        'subscribed': True
+                        })
 
 
 
@@ -54,7 +66,6 @@ class Integration(DBTestCase):
     def doc_count(self):
             response = self.app.get('/api/documents')
             data = json.loads(response.get_data(as_text=True))
-            print(data)
 
             if not data:
                 return 0
@@ -63,7 +74,7 @@ class Integration(DBTestCase):
 
     def upload_doc(self, doc_id, set_id, file):
         data = { 'file[]': file, 'document_id': doc_id, 'document_set_id': set_id }
-        self.app.post('/api/documents', data=data, content_type='multipart/form-data')
+        resp = self.app.post('/api/documents', data=data, content_type='multipart/form-data')
 
     def test_0001_protected_routes(self):
         index = self.app.get('/')

@@ -53,21 +53,23 @@ class DocumentView extends React.PureComponent<ConnectedDocumentViewProps> {
     render() {
         return this.props.connectDragSource(
             this.props.connectDropTarget(
-                <div className="document">
-                {this.props.showRemove && <button className="button-no-styles remove" onClick={this.removeDocument}><span className="fa fa-trash-o"/></button>}
+                <div className="document-wrapper">
+                    <div className="document">
+                    {this.props.showRemove && <button className="button-no-styles remove" onClick={this.removeDocument}><span className="fa fa-trash-o"/></button>}
 
-                    <PDFPage pageNumber={0} drawWidth={THUMBNAIL_WIDTH} documentId={this.props.documentId} showLoading={false}/>
-                    <div className="filename">{ this.props.document && this.props.document.filename ? this.props.document.filename : '' }</div>
+                        <PDFPage pageNumber={0} drawWidth={THUMBNAIL_WIDTH} documentId={this.props.documentId} showLoading={false}/>
+                        <div className="filename">{ this.props.document && this.props.document.filename ? this.props.document.filename : '' }</div>
 
-                    <CSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                        { this.props.document && this.props.document.uploadStatus === Sign.DocumentUploadStatus.InProgress &&
-                            <div className="progress" key="progress">
-                                <div className="progress-bar progress-bar-striped active" style={{width: `${this.props.document.progress*100}%`}}></div>
-                            </div>
-                        }
-                    </CSSTransitionGroup>
+                        <CSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                            { this.props.document && this.props.document.uploadStatus === Sign.DocumentUploadStatus.InProgress &&
+                                <div className="progress" key="progress">
+                                    <div className="progress-bar progress-bar-striped active" style={{width: `${this.props.document.progress*100}%`}}></div>
+                                </div>
+                            }
+                        </CSSTransitionGroup>
 
-                    { /** <Link to={`/documents/${this.props.documentSetId}/${this.props.documentId}`}>View</Link> */ }
+                        { /** <Link to={`/documents/${this.props.documentSetId}/${this.props.documentId}`}>View</Link> */ }
+                    </div>
                 </div>
             )
         );

@@ -353,6 +353,7 @@ def remove_document_set(doc_id):
         print(e)
         raise InvalidUsage('Failed to removed document set', status_code=500)
 
+
 @app.route('/api/documents/<set_id>', methods=['GET'])
 @protected
 @nocache

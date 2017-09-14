@@ -19,7 +19,7 @@ interface UploadDocumentsProps {
 
 
 
-class Upload extends React.PureComponent<UploadDocumentsProps, {showWarning: boolean}> {
+class Upload extends React.PureComponent<UploadDocumentsProps, {showWarning: boolean, badCount: number}> {
     _fileInput: HTMLInputElement;
 
     constructor(props: UploadDocumentsProps) {
@@ -27,7 +27,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps, {showWarning: boo
         this.fileDrop = this.fileDrop.bind(this);
         this.collectFiles = this.collectFiles.bind(this);
         this.onClick = this.onClick.bind(this);
-        this.state = {showWarning: false}
+        this.state = {showWarning: false, badCount: 0}
     }
 
     componentWillMount() {
@@ -37,7 +37,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps, {showWarning: boo
     fileDrop(files: File[]) {
         const badFiles = files.filter(f => f.type !== 'application/pdf');
         if(badFiles.length){
-            this.setState({showWarning: true});
+            this.setState({showWarning: true, badCount: badFiles.length});
         }
         else{
             this.setState({showWarning: false});
@@ -47,8 +47,9 @@ class Upload extends React.PureComponent<UploadDocumentsProps, {showWarning: boo
     }
 
     collectFiles(event: React.ChangeEvent<HTMLInputElement>) {
-       if([].filter.call(event.target.files, (f: File) => f.type !== 'application/pdf').length){
-           this.setState({showWarning: true});
+        const badFiles = [].filter.call(event.target.files, (f: File) => f.type !== 'application/pdf').length;
+       if(badFiles.length){
+           this.setState({showWarning: true, badCount: badFiles.length});
        }
        else{
            this.setState({showWarning: false});
@@ -76,7 +77,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps, {showWarning: boo
                     <span className="drop-instruction">DROP HERE</span>
                         <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
                     </div>
-                    { this.state.showWarning && <p className="text-danger text-center"> CataLex Sign only supports PDF files. </p> }
+                    { this.state.showWarning && <p className="alert alert-danger text-center"> {this.state.badCount } { this.state.badCount > 1  ? 'files' : 'file' } could not be added - CataLex Sign only supports PDF files. </p> }
                     <DocumentList documentSetId={this.props.documentSetId} showRemove={true}/>
                 </div>
             </FileDropZone>

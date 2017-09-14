@@ -351,12 +351,12 @@ def remove_document_set(doc_id):
         print(e)
         raise InvalidUsage('Failed to removed document set', status_code=500)
 
-@app.route('/api/documents/<doc_id>', methods=['GET'])
+@app.route('/api/documents/<set_id>', methods=['GET'])
 @protected
 @nocache
-def get_documents(doc_id):
+def get_documents(set_id):
     try:
-        documents = db.get_document_set(session['user_id'], doc_id)
+        documents = db.get_document_set(session['user_id'], set_id)
         return jsonify(documents)
     except Exception as e:
 

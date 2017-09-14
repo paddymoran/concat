@@ -74,34 +74,47 @@ class Integration(DBTestCase):
 
     def test_0002_upload_document_set(self):
 
-        # upload document
-        # remove it
-        # upload another
-        # upload a third
-        # check /api/documents
-        # check /api/documents/<doc_set_id>
+        def doc_count():
+            response = self.app.get('/api/documents')
+            data = json.loads(response.get_data(as_text=True))
+            print(data)
+
+            if not data:
+                return 0
+
+            return len(data[0]['documents'])
+
+        def upload_doc(doc_id, set_id, file):
+            data = { 'file[]': file, 'document_id': doc_id, 'document_set_id': set_id }
+            self.app.post('/api/documents', data=data, content_type='multipart/form-data')
+
         with self.app.session_transaction() as sess:
             # Modify the session in this context block.
             sess["user_id"] = USER_ID
-        with server.app.app_context():
-            upsert_user({ 'user_id': USER_ID, 'name': 'testuser', 'email': 'testuser@email.com', 'subscribed': True })
 
-            current_path = os.path.dirname(os.path.realpath(__file__))
-            test_pdf_path = os.path.join(current_path, 'fixtures/pdfs/form-pdf.pdf')
-            document_id = str(uuid4())
-            document_set_id = str(uuid4())
-            with open(test_pdf_path, 'rb') as f:
-                result = self.app.post('/api/documents',
-                                       data={
-                                              'file[]': (BytesIO(f.read()), 'my file.pdf'),
-                                              'document_id': document_id,
-                                              'document_set_id': document_set_id
-                                              },
-                              content_type='multipart/form-data')
+        document_set_id = str(uuid4())
+        document_ids = [str(uuid4()), str(uuid4()), str(uuid4()), str(uuid4())]
 
-            response = self.app.get('/api/documents')
-            data = json.loads(response.get_data(as_text=True))
-            self.assertEqual(len(data), 1)
+        files = [
+            (BytesIO(b'one'), 'file_one.pdf'),
+            (BytesIO(b'two'), 'file_two.pdf'),
+            (BytesIO(b'three'), 'file_three.pdf')
+        ]
+
+        # Upload a document
+        upload_doc(document_ids[0], document_set_id, files[0])
+        self.assertEqual(doc_count(), 1) # Check it was uploaded
+
+        # Remove that document
+        self.app.delete('/api/document/%s' % document_ids[0])
+        self.assertEqual(doc_count(), 0) # Check it was deleted
+
+        # Upload two more docs
+        upload_doc(document_ids[1], document_set_id, files[1])
+        upload_doc(document_ids[2], document_set_id, files[2])
+
+        # Check both were uploaded
+        self.assertEqual(doc_count(), 2)
 
 
 

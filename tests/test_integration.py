@@ -17,7 +17,9 @@ SIGNATURE_USER_ID = 2
 SIGNATURE_STEALER_ID = 3
 
 UPLOAD_DOC_USER_ID = 4
-SIGN_AND_VERIFY_USER_ID = 5
+INVITE_OTHERS_USER_1_ID = 5
+INVITE_OTHERS_USER_2_ID = 6
+INVITE_OTHERS_USER_3_ID = 7
 
 class Integration(DBTestCase):
 
@@ -50,9 +52,21 @@ class Integration(DBTestCase):
                         'subscribed': True
                         })
             upsert_user({
-                        'user_id': SIGN_AND_VERIFY_USER_ID,
-                        'name': 'qweqwe',
-                        'email': 'qweqwe@email.com',
+                        'user_id': INVITE_OTHERS_USER_1_ID,
+                        'name': 'INVITE_OTHERS_USER_1_ID',
+                        'email': 'INVITE_OTHERS_USER_1_ID@email.com',
+                        'subscribed': True
+                        })
+            upsert_user({
+                        'user_id': INVITE_OTHERS_USER_2_ID,
+                        'name': 'INVITE_OTHERS_USER_2_ID',
+                        'email': 'INVITE_OTHERS_USER_2_ID@email.com',
+                        'subscribed': True
+                        })
+            upsert_user({
+                        'user_id': INVITE_OTHERS_USER_3_ID,
+                        'name': 'INVITE_OTHERS_USER_3_ID',
+                        'email': 'INVITE_OTHERS_USER_3_ID@email.com',
                         'subscribed': True
                         })
 
@@ -74,7 +88,10 @@ class Integration(DBTestCase):
 
     def upload_doc(self, doc_id, set_id, file):
         data = { 'file[]': file, 'document_id': doc_id, 'document_set_id': set_id }
-        resp = self.app.post('/api/documents', data=data, content_type='multipart/form-data')
+        response = self.app.post('/api/documents', data=data, content_type='multipart/form-data')
+
+        response = json.loads(response.get_data(as_text=True))
+        return response[0]['document_id']
 
     def test_0001_protected_routes(self):
         index = self.app.get('/')
@@ -155,7 +172,38 @@ class Integration(DBTestCase):
         # log in as first
         # check complete status
         # check contacts
-        pass
+        self.login(UPLOAD_DOC_USER_ID)
+
+        document_set_id = str(uuid4())
+        document_id = str(uuid4())
+
+        # Upload a document
+        uploaded_doc_id = self.upload_doc(document_id, document_set_id, (BytesIO(b'asdf'), 'file.pdf'))
+
+        # Request two others to sign it
+        data = {
+            'documentSetId': document_set_id,
+            'signatureRequests': [{
+                'documentIds': [uploaded_doc_id],
+                'recipient': {
+                    'name': 'INVITE_OTHERS_USER_2_ID',
+                    'email': 'INVITE_OTHERS_USER_2_ID@email.com'
+                }
+            },{
+                'documentIds': [uploaded_doc_id],
+                'recipient': {
+                    'name': 'INVITE_OTHERS_USER_3_ID',
+                    'email': 'INVITE_OTHERS_USER_3_ID@email.com'
+                }
+            }]
+        }
+
+        # Do later
+
+        # self.app.post('/api/request_signatures', data=json.dumps(data), content_type='application/json')
+
+        # response = self.app.get('/api/documents/%s' % uploaded_doc_id)
+        # print(json.loads(response.get_data(as_text=True)))
 
     def test_0005_self_sign_invite_other(self):
         # like above, but with self sign step

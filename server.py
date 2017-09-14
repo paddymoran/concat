@@ -301,11 +301,11 @@ def document_upload():
     try:
         if not can_sign_or_submit(session['user_id']):
             abort(401)
-        files = request.files.getlist('file[]')
+        file = request.files.getlist('file[]')
         set_id = request.form.get('document_set_id')
         document_id = request.form.get('document_id')
         user_id = session['user_id']
-        return jsonify(upload_document(files, set_id, document_id, user_id))
+        return jsonify(upload_document(file, set_id, document_id, user_id))
     except Exception as e:
         raise InvalidUsage(e.args, status_code=500)
 

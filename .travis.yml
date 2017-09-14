@@ -17,4 +17,5 @@ install:
   - python setup.py install
   - npm install
   - node_modules/.bin/webpack
+
 script: CONFIG_FILE=config_test.py python -m unittest discover

@@ -19,7 +19,7 @@ interface UploadDocumentsProps {
 
 
 
-class Upload extends React.PureComponent<UploadDocumentsProps> {
+class Upload extends React.PureComponent<UploadDocumentsProps, {showWarning: boolean}> {
     _fileInput: HTMLInputElement;
 
     constructor(props: UploadDocumentsProps) {
@@ -27,6 +27,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps> {
         this.fileDrop = this.fileDrop.bind(this);
         this.collectFiles = this.collectFiles.bind(this);
         this.onClick = this.onClick.bind(this);
+        this.state = {showWarning: false}
     }
 
     componentWillMount() {
@@ -34,10 +35,24 @@ class Upload extends React.PureComponent<UploadDocumentsProps> {
     }
 
     fileDrop(files: File[]) {
+        const badFiles = files.filter(f => f.type !== 'application/pdf');
+        if(badFiles.length){
+            this.setState({showWarning: true});
+        }
+        else{
+            this.setState({showWarning: false});
+        }
+        files = files.filter(f => f.type === 'application/pdf')
         files.map(file => generateUUID().then(uuid => this.props.addDocument({ documentId: uuid, documentSetId: this.props.documentSetId, filename: file.name, file: file })));
     }
 
     collectFiles(event: React.ChangeEvent<HTMLInputElement>) {
+       if([].filter.call(event.target.files, (f: File) => f.type !== 'application/pdf').length){
+           this.setState({showWarning: true});
+       }
+       else{
+           this.setState({showWarning: false});
+       }
        this.fileDrop([].filter.call(event.target.files, (f: File) => f.type === 'application/pdf'));
     }
 
@@ -61,7 +76,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps> {
                     <span className="drop-instruction">DROP HERE</span>
                         <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
                     </div>
-
+                    { this.state.showWarning && <p className="text-danger text-center"> CataLex Sign only supports PDF files. </p> }
                     <DocumentList documentSetId={this.props.documentSetId} showRemove={true}/>
                 </div>
             </FileDropZone>

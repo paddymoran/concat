@@ -23,7 +23,7 @@ interface MonitorItem {
 const PDFFileTarget = {
     drop(props: any, monitor: any) {
         const item = monitor.getItem() as MonitorItem;
-        props.onDrop(item.files.filter(f => f.type === 'application/pdf'));
+        props.onDrop(item.files);
     },
     hover(props: any) {
        if(props.onOver){

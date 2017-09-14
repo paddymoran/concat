@@ -16,6 +16,9 @@ USER_ID = 1
 SIGNATURE_USER_ID = 2
 SIGNATURE_STEALER_ID = 3
 
+UPLOAD_DOC_USER_ID = 4
+SIGN_AND_VERIFY_USER_ID = 5
+
 class Integration(DBTestCase):
 
     def setUp(self):
@@ -88,7 +91,7 @@ class Integration(DBTestCase):
 
 
     def test_0002_upload_document_set(self):
-        self.login(USER_ID)
+        self.login(UPLOAD_DOC_USER_ID)
 
         document_set_id = str(uuid4())
         document_ids = [str(uuid4()), str(uuid4()), str(uuid4()), str(uuid4())]

@@ -102,6 +102,8 @@ def delete_signature(id):
         id,
         session['user_id']
     )
+    if not signature_id:
+        raise InvalidUsage('Not Found', status_code=404)
     return {}
 
 
@@ -409,7 +411,6 @@ def signature_upload():
         signature_type = request.get_json()['type']
         return jsonify(upload_signature(base64Image, signature_type))
     except Exception as e:
-        print(e)
         raise InvalidUsage(e.message, status_code=500)
 
 @app.route('/api/signatures/<id>', methods=['DELETE'])
@@ -419,8 +420,7 @@ def signature_delete(id):
     try:
         return jsonify(delete_signature(id))
     except Exception as e:
-        print(e)
-        raise InvalidUsage('Failed', status_code=500)
+        raise InvalidUsage('Failed', status_code=404)
 
 
 @app.route('/api/signatures', methods=['GET'])
@@ -431,7 +431,6 @@ def signatures_list():
         signatures = db.get_signatures_for_user(session['user_id'])
         return jsonify(signatures)
     except Exception as e:
-        print(e)
         raise InvalidUsage('Failed', status_code=500)
 
 
@@ -448,8 +447,7 @@ def signature(id):
         signature_file = BytesIO(signature)
         return send_file(signature_file, attachment_filename='signature.png')
     except Exception as e:
-        print(e)
-        raise InvalidUsage('Failed', status_code=500)
+        raise InvalidUsage('Failed', status_code=404)
 
 
 '''
@@ -479,13 +477,16 @@ def sign_document():
     if not document_is_latest(document_id):
         raise InvalidUsage('Could not sign document', status_code=500, payload={'type': 'OLD_VERSION'})
 
-    for signature in args['signatures']:
-        signature['imgData'] = BytesIO(db.get_signature(signature['signatureId'], session['user_id']))
-    for overlay in args['overlays']:
+    for signature in args.get('signatures', []):
+        sig = db.get_signature(signature['signatureId'], session['user_id'])
+        if not sig:
+            abort(401)
+        signature['imgData'] = BytesIO(sig)
+    for overlay in args.get('overlays', []):
         base64Image = overlay['dataUrl']
         overlay['imgData'] = BytesIO(b64decode(base64Image.split(",")[1]))
     if not args.get('reject'):
-        result = sign(document, args['signatures'], args['overlays'])
+        result = sign(document, args.get('signatures', []), args.get('overlays', []))
         saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
         result.close()
         db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)

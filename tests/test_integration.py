@@ -9,6 +9,7 @@ from db import (
 import os
 import json
 from io import BytesIO
+import base64
 
 USER_ID = 1
 
@@ -150,15 +151,98 @@ class Integration(DBTestCase):
 
     def test_0007_signature_access(self):
         # new user creates signature
+        self.login(SIGNATURE_USER_ID)
+        current_path = os.path.dirname(os.path.realpath(__file__))
+        test_signature_path = os.path.join(current_path, 'fixtures/signatures/sml_sig.png')
+        with open(test_signature_path, 'rb') as f:
+            signature = 'data:image/png;base64,%s' % base64.b64encode(f.read()).decode('ascii')
+        self.app.post('/api/signatures/upload', data=json.dumps({'base64Image': signature, 'type': 'signature'}),
+                      content_type='application/json')
+        response = self.app.get('/api/signatures')
+        data = json.loads(response.get_data(as_text=True))
+        self.assertEqual(len(data), 1)
+
         # new user deletes it
+        response = self.app.delete('/api/signatures/%s' % data[0]['signature_id'])
+        data = json.loads(response.get_data(as_text=True))
+        self.assertEqual(len(data), 0)
+
         # new user creates signature
+
+        with open(test_signature_path, 'rb') as f:
+            signature = 'data:image/png;base64,%s' % base64.b64encode(f.read()).decode('ascii')
+        self.app.post('/api/signatures/upload', data=json.dumps({'base64Image': signature, 'type': 'signature'}),
+                      content_type='application/json')
+        response = self.app.get('/api/signatures')
         # gets full list of signatures
+        data = json.loads(response.get_data(as_text=True))
+        signature_id = data[0]['signature_id']
+
+        response = self.app.get('/api/signatures/%s' % signature_id)
+
+        self.assertEqual(response.status_code, 200)
+
         # tests can sign with signature
+        test_pdf_path = os.path.join(current_path, 'fixtures/pdfs/phoca-pdf.pdf')
+        document_id = str(uuid4())
+        document_set_id = str(uuid4())
+        with open(test_pdf_path, 'rb') as f:
+            response = self.app.post('/api/documents',
+                                     data={'file[]': (BytesIO(f.read()), 'my file.pdf'),
+                                           'document_id': document_id,
+                                           'document_set_id': document_set_id},
+                                     content_type='multipart/form-data')
+        data = json.loads(response.get_data(as_text=True))
+        document_id = data[0]['document_id']
+
+        response = self.app.post('/api/sign', data=json.dumps({'documentId': document_id,
+                                                'signatures': [{
+                                                    'signatureId': signature_id,
+                                                    'pageNumber': 0,
+                                                    'offsetX': 0,
+                                                    'offsetY': 0,
+                                                    'ratioX': 0.5,
+                                                    'ratioY': 0.05
+                                                  }]
+                                      }), content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+
         # log in as another user
         # confirm cannot request that signature
-        # confirm cannot sign with that signature
+        self.login(SIGNATURE_STEALER_ID)
+        response = self.app.get('/api/signatures/%s' % signature_id)
+        self.assertEqual(response.status_code, 404)
         # confirm cannot delete that signature
-        self.login(SIGNATURE_USER_ID)
+        response = self.app.delete('/api/signatures/%s' % signature_id)
+        self.assertEqual(response.status_code, 404)
+
+        # confirm cannot sign with that signature
+        document_id = str(uuid4())
+        document_set_id = str(uuid4())
+        with open(test_pdf_path, 'rb') as f:
+            response = self.app.post('/api/documents',
+                                     data={'file[]': (BytesIO(f.read()), 'my file.pdf'),
+                                           'document_id': document_id,
+                                           'document_set_id': document_set_id},
+                                     content_type='multipart/form-data')
+        data = json.loads(response.get_data(as_text=True))
+        document_id = data[0]['document_id']
+
+        response = self.app.post('/api/sign', data=json.dumps({'documentId': document_id,
+                                                'signatures': [{
+                                                    'signatureId': signature_id,
+                                                    'pageNumber': 0,
+                                                    'offsetX': 0,
+                                                    'offsetY': 0,
+                                                    'ratioX': 0.5,
+                                                    'ratioY': 0.05
+                                                  }]
+                                      }), content_type='application/json')
+        self.assertEqual(response.status_code, 401)
+
+
+
 
 
 

@@ -113,7 +113,10 @@ function *requestDocumentSaga() {
         try {
             while (true) {
                 state = yield take(channel);
-                yield put(updateDocument({ documentId: action.payload.documentId, ...state }));
+
+                if (state.downloadProgress) {
+                    yield put(updateDocument({ documentId: action.payload.documentId, ...state }));
+                }
             }
         }
         catch(e) {
@@ -146,7 +149,7 @@ function *requestDocumentSaga() {
             }
 
             // Make the download request with the progress handler
-            axios.get(`/api/document/${documentId}`, { responseType: 'arraybuffer' })
+            axios.get(`/api/document/${documentId}`, { onDownloadProgress, responseType: 'arraybuffer' })
                 .then(response => {
                     emitter(response);
                     emitter(END);

@@ -103,6 +103,7 @@ def find_or_create_and_validate_document_set(set_id, user_id):
             cursor.execute(find_doc_set_query, {
                 'set_id': set_id,
             })
+            print(cursor.fetchone())
             database.commit()
 
 

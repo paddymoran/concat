@@ -99,29 +99,63 @@ function *requestDocumentSaga() {
         if(document && document.readStatus !== Sign.DocumentReadStatus.NotStarted){
             return;
         }
+
+        // Set read status to 'In Progress' and download progress to 0
         yield put(updateDocument({
             documentId: action.payload.documentId,
-            readStatus: Sign.DocumentReadStatus.InProgress
+            readStatus: Sign.DocumentReadStatus.InProgress,
+            downloadProgress: 0,
         }));
+
+        const channel = yield call(requestDocumentProgressEmitter, action.payload.documentId);
+        let state: any;
+
         try {
-            const response = yield call(axios.get, `/api/document/${action.payload.documentId}`, {responseType: 'arraybuffer'});
-            const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(response.headers['content-disposition'])[1].replace(/"/g, '');
-            const data = response.data;
+            while (true) {
+                state = yield take(channel);
+                yield put(updateDocument({ documentId: action.payload.documentId, ...state }));
+            }
+        }
+        catch(e) {
+            // swallow
+        }
+        finally {
+            const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(state.headers['content-disposition'])[1].replace(/"/g, '');
+            const data = state.data;
             yield all([
                 // Finish the file upload to the document store
                 put(updateDocument({
                     documentId: action.payload.documentId,
                     filename,
                     data,
-                    readStatus: Sign.DocumentReadStatus.Complete
+                    readStatus: Sign.DocumentReadStatus.Complete,
+                    progress: 1
                 })),
                 // Add the document to the PDF store
                 put(addPDFToStore({ id: action.payload.documentId, data }))
             ]);
-        } catch(e) {
-            //swallow
         }
      }
+
+    function requestDocumentProgressEmitter(documentId: string) {
+        return eventChannel(function(emitter) {
+            // Progress handler
+            const onDownloadProgress = function(progressEvent: any) {
+                const downloadProgress = progressEvent.loaded / progressEvent.total;
+                emitter({ downloadProgress });
+            }
+
+            // Make the download request with the progress handler
+            axios.get(`/api/document/${documentId}`, { responseType: 'arraybuffer' })
+                .then(response => {
+                    emitter({ response });
+                    emitter(END);
+                });
+
+            const unsubscribe = function() {};
+            return unsubscribe;
+        });
+    }
 }
 
 function *deleteDocumentSaga() {

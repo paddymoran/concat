@@ -16,5 +16,6 @@ before_install:
 install:
   - python setup.py install
   - npm install
+  - mkdir public
   - cp ./src/static/index.ejs ./public/index.html
 script: CONFIG_FILE=config_test.py python -m unittest discover

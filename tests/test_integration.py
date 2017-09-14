@@ -16,6 +16,9 @@ USER_ID = 1
 SIGNATURE_USER_ID = 2
 SIGNATURE_STEALER_ID = 3
 
+UPLOAD_DOC_USER_ID = 4
+SIGN_AND_VERIFY_USER_ID = 5
+
 class Integration(DBTestCase):
 
     def setUp(self):
@@ -48,6 +51,20 @@ class Integration(DBTestCase):
             # Modify the session in this context block.
             sess["user_id"] = user_id
 
+    def doc_count(self):
+            response = self.app.get('/api/documents')
+            data = json.loads(response.get_data(as_text=True))
+            print(data)
+
+            if not data:
+                return 0
+
+            return len(data[0]['documents'])
+
+    def upload_doc(self, doc_id, set_id, file):
+        data = { 'file[]': file, 'document_id': doc_id, 'document_set_id': set_id }
+        self.app.post('/api/documents', data=data, content_type='multipart/form-data')
+
     def test_0001_protected_routes(self):
         index = self.app.get('/')
         # root does redirect
@@ -74,22 +91,7 @@ class Integration(DBTestCase):
 
 
     def test_0002_upload_document_set(self):
-
-        def doc_count():
-            response = self.app.get('/api/documents')
-            data = json.loads(response.get_data(as_text=True))
-            print(data)
-
-            if not data:
-                return 0
-
-            return len(data[0]['documents'])
-
-        def upload_doc(doc_id, set_id, file):
-            data = { 'file[]': file, 'document_id': doc_id, 'document_set_id': set_id }
-            self.app.post('/api/documents', data=data, content_type='multipart/form-data')
-
-        self.login(USER_ID)
+        self.login(UPLOAD_DOC_USER_ID)
 
         document_set_id = str(uuid4())
         document_ids = [str(uuid4()), str(uuid4()), str(uuid4()), str(uuid4())]
@@ -101,19 +103,19 @@ class Integration(DBTestCase):
         ]
 
         # Upload a document
-        upload_doc(document_ids[0], document_set_id, files[0])
-        self.assertEqual(doc_count(), 1) # Check it was uploaded
+        self.upload_doc(document_ids[0], document_set_id, files[0])
+        self.assertEqual(self.doc_count(), 1) # Check it was uploaded
 
         # Remove that document
         self.app.delete('/api/document/%s' % document_ids[0])
-        self.assertEqual(doc_count(), 0) # Check it was deleted
+        self.assertEqual(self.doc_count(), 0) # Check it was deleted
 
         # Upload two more docs
-        upload_doc(document_ids[1], document_set_id, files[1])
-        upload_doc(document_ids[2], document_set_id, files[2])
+        self.upload_doc(document_ids[1], document_set_id, files[1])
+        self.upload_doc(document_ids[2], document_set_id, files[2])
 
         # Check both were uploaded
-        self.assertEqual(doc_count(), 2)
+        self.assertEqual(self.doc_count(), 2)
 
 
 

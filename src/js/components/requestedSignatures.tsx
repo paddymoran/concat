@@ -92,8 +92,14 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                                       {document.filename} ({fileSize(document.size)})
                                   </td>
                                   <td className="file-controls">
+                                         <a className="btn btn-default btn-sm" target="_blank" href={`/api/document/${documentId}`}>
+                                            <i className="fa fa-download"/> Download
+                                        </a>
                                         { showLink && <Link className="btn btn-primary btn-sm" to={`/sign/${this.props.documentSetId}/${documentId}`}><i className="fa fa-pencil-square-o"/>Review & Sign</Link> }
+
                                   </td>
+
+
                             </tr>
                 }) }
                 </tbody>
@@ -136,7 +142,7 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
                 { docSetKeys.length === 0 && <p>No { this.props.title } signature requests.</p> }
 
                 {docSetKeys.map((documentSetId: string, index: number) =>
-                    <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={docSets[documentSetId]} showLink={hasEmailVerified} />
+                    <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={docSets[documentSetId]} showLink={hasEmailVerified && !this.props.showComplete} />
                 )}
             </div>
         );

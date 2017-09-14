@@ -191,3 +191,12 @@ export function fileSize(b:number) {
     }
     return (u ? b.toFixed(1) + ' ' : b) + ' KMGTPEZY'[u] + 'B';
 }
+
+
+
+export function massageDefaultPrompts(overlayDefaults : Sign.OverlayDefaults, documentSet : Sign.DocumentSet){
+    if(overlayDefaults.prompt && documentSet.recipients && documentSet.recipients.length > 1){
+        overlayDefaults = {...overlayDefaults, prompt: {...overlayDefaults.prompt, value: {...overlayDefaults.prompt.value, recipientEmail: ''}}}
+    }
+    return overlayDefaults;
+}

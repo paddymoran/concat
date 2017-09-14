@@ -65,6 +65,7 @@ interface InjectedSignConfirmationProps {
     markDocumentAsComplete: (payload: Sign.Actions.MarkDocumentAsCompletePayload) => void;
     documents: DocumentWithStatus[];
     submitPayload: Sign.Actions.SubmitDocumentSetPayload;
+    isSigning: boolean;
 }
 
 type UnconnectedSignConfirmationProps = SignConfirmationProps & InjectedSignConfirmationProps;
@@ -156,12 +157,13 @@ export class DocumentsList extends React.PureComponent<DocumentsListProps> {
     }
 }
 
-class LoadingModalBody extends React.PureComponent {
+class LoadingModalBody extends React.PureComponent<{isSigning: boolean}> {
     render() {
         return (
             <div>
                 <div className='loading' />
-                <p>Signing document, please wait.</p>
+                { this.props.isSigning && <p>Signing document, please wait.</p> }
+                { !this.props.isSigning && <p>Sending document, please wait.</p> }
             </div>
         );
     }
@@ -214,6 +216,7 @@ interface SignAndSubmitProps {
     goToDocument: (documentId: string) => void;
     submitDocumentSet: (payload: Sign.Actions.SubmitDocumentSetPayload) => void;
     markDocumentAsComplete: (payload: Sign.Actions.MarkDocumentAsCompletePayload) => void;
+    isSigning: boolean;
 }
 
 interface InjectedSignAndSubmitProps {
@@ -224,10 +227,10 @@ interface InjectedSignAndSubmitProps {
     message: string;
 }
 
-type UnconnectedSignAndSubmitProps = SignAndSubmitProps & InjectedSignAndSubmitProps;
+type ConnectedSignAndSubmitProps = SignAndSubmitProps & InjectedSignAndSubmitProps;
 
-class UnconnectedSignAndSubmit extends React.PureComponent<UnconnectedSignAndSubmitProps> {
-    constructor(props: UnconnectedSignAndSubmitProps) {
+class UnconnectedSignAndSubmit extends React.PureComponent<ConnectedSignAndSubmitProps> {
+    constructor(props: ConnectedSignAndSubmitProps) {
         super(props);
         this.sign = this.sign.bind(this);
         this.goToDocument = this.goToDocument.bind(this);
@@ -291,9 +294,10 @@ const SignAndSubmit = connect<{}, {}, SignAndSubmitProps>(
     (state: Sign.State, ownProps: SignAndSubmitProps) => {
         const documentSet = state.documentSets[ownProps.documentSetId];
         const { message, showMessage } = messageSelector(state, 'message', 'showMessage');
+        const documentIds = documentSet.documentIds;
+
         return {
             message, showMessage,
-            isSigning: Object.keys(state.documentViewer.signatures).length > 0,
             isRequestingSignatures: documentSet.recipients ? documentSet.recipients.length > 0 : false,
             recipients: documentSet.recipients,
         }
@@ -441,7 +445,7 @@ class SignConfirmation extends React.PureComponent<UnconnectedSignConfirmationPr
 
         if (this.props.signRequestStatus === Sign.DownloadStatus.InProgress) {
             title = 'Submitting Documents';
-            body = <LoadingModalBody />;
+            body = <LoadingModalBody isSigning={this.props.isSigning}/>;
         }
         else if (this.props.reject) {
             if (this.props.nextDocumentId) {
@@ -472,6 +476,7 @@ class SignConfirmation extends React.PureComponent<UnconnectedSignConfirmationPr
                             submitPayload={this.props.submitPayload}
                             markDocumentAsComplete={this.props.markDocumentAsComplete}
                             goToDocument={this.goToDocument}
+                            isSigning={this.props.isSigning}
                             submitDocumentSet={this.props.submitDocumentSet} />
             }
         }
@@ -528,11 +533,21 @@ export default connect<{}, {}, SignConfirmationProps>(
             ...state.documents[documentId],
             signStatus: (state.documentViewer.documents[documentId] || { signStatus: Sign.SignStatus.PENDING }).signStatus
         }));
+        const signaturesIndexes = Object.keys(state.documentViewer.signatures).filter(signatureIndex => documentIds.indexOf(state.documentViewer.signatures[signatureIndex].documentId) >= 0);
+        const dateIndexes = Object.keys(state.documentViewer.dates).filter(dateIndex => documentIds.indexOf(state.documentViewer.dates[dateIndex].documentId) >= 0);
+        const textIndexes = Object.keys(state.documentViewer.texts).filter(textIndex =>  documentIds.indexOf(state.documentViewer.texts[textIndex].documentId) >= 0);
+        const promptIndexes = Object.keys(state.documentViewer.prompts).filter(textIndex => documentIds.indexOf(state.documentViewer.prompts[textIndex].documentId) >= 0);
+
+        const hasSignature = !!signaturesIndexes.length;
+        const hasInitial = !!signaturesIndexes.length;
+        const hasDate = !!dateIndexes.length;
+        const hasText = !!textIndexes.length;
 
         return {
             documentId, documentSetId, documents, recipients, nextDocumentId,
             signRequestStatus: state.documentViewer.signRequestStatus,
             isDocumentOwner: state.modals.isDocumentOwner,
+            isSigning: hasSignature || hasInitial || hasDate || hasText,
             submitPayload: prepareSubmitPayload(documentSetId, state.documentSets[documentSetId], state.documentViewer)
         }
     },

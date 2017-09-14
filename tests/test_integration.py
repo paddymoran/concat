@@ -46,12 +46,33 @@ class Integration(DBTestCase):
 
 
     def test_0002_upload_document_set(self):
+
         # upload document
         # remove it
         # upload another
         # upload a third
         # check /api/documents
         # check /api/documents/<doc_set_id>
+        USER_ID = 1
+        with server.app.app_context():
+            upsert_user({ 'user_id': USER_ID, 'name': 'testuser', 'email': 'testuser@email.com', 'subscribed': True })
+
+            current_path = os.path.dirname(os.path.realpath(__file__))
+            test_pdf_path = os.path.join(current_path, 'fixtures/pdfs/form-pdf.pdf')
+
+            with open(test_pdf_path, 'rb') as f:
+                binary_data = f.read()
+                self.app.post('/api/documents', )
+
+            document_info = get_document(USER_ID, result['document_id'])
+            expected_hash = "dbe5c4a1c0f4d8bd595b4465a81dd4b4adbf16685fd46c5668761b73ecb18de0"
+            self.assertEqual(expected_hash, document_info['hash'])
+            self.assertEqual(binary_data, document_info['data'].tobytes())
+
+            set_info = get_document_set(USER_ID, set_id)
+
+            self.assertEqual(len(set_info['documents']), 1)
+            self.assertEqual(set_info['documents'][0]['filename'], 'filename')
         pass
 
 
@@ -111,8 +132,8 @@ class Integration(DBTestCase):
         pass
 
 
-def test_0008_revoke_requests(self):
-    # revoke some requests or sometthing
-    pass
+    def test_0008_revoke_requests(self):
+        # revoke some requests or sometthing
+        pass
 
 

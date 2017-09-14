@@ -13,7 +13,7 @@ import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
 import sizeMe from 'react-sizeme';
-import { signatureUrl, boundNumber, imageRatio, stringToCanvas, textDefaults, dateDefaults } from '../../utils';
+import { signatureUrl, boundNumber, imageRatio, stringToCanvas, textDefaults, dateDefaults, massageDefaultPrompts } from '../../utils';
 import { generateUUID } from '../uuid';
 import { Controls } from '../controls'
 import { DropTarget } from 'react-dnd';
@@ -142,6 +142,9 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
     render() {
         let  height = this.props.containerHeight;
         let className = "pdf-page-wrapper ";
+        if(!this.props.containerWidth){
+            return false;
+        }
         if(height) {
             className += "loaded"
         }
@@ -267,11 +270,11 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                         addDateToDocument={this.props.addDateToDocument}
                                         addTextToDocument={this.props.addTextToDocument}
                                         addPromptToDocument={this.props.addPromptToDocument}
-                                        viewport={this.props.pageViewports[index] || {height: Math.sqrt(2), width: 1}}>
+                                        viewport={this.props.pageViewports[index] || {height: 0, width: 1}}>
                                         <PDFPageWrapper documentId={this.props.documentId}
                                             pageNumber={index}
                                             setActivePage={this.setActivePage}
-                                            viewport={this.props.pageViewports[index] || {height: Math.sqrt(2), width: 1}}/>
+                                            viewport={this.props.pageViewports[index] || {height: 0, width: 1}}/>
                                     </DimensionedDropTargetSignaturesPageWrapper>
                                     </div>
                                 );
@@ -486,12 +489,16 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
 
 
 const OverlayPageWrapper = connect<{}, {}, OverlayPageWrapperProps>(
-    (state: Sign.State, ownProps: UnconnectedOverlayPageWrapperProps) => ({
-        selectedSignatureId: state.documentViewer.selectedSignatureId,
-        selectedInitialId: state.documentViewer.selectedInitialId,
-        activeSignControl: state.documentViewer.activeSignControl,
-        overlayDefaults: state.overlayDefaults
-    })
+    (state: Sign.State, ownProps: UnconnectedOverlayPageWrapperProps) => {
+        const overlayDefaults = massageDefaultPrompts(state.overlayDefaults, state.documentSets[ownProps.documentSetId]);
+
+        return {
+            selectedSignatureId: state.documentViewer.selectedSignatureId,
+            selectedInitialId: state.documentViewer.selectedInitialId,
+            activeSignControl: state.documentViewer.activeSignControl,
+            overlayDefaults: overlayDefaults
+        }
+    }
 )(UnconnectedOverlayPageWrapper);
 
 const DropTargetSignaturesPageWrapper = DropTarget(

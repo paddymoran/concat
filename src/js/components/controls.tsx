@@ -7,7 +7,7 @@ import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { OverlayTrigger, Popover, Modal } from 'react-bootstrap';
 import { setActiveSignControl, showInviteModal, closeModal, showActivateControlModal, showSignConfirmationModal, saveDocumentView, finishedSigningDocument } from '../actions';
-import { dateDefaults, textDefaults, findSetForDocument, getNextDocument } from '../utils';
+import { dateDefaults, textDefaults, findSetForDocument, getNextDocument, massageDefaultPrompts } from '../utils';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
 
@@ -503,6 +503,8 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
         [Sign.SignControl.PROMPT]: activeSignControl === Sign.SignControl.PROMPT,
     };
 
+    const overlayDefaults = massageDefaultPrompts(state.overlayDefaults, state.documentSets[ownProps.documentSetId]);
+
     return {
         showInvite: ownProps.isDocumentOwner,
         showPrompts: ownProps.isDocumentOwner,
@@ -517,7 +519,7 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
 
         isButtonActive,
 
-        overlayDefaults: state.overlayDefaults,
+        overlayDefaults: overlayDefaults,
         nextInvalidOverlay,
         saveStatus: state.documentViewer.saveStatus,
 

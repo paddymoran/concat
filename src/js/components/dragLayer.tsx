@@ -39,7 +39,6 @@ interface DragLayerProps {
     }
     isDragging: boolean
     containerWidth: number;
-   // overlayDefaults: Sign.OverlayDefaults
 }
 
 interface DragProps {
@@ -144,7 +143,6 @@ export class CustomDragLayer extends React.PureComponent<DragLayerProps> {
 
 const DimensionedDragLayer = connect((state : Sign.State) => ({
     containerWidth: state.dimensions.width,
-    //overlayDefaults: state.overlayDefaults
 }))(CustomDragLayer)
 
 const DimensionedConnectedDragLayer = DragLayer(monitor => ({

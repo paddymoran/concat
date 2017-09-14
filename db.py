@@ -100,10 +100,9 @@ def find_or_create_and_validate_document_set(set_id, user_id):
                 UPDATE document_sets SET deleted_at = NULL
                 WHERE document_set_id = %(set_id)s
             """
-            cursor.execute(find_doc_set_query, {
+            cursor.execute(update_document_set, {
                 'set_id': set_id,
             })
-            print(cursor.fetchone())
             database.commit()
 
 

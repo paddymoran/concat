@@ -129,7 +129,7 @@ function *requestDocumentSaga() {
                     filename,
                     data,
                     readStatus: Sign.DocumentReadStatus.Complete,
-                    progress: 1
+                    downloadProgress: 1
                 })),
                 // Add the document to the PDF store
                 put(addPDFToStore({ id: action.payload.documentId, data }))
@@ -148,7 +148,7 @@ function *requestDocumentSaga() {
             // Make the download request with the progress handler
             axios.get(`/api/document/${documentId}`, { responseType: 'arraybuffer' })
                 .then(response => {
-                    emitter({ response });
+                    emitter(response);
                     emitter(END);
                 });
 

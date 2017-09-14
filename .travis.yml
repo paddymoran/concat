@@ -16,6 +16,6 @@ before_install:
 install:
   - python setup.py install
   - npm install
-  - node_modules/.bin/webpack
-
+  - mkdir public
+  - cp ./src/static/index.ejs ./public/index.html
 script: CONFIG_FILE=config_test.py python -m unittest discover

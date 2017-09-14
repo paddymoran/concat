@@ -217,12 +217,17 @@ def remove_signature(signature_id, user_id):
             UPDATE signatures SET deleted = true
             WHERE signature_id = %(signature_id)s
                 AND user_id = %(user_id)s
+                RETURNING signature_id
         """
         cursor.execute(query, {
             'signature_id': signature_id,
             'user_id': user_id,
         })
+        result = cursor.fetchone()
+        if result:
+            result = result[0]
     database.commit()
+    return result
 
 
 def upsert_user(user):

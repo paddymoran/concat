@@ -2,12 +2,11 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.3
--- Dumped by pg_dump version 9.6.2
+-- Dumped from database version 9.5.5
+-- Dumped by pg_dump version 9.5.5
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
@@ -109,51 +108,6 @@ BEGIN
     NEW.length = octet_length(data) FROM document_data WHERE document_data_id = NEW.document_data_id;
     RETURN NEW;
 END $$;
-
-
---
--- Name: document_set_json(uuid); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION document_set_json(uuid) RETURNS json
-    LANGUAGE sql
-    AS $_$
-WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generation) as (
-    SELECT t.document_id, null::uuid, t.document_id,  document_set_id, 0
-    FROM documents t
-    UNION
-   SELECT result_document_id, input_document_id,original_id, document_set_id, generation + 1
-    FROM sign_results tt, docs t
-    WHERE t.document_id = tt.input_document_id
-)
-    SELECT row_to_json(qqq) FROM (
-        SELECT
-            $1 as document_set_id,
-             ds.name as name, ds.created_at as created_at,
-            array_to_json(array_agg(row_to_json(qq))) as documents,
-            CASE WHEN EVERY(sign_status = 'Signed') THEN 'Complete' ELSE 'Pending' END as status
-        FROM (
-            SELECT d.document_id, filename, created_at, versions, dv.field_data, document_status(start_id) as sign_status
-            FROM (
-                SELECT
-                DISTINCT last_value(document_id) over wnd AS document_id, array_agg(document_id) OVER wnd as versions, first_value(document_id) over wnd as start_id
-                FROM docs d
-                WHERE document_set_id = $1
-
-                WINDOW wnd AS (
-                   PARTITION BY original_id ORDER BY generation ASC
-                   ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-                )
-            ) q
-            JOIN documents d on d.document_id = q.document_id
-            LEFT OUTER JOIN document_view dv ON d.document_id = dv.document_id
-        ) qq
-        JOIN document_sets ds ON ds.document_set_id = $1
-        GROUP BY ds.name, ds.created_at
-        ORDER BY ds.created_at DESC
- ) qqq
-
-$_$;
 
 
 --
@@ -293,24 +247,6 @@ WITH RECURSIVE back_docs(document_id, prev_id, original_id, document_set_id, gen
     WHERE t.document_id = tt.result_document_id
 )
 SELECT document_id FROM back_docs order by generation DESC limit 1
-$_$;
-
-
---
--- Name: rejection_explaination(uuid); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION rejection_explaination(uuid) RETURNS json
-    LANGUAGE sql
-    AS $_$
-SELECT json_agg(row_to_json(q)) FROM (
-    SELECT u.user_id as user_id, name, email, srr.field_data, srr.created_at
-    FROM documents d
-    LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
-    LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
-    JOIN public.users u on srr.user_id = u.user_id
-    WHERE d.document_id = $1 AND NOT srr.accepted
-) q
 $_$;
 
 
@@ -660,16 +596,6 @@ ALTER SEQUENCE signatures_id_seq OWNED BY signatures.signature_id;
 
 
 --
--- Name: user_meta; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE user_meta (
-    user_id integer NOT NULL,
-    data jsonb
-);
-
-
---
 -- Name: user_usage_limits; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -696,14 +622,14 @@ CREATE TABLE users (
 
 
 --
--- Name: signatures signature_id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: signature_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY signatures ALTER COLUMN signature_id SET DEFAULT nextval('signatures_id_seq'::regclass);
 
 
 --
--- Name: access_tokens access_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: access_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY access_tokens
@@ -711,7 +637,7 @@ ALTER TABLE ONLY access_tokens
 
 
 --
--- Name: document_data document_data_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: document_data_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY document_data
@@ -719,7 +645,7 @@ ALTER TABLE ONLY document_data
 
 
 --
--- Name: document_sets document_sets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: document_sets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY document_sets
@@ -727,7 +653,7 @@ ALTER TABLE ONLY document_sets
 
 
 --
--- Name: document_view document_view_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: document_view_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY document_view
@@ -735,7 +661,7 @@ ALTER TABLE ONLY document_view
 
 
 --
--- Name: documents documents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: documents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY documents
@@ -743,7 +669,7 @@ ALTER TABLE ONLY documents
 
 
 --
--- Name: sign_requests sign_requests_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sign_requests_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sign_requests
@@ -751,7 +677,7 @@ ALTER TABLE ONLY sign_requests
 
 
 --
--- Name: sign_results sign_results_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sign_results_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sign_results
@@ -759,7 +685,7 @@ ALTER TABLE ONLY sign_results
 
 
 --
--- Name: signatures signatures_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: signatures_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY signatures
@@ -767,15 +693,7 @@ ALTER TABLE ONLY signatures
 
 
 --
--- Name: user_meta user_meta_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY user_meta
-    ADD CONSTRAINT user_meta_pkey PRIMARY KEY (user_id);
-
-
---
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users
@@ -783,14 +701,14 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: documents document_hash_trigger; Type: TRIGGER; Schema: public; Owner: -
+-- Name: document_hash_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER document_hash_trigger BEFORE INSERT ON documents FOR EACH ROW EXECUTE PROCEDURE document_hash();
 
 
 --
--- Name: access_tokens access_tokens_document_set_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: access_tokens_document_set_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY access_tokens
@@ -798,7 +716,7 @@ ALTER TABLE ONLY access_tokens
 
 
 --
--- Name: access_tokens access_tokens_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: access_tokens_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY access_tokens
@@ -806,7 +724,7 @@ ALTER TABLE ONLY access_tokens
 
 
 --
--- Name: document_sets document_sets_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: document_sets_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY document_sets
@@ -814,7 +732,7 @@ ALTER TABLE ONLY document_sets
 
 
 --
--- Name: document_view document_view_document_id_fkk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: document_view_document_id_fkk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY document_view
@@ -822,7 +740,7 @@ ALTER TABLE ONLY document_view
 
 
 --
--- Name: document_view document_view_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: document_view_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY document_view
@@ -830,7 +748,7 @@ ALTER TABLE ONLY document_view
 
 
 --
--- Name: documents documents_document_data_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: documents_document_data_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY documents
@@ -838,7 +756,7 @@ ALTER TABLE ONLY documents
 
 
 --
--- Name: documents documents_document_set_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: documents_document_set_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY documents
@@ -846,7 +764,7 @@ ALTER TABLE ONLY documents
 
 
 --
--- Name: sign_requests sign_requests_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sign_requests_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sign_requests
@@ -854,7 +772,7 @@ ALTER TABLE ONLY sign_requests
 
 
 --
--- Name: sign_requests sign_requests_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sign_requests_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sign_requests
@@ -862,7 +780,7 @@ ALTER TABLE ONLY sign_requests
 
 
 --
--- Name: sign_results sign_results_input_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sign_results_input_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sign_results
@@ -870,7 +788,7 @@ ALTER TABLE ONLY sign_results
 
 
 --
--- Name: sign_results sign_results_result_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sign_results_result_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sign_results
@@ -878,7 +796,7 @@ ALTER TABLE ONLY sign_results
 
 
 --
--- Name: sign_results sign_results_sign_request_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sign_results_sign_request_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sign_results
@@ -886,7 +804,7 @@ ALTER TABLE ONLY sign_results
 
 
 --
--- Name: sign_results sign_results_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sign_results_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sign_results
@@ -894,7 +812,7 @@ ALTER TABLE ONLY sign_results
 
 
 --
--- Name: signatures signatures_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: signatures_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY signatures
@@ -902,15 +820,7 @@ ALTER TABLE ONLY signatures
 
 
 --
--- Name: user_meta user_meta_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY user_meta
-    ADD CONSTRAINT user_meta_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
-
-
---
--- Name: user_usage_limits user_usage_limits_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user_usage_limits_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY user_usage_limits

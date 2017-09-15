@@ -13,7 +13,7 @@ import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
 import sizeMe from 'react-sizeme';
-import { signatureUrl, boundNumber, imageRatio, stringToCanvas, textDefaults, dateDefaults, massageDefaultPrompts } from '../../utils';
+import { signatureUrl, boundNumber, imageRatio, stringToCanvas, textDefaults, dateDefaults, massageDefaultPrompts, fileSize } from '../../utils';
 import { generateUUID } from '../uuid';
 import { Controls } from '../controls'
 import { DropTarget } from 'react-dnd';
@@ -140,13 +140,14 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
 interface DocumentLoadingProps {
     loading: boolean;
     progress: number;
+    size: number;
 }
 
 class UnconnectedDocumentLoading extends React.PureComponent<DocumentLoadingProps>{
     render() {
         return  <div className="document-loading">
             <CSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                { this.props.loading && <p className="text-center">Loading Document...</p> }
+                { this.props.loading && <p className="text-center">Loading Document { fileSize((this.props.progress * this.props.size) || 0) } / { fileSize(this.props.size) } </p> }
                     { this.props.loading && <div className="progress" key="progress">
                         <div className="progress-bar progress-bar-striped active" style={{width: `${this.props.progress*100}%`}}></div>
                     </div> }
@@ -159,7 +160,8 @@ const DocumentLoading = connect((state: Sign.State, ownProps: any) => {
     const document = state.documents[ownProps.documentId]
     return {
         loading: document && (document.readStatus === Sign.DocumentReadStatus.NotStarted || document.readStatus === Sign.DocumentReadStatus.InProgress),
-        progress: document && document.downloadProgress
+        progress: document && document.downloadProgress,
+        size: document && document.size
     }
 })(UnconnectedDocumentLoading)
 

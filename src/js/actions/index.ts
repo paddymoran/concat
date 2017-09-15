@@ -516,3 +516,10 @@ export function updateVerification(payload: Sign.Actions.UpdateVerificationPaylo
         payload
     };
 }
+
+export function showSigningCompleteModal(payload: Sign.Actions.ShowSigningCompleteModalPayload): Sign.Actions.ShowSigningCompleteModal {
+    return {
+        type: Sign.Actions.Types.SHOW_SIGNING_COMPLETE_MODAL,
+        payload
+    };
+}

@@ -375,6 +375,7 @@ declare namespace Sign {
         EMAIL_DOCUMENT = 'EMAIL_DOCUMENT',
         ACTIVATE_CONTROL = 'ACTIVATE_CONTROL',
         CONFIRM_ACTION = 'CONFIRM_ACTION',
+        SIGNING_COMPLETE = 'SIGNING_COMPLETE',
     }
 
     interface SignatureRequest {
@@ -479,6 +480,7 @@ declare namespace Sign.Actions {
         SHOW_INVITE_MODAL = 'SHOW_INVITE_MODAL',
         SHOW_EMAIL_DOCUMENT_MODAL = 'SHOW_EMAIL_DOCUMENT_MODAL',
         SHOW_ACTIVATE_CONTROL_MODAL = 'SHOW_ACTIVATE_CONTROL_MODAL',
+        SHOW_SIGNING_COMPLETE_MODAL = 'SHOW_SIGNING_COMPLETE_MODAL',
 
         UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
 
@@ -790,6 +792,10 @@ declare namespace Sign.Actions {
         documentSetId: string;
     }
 
+    interface ShowSigningCompleteModalPayload {
+        documentSetId: string;
+    }
+
     interface UpdateDocumentWidthPayload {
         width: number
     }
@@ -968,6 +974,7 @@ declare namespace Sign.Actions {
     interface ShowEmailDocumentsModal extends ActionCreator<ShowEmailDocumentsModalPayload> {}
     interface ShowActivateControlModal extends ActionCreator<ShowActivateControlModalPayload> {}
     interface ConfirmAction<T> extends ActionCreator<ConfirmActionPayload<T>> {}
+    interface ShowSigningCompleteModal extends ActionCreator<ShowSigningCompleteModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}

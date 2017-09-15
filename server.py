@@ -559,6 +559,17 @@ def get_user_meta():
     return jsonify(user_meta)
 
 
+@app.route('/api/user/meta', methods=['POST'])
+@protected
+@nocache
+def update_user_meta():
+    user_id = session['user_id']
+    meta = request.form.get('meta')
+    db.update_user_meta(user_id, meta)
+    
+    return jsonify({'message': 'User meta updated'})
+
+
 @app.route('/api/verify/<doc_hash>', methods=['GET'])
 def verify_hash(doc_hash):
     return jsonify(db.signed_by(session.get('user_id', None), doc_hash))

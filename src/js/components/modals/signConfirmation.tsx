@@ -518,6 +518,20 @@ export const RejectReduxForm = reduxForm<{ reason: string; }>(
     { form: Sign.FormName.REJECT }
 )(RejectForm);
 
+export function isSigning(documentViewer: Sign.DocumentViewer, documentIds: string[]) {
+    const signaturesIndexes = Object.keys(documentViewer.signatures).filter(signatureIndex => documentIds.indexOf(documentViewer.signatures[signatureIndex].documentId) >= 0);
+    const dateIndexes = Object.keys(documentViewer.dates).filter(dateIndex => documentIds.indexOf(documentViewer.dates[dateIndex].documentId) >= 0);
+    const textIndexes = Object.keys(documentViewer.texts).filter(textIndex =>  documentIds.indexOf(documentViewer.texts[textIndex].documentId) >= 0);
+    const promptIndexes = Object.keys(documentViewer.prompts).filter(textIndex => documentIds.indexOf(documentViewer.prompts[textIndex].documentId) >= 0);
+
+    const hasSignature = !!signaturesIndexes.length;
+    const hasInitial = !!signaturesIndexes.length;
+    const hasDate = !!dateIndexes.length;
+    const hasText = !!textIndexes.length;
+
+    return hasSignature || hasInitial || hasDate || hasText;
+}
+
 export default connect<{}, {}, SignConfirmationProps>(
     (state: Sign.State) => {
         const { documentId, documentSetId } = state.modals;
@@ -533,21 +547,12 @@ export default connect<{}, {}, SignConfirmationProps>(
             ...state.documents[documentId],
             signStatus: (state.documentViewer.documents[documentId] || { signStatus: Sign.SignStatus.PENDING }).signStatus
         }));
-        const signaturesIndexes = Object.keys(state.documentViewer.signatures).filter(signatureIndex => documentIds.indexOf(state.documentViewer.signatures[signatureIndex].documentId) >= 0);
-        const dateIndexes = Object.keys(state.documentViewer.dates).filter(dateIndex => documentIds.indexOf(state.documentViewer.dates[dateIndex].documentId) >= 0);
-        const textIndexes = Object.keys(state.documentViewer.texts).filter(textIndex =>  documentIds.indexOf(state.documentViewer.texts[textIndex].documentId) >= 0);
-        const promptIndexes = Object.keys(state.documentViewer.prompts).filter(textIndex => documentIds.indexOf(state.documentViewer.prompts[textIndex].documentId) >= 0);
-
-        const hasSignature = !!signaturesIndexes.length;
-        const hasInitial = !!signaturesIndexes.length;
-        const hasDate = !!dateIndexes.length;
-        const hasText = !!textIndexes.length;
 
         return {
             documentId, documentSetId, documents, recipients, nextDocumentId,
             signRequestStatus: state.documentViewer.signRequestStatus,
             isDocumentOwner: state.modals.isDocumentOwner,
-            isSigning: hasSignature || hasInitial || hasDate || hasText,
+            isSigning: isSigning(state.documentViewer, documentIds),
             submitPayload: prepareSubmitPayload(documentSetId, state.documentSets[documentSetId], state.documentViewer)
         }
     },

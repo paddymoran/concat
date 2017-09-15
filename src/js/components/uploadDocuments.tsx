@@ -77,7 +77,7 @@ class Upload extends React.PureComponent<UploadDocumentsProps, {showWarning: boo
                     <span className="drop-instruction">DROP HERE</span>
                         <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
                     </div>
-                    { this.state.showWarning && <p className="alert alert-danger text-center"> {this.state.badCount } { this.state.badCount > 1  ? 'files' : 'file' } could not be added - CataLex Sign only supports PDF files. </p> }
+                    { this.state.showWarning && <p className="alert alert-danger text-center"> {this.state.badCount } { this.state.badCount > 1  ? 'files' : 'file' } could not be added - Please convert your documents to PDF format to upload. </p> }
                     <DocumentList documentSetId={this.props.documentSetId} showRemove={true}/>
                 </div>
             </FileDropZone>

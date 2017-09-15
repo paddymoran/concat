@@ -19,6 +19,7 @@ import { Controls } from '../controls'
 import { DropTarget } from 'react-dnd';
 import * as Waypoint from 'react-waypoint';
 import WidthSpy from '../widthSpy'
+import { CSSTransitionGroup } from 'react-transition-group';
 
 
 
@@ -136,6 +137,31 @@ const dropTarget: __ReactDnd.DropTargetSpec<OverlayPageWrapperProps> = {
     }
 };
 
+interface DocumentLoadingProps {
+    loading: boolean;
+    progress: number;
+}
+
+class UnconnectedDocumentLoading extends React.PureComponent<DocumentLoadingProps>{
+    render() {
+        return  <div className="document-loading">
+            <CSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+                { this.props.loading && <p className="text-center">Loading Document...</p> }
+                    { this.props.loading && <div className="progress" key="progress">
+                        <div className="progress-bar progress-bar-striped active" style={{width: `${this.props.progress*100}%`}}></div>
+                    </div> }
+            </CSSTransitionGroup>
+            </div>
+    }
+}
+
+const DocumentLoading = connect((state: Sign.State, ownProps: any) => {
+    const document = state.documents[ownProps.documentId]
+    return {
+        loading: document && (document.readStatus === Sign.DocumentReadStatus.NotStarted || document.readStatus === Sign.DocumentReadStatus.InProgress),
+        progress: document && document.downloadProgress
+    }
+})(UnconnectedDocumentLoading)
 
 class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 
@@ -244,6 +270,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                         </Col>
                         <Col lg={10} md={12} className="page-list">
                             <WidthSpy />
+                            <DocumentLoading documentId={this.props.documentId} />
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
                                 const signaturesIndexes = Object.keys(this.props.signatures).filter(signatureIndex => this.props.signatures[signatureIndex].pageNumber === index &&
                                                                                                     this.props.signatures[signatureIndex].documentId === this.props.documentId);

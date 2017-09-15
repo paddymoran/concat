@@ -24,7 +24,8 @@ $zindex-popover: 1030;
 // Z indexes (so they are all in one place - and we don't hate ourselves when signatures appear over modals)
 $navbar-zindex: 150;
 $beta-ribbon-zindex: 10;
-
+$progress-bar-color: lighten($deep-red, 20%);
+$progress-bar-bg: $deep-red;
 
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/grid";

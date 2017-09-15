@@ -11,13 +11,27 @@
         top: -25px;
         font-size: 20px;
         line-height: 20px;
+        
         & > button {
+            color: $gray-dark;
+            width: 36px;
+            height: 36px;
             background-color: #fff;
             border-radius: 10px;
             color: $gray;
             padding: 0 2px;
-            &:focus{
-                 outline: none;
+            border: 1px solid $gray-dark;
+            border-radius: 4px;
+            margin-left: 12px;
+            position: relative;
+            z-index: 200;
+
+            &:focus {
+                outline: none;
+            }
+
+            &:hover {
+                background: $gray-lighter;
             }
         }
     }

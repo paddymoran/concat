@@ -4,6 +4,8 @@ import PDFViewer from './pdf/viewer';
 import { requestRequestedSignatures, requestDocumentSet } from '../actions';
 
 
+
+
 interface DocumentViewProps {
     params: {
         documentSetId: string;
@@ -21,10 +23,16 @@ export class UnconnectedDocumentView extends React.PureComponent<ConnectedDocume
     componentDidMount() {
         this.props.requestDocumentSet(this.props.params.documentSetId)
     }
+
     render() {
         return (
+               <div>
+
             <div className="pdf-screen">
+
+
                 <PDFViewer documentId={this.props.params.documentId} documentSetId={this.props.params.documentSetId} isDocumentOwner={true} />
+            </div>
             </div>
         );
     }

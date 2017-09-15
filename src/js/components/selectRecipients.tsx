@@ -68,7 +68,9 @@ class ComboboxComponent extends React.PureComponent<ComboboxComponentProps> {
 
         return (
             <FormGroup {...formProps}>
-                <Combobox {...this.props.input} suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} placeholder={this.props.placeholder}/>
+                <Combobox {...this.props.input} messages={{
+                    emptyFilter: 'No Matches', open: null,  emptyList: 'No Matches'
+                }} filter='contains' suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} placeholder={this.props.placeholder}/>
                 <FormControl.Feedback />
                 {showValidation && <HelpBlock>{ meta.error }</HelpBlock>}
             </FormGroup>

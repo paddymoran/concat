@@ -20,7 +20,7 @@ export default class Documents extends React.PureComponent {
                         <div className="documents-nav-section">
                             <div className="documents-nav-title">My Documents</div>
                             <ul>
-                                <li><Link to="/pending"  activeClassName="active">Waiting on Others</Link></li>
+                                <li><Link to="/pending"  activeClassName="active">pending</Link></li>
                                 <li><Link to="/completed"  activeClassName="active">Completed</Link></li>
                             </ul>
                         </div>

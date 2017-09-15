@@ -165,6 +165,7 @@ interface ConnectedModalButtonProps extends ModalButtonProps{
     text: string;
     showModal: () => void;
     requestSignatures: () => void;
+    className: string;
 }
 
 class ModalButton extends React.PureComponent<ConnectedModalButtonProps> {
@@ -191,7 +192,7 @@ class ModalButton extends React.PureComponent<ConnectedModalButtonProps> {
         }
 
         return (
-            <div className={`sign-control sign-control-with-dropdown ${this.props.active ? 'active' : ''}`} >
+            <div className={`sign-control sign-control-with-dropdown ${this.props.active ? 'active' : ''}  ${this.props.className}`} >
                 <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.setActive}>
                     { this.props.selectedId && <div className="signature-image" style={style}></div> }
                     { !this.props.selectedId && <div className="signature-placeholder" >{ this.props.text }</div> }
@@ -210,6 +211,7 @@ class ModalButton extends React.PureComponent<ConnectedModalButtonProps> {
 export const SignatureButton = connect<{}, {}, ModalButtonProps>(
     (state: Sign.State) => ({
         text: 'Signature',
+        className: 'signature-control',
         selectedId: state.documentViewer.selectedSignatureId
     }),
     {
@@ -221,6 +223,7 @@ export const SignatureButton = connect<{}, {}, ModalButtonProps>(
 export const InitialButton = connect<{}, {}, ModalButtonProps>(
     (state: Sign.State) => ({
         text: 'Initial',
+        className: 'initial-control',
         selectedId: state.documentViewer.selectedInitialId
     }),
     {

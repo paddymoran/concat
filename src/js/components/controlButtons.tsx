@@ -16,7 +16,7 @@ export class DateButton extends React.PureComponent<ControlButtonProps> {
         this.props.setActive();
     }
     render(){
-        return <ControlButton label="Date" active={this.props.active} setActive={this.setActive} iconName="calendar" />;
+        return <ControlButton label="Date" active={this.props.active} setActive={this.setActive} iconName="calendar"   className="date-control"/>;
     }
 }
 
@@ -30,7 +30,7 @@ export class TextButton extends React.PureComponent<ControlButtonProps> {
         this.props.setActive();
     }
     render(){
-        return <ControlButton label="Custom Text" active={this.props.active} setActive={this.setActive} iconName="font" />;
+        return <ControlButton label="Custom Text" active={this.props.active} setActive={this.setActive} iconName="font"  className="text-control"/>;
     }
 }
 
@@ -44,7 +44,7 @@ export class PromptButton extends React.PureComponent<ControlButtonProps> {
         this.props.setActive();
     }
     render(){
-        return <ControlButton label="Request Signature" showLabel={true} active={this.props.active} setActive={this.setActive} iconName="paste" />;
+        return <ControlButton label="Request Signature" showLabel={true} active={this.props.active} setActive={this.setActive} iconName="paste"  className="prompt-control"/>;
     }
 }
 
@@ -52,7 +52,7 @@ export class PromptButton extends React.PureComponent<ControlButtonProps> {
 class ControlButton extends React.PureComponent<any> {
     render() {
         return (
-            <div className={`sign-control ${this.props.active ? 'active' : ''}`}>
+            <div className={`sign-control ${this.props.active ? 'active' : ''} ${this.props.className}`}>
                 <div className={`activate-sign-control ${this.props.active ? 'active' : ''}`} onClick={this.props.setActive}>
                 <div className="button-text"><i className={`fa fa-${this.props.iconName}`} /> { this.props.showLabel && this.props.label }</div>
                 </div>

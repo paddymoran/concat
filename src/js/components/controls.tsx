@@ -407,11 +407,11 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                     </div>
 
                     <div className="controls-right">
-                        <ControlButton label="Select Control" iconName="fa-bars" classNames="visible-mobile visible-mobile-only" onClick={this.props.showActivateControlModal} />
-                        <ControlButton label={saveText} iconName={saveIcon} onClick={this.props.save} visible={this.props.showSave} />
-                        <ControlButton label="Invite" iconName="fa-users" onClick={this.props.showInviteModal} visible={this.props.showInvite} />
-                        <ControlButton label="Guide" iconName="fa-forward" onClick={this.nextPrompt} visible={!!nextPrompt} />
-                        <ControlButton label="Reject" iconName="fa-times" onClick={() => this.props.finishedSigningDocument({ reject: true })} visible={this.props.showReject} />
+                        <ControlButton label="Select Control" iconName="fa-bars" classNames="visible-mobile visible-mobile-only select-control" onClick={this.props.showActivateControlModal} />
+                        <ControlButton label={saveText} iconName={saveIcon} onClick={this.props.save} visible={this.props.showSave} classNames="save-control" />
+                        <ControlButton label="Invite" iconName="fa-users" onClick={this.props.showInviteModal} visible={this.props.showInvite} classNames="invite-control"/>
+                        <ControlButton label="Guide" iconName="fa-forward" onClick={this.nextPrompt} visible={!!nextPrompt} classNames="guide-control"/>
+                        <ControlButton label="Reject" iconName="fa-times" onClick={() => this.props.finishedSigningDocument({ reject: true })} visible={this.props.showReject} classNames="reject-control"/>
                         <ControlButton label={submitString} iconName="fa-pencil" classNames={`submit-button visible-mobile ${canSubmit ? '' : 'submit-disabled'}`} onClick={this.sign} />
                     </div>
                 </div>

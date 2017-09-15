@@ -160,11 +160,13 @@ export function* preloader() {
   let downloaded;
   let viewing : Sign.Actions.ViewDocumentPayload;
   while (true) {
-    const result = yield take([Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE , Sign.Actions.Types.VIEW_DOCUMENT]);
+      // take pairs of actions
+    const result = yield take([Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE, Sign.Actions.Types.VIEW_DOCUMENT]);
     switch (result.type) {
-      case Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE: downloaded = result.payload; break;
-      case Sign.Actions.Types.VIEW_DOCUMENT: viewing = result.payload; break;
+         case Sign.Actions.Types.FINISH_ADD_PDF_TO_STORE: downloaded = result.payload; break;
+         case Sign.Actions.Types.VIEW_DOCUMENT: viewing = result.payload; break;
     }
+
     if(downloaded && viewing && downloaded.id === viewing.documentId){
         const data = yield select((state: Sign.State) => ({
             documentSet: state.documentSets[viewing.documentSetId],

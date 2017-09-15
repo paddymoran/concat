@@ -8,14 +8,17 @@ import { RequestedSignaturesPending, RequestedSignaturesComplete } from '../comp
 import NotFound from '../components/notFound';
 import Documents from '../components/documents';
 import Verify from '../components/verify';
+import { SignTour } from '../components/tour';
 
 
 export default () => {
     return (
         <Route path='/' component={App}>
              <Route component={RequiresLogin}>
-                <Route path='documents/:documentSetId/:documentId' component={ DocumentView } />
-                <Route path='sign/:documentSetId/:documentId' component={ RequestedDocumentView } />
+                 <Route component={SignTour}>
+                    <Route path='documents/:documentSetId/:documentId' component={ DocumentView } />
+                    <Route path='sign/:documentSetId/:documentId' component={ RequestedDocumentView } />
+                </Route>
             </Route>
             <Route component={ContainerWithStatusBar}>
                 <Route path='verify' component={ Verify } />

@@ -22,7 +22,6 @@ import WidthSpy from '../widthSpy'
 import { CSSTransitionGroup } from 'react-transition-group';
 
 
-
 Promise.config({ cancellation: true });
 
 interface PDFViewerProps {

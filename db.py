@@ -634,8 +634,55 @@ def get_user_meta(user_id):
 
         if data is None:
             data = {}
-        
-        print(data)
 
         return data
+
+
+def update_user_meta(user_id, meta):
+    database = get_db()
+
+    user_dict = defaultdict(lambda: False)
+    user_dict.update(user)
+
+    user = user_dict
+
+    if current_app.config.get('USE_DB_UPSERT'):
+        query = """
+            INSERT INTO user_meta
+                (user_id, data)
+            VALUES
+                (%(user_id)s, %(data)s)
+            
+            ON CONFLICT (user_id)
+                DO UPDATE SET data = %(data)s;
+        """
+
+        with database.cursor() as cursor:
+            cursor.execute(query, {
+                'user_id': user_id,
+                'data': meta
+            })
+    else:
+        try:
+            query = """
+                INSERT INTO user_meta (user_id, data)
+                VALUES (%(user_id)s, %(data)s)
+            """
+            
+            with database.cursor() as cursor:
+                cursor.execute(query, {
+                    'user_id': user_id,
+                    'data': meta
+                })
+
+        except:
+            database.rollback()
+            
+            query = """
+                UPDATE users SET data = %(data)s
+            """
+            
+            with database.cursor() as cursor:
+                cursor.execute(query, user)
     
+    database.commit()

@@ -523,3 +523,10 @@ export function showSigningCompleteModal(payload: Sign.Actions.ShowSigningComple
         payload
     };
 }
+
+export function finishSigning(payload: Sign.Actions.FinishSigningPayload): Sign.Actions.FinishSigning {
+    return {
+        type: Sign.Actions.Types.FINISH_SIGNING,
+        payload
+    };
+}

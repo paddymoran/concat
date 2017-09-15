@@ -472,6 +472,8 @@ declare namespace Sign.Actions {
 
         SHOW_RESULTS = 'SHOW_RESULTS',
 
+        FINISH_SIGNING = 'FINISH_SIGNING',
+
         // Modals
         CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
         UPDATE_MODAL_DATA = 'UPDATE_MODAL_DATA',
@@ -910,6 +912,10 @@ declare namespace Sign.Actions {
         users?: Sign.User[]
     }
 
+    interface FinishSigningPayload {
+        documentSetId: string;
+    }
+
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
     interface ViewDocument extends ActionCreator<ViewDocumentPayload> {}
@@ -964,6 +970,8 @@ declare namespace Sign.Actions {
 
     interface ShowResults extends ActionCreator<ShowResultsPayload> {}
 
+    interface FinishSigning extends ActionCreator<FinishSigningPayload> {}
+
     // Modals
     interface CloseModal extends ActionCreator<CloseModalPayload> {}
     interface UpdateModalData extends ActionCreator<UpdateModalDataPayload> {}
@@ -1003,7 +1011,6 @@ declare namespace Sign.Actions {
 
     interface RequestVerification extends ActionCreator<RequestVerificationPayload> {}
     interface UpdateVerification extends ActionCreator<UpdateVerificationPayload> {}
-
 }
 
 declare module 'pdfjs-dist/webpack' {

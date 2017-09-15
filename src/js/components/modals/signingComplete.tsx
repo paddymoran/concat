@@ -1,13 +1,15 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { closeModal } from '../../actions';
+import { closeModal, finishSigning } from '../../actions';
 import { Modal, Button } from 'react-bootstrap';
 import { DocumentsList } from './signConfirmation';
 import { SignStatus } from '../requestedSignatures';
 
 interface ConnectedSigningCompleteProps {
+    documentSetId: string;
     documents: Sign.Document[];
     closeModal: () => void;
+    finishSigning: (payload: Sign.Actions.FinishSigningPayload) => void;
 }
 
 class ConnectedSigningComplete extends React.PureComponent<ConnectedSigningCompleteProps> {
@@ -21,14 +23,13 @@ class ConnectedSigningComplete extends React.PureComponent<ConnectedSigningCompl
                 <Modal.Body>
                     <i className="fa fa-pencil modal-icon" aria-hidden="true"></i>
 
-                    <p className='text-center'>Are you sure you want to move to the next document?</p>
-
+                    <p className='text-center'>All documents have been signed. You can download them on the next page.</p>
                     
                     <h3>Documents</h3>
 
                     {this.props.documents.map(document => <p key={document.id}>{document.filename}: <SignStatus signStatus={document.signStatus}/></p>)}
 
-                    <Button bsStyle='primary' bsSize="lg" onClick={() => {}}>Done</Button>
+                    <Button bsStyle='primary' bsSize="lg" onClick={() => this.props.finishSigning({ documentSetId: this.props.documentSetId })}>Next Page</Button>
                 </Modal.Body>
             </Modal>
         );
@@ -46,7 +47,10 @@ export default connect<{}, {}, {}>(
             signStatus: (state.documentViewer.documents[documentId] || { signStatus: Sign.SignStatus.PENDING }).signStatus
         }));
 
-        return { documents };
+        return { documentSetId, documents };
     },
-    { closeModal }
+    {
+        finishSigning,
+        closeModal: () => closeModal({ modalName: Sign.ModalType.SIGNING_COMPLETE })
+    }
 )(ConnectedSigningComplete);

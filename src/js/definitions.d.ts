@@ -84,6 +84,11 @@ declare namespace Sign {
         subscribed?: boolean;
     }
 
+    interface CurrentUserMetadata {
+        tourViewed: string[];
+        tourDismissed: boolean;
+    }
+
 
     type DocumentSetSignStatus = 'Pending' | 'Complete' | 'Rejected' | 'Partial';
 

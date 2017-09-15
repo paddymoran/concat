@@ -452,8 +452,8 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
 
         const { positionable, containerWidth, containerHeight, className } = this.props;
         const defaults = {
-            x: containerWidth * positionable.offsetX,
-            y: containerHeight * positionable.offsetY,
+            x: Math.round(containerWidth * positionable.offsetX),
+            y: Math.round(containerHeight * positionable.offsetY),
             width: containerWidth * positionable.ratioX,
             height: containerHeight * positionable.ratioY
         };

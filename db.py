@@ -618,3 +618,24 @@ def signed_by(user_id, file_hash):
                        'hash': file_hash})
         data = cursor.fetchone()
         return data['signed_by']
+
+
+def get_user_meta(user_id):
+    database = get_db()
+    query = """
+        SELECT data
+        FROM user_meta
+        WHERE user_id = %(user_id)s
+    """
+
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, { 'user_id': user_id })
+        data = cursor.fetchone()
+
+        if data is None:
+            data = {}
+        
+        print(data)
+
+        return data
+    

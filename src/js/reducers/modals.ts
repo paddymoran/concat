@@ -69,6 +69,13 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
                 showing: Sign.ModalType.CONFIRM_ACTION,
             };
 
+        case Sign.Actions.Types.SHOW_SIGNING_COMPLETE_MODAL:
+            return {
+                ...state,
+                ...action.payload,
+                showing: Sign.ModalType.SIGNING_COMPLETE,
+            };
+
         default:
             return state;
     }

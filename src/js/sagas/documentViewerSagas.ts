@@ -1,6 +1,6 @@
 import { all, takeEvery, put, call, select, take } from 'redux-saga/effects';
 import axios from 'axios';
-import { setSignRequestStatus, showResults, closeModal, showFailureModal, setSaveStatus, resetDocuments, requestDocument } from '../actions';
+import { setSignRequestStatus, showResults, closeModal, showFailureModal, setSaveStatus, resetDocuments, requestDocument, showSigningCompleteModal } from '../actions';
 import { push } from 'react-router-redux';
 import { findSetForDocument, stringToCanvas, getNextDocument } from '../utils';
 
@@ -76,32 +76,33 @@ function *submitDocumentSet() {
         const documentViewer = yield select((state: Sign.State) => state.documentViewer);
         const documentSets = yield select((state: Sign.State) => state.documentSets);
         const documentIds = documentSets[action.payload.documentSetId].documentIds;
-        try{
-            for(let documentId of documentIds){
-                if(hasSomethingToSign(documentViewer, documentId)){
+        try {
+            for (let documentId of documentIds) {
+                if (hasSomethingToSign(documentViewer, documentId)) {
                     yield signDocument({type: Sign.Actions.Types.SIGN_DOCUMENT, payload: {documentSetId: action.payload.documentSetId, documentId}} as Sign.Actions.SignDocument);
                 }
             }
             const status = yield select((state: Sign.State) => state.documentViewer.signRequestStatus);
-            if(status === Sign.DownloadStatus.InProgress){
+            if (status === Sign.DownloadStatus.InProgress) {
                 return;
             }
-        }catch (e) {
-            yield  put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION }));
-            if(e.response && e.response.data && e.response.data.type === 'OLD_VERSION'){
+        }
+        catch (e) {
+            yield put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION }));
+            if (e.response && e.response.data && e.response.data.type === 'OLD_VERSION') {
                 yield put(showFailureModal({message: 'Sorry, this version of the document has already been signed.'}));
                 yield all([
-                          put(resetDocuments()),
-                          put(push(`/documents/${action.payload.documentSetId}`))
-                          ]);
+                    put(resetDocuments()),
+                    put(push(`/documents/${action.payload.documentSetId}`))
+                ]);
             }
-            else{
+            else {
                 yield put(showFailureModal({message: 'Sorry, we could not sign at this time.'}));
             }
             return;
         }
         try {
-            if(action.payload.signatureRequests.length){
+            if (action.payload.signatureRequests.length) {
                 yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
                 const response = yield call(axios.post, '/api/request_signatures', action.payload);
             }
@@ -109,9 +110,8 @@ function *submitDocumentSet() {
             yield all([
                 put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
                 put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-                put(push(`/documents/${action.payload.documentSetId}`)),
             ]);
-            yield put(resetDocuments());
+            yield put(showSigningCompleteModal({ documentSetId: action.payload.documentSetId }));
         }
         catch (e) {
             yield all([
@@ -120,6 +120,18 @@ function *submitDocumentSet() {
                 put(setSignRequestStatus(Sign.DownloadStatus.Failed))
             ]);
         }
+    }
+}
+
+function *finishSigningSaga() {
+    yield takeEvery(Sign.Actions.Types.FINISH_SIGNING, finishSigning);
+
+    function *finishSigning(action: Sign.Actions.FinishSigning) {
+        yield all([
+            put(closeModal({ modalName: Sign.ModalType.SIGNING_COMPLETE })),
+            put(push(`/documents/${action.payload.documentSetId}`)),
+            put(resetDocuments())
+        ]);
     }
 }
 
@@ -181,4 +193,9 @@ export function* preloader() {
   }
 }
 
-export default [submitDocumentSet(), saveDocumentViewSaga(), preloader()];
+export default [
+    submitDocumentSet(),
+    saveDocumentViewSaga(),
+    preloader(),
+    finishSigningSaga(),
+];

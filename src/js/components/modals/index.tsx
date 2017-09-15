@@ -9,6 +9,7 @@ import Invite from './invite';
 import EmailDocument from './emailDocument';
 import ActivateControl from './activateControl';
 import ConfirmAction from './confirmAction';
+import SigningComplete from './signingComplete';
 
 interface ModalsProps {
     showing: string;
@@ -46,6 +47,9 @@ class Modals extends React.PureComponent<ModalsProps>{
 
             case Sign.ModalType.CONFIRM_ACTION:
                 return <ConfirmAction />
+
+            case Sign.ModalType.SIGNING_COMPLETE:
+                return <SigningComplete />
 
             default:
                 return false;

@@ -5,4 +5,4 @@ CREATE TABLE user_meta (
   CONSTRAINT user_meta_user_id_fk FOREIGN KEY (user_id)
       REFERENCES public.users (user_id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
-)
+);

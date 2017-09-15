@@ -551,6 +551,14 @@ def get_usage():
     return jsonify(get_user_usage())
 
 
+@app.route('/api/user/meta', methods=['GET'])
+@protected
+@nocache
+def get_user_meta():
+    user_meta = db.get_user_meta(session['user_id'])
+    return jsonify(user_meta)
+
+
 @app.route('/api/verify/<doc_hash>', methods=['GET'])
 def verify_hash(doc_hash):
     return jsonify(db.signed_by(session.get('user_id', None), doc_hash))

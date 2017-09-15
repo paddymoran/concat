@@ -11,20 +11,18 @@
         top: -25px;
         font-size: 20px;
         line-height: 20px;
-        
+        @extend .btn-group;
+        min-width: 66px;
+
         & > button {
-            color: $gray-dark;
-            width: 36px;
-            height: 36px;
-            background-color: #fff;
-            border-radius: 10px;
-            color: $gray;
-            padding: 0 2px;
-            border: 1px solid $gray-dark;
-            border-radius: 4px;
-            margin-left: 12px;
-            position: relative;
-            z-index: 200;
+           @extend .btn;
+           @extend .btn-default;
+           @extend .btn-sm;
+           font-size:16px;
+           padding: 2px 8px;
+
+            float:right;
+
 
             &:focus {
                 outline: none;

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Joyride from 'react-joyride';
 import { connect } from 'react-redux';
-
+import { changeTour } from '../actions';
 
 const arrayOfSteps = [
   {
@@ -106,44 +106,54 @@ const arrayOfSteps = [
 ];
 
 
+interface TourProps {
+    showing: boolean;
+    changeTour: (payload : Sign.Actions.ChangeTourPayload) => void;
+}
 
 
-
-class Tour extends React.PureComponent<{}, {tour: boolean}> {
-    constructor(props){
+class Tour extends React.PureComponent<TourProps,  {stepIndex: number}>{
+    constructor(props: TourProps){
         super(props);
         this.callback = this.callback.bind(this);
-        this.state = {tour: true, stepIndex: 0}
+        this.state = {stepIndex: 0}
+    }
+
+    componentWillReceiveProps(newProps: TourProps) {
+        if(this.props.showing === false && newProps.showing === true){
+            this.setState({stepIndex: 0})
+        }
     }
 
     callback(data: any) {
-      if (data.action === 'close' && data.type === 'step:after') {
-        this.setState({ tour: false });
-      }
-      if(data.action === "next" || data.action === 'start'){
+        if (data.action === 'close' && data.type === 'step:after') {
+              this.props.changeTour({showing: false})  ;
+        }
+        if(data.action === "next" || data.action === 'start'){
           // force progress to next
           if(data.type === "error:target_not_found"){
-              debugger
-              this.setState({stepIndex: data.index+1})
+              if(data.index + 1 < arrayOfSteps.length){
+                  this.setState({stepIndex: data.index+1})
+              }
+          }
+          else if(data.type === 'finished'){
+              this.props.changeTour({showing: false})
           }
           else{
               this.setState({stepIndex: data.index})
           }
-      }
-
-      //{ type: 'finished', steps: [{...}], isTourSkipped: boolean }
+        }
     }
 
     render() {
         return <div>
-            { false && <Joyride
+            { this.props.showing && <Joyride
             ref="joyride"
 
             stepIndex={this.state.stepIndex}
             steps={arrayOfSteps}
-            run={this.state.tour}
-            debug={true}
-            autoStart={this.state.tour}
+            run={this.props.showing}
+            autoStart={this.props.showing}
             callback={this.callback}
             disableOverlay={true}
             showSkipButton={true}
@@ -156,6 +166,8 @@ class Tour extends React.PureComponent<{}, {tour: boolean}> {
 
 export const  SignTour = connect(
     (state: Sign.State, ownProps) => ({
-
-    })
+        showing: state.tour.showing
+    }), {
+        changeTour: changeTour
+    }
 )(Tour);

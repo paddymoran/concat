@@ -530,3 +530,10 @@ export function finishSigning(payload: Sign.Actions.FinishSigningPayload): Sign.
         payload
     };
 }
+
+export function changeTour(payload: Sign.Actions.ChangeTourPayload): Sign.Actions.ChangeTour {
+    return {
+        type: Sign.Actions.Types.CHANGE_TOUR,
+        payload
+    };
+}

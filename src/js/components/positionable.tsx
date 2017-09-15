@@ -601,7 +601,8 @@ class UnconnectedRequestPrompt extends React.PureComponent<ConnectedRequestPromp
                 let ratioX = this.props.requestPrompt.ratioX;
                 let ratioY = ratioX / xyRatio;
                 if(ratioY > this.props.requestPrompt.ratioY){
-                    ratioX = ratioX * this.props.requestPrompt.ratioY/ratioY;
+
+                    ratioX = ratioX * (ratioY/this.props.requestPrompt.ratioY);
                     ratioY = this.props.requestPrompt.ratioY;
                 }
                 this.props.addSignatureToDocument({

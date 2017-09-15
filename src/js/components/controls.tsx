@@ -6,7 +6,7 @@ import { DateButton, TextButton, PromptButton } from './controlButtons';
 import * as Moment from 'moment';
 import { connect } from 'react-redux';
 import { OverlayTrigger, Popover, Modal } from 'react-bootstrap';
-import { setActiveSignControl, showInviteModal, closeModal, showActivateControlModal, showSignConfirmationModal, saveDocumentView, finishedSigningDocument } from '../actions';
+import { setActiveSignControl, showInviteModal, closeModal, showActivateControlModal, showSignConfirmationModal, saveDocumentView, finishedSigningDocument, changeTour } from '../actions';
 import { dateDefaults, textDefaults, findSetForDocument, getNextDocument, massageDefaultPrompts } from '../utils';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
 
@@ -283,6 +283,7 @@ export interface ConnectedControlProps extends ControlProps {
     save: () => void;
 
     finishedSigningDocument: (options: {reject: boolean}) => void;
+    showTour: () => void
 }
 
 class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
@@ -290,6 +291,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         super(props);
         this.sign = this.sign.bind(this);
         this.nextPrompt = this.nextPrompt.bind(this);
+        this.showTour = this.showTour.bind(this);
     }
 
     sign() {
@@ -304,6 +306,12 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
             this.props.finishedSigningDocument({ reject: false });
         }
     }
+    showTour() {
+        // yuck
+        window.scrollTo(0, 0)
+        this.props.showTour();
+    }
+
 
     nextPrompt() {
         const prompt = this.props.getNextPrompt();
@@ -407,6 +415,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
                     </div>
 
                     <div className="controls-right">
+                        <ControlButton label="Help" iconName="fa-question" classNames="tour-control" onClick={this.showTour} />
                         <ControlButton label="Select Control" iconName="fa-bars" classNames="visible-mobile visible-mobile-only select-control" onClick={this.props.showActivateControlModal} />
                         <ControlButton label={saveText} iconName={saveIcon} onClick={this.props.save} visible={this.props.showSave} classNames="save-control" />
                         <ControlButton label="Invite" iconName="fa-users" onClick={this.props.showInviteModal} visible={this.props.showInvite} classNames="invite-control"/>
@@ -541,7 +550,7 @@ function mapDispatchToProps(dispatch: Function, ownProps: ControlProps) {
         activateDate: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.DATE })),
         activateText: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.TEXT })),
         activatePrompt: () => dispatch(setActiveSignControl({ activeSignControl: Sign.SignControl.PROMPT })),
-
+        showTour: () => dispatch(changeTour({showing: true})),
         finishedSigningDocument: ({ reject }: { reject: boolean }) => dispatch(finishedSigningDocument({ documentId, documentSetId, reject, isDocumentOwner: ownProps.isDocumentOwner })),
 
         closeActivateControlModal: () =>  dispatch(closeModal({ modalName: Sign.ModalType.ACTIVATE_CONTROL })),

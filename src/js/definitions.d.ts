@@ -282,6 +282,10 @@ declare namespace Sign {
         status: DownloadStatus;
     }
 
+    interface Tour {
+        showing: boolean;
+    }
+
     interface State {
         routing: any;
         documentSets: DocumentSets;
@@ -300,6 +304,7 @@ declare namespace Sign {
         usage: Usage;
         verifications: Verifications;
         user: CurrentUser;
+        tour: Tour
     }
 
     interface ToSignPage {
@@ -525,7 +530,9 @@ declare namespace Sign.Actions {
         REVOKE_SIGN_INVITATION = 'REVOKE_SIGN_INVITATION',
 
         REQUEST_VERIFICATION = 'REQUEST_VERIFICATION',
-        UPDATE_VERIFICATION = 'UPDATE_VERIFICATION'
+        UPDATE_VERIFICATION = 'UPDATE_VERIFICATION',
+
+        CHANGE_TOUR = 'CHANGE_TOUR'
     }
 
 
@@ -921,6 +928,10 @@ declare namespace Sign.Actions {
         documentSetId: string;
     }
 
+    interface ChangeTourPayload {
+        showing: boolean;
+    }
+
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
     interface ViewDocument extends ActionCreator<ViewDocumentPayload> {}
@@ -1016,6 +1027,9 @@ declare namespace Sign.Actions {
 
     interface RequestVerification extends ActionCreator<RequestVerificationPayload> {}
     interface UpdateVerification extends ActionCreator<UpdateVerificationPayload> {}
+
+    interface ChangeTour extends ActionCreator<ChangeTourPayload> {}
+
 }
 
 declare module 'pdfjs-dist/webpack' {
@@ -1123,7 +1137,7 @@ declare module 'react-scroll/modules/mixins/scroller' {
     export function get(name: string): any;
     export function setActiveLink(link: string): void;
     export function getActiveLink(): string;
-    export function scrollTo(to: string, props: any): void;
+    export function scrollTo(to: string, props?: any): void;
 }
 
 

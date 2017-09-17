@@ -596,6 +596,16 @@ ALTER SEQUENCE signatures_id_seq OWNED BY signatures.signature_id;
 
 
 --
+-- Name: user_meta; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE user_meta (
+    user_id integer NOT NULL,
+    data jsonb
+);
+
+
+--
 -- Name: user_usage_limits; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -690,6 +700,14 @@ ALTER TABLE ONLY sign_results
 
 ALTER TABLE ONLY signatures
     ADD CONSTRAINT signatures_pkey PRIMARY KEY (signature_id);
+
+
+--
+-- Name: user_meta_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY user_meta
+    ADD CONSTRAINT user_meta_pkey PRIMARY KEY (user_id);
 
 
 --
@@ -817,6 +835,14 @@ ALTER TABLE ONLY sign_results
 
 ALTER TABLE ONLY signatures
     ADD CONSTRAINT signatures_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
+
+
+--
+-- Name: user_meta_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY user_meta
+    ADD CONSTRAINT user_meta_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
 
 
 --

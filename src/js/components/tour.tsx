@@ -158,6 +158,7 @@ class Tour extends React.PureComponent<TourProps,  {stepIndex: number}>{
             disableOverlay={true}
             showSkipButton={true}
             type='continuous'
+            locale={{ back: 'Back', close: 'Close', last: 'Done', next: 'Next', skip: 'Skip' }}
             /> }
             { this.props.children }
         </div>

@@ -26,6 +26,7 @@ DROP TABLE IF EXISTS public.signatures;
 
 
 
+DROP TABLE IF EXISTS public.user_meta;
 DROP TABLE IF EXISTS public.sign_results;
 
 DROP TABLE IF EXISTS public.sign_requests;

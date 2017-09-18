@@ -537,3 +537,10 @@ export function changeTour(payload: Sign.Actions.ChangeTourPayload): Sign.Action
         payload
     };
 }
+
+export function updateUserMeta(payload: Sign.Actions.UpdateUserMetaDataPayload) : Sign.Actions.UpdateUserMetaData {
+    return {
+        type: Sign.Actions.Types.UPDATE_USER_META,
+        payload
+    }
+}

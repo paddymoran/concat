@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Joyride from 'react-joyride';
 import { connect } from 'react-redux';
-import { changeTour } from '../actions';
+import { changeTour, updateUserMeta } from '../actions';
 
 const arrayOfSteps = [
   {
@@ -108,16 +108,27 @@ const arrayOfSteps = [
 
 interface TourProps {
     showing: boolean;
+    userMeta: Sign.UserMetaData;
     changeTour: (payload : Sign.Actions.ChangeTourPayload) => void;
+    updateUserMeta: (payload: Sign.Actions.UpdateUserMetaDataPayload) => void;
+}
+
+function getNextStepIndex(tour: any[], seen: string[]){
+    return tour.findIndex((t:any) => {
+        return seen.indexOf(t.name) === -1
+    });
 }
 
 
-class Tour extends React.PureComponent<TourProps,  {stepIndex: number}>{
+class Tour extends React.PureComponent<TourProps,  {stepIndex: number, steps: any[]}>{
+
+
     constructor(props: TourProps){
         super(props);
         this.callback = this.callback.bind(this);
-        this.state = {stepIndex: 0}
+        this.state = {stepIndex: 0, steps: arrayOfSteps}
     }
+
 
     componentWillReceiveProps(newProps: TourProps) {
         if(this.props.showing === false && newProps.showing === true){
@@ -126,38 +137,53 @@ class Tour extends React.PureComponent<TourProps,  {stepIndex: number}>{
     }
 
     callback(data: any) {
-        if (data.action === 'close' && data.type === 'step:after') {
+        const tourViewed = this.props.userMeta.tour.tourViewed || [];
+        if ((data.action === 'close' && data.type === 'step:after') || (data.action === 'skip')) {
               this.props.changeTour({showing: false})  ;
+              this.props.updateUserMeta({
+                 tour: {
+                     tourViewed: [...tourViewed],
+                     tourDismissed: true
+                 }
+              });
         }
         if(data.action === "next" || data.action === 'start'){
           // force progress to next
-          if(data.type === "error:target_not_found"){
-              if(data.index + 1 < arrayOfSteps.length){
+            if(data.type === 'step:after'){
+                this.props.updateUserMeta({
+                    tour: {
+                        tourViewed: [...tourViewed, this.state.steps[data.index].name],
+                        tourDismissed: false
+                    }
+                });
+                 // get 'next index, based on what has been skipped'
+                this.setState({stepIndex: data.index})
+            }
+            if(data.type === "error:target_not_found"){
+              if(data.index + 1 < this.state.steps.length){
                   this.setState({stepIndex: data.index+1})
               }
-          }
-          else if(data.type === 'finished'){
-              this.props.changeTour({showing: false})
-          }
-          else{
-              this.setState({stepIndex: data.index})
-          }
+            }
+            else if(data.type === 'finished'){
+                this.props.changeTour({showing: false})
+            }
         }
     }
 
     render() {
+        console.log(this.state.stepIndex)
         return <div>
-            { this.props.showing && <Joyride
+            { this.props.showing && !!this.state.steps.length && <Joyride
             ref="joyride"
-
             stepIndex={this.state.stepIndex}
-            steps={arrayOfSteps}
+            steps={this.state.steps}
             run={this.props.showing}
             autoStart={this.props.showing}
             callback={this.callback}
             disableOverlay={true}
             showSkipButton={true}
             type='continuous'
+            debug={true}
             locale={{ back: 'Back', close: 'Close', last: 'Done', next: 'Next', skip: 'Skip' }}
             /> }
             { this.props.children }
@@ -166,9 +192,9 @@ class Tour extends React.PureComponent<TourProps,  {stepIndex: number}>{
 }
 
 export const  SignTour = connect(
-    (state: Sign.State, ownProps) => ({
-        showing: state.tour.showing
-    }), {
-        changeTour: changeTour
+    (state: Sign.State, ownProps) => {
+        return {showing: state.tour.showing, userMeta: state.userMeta}
+    }, {
+        changeTour, updateUserMeta
     }
 )(Tour);

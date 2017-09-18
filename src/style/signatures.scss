@@ -12,6 +12,7 @@
         font-size: 20px;
         line-height: 20px;
         @extend .btn-group;
+        text-align: right;;
         min-width: 66px;
 
         & > button {
@@ -20,9 +21,7 @@
            @extend .btn-sm;
            font-size:16px;
            padding: 2px 8px;
-
-            float:right;
-
+           float:none;
 
             &:focus {
                 outline: none;

@@ -144,9 +144,10 @@ interface DocumentLoadingProps {
 
 class UnconnectedDocumentLoading extends React.PureComponent<DocumentLoadingProps>{
     render() {
+        const progress = this.props.size ? `${fileSize((this.props.progress * this.props.size) || 0)} / ${fileSize(this.props.size)}` : '';
         return  <div className="document-loading">
             <CSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-                { this.props.loading && <p className="text-center">Loading Document { fileSize((this.props.progress * this.props.size) || 0) } / { fileSize(this.props.size) } </p> }
+                { this.props.loading && <p className="text-center">Loading Document { progress } </p> }
                     { this.props.loading && <div className="progress" key="progress">
                         <div className="progress-bar progress-bar-striped active" style={{width: `${this.props.progress*100}%`}}></div>
                     </div> }

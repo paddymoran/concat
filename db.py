@@ -630,21 +630,15 @@ def get_user_meta(user_id):
 
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, { 'user_id': user_id })
-        data = cursor.fetchone()
+        data = cursor.fetchone().get('data')
 
         if data is None:
-            data = {}
-
-        return data
+            return {}
+        return json.loads(data)
 
 
 def update_user_meta(user_id, meta):
     database = get_db()
-
-    user_dict = defaultdict(lambda: False)
-    user_dict.update(user)
-
-    user = user_dict
 
     if current_app.config.get('USE_DB_UPSERT'):
         query = """
@@ -679,10 +673,13 @@ def update_user_meta(user_id, meta):
             database.rollback()
             
             query = """
-                UPDATE users SET data = %(data)s
+                UPDATE user_meta SET data = %(data)s where user_id = %(user_id)s
             """
             
             with database.cursor() as cursor:
-                cursor.execute(query, user)
+                cursor.execute(query, {
+                    'user_id': user_id,
+                    'data': meta
+                })
     
     database.commit()

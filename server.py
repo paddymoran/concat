@@ -235,8 +235,8 @@ def send_rejection_email(user_id, document_set_id):
 
 def can_sign_or_submit(user_id):
     return not db.get_usage(user_id,
-                        app.config.get('MAX_SIGNS'),
-                        app.config.get('MAX_SIGN_UNIT'))['max_allowance_reached']
+                            app.config.get('MAX_SIGNS'),
+                            app.config.get('MAX_SIGN_UNIT'))['max_allowance_reached']
 
 
 def has_sign_request(user_id, sign_request_id):
@@ -260,6 +260,11 @@ def get_user_usage():
         return db.get_usage(session['user_id'],
                             app.config.get('MAX_SIGNS'),
                             app.config.get('MAX_SIGN_UNIT'))
+
+def get_user_meta():
+    if 'user_id' in session:
+        return db.get_user_meta(session['user_id'])
+
 
 def login_redirect(f):
     @wraps(f)
@@ -554,9 +559,8 @@ def get_usage():
 @app.route('/api/user/meta', methods=['GET'])
 @protected
 @nocache
-def get_user_meta():
-    user_meta = db.get_user_meta(session['user_id'])
-    return jsonify(user_meta)
+def user_meta():
+    return jsonify(get_user_meta())
 
 
 @app.route('/api/user/meta', methods=['POST'])
@@ -564,9 +568,8 @@ def get_user_meta():
 @nocache
 def update_user_meta():
     user_id = session['user_id']
-    meta = request.form.get('meta')
-    db.update_user_meta(user_id, meta)
-    
+    meta = request.get_json()
+    db.update_user_meta(user_id, json.dumps(meta.get('meta')))
     return jsonify({'message': 'User meta updated'})
 
 
@@ -696,7 +699,8 @@ def logout():
 
 @nocache
 def render_root():
-    return render_template('index.html', store={'user': get_user_info(), 'usage': get_user_usage()})
+    # TODO go async or combine these queries
+    return render_template('index.html', store={'user': get_user_info(), 'usage': get_user_usage(), 'userMeta': get_user_meta()})
 
 
 @app.route('/', defaults={'path': ''})

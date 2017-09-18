@@ -36,6 +36,7 @@ export default function *rootSaga(): any {
         requestContactsSaga(),
         requestUsageSaga(),
         finishedSigningDocumentSaga(),
+        userMeta(),
         ...pdfStoreSagas,
         ...signatureSagas,
         ...documentViewerSagas,
@@ -352,6 +353,20 @@ function *emailDocumentSaga() {
 }
 
 
+function *userMeta() {
+    yield takeEvery(Sign.Actions.Types.UPDATE_USER_META, updateUserMeta);
+
+    function *updateUserMeta(action: Sign.Actions.EmailDocuments) {
+        const data = yield select((state: Sign.State) => state.userMeta);
+        try {
+            yield call(axios.post, '/api/user/meta', {meta: JSON.stringify(data)});
+        }
+        catch (e) {
+            //swallow
+        }
+    }
+}
+
 function *requestContactsSaga() {
     interface ContactsResponse extends Axios.AxiosResponse {
         data: {
@@ -495,6 +510,8 @@ function *uploadDocumentSaga() {
         });
     }
 }
+
+
 
 function *finishedSigningDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.FINISHED_SIGNING_DOCUMENT, finishedSigningDocument);

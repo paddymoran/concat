@@ -17,8 +17,8 @@ import contacts from './contacts';
 import usage from './usage';
 import verifications from './verifications';
 import user from './user';
+import userMeta from './userMeta';
 import tour from './tour';
-
 
 const appReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     routing,
@@ -39,6 +39,7 @@ const appReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     usage,
     verifications,
     user,
+    userMeta,
     tour
 });
 

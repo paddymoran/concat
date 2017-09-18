@@ -76,6 +76,15 @@ declare namespace Sign {
         email?: string;
     }
 
+    interface TourMetaData {
+        tourViewed?: string[];
+        tourDismissed?: boolean;
+    }
+
+    interface UserMetaData {
+        tour: TourMetaData;
+    }
+
     interface CurrentUser {
         name?: string;
         userId?: number;
@@ -84,10 +93,6 @@ declare namespace Sign {
         subscribed?: boolean;
     }
 
-    interface CurrentUserMetadata {
-        tourViewed: string[];
-        tourDismissed: boolean;
-    }
 
 
     type DocumentSetSignStatus = 'Pending' | 'Complete' | 'Rejected' | 'Partial';
@@ -304,6 +309,7 @@ declare namespace Sign {
         usage: Usage;
         verifications: Verifications;
         user: CurrentUser;
+        userMeta: UserMetaData;
         tour: Tour
     }
 
@@ -532,7 +538,9 @@ declare namespace Sign.Actions {
         REQUEST_VERIFICATION = 'REQUEST_VERIFICATION',
         UPDATE_VERIFICATION = 'UPDATE_VERIFICATION',
 
-        CHANGE_TOUR = 'CHANGE_TOUR'
+        CHANGE_TOUR = 'CHANGE_TOUR',
+
+        UPDATE_USER_META = 'UPDATE_USER_META'
     }
 
 
@@ -932,6 +940,10 @@ declare namespace Sign.Actions {
         showing: boolean;
     }
 
+    interface UpdateUserMetaDataPayload extends Sign.UserMetaData{
+
+    }
+
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
     interface ViewDocument extends ActionCreator<ViewDocumentPayload> {}
@@ -1029,6 +1041,9 @@ declare namespace Sign.Actions {
     interface UpdateVerification extends ActionCreator<UpdateVerificationPayload> {}
 
     interface ChangeTour extends ActionCreator<ChangeTourPayload> {}
+
+    interface UpdateUserMetaData extends ActionCreator<UpdateUserMetaDataPayload> {}
+
 
 }
 

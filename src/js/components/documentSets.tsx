@@ -23,7 +23,7 @@ interface BufferedDocumentSets {
 }
 
 function statusComplete(status : string) {
-    return ['Signed', 'Rejected'].indexOf(status) >= 0
+    return status === 'Complete'
 }
 
 
@@ -101,7 +101,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                                 <i className="fa fa-trash"/> Delete
                                             </a>
                                         }
-                                        { this.props.documentSet.isOwner && !document.signatureRequestInfos &&
+                                        { this.props.documentSet.isOwner && !document.signatureRequestInfos && !statusComplete(document.signStatus) &&
                                            <Link className="btn btn-primary btn-sm" to={`/documents/${this.props.documentSetId}/${documentId}`}><i className="fa fa-pencil-square-o"/>Sign</Link>
                                         }
 

@@ -61,7 +61,8 @@ export const SignStatus = (props: {signStatus: Sign.SignStatus}) => {
         'Pending': 'text-warning',
         'Partial': 'text-warning',
         'Signed': 'text-success',
-        'Rejected': 'text-danger'
+        'Rejected': 'text-danger',
+        'Complete': 'text-success',
     }[status];
     return <span className={`sign-status ${className}`}>{ status }</span>
 }

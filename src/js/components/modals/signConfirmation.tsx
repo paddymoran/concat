@@ -162,8 +162,8 @@ class LoadingModalBody extends React.PureComponent<{isSigning: boolean}> {
         return (
             <div>
                 <div className='loading' />
-                { this.props.isSigning && <p>Signing document, please wait.</p> }
-                { !this.props.isSigning && <p>Sending document, please wait.</p> }
+                { this.props.isSigning && <p>Signing, please wait.</p> }
+                { !this.props.isSigning && <p>Sending, please wait.</p> }
             </div>
         );
     }
@@ -444,7 +444,7 @@ class SignConfirmation extends React.PureComponent<UnconnectedSignConfirmationPr
         let body: JSX.Element = null;
 
         if (this.props.signRequestStatus === Sign.DownloadStatus.InProgress) {
-            title = 'Submitting Documents';
+            title = 'Submitting';
             body = <LoadingModalBody isSigning={this.props.isSigning}/>;
         }
         else if (this.props.reject) {

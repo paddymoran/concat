@@ -535,7 +535,9 @@ def request_signatures():
 @protected
 @nocache
 def revoke_request_signatures(sign_request_id):
+    # get complete status
     db.revoke_signature_requests(session['user_id'], sign_request_id)
+    # get complete status again, if now complete then notify
     return jsonify({'message': 'Requests revoked'})
 
 

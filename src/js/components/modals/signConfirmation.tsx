@@ -45,7 +45,7 @@ function prepareSubmitPayload(documentSetId: string, documentSet: Sign.DocumentS
 }
 
 export interface DocumentWithStatus extends Sign.Document {
-    signStatus: Sign.SignStatus;
+    signStatus: Sign.DocumentStatus;
 }
 
 interface SignConfirmationProps {

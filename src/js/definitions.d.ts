@@ -31,6 +31,12 @@ declare namespace Sign {
         'REJECTED' = 'Rejected',
         'PARTIAL' = 'Partial',
     }
+
+    const enum DocumentStatus {
+        'PENDING' = 'Pending',
+        'COMPLETE' = 'Complete'
+    }
+
     interface SignatureRequestInfo {
         userId: number,
         name: string,
@@ -54,7 +60,8 @@ declare namespace Sign {
         pageCount?: number;
         pageViewports?: Viewport[];
         signRequestId: number;
-        signStatus?:  SignStatus;
+        signStatus?:  DocumentStatus;
+        requestStatus?:  SignStatus;
         signatureRequestInfos?: SignatureRequestInfos,
         size?: number;
     }

@@ -12,7 +12,7 @@ export function getNonCompletedRequestKeys(requestedSignatures: Sign.RequestedSi
     let docSetKeys = Object.keys(documentSets);
     return  docSetKeys.filter((key: string) => {
         const docSet = documentSets[key];
-        return  Object.keys(docSet).some(docKey => documents[docKey].signStatus === Sign.SignStatus.PENDING)
+        return  Object.keys(docSet).some(docKey => documents[docKey].requestStatus === Sign.SignStatus.PENDING)
     });
 }
 
@@ -21,7 +21,7 @@ export function getCompletedRequestKeys(requestedSignatures: Sign.RequestedSigna
     let docSetKeys = Object.keys(documentSets);
     return  docSetKeys.filter((key: string) => {
         const docSet = documentSets[key];
-       return  Object.keys(docSet).every(docKey => documents[docKey].signStatus != Sign.SignStatus.PENDING)
+       return  Object.keys(docSet).every(docKey => documents[docKey].requestStatus != Sign.SignStatus.PENDING)
     });
 }
 
@@ -55,7 +55,7 @@ interface ConnectedRequestedSignatureDocumentSetProps extends RequestedSignature
     documentSet: Sign.DocumentSet
 }
 
-export const SignStatus = (props: {signStatus: Sign.SignStatus}) => {
+export const SignStatus = (props: {signStatus: Sign.DocumentStatus | Sign.SignStatus}) => {
     const status = props.signStatus || 'Pending';
     const className = {
         'Pending': 'text-warning',
@@ -87,7 +87,7 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                     const document : Sign.Document = this.props.documents[documentId]
                     return <tr key={i}>
                                   <td className="status">
-                                       <SignStatus signStatus={document.signStatus}/>
+                                       <SignStatus signStatus={document.requestStatus}/>
                                   </td>
                                   <td className="filename-icon">
                                       <i className="fa fa-file-pdf-o" />

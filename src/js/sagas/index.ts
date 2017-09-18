@@ -324,6 +324,7 @@ function *requestRequestedSignaturesSaga() {
                     return {...p, documentId: d.document_id}
                 }),
                 signRequestId: d.sign_request_id,
+                requestStatus: d.request_status,
                 signStatus: d.sign_status,
                 size: d.size
             }))

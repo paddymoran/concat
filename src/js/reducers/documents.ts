@@ -54,7 +54,7 @@ export default function documents(state: Sign.Documents = DEFAULT_STATE, action:
                     ...documentSets.reduce((acc : any, set : any) => {
                         acc = {...acc, ...set.documents.reduce((acc: any, doc: any) => {
                             acc = {...acc};
-                            acc[doc.documentId] = doc;
+                            acc[doc.documentId] = {...acc[doc.documentId], ...doc};
                             if(acc[doc.documentId].readStatus === undefined){
                                 acc[doc.documentId] = {readStatus: Sign.DocumentReadStatus.NotStarted, ...acc[doc.documentId]}
                             }

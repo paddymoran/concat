@@ -254,9 +254,9 @@ SELECT json_agg(
     'prompts', sr.field_data,
     'created_at', format_iso_date(d.created_at),
     'size',  d.length,
-    'sign_status', CASE WHEN srr.sign_result_id IS NOT NULL
+    'sign_status', document_status(sr.document_id),
+    'request_status', CASE WHEN srr.sign_result_id IS NOT NULL
         THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
-
         ELSE 'Pending' END
     )) as documents,
     d.document_set_id, ds.name, format_iso_date(ds.created_at) as created_at, u.name as "requester", u.user_id,  ds.user_id = $1 as is_owner

@@ -168,7 +168,7 @@ def is_set_complete(document_set_id):
 
 def send_completion_email(document_set_id):
     # a document is complete when every recipient has responded
-    # a response can be a sign or a reject
+# a response can be a sign or a reject
     # a document set is complete when is every document is complete
     # when a document set is 'complete' you will receive a notification if:
     # 1) you are the inviter
@@ -540,8 +540,14 @@ def request_signatures():
 @nocache
 def revoke_request_signatures(sign_request_id):
     # get complete status
+    document_set_id = document_set_from_request_id(session['user_id'], sign_request_id)
+    if not document_set_id:
+        abort(401)
+    complete = is_set_complete(document_set_id)
     db.revoke_signature_requests(session['user_id'], sign_request_id)
     # get complete status again, if now complete then notify
+    if not complete and is_set_complete(document_set_id):
+        send_completion_email(document_set_id)
     return jsonify({'message': 'Requests revoked'})
 
 

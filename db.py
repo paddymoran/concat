@@ -431,6 +431,26 @@ def revoke_signature_requests(user_id, sign_request_id):
                            })
         database.commit()
 
+def document_set_from_request_id(user_id, sign_request_id):
+    database = get_db()
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        query = """
+            SELECT ds.document_set_id  as document_set_id
+            FROM 
+            sign_requests sr
+            JOIN documents d on sr.document_id = d.document_id
+            JOIN document_sets ds on ds.document_set_id = d.document_set_id
+            WHERE ds.user_id = %(user_id)s and sign_request_id = %(sign_request_id)s
+        """
+        with database.cursor() as cursor:
+            cursor.execute(query, {
+                           'user_id': user_id,
+                           'sign_request_id': sign_request_id
+                           })
+
+            result = cursor.fetchone()
+            return result.get('document_set_id') if result else None
+
 
 def save_document_view(document_id, user_id, field_data):
     database = get_db()

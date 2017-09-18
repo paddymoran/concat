@@ -8,7 +8,8 @@ import { SignStatus } from '../requestedSignatures';
 interface ConnectedSigningCompleteProps {
     documentSetId: string;
     recipients: Sign.Recipients;
-    isSigning: boolean;
+    userIsSigning: boolean;
+    userIsRejecting: boolean;
     documents: Sign.Document[];
     closeModal: () => void;
     finishSigning: (payload: Sign.Actions.FinishSigningPayload) => void;
@@ -16,16 +17,24 @@ interface ConnectedSigningCompleteProps {
 
 const strings = {
     sign: {
-        singleDocument: 'Your document has been signed.',
-        multipleDocuments: 'Your documents have been signed.',
+        singleDocument: 'This document has been signed.',
+        multipleDocuments: 'The documents have been signed.',
     },
     signAndSend: {
-        singleDocument: 'Your document has been signed on your behalf and sent to the recipients to be signed.',
-        multipleDocuments: 'Your documents have been signed on your behalf and sent to the recipients to be signed.',
+        singleDocument: 'This document has been signed on your behalf and sent to the recipients to be signed.',
+        multipleDocuments: 'The documents have been signed on your behalf and sent to the recipients to be signed.',
     },
     send: {
-        singleDocument: 'Your document has been sent to the recipients to be signed.',
-        multipleDocuments: 'Your documents have been sent to the recipients to be signed.',
+        singleDocument: 'This document has been sent to the recipients to be signed.',
+        multipleDocuments: 'The documents have been sent to the recipients to be signed.',
+    },
+    reject: {
+        singleDocument: 'This document has been rejected.',
+        multipleDocuments: 'The documents have all been rejected.',
+    },
+    signAndReject: {
+        singleDocument: '', // this is impossible - a single document can't be signed and rejected
+        multipleDocuments: 'This document set is complete. You have signed some and rejected some.',
     }
 };
 
@@ -33,7 +42,10 @@ class ConnectedSigningComplete extends React.PureComponent<ConnectedSigningCompl
     render() {
         let content: any = null;
 
-        if (this.props.isSigning) {
+        if (this.props.userIsRejecting) {
+            content = this.props.userIsSigning ? strings.signAndReject : strings.reject;
+        }
+        else if (this.props.userIsSigning) {
             content = this.props.recipients ? strings.signAndSend : strings.sign;
         }
         else {
@@ -81,16 +93,25 @@ export default connect<{}, {}, {}>(
         const documentSet = state.documentSets[documentSetId];
         const recipients = documentSet ? documentSet.recipients : null;
 
-        const documents = documentSet.documentIds.map(documentId => ({
-            id: documentId,
-            ...state.documents[documentId],
-            signStatus: (state.documentViewer.documents[documentId] || { signStatus: Sign.SignStatus.PENDING }).signStatus
-        }));
+        const userIsSigning = isSigning(state.documentViewer, documentSet.documentIds)
+        let userIsRejecting = false;
 
-        return {
-            recipients, documentSetId, documents,
-            isSigning: isSigning(state.documentViewer, documentSet.documentIds),
-        };
+        const documents = documentSet.documentIds.map(documentId => {
+            const document = state.documents[documentId];
+            const signStatus =  (state.documentViewer.documents[documentId] || { signStatus: Sign.SignStatus.PENDING }).signStatus
+            
+            if (signStatus === Sign.SignStatus.REJECTED) {
+                userIsRejecting = true;
+            }
+            
+            return {
+                id: documentId,
+                signStatus,
+                ...state.documents[documentId],
+            }
+        });
+
+        return { recipients, documentSetId, documents, userIsSigning, userIsRejecting };
     },
     {
         finishSigning,

@@ -205,32 +205,28 @@ def are_user_requests_complete(user_id, document_set_id):
 
 def send_rejection_email(user_id, document_set_id):
     try:
-        raise 'paddy do this'
-        user = db.get_document_set_owner(document_set_id)
-        recipients = db.get_document_set_recipients(document_set_id)
+        inviter = db.get_document_set_owner(document_set_id)
+        rejector = db.get_user_info(user_id)
 
         params = {
             'client_id': app.config.get('OAUTH_CLIENT_ID'),
             'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
             'template': 'emails.sign.signing-complete',
-            'email': user['email'],
-            'name': user['name'],
-            'subject': 'Documents Signed & Ready in CataLex Sign',
+            'email': inviter['email'],
+            'name': inviter['name'],
+            'subject': 'Document Rejected in CataLex Sign',
             'data': json.dumps({
-                'name': user['name'],
-                'setDescription': 'Documents signed by %s' % (join_and([r['name'] for r in recipients])),
+                'recipientName': inviter['name'],
+                'rejectorName': rejector['name'],
                 'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
             })
         }
 
-        response = requests.post(
-            app.config.get('AUTH_SERVER') + '/mail/send',
-            data=params
-        )
+        response = requests.post(app.config.get('AUTH_SERVER') + '/mail/send', data=params)
         return response.json()
     except Exception as e:
         print(e)
-        raise InvalidUsage('Failed to send completion email', status_code=500)
+        raise InvalidUsage('Failed to send rejection email', status_code=500)
 
 
 def can_sign_or_submit(user_id):

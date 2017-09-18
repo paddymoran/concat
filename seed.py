@@ -6,12 +6,11 @@ import os
 
 
 def seed(db):
-    for filename in files + ['seed.sql']:
+    for filename in ['seed.sql']:
         with open(os.path.join('db_functions', filename)) as f, db.cursor() as cur:
             print('Running', filename)
             sql = f.read()
             cur.execute(sql)
-    db.commit()
 
 
 
@@ -23,7 +22,7 @@ def connect_db(config):
         password=config.DB_PASS)
 
 
-def populate_migrations(db):
+def populate_migration(db):
     files = set([f for f in os.listdir('migrations') if not f.startswith('_') and not f.endswith('.pyc')])
     with db.cursor() as cur:
         for filename in files:

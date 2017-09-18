@@ -45,9 +45,8 @@ CREATE OR REPLACE FUNCTION document_status(uuid)
     RETURNS text as
     $$
     SELECT CASE
-        WHEN (every(sr.sign_request_id is null) and every(srrr.sign_result_id is not null)) THEN 'Signed' -- self signed
-        WHEN bool_or(NOT srr.accepted) THEN 'Rejected'
-        WHEN every(srr.sign_request_id is not null) THEN 'Signed'
+        WHEN (every(sr.sign_request_id is null) and every(srrr.sign_result_id is not null)) THEN 'Complete' -- self signed
+        WHEN every(srr.sign_request_id is not null) THEN 'Complete'
         ELSE 'Pending' END as status
     FROM documents d
     LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id

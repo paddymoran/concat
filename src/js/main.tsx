@@ -17,6 +17,12 @@ try{
     if(input.user){
         data.user = formatUser(input.user)
     }
+    if(input.userMeta){
+        data.userMeta = input.userMeta;
+        if(data.userMeta.tour && data.userMeta.tour.tourDismissed){
+            data.tour = {showing: false};
+        }
+    }
 
 }catch(e){
     //do nothing

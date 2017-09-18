@@ -540,7 +540,7 @@ def request_signatures():
 @nocache
 def revoke_request_signatures(sign_request_id):
     # get complete status
-    document_set_id = document_set_from_request_id(session['user_id'], sign_request_id)
+    document_set_id = db.document_set_from_request_id(session['user_id'], sign_request_id)
     if not document_set_id:
         abort(401)
     complete = is_set_complete(document_set_id)

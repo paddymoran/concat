@@ -44,7 +44,7 @@ class TestSigningFlows(DBTestCase):
             add_document(None, sign1, 'sign1', b'abcd')
             sign_document(USER_ID_2, doc1, sign1, sign_request_id, {})
             results = get_document_set(USER_ID_1, set_id)
-            self.assertEqual(results['documents'][0]['sign_status'], 'Signed')
+            self.assertEqual(results['documents'][0]['sign_status'], 'Complete')
             self.assertEqual(results['status'], 'Complete')
 
 
@@ -85,7 +85,7 @@ class TestSigningFlows(DBTestCase):
             sign_document(USER_ID_2, doc1, sign2, sign_request_id, {})
 
             results = get_document_set(USER_ID_1, set_id)
-            self.assertEqual(results['documents'][0]['sign_status'], 'Signed')
+            self.assertEqual(results['documents'][0]['sign_status'], 'Complete')
             self.assertEqual(results['status'], 'Complete')
 
 
@@ -145,7 +145,7 @@ class TestSigningFlows(DBTestCase):
             sign_document(USER_ID_3, doc1, sign2, sign_request_id, {})
 
             results = get_document_set(USER_ID_1, set_id)
-            self.assertEqual(results['documents'][0]['sign_status'], 'Signed')
+            self.assertEqual(results['documents'][0]['sign_status'], 'Complete')
             self.assertEqual(results['status'], 'Complete')
 
 
@@ -212,7 +212,7 @@ class TestSigningFlows(DBTestCase):
                 if doc1 in document['versions']:
                     self.assertEqual(document['sign_status'], 'Pending')
                 else:
-                    self.assertEqual(document['sign_status'], 'Signed')
+                    self.assertEqual(document['sign_status'], 'Complete')
 
             self.assertEqual(results['status'], 'Pending')
 
@@ -225,7 +225,7 @@ class TestSigningFlows(DBTestCase):
             sign_document(USER_ID_3, doc1, sign3, sign_request_id, {})
 
             results = get_document_set(USER_ID_1, set_id)
-            self.assertEqual(results['documents'][0]['sign_status'], 'Signed')
+            self.assertEqual(results['documents'][0]['sign_status'], 'Complete')
 
             self.assertEqual(results['status'], 'Complete')
 
@@ -262,6 +262,7 @@ class TestSigningFlows(DBTestCase):
             self.assertEqual(results['status'], 'Pending')
             reject_document(USER_ID_2, doc1, sign_request_id, {})
             results = get_document_set(USER_ID_1, set_id)
-            self.assertEqual(results['documents'][0]['sign_status'], 'Rejected')
+            self.assertEqual(results['documents'][0]['request_info'][0]['status'], 'Rejected')
+            self.assertEqual(results['documents'][0]['sign_status'], 'Complete')
             self.assertEqual(results['status'], 'Complete')
 

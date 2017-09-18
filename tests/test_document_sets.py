@@ -41,14 +41,14 @@ class TestPopulateDocumentSets(DBTestCase):
             self.assertEqual(results['status'], 'Pending')
             for doc in results['documents']:
                 if doc1 in doc['versions']:
-                    self.assertEqual(doc['sign_status'], 'Signed')
+                    self.assertEqual(doc['sign_status'], 'Complete')
                 else:
                     self.assertEqual(doc['sign_status'], 'Pending')
             sign_document(USER_ID, doc2, sign2, None, {})
             results = get_document_set(USER_ID, set_id)
             self.assertEqual(results['status'], 'Complete')
             for doc in results['documents']:
-                self.assertEqual(doc['sign_status'], 'Signed')
+                self.assertEqual(doc['sign_status'], 'Complete')
 
             self.assertEqual(len(get_document_set(USER_ID, set_id)['documents']), 2)
 

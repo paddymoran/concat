@@ -630,11 +630,11 @@ def get_user_meta(user_id):
 
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, { 'user_id': user_id })
-        data = cursor.fetchone().get('data')
-
-        if data is None:
+        try:
+            return json.loads(cursor.fetchone().get('data'))
+        except: 
             return {}
-        return json.loads(data)
+
 
 
 def update_user_meta(user_id, meta):

@@ -342,13 +342,13 @@ def remove_document_from_set(document_id):
         raise InvalidUsage('Failed to removed document', status_code=500)
 
 
-@app.route('/api/documents/<doc_id>', methods=['DELETE'])
+@app.route('/api/documents/<set_id>', methods=['DELETE'])
 @protected
 @nocache
-def remove_document_set(doc_id):
+def remove_document_set(set_id):
     try:
         user_id = session['user_id']
-        documents = db.get_document_set(session['user_id'], doc_id)
+        documents = db.get_document_set(session['user_id'], set_id)
 
         for document in documents['documents']:
             for document_id in document['versions']:

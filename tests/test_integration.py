@@ -10,6 +10,7 @@ import os
 import json
 from io import BytesIO
 import base64
+from unittest.mock import patch
 
 USER_ID = 1
 
@@ -20,6 +21,8 @@ UPLOAD_DOC_USER_ID = 4
 INVITE_OTHERS_USER_1_ID = 5
 INVITE_OTHERS_USER_2_ID = 6
 INVITE_OTHERS_USER_3_ID = 7
+
+PHOCA_PDF_PATH = 'fixtures/pdfs/phoca-pdf.pdf'
 
 class Integration(DBTestCase):
 
@@ -55,19 +58,22 @@ class Integration(DBTestCase):
                         'user_id': INVITE_OTHERS_USER_1_ID,
                         'name': 'INVITE_OTHERS_USER_1_ID',
                         'email': 'INVITE_OTHERS_USER_1_ID@email.com',
-                        'subscribed': True
+                        'subscribed': True,
+                        'email_verified': True
                         })
             upsert_user({
                         'user_id': INVITE_OTHERS_USER_2_ID,
                         'name': 'INVITE_OTHERS_USER_2_ID',
                         'email': 'INVITE_OTHERS_USER_2_ID@email.com',
-                        'subscribed': True
+                        'subscribed': True,
+                        'email_verified': True
                         })
             upsert_user({
                         'user_id': INVITE_OTHERS_USER_3_ID,
                         'name': 'INVITE_OTHERS_USER_3_ID',
                         'email': 'INVITE_OTHERS_USER_3_ID@email.com',
-                        'subscribed': True
+                        'subscribed': True,
+                        'email_verified': True
                         })
 
 
@@ -92,6 +98,22 @@ class Integration(DBTestCase):
 
         response = json.loads(response.get_data(as_text=True))
         return response[0]['document_id']
+
+    def add_signature(self):
+        current_path = os.path.dirname(os.path.realpath(__file__))
+        test_signature_path = os.path.join(current_path, 'fixtures/signatures/sml_sig.png')
+        with open(test_signature_path, 'rb') as f:
+            signature = 'data:image/png;base64,%s' % base64.b64encode(f.read()).decode('ascii')
+
+        response = self.app.post('/api/signatures/upload', data=json.dumps({'base64Image': signature, 'type': 'signature'}), content_type='application/json')
+        response_json = json.loads(response.get_data(as_text=True))
+        return response_json['signature_id']
+
+    def open_pdf(self, pdf_path):
+        current_path = os.path.dirname(os.path.realpath(__file__))
+        test_pdf_path = os.path.join(current_path, pdf_path)
+        with open(test_pdf_path, 'rb') as pdf_data:
+            return pdf_data.read()
 
     def test_0001_protected_routes(self):
         index = self.app.get('/')
@@ -163,6 +185,7 @@ class Integration(DBTestCase):
         # check pending status
         # log in as another
         # check signature_requests
+
         # sign document
         # check signature_requests
         # log in as third
@@ -172,16 +195,20 @@ class Integration(DBTestCase):
         # log in as first
         # check complete status
         # check contacts
-        self.login(UPLOAD_DOC_USER_ID)
 
+        ##
+        ## Login as user 1
+        ##
+        self.login(INVITE_OTHERS_USER_1_ID)
+
+        # Upload a document
         document_set_id = str(uuid4())
         document_id = str(uuid4())
 
-        # Upload a document
-        uploaded_doc_id = self.upload_doc(document_id, document_set_id, (BytesIO(b'asdf'), 'file.pdf'))
+        uploaded_doc_id = self.upload_doc(document_id, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
 
-        # Request two others to sign it
-        data = {
+        # Invite some users
+        invite_request_data = {
             'documentSetId': document_set_id,
             'signatureRequests': [{
                 'documentIds': [uploaded_doc_id],
@@ -198,12 +225,74 @@ class Integration(DBTestCase):
             }]
         }
 
-        # Do later
+        invitees = [
+            {'id': INVITE_OTHERS_USER_2_ID, 'name': 'INVITE_OTHERS_USER_2_ID', 'email': 'INVITE_OTHERS_USER_2_ID@email.com'},
+            {'id': INVITE_OTHERS_USER_3_ID, 'name': 'INVITE_OTHERS_USER_3_ID', 'email': 'INVITE_OTHERS_USER_3_ID@email.com'},
+        ]
 
-        # self.app.post('/api/request_signatures', data=json.dumps(data), content_type='application/json')
+        with patch('server.invite_users', return_value=invitees):
+            self.app.post('/api/request_signatures', data=json.dumps(invite_request_data), content_type='application/json')
 
-        # response = self.app.get('/api/documents/%s' % uploaded_doc_id)
-        # print(json.loads(response.get_data(as_text=True)))
+        # Check the doc status is pending
+        response = self.app.get('/api/documents/%s' % document_set_id)
+        response_json = json.loads(response.get_data(as_text=True))
+        self.assertEqual(response_json['status'], 'Pending')
+
+        ##
+        ## Login as user 2
+        ##
+        self.login(INVITE_OTHERS_USER_2_ID)
+
+        # Check requested signatures
+        response = self.app.get('/api/requested_signatures')
+        response_json = json.loads(response.get_data(as_text=True))
+
+        # Check only one sign request has been made
+        self.assertEqual(len(response_json), 1)
+
+        sign_request = response_json[0]
+
+        self.assertEqual(sign_request['document_set_id'], document_set_id)
+        self.assertEqual(sign_request['is_owner'], False)
+        self.assertEqual(sign_request['requester'], 'INVITE_OTHERS_USER_1_ID')
+        self.assertEqual(sign_request['user_id'], INVITE_OTHERS_USER_1_ID) # Check the requester id
+
+        
+        documents = sign_request['documents']
+        self.assertEqual(len(documents), 1) # Check only one document is in the sign request
+
+        document = documents[0]
+
+        self.assertEqual(document['document_id'], document_id)
+        self.assertEqual(document['original_document_id'], document_id)
+
+        # Sign the document
+        user_2_signature_id = self.add_signature()
+
+        sign_data = {
+            'documentSetId': document_set_id,
+            'documentId': document_id,
+            'signatures': [{
+                'signatureIndex': 'dunno tbh',
+                'signatureId': user_2_signature_id,
+                'xyRatio': 2.158,
+                'document_id': document_id,
+                'pageNumber': 0,
+                'offsetX': .5,
+                'offsetY': .5,
+                'ratioX': .2,
+                'ratioY': .1
+            }],
+            'overlays': [],
+            'reject': False,
+            'signRequestId': document['sign_request_id']
+        }
+        
+        # with patch('server.send_completion_email'):
+        #     response = self.app.post('/api/sign', data=json.dumps(sign_data), content_type='application/json')
+        # print(response)
+
+
 
     def test_0005_self_sign_invite_other(self):
         # like above, but with self sign step

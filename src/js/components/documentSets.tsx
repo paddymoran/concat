@@ -118,7 +118,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                         <tr key={`rejection-${keyModifier}`} className="rejection-info condensed">
                                             <td/>
                                             <td/>
-                                            <td>{ string }</td>
+                                            <td><i className="fa fa-times" /> { string }</td>
                                         </tr>
                                     );
                                 }
@@ -141,7 +141,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                         <tr key={`signed-${keyModifier}`} className="signed-info condensed">
                                             <td/>
                                             <td/>
-                                            <td colSpan={2}>Signed by { r.name }</td>
+                                            <td colSpan={2}><i className="fa fa-check" /> Signed by { r.name }</td>
                                         </tr>
                                     );
                                 }

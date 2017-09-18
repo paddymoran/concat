@@ -77,7 +77,10 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                 <div className="document-set-title">
                     <span className="inviter">{ inviter }</span> has requested that you sign the following ({documentSetLabel}):
                 </div>
-                <table className="table-hover"><thead></thead>
+                    <div className="table-responsive">
+                    <table className=" table table-hover">
+
+                <thead></thead>
                 <tbody>
                 {Object.keys(this.props.requestDocumentSet).map((documentId: string, i: number) => {
                     const document : Sign.Document = this.props.documents[documentId]
@@ -104,6 +107,7 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                 }) }
                 </tbody>
                 </table>
+            </div>
             </div>
         );
     }

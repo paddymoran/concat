@@ -69,7 +69,8 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
         return (
             <div className="document-set">
                 <div className="document-set-title">{documentSetLabel}</div>
-                    <table className="table-hover">
+                    <div className="table-responsive">
+                    <table className=" table table-hover">
                         <thead></thead>
 
                         <tbody>
@@ -100,6 +101,10 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                                 <i className="fa fa-trash"/> Delete
                                             </a>
                                         }
+                                        { this.props.documentSet.isOwner && !document.signatureRequestInfos &&
+                                           <Link className="btn btn-primary btn-sm" to={`/documents/${this.props.documentSetId}/${documentId}`}><i className="fa fa-pencil-square-o"/>Sign</Link>
+                                        }
+
                                     </td>
                                 </tr>
                             );
@@ -170,6 +175,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                         }
                     </tbody>
                 </table>
+            </div>
             </div>
         );
     }

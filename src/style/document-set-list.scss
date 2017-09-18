@@ -13,6 +13,9 @@
             width:100%;
             td{
                 padding: 8px;
+                    word-break: break-word;
+                    border-top: none;
+
             }
             tr.condensed td{
                 padding: 2px 8px;
@@ -55,9 +58,16 @@
         }
 
         .file-controls{
-            text-align:right;
+            @extend .btn-group;
+                float: right;
+                text-align:right;
+            .btn{
+                   margin-left: 0;
+                   float:none;
+            }
             @media(min-width: $screen-md-min) {
-                min-width: 300px;
+                min-width: 326px;
+
             }
         }
     }

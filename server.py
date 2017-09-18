@@ -165,6 +165,13 @@ def is_set_complete(document_set_id):
     return db.document_set_status(document_set_id)[0] == 'Complete'
 
 def send_completion_email(document_set_id):
+    # a document is complete when every recipient has responded
+    # a response can be a sign or a reject
+    # a document set is complete when is every document is complete
+    # when a document set is 'complete' you will receive a notification if:
+    # 1) you are the inviter
+    # 2) you signed any document in the set that is fully signed
+
     try:
         user = db.get_document_set_owner(document_set_id)
         recipients = db.get_document_set_recipients(document_set_id)

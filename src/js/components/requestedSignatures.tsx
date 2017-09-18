@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { requestRequestedSignatures, toggleToSignShowComplete } from '../actions';
+import { requestRequestedSignatures,  showEmailDocumentsModal, toggleToSignShowComplete } from '../actions';
 import * as moment from 'moment';
 import { stringToDateTime, fileSize } from '../utils';
 import { Link } from 'react-router';
@@ -49,10 +49,11 @@ interface RequestedSignatureDocumentSetProps {
 
 
 interface ConnectedRequestedSignatureDocumentSetProps extends RequestedSignatureDocumentSetProps {
+    showEmailDocumentsModal: (payload: Sign.Actions.ShowEmailDocumentsModalPayload) => void;
     documents: {
         [documentId: string]: Sign.Document
     },
-    documentSet: Sign.DocumentSet
+    documentSet: Sign.DocumentSet,
 }
 
 export const SignStatus = (props: {signStatus: Sign.DocumentStatus | Sign.SignStatus}) => {
@@ -62,7 +63,7 @@ export const SignStatus = (props: {signStatus: Sign.DocumentStatus | Sign.SignSt
         'Partial': 'text-warning',
         'Signed': 'text-success',
         'Rejected': 'text-danger',
-        'Complete': 'text-success',
+        'Complete': 'text-success'
     }[status];
     return <span className={`sign-status ${className}`}>{ status }</span>
 }
@@ -99,6 +100,9 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                                          <a className="btn btn-default btn-sm" target="_blank" href={`/api/document/${documentId}`}>
                                             <i className="fa fa-download"/> Download
                                         </a>
+                                        <a className="btn btn-default btn-sm" onClick={() => this.props.showEmailDocumentsModal({ documentIds: [documentId] })}>
+                                            <i className="fa fa-send"/> Email
+                                        </a>
                                         { showLink && <Link className="btn btn-primary btn-sm" to={`/sign/${this.props.documentSetId}/${documentId}`}><i className="fa fa-pencil-square-o"/>Review & Sign</Link> }
 
                                   </td>
@@ -118,7 +122,7 @@ const ConnectedRequestedSignatureDocumentSet = connect((state: Sign.State, ownPr
     documentSet: state.documentSets[ownProps.documentSetId],
     documents: state.documents
 }), {
-
+showEmailDocumentsModal
 })(RequestedSignatureDocumentSet);
 
 
@@ -147,7 +151,7 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
                 { docSetKeys.length === 0 && <p>No { this.props.title } signature requests.</p> }
 
                 {docSetKeys.map((documentSetId: string, index: number) =>
-                    <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId} requestDocumentSet={docSets[documentSetId]} showLink={hasEmailVerified && !this.props.showComplete} />
+                    <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId}  requestDocumentSet={docSets[documentSetId]} showLink={hasEmailVerified && !this.props.showComplete} />
                 )}
             </div>
         );

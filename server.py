@@ -185,6 +185,9 @@ def send_email(template, email, name, subject, data):
         raise InvalidUsage('Failed to send email %s' % template, status_code=500)
 
 
+
+
+
 def send_completion_email(document_set_id):
     # a document is complete when every recipient has responded
 # a response can be a sign or a reject
@@ -192,55 +195,31 @@ def send_completion_email(document_set_id):
     # when a document set is 'complete' you will receive a notification if:
     # 1) you are the inviter
     # 2) you signed any document in the set that is fully signed
-
     try:
-        document_set = json.loads(db.get_document_set(session['user_id'], document_set_id))
-
-        # Send the documents to the non-owner recipients
-        for document in document_set['documents']:
-            for recipient in document['request_info']:
-                # non_owner_recipients.append({
-                #     'email': recipient['email'],
-                #     'name': recipient['name']
-                # })
-                data = {
-                    'name': recipient['name'],
-                    #'setDescription': ''
-                }
-                send_email('emails.sign.signing-complete', recipient['email'], recipient['name'], 'Documents Signed & Ready in CataLex Sign', data)
-
-
-            
-
-
-
         user = db.get_document_set_owner(document_set_id)
-        recipients = db.get_document_set_recipients(document_set_id)
+        responders = db.get_document_set_signers(document_set_id)
+        for responder in responders:
+            # if they accepted any
+            if responder['any_accepted']:
+                data = json.dumps({
+                    'name': responder['name'],
+                    'setDescription': 'The documents that you signed for %s are now complete' % user['name'],
+                    'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
+                })
+                send_email('emails.sign.signing-complete', responder['email'], responder['name'], 'Documents Signed & Ready in CataLex Sign', data)
 
-        if len(recipients) == 1:
-            set_description = """%s has responded to your sign request.""" % recipients[0]['name']
+        if len(responders) == 1:
+            set_description = """%s has responded to your sign request.""" % responders[0]['name']
         else:
-            set_description = """%s have all responded to your sign requests.""" % join_and([r['name'] for r in recipients])
+            set_description = """%s have all responded to your sign requests.""" % join_and([r['name'] for r in responders])
 
-        params = {
-            'client_id': app.config.get('OAUTH_CLIENT_ID'),
-            'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
-            'template': 'emails.sign.signing-complete',
-            'email': user['email'],
+        data = json.dumps({
             'name': user['name'],
-            'subject': 'Documents Signed & Ready in CataLex Sign',
-            'data': json.dumps({
-                'name': user['name'],
-                'setDescription': set_description,
-                'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
-            })
-        }
+            'setDescription': set_description,
+            'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
+        })
+        return send_email('emails.sign.signing-complete', user['email'], user['name'], 'Documents Signed & Ready in CataLex Sign', data)
 
-        response = requests.post(
-            app.config.get('AUTH_SERVER') + '/mail/send',
-            data=params
-        )
-        return response.json()
     except Exception as e:
         print(e)
         raise InvalidUsage('Failed to send completion email', status_code=500)
@@ -552,7 +531,6 @@ def sign_document():
     if sign_request_id:
 
         is_complete = is_set_complete(args['documentSetId'])
-        print(is_complete)
         if is_complete:
             send_completion_email(args['documentSetId'])
         elif are_user_requests_complete(session['user_id'], args['documentSetId']):

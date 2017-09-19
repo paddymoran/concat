@@ -628,6 +628,28 @@ def get_document_set_recipients(set_id):
         return [dict(x) for x in data]
 
 
+def get_document_set_signers(set_id):
+    """
+    Get the recipients for a document set
+    """
+    database = get_db()
+    query = """
+        SELECT DISTINCT u.user_id, u.name, u.email, bool_or(accepted) as any_accepted
+        FROM documents
+        JOIN sign_requests sr ON documents.document_id = sr.document_id
+        JOIN sign_results srr ON srr.sign_request_id = sr.sign_request_id
+        JOIN users u ON sr.user_id = u.user_id
+        WHERE documents.document_set_id = %(set_id)s
+        GROUP BY u.user_id, u.name, u.email
+    """
+
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, {'set_id': set_id})
+        data = cursor.fetchall()
+        database.commit()
+        return [dict(x) for x in data]
+
+
 def get_usage(user_id, default_amount_per_unit, default_unit):
     database = get_db()
     query = """

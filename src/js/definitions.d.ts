@@ -372,6 +372,8 @@ declare namespace Sign {
         TEXT_WIDTH_RATIO = 0.025,
         MIN_WIDTH = 65,
         MIN_HEIGHT = 20,
+        MIN_XY_RATIO = 0.3,
+        MAX_XY_RATIO = 5
     }
 
     const DEFAULT_DATE_FORMAT = 'DD MMMM YYYY';

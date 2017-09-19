@@ -5,7 +5,7 @@ import SignatureUpload from './signatureUpload';
 import { uploadSignature, selectSignature, selectInitial, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures, closeModal, showInitialSelectionModal, setActiveSignControl } from '../actions/index';
 import { connect } from 'react-redux';
 import Loading from './loading';
-import { signatureUrl } from '../utils';
+import { signatureUrl, signatureCanvasMinDimensions  } from '../utils';
 
 
 interface SignatureSelectorProps {
@@ -77,7 +77,8 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
             }
         }
         else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
-            const signature = this.signatureCanvas.getTrimmedCanvas().toDataURL();
+            const signature = signatureCanvasMinDimensions(this.signatureCanvas.getTrimmedCanvas()).toDataURL();
+
             this.props.uploadSignature(signature);
         }
 

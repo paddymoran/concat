@@ -74,7 +74,6 @@ export function promptToCanvas(width: number, height: number, recipient: string,
     ctx.font = font;
     ctx.fillStyle =  '#000'
     ctx.fillText(type.toUpperCase(), width / 2, height / 2 + margin /2 , width - (margin * 2));
-
     return canvas;
 }
 
@@ -103,6 +102,33 @@ export function requestPromptToCanvas(width: number, height: number, type: strin
     font = `bold ${(fontsize)*0.75}px arial`;
     ctx.font = font;
     ctx.fillText('HERE', width / 2, height / 2 + margin /2 , width - (margin * 2));
+    return canvas;
+}
+
+export function signatureCanvasMinDimensions(canvas: HTMLCanvasElement, minXY = Sign.DefaultSignatureSize.MIN_XY_RATIO, maxXY = Sign.DefaultSignatureSize.MAX_XY_RATIO) {
+    const width = canvas.width, height = canvas.height;
+    const ratio = width / height;
+
+    if(ratio < minXY) {
+        // not wide enough,
+        const newWidth = height / minXY;
+        const newCanvas = document.createElement('canvas');
+        newCanvas.height = height;
+        newCanvas.width = newWidth;
+        const newCtx = newCanvas.getContext('2d');
+        newCtx.drawImage(canvas, (newWidth - width) / 2, 0)
+        return newCanvas;
+    }
+    else if(ratio > maxXY){
+        // too wide enough,
+        const newHeight = width / maxXY;
+        const newCanvas = document.createElement('canvas');
+        newCanvas.height = newHeight;
+        newCanvas.width = width;
+        const newCtx = newCanvas.getContext('2d');
+        newCtx.drawImage(canvas, 0, (newHeight - height) / 2)
+        return newCanvas;
+    }
     return canvas;
 }
 

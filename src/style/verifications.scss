@@ -1,14 +1,13 @@
 .verifications {
-    padding-top: 30px;
-    
+    padding: 30px;
     .verification {
         padding-bottom: 24px;
-        
+        position:relative;
+        padding-left: 24px;
         .verification-icon {
-            float: left;
-            margin-right: 18px;
             font-size: 1.2em;
-            margin-top: 4px;
+            position: absolute;
+            left: -25px;
         }
 
         .filename {

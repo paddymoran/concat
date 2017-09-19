@@ -165,7 +165,13 @@ class Tour extends React.PureComponent<TourProps,  {stepIndex: number, steps: an
               }
             }
             else if(data.type === 'finished'){
-                this.props.changeTour({showing: false})
+                this.props.changeTour({showing: false});
+                  this.props.updateUserMeta({
+                     tour: {
+                         tourViewed: [...tourViewed],
+                         tourDismissed: true
+                     }
+                  });
             }
         }
     }

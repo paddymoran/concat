@@ -388,6 +388,7 @@ declare namespace Sign {
     const enum FormName {
         RECIPIENTS = 'recipients',
         REJECT = 'reject',
+        SIGN_MESSAGE = 'signMessage',
         RECIPIENT_MESSAGE = 'recipientMessage'
     }
 

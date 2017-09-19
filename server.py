@@ -207,10 +207,10 @@ def send_completion_email(document_set_id):
         if all([status == 'Rejected' for status in statuses]):
             msg = 'Signing Session Complete, All Documents Rejected'
         # if some
-        if any([status == 'Rejected' for status in statuses]):
+        elif any([status == 'Rejected' for status in statuses]):
             msg = 'Signing Session Complete, Some Documents Rejected'
 
-        if all([status == 'Signed' for status in statuses]):
+        else:
             msg = 'Signing Session Complete, All Documents Signed'
 
         for responder in responders:

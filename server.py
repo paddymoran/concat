@@ -166,6 +166,25 @@ def is_set_complete(document_set_id):
     return db.document_set_status(document_set_id)[0] == 'Complete'
 
 
+def send_email(template, email, name, subject, data):
+    try:
+        params = {
+            'client_id': app.config.get('OAUTH_CLIENT_ID'),
+            'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
+            'template': template,
+            'email': email,
+            'name': name,
+            'subject': subject,
+            'data': data
+        }
+
+        response = requests.post(app.config.get('AUTH_SERVER') + '/mail/send', data=params)
+        return response.json()
+    except Exception as e:
+        print(e)
+        raise InvalidUsage('Failed to send email %s' % template, status_code=500)
+
+
 def send_completion_email(document_set_id):
     # a document is complete when every recipient has responded
 # a response can be a sign or a reject
@@ -175,6 +194,26 @@ def send_completion_email(document_set_id):
     # 2) you signed any document in the set that is fully signed
 
     try:
+        document_set = json.loads(db.get_document_set(session['user_id'], document_set_id))
+
+        # Send the documents to the non-owner recipients
+        for document in document_set['documents']:
+            for recipient in document['request_info']:
+                # non_owner_recipients.append({
+                #     'email': recipient['email'],
+                #     'name': recipient['name']
+                # })
+                data = {
+                    'name': recipient['name'],
+                    #'setDescription': ''
+                }
+                send_email('emails.sign.signing-complete', recipient['email'], recipient['name'], 'Documents Signed & Ready in CataLex Sign', data)
+
+
+            
+
+
+
         user = db.get_document_set_owner(document_set_id)
         recipients = db.get_document_set_recipients(document_set_id)
 

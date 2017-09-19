@@ -646,5 +646,5 @@ class Integration(DBTestCase):
             self.sign_with_rejection(document_id, self.add_signature(), document_set_id=document_set_id,
                                      sign_request_id=requested_signatures[0]['documents'][0]['sign_request_id'],
                                      rejected_message=reject_message)
-            p.assert_called(document_set_id)
+            p.assert_called_with(document_set_id)
 

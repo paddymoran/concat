@@ -224,9 +224,12 @@ function *requestDocumentSetSaga() {
             documentSetId: action.payload.documentSetId,
             downloadStatus: Sign.DownloadStatus.InProgress
         }));
-
-        const response = yield call(axios.get, `/api/documents/${action.payload.documentSetId}`);
-        const data = response.data;
+        try{
+            const response = yield call(axios.get, `/api/documents/${action.payload.documentSetId}`);
+            const data = response.data;
+        }catch(e){
+            return;
+        }
 
         if (data) {
             yield put(updateDocumentSet(formatDocumentSet(data)));

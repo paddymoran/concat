@@ -171,7 +171,6 @@ class Tour extends React.PureComponent<TourProps,  {stepIndex: number, steps: an
     }
 
     render() {
-        console.log(this.state.stepIndex)
         return <div>
             { this.props.showing && !!this.state.steps.length && <Joyride
             ref="joyride"
@@ -191,9 +190,12 @@ class Tour extends React.PureComponent<TourProps,  {stepIndex: number, steps: an
     }
 }
 
+const MIN_WIDTH = 721;
+
+
 export const  SignTour = connect(
     (state: Sign.State, ownProps) => {
-        return {showing: state.tour.showing, userMeta: state.userMeta}
+        return {showing: state.tour.showing && state.dimensions.width >= MIN_WIDTH, userMeta: state.userMeta}
     }, {
         changeTour, updateUserMeta
     }

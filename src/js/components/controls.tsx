@@ -416,7 +416,7 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
 
                     <div className="controls-right">
                         <ControlButton label="Help" iconName="fa-question" classNames="tour-control" onClick={this.showTour} />
-                        <ControlButton label="Select Control" iconName="fa-bars" classNames="visible-mobile visible-mobile-only select-control" onClick={this.props.showActivateControlModal} />
+                        <ControlButton label="Controls" iconName="fa-bars" classNames="visible-mobile visible-mobile-only select-control" onClick={this.props.showActivateControlModal} />
                         <ControlButton label={saveText} iconName={saveIcon} onClick={this.props.save} visible={this.props.showSave} classNames="save-control" />
                         <ControlButton label="Invite" iconName="fa-users" onClick={this.props.showInviteModal} visible={this.props.showInvite} classNames="invite-control"/>
                         <ControlButton label="Guide" iconName="fa-forward" onClick={this.nextPrompt} visible={!!nextPrompt} classNames="guide-control"/>

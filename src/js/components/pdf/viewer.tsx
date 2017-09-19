@@ -502,16 +502,13 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
             documentSetId: this.props.documentSetId,
             documentId: this.props.documentId
         };
-        if(!height){
-            return false;
-        }
         const body = (
             <div className={className} style={{position: 'relative'}} onClick={this.addSelected}>
-               {  this.props.signaturesIndexes.map(signatureIndex => <SignaturePositionable key={signatureIndex} index={signatureIndex} {...props} />)}
-               {  this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} index={dateIndex} {...props} />) }
-               {  this.props.textIndexes.map(textIndex => <TextPositionable key={textIndex} index={textIndex}  {...props} />)}
-               {  this.props.promptIndexes.map(promptIndex => <PromptPositionable key={promptIndex} index={promptIndex}  {...props} />)}
-               {  this.props.requestPrompts && this.props.requestPrompts.map((requestPrompt) => <RequestPrompt key={requestPrompt.promptIndex} requestPrompt={requestPrompt} {...props}  />) }
+               {  !!height && this.props.signaturesIndexes.map(signatureIndex => <SignaturePositionable key={signatureIndex} index={signatureIndex} {...props} />)}
+               {  !!height && this.props.dateIndexes.map(dateIndex => <DatePositionable key={dateIndex} index={dateIndex} {...props} />) }
+               {  !!height && this.props.textIndexes.map(textIndex => <TextPositionable key={textIndex} index={textIndex}  {...props} />)}
+               {  !!height && this.props.promptIndexes.map(promptIndex => <PromptPositionable key={promptIndex} index={promptIndex}  {...props} />)}
+               {  !!height && this.props.requestPrompts && this.props.requestPrompts.map((requestPrompt) => <RequestPrompt key={requestPrompt.promptIndex} requestPrompt={requestPrompt} {...props}  />) }
                 { child }
             </div>
         );

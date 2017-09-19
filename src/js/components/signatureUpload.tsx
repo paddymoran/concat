@@ -135,7 +135,7 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
                 <div className="explanation fake-drop-zone" onClick={this.onClick}>
                     <span className="drag-instruction">Drag an image of your signature here, or click to select</span>
                     <span className="drop-instruction">DROP HERE</span>
-                        <input type="file" multiple name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles}/>
+                        <input type="file" name="files" style={{display: 'none'}} ref={(el) => this._fileInput = el} onChange={this.collectFiles} accept="image/*"/>
                     </div>
 
             </div>

@@ -223,10 +223,12 @@ def send_completion_email(document_set_id):
         raise InvalidUsage('Failed to send completion email', status_code=500)
 
 
-def are_user_requests_complete(user_id, document_set_id):
+def should_send_reject_email(user_id, document_set_id):
+    # if this users requests are complete and any documents are rejected, return true
     for doc_set in db.get_signature_requests(session['user_id']):
         if doc_set['document_set_id'] == document_set_id:
-            return all([doc['sign_status'] != 'Pending' for doc in doc_set['documents']])
+            return (all([doc['request_status'] != 'Penidng' for doc in doc_set['documents']]) and
+                    any([doc['request_status'] == 'Rejected' for doc in doc_set['documents']]))
     return False
 
 
@@ -531,7 +533,7 @@ def sign_document():
         is_complete = is_set_complete(args['documentSetId'])
         if is_complete:
             send_completion_email(args['documentSetId'])
-        elif are_user_requests_complete(session['user_id'], args['documentSetId']):
+        elif should_send_reject_email(session['user_id'], args['documentSetId']):
             send_rejection_email(session['user_id'], args['documentSetId'], args.get('rejectedMessage'))
 
     return jsonify({'message': 'done'})

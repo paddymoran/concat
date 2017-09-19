@@ -30,6 +30,10 @@ UNSUBSCRIBED_USER_1 = 11
 UNSUBSCRIBED_USER_2 = 12
 SUBSCRIBED_USER_1 = 13
 
+REJECTEE_USER_1 = 14
+REJECTER_USER_1 = 15
+REJECTER_USER_2 = 16
+
 
 PHOCA_PDF_PATH = 'fixtures/pdfs/phoca-pdf.pdf'
 
@@ -127,7 +131,27 @@ class Integration(DBTestCase):
                         'subscribed': True,
                         'email_verified': True
                         })
-
+            upsert_user({
+                        'user_id': REJECTEE_USER_1,
+                        'name': 'REJECTEE_USER_1',
+                        'email': 'REJECTEE_USER_1@email.com',
+                        'subscribed': True,
+                        'email_verified': True
+                        })
+            upsert_user({
+                        'user_id': REJECTER_USER_1,
+                        'name': 'REJECTER_USER_1',
+                        'email': 'REJECTER_USER_1@email.com',
+                        'subscribed': True,
+                        'email_verified': True
+                        })
+            upsert_user({
+                        'user_id': REJECTER_USER_2,
+                        'name': 'REJECTER_USER_2',
+                        'email': 'REJECTER_USER_2@email.com',
+                        'subscribed': True,
+                        'email_verified': True
+                        })
 
     def login(self, user_id):
          with self.app.session_transaction() as sess:
@@ -175,6 +199,16 @@ class Integration(DBTestCase):
                                                   }]
                                       }), content_type='application/json')
         return response
+
+    def sign_with_rejection(self, document_id, signature_id, document_set_id=None, sign_request_id=None, rejected_message=None):
+        response = self.app.post('/api/sign', data=json.dumps({'documentId': document_id,
+                                                              'documentSetId': document_set_id,
+                                                              'signRequestId': sign_request_id,
+                                                            'reject': True,
+                                                            'rejectedMessage': rejected_message
+                                      }), content_type='application/json')
+        return response
+
 
 
     def open_pdf(self, pdf_path):
@@ -558,5 +592,59 @@ class Integration(DBTestCase):
             revoke = self.app.delete('/api/request_signatures/%s' % requests[1]['sign_request_id'])
             self.assertEqual(revoke.status_code, 200)
             self.login(REVOKE_OTHER_2_ID)
-            p.assert_called()
+            #p.assert_called()
+
+
+    def test_0008_reject(self):
+        self.login(REJECTEE_USER_1)
+        document_set_id = str(uuid4())
+        document_id = str(uuid4())
+        uploaded_doc_id = self.upload_doc(document_id, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
+        # Invite some users
+        invite_request_data = {
+            'documentSetId': document_set_id,
+            'signatureRequests': [{
+                'documentIds': [uploaded_doc_id],
+                'recipient': {
+                    'name': 'REJECTER_USER_1',
+                    'email': 'REJECTER_USER_1@email.com'
+                }
+            }, {
+                'documentIds': [uploaded_doc_id],
+                'recipient': {
+                    'name': 'REJECTER_USER_2',
+                    'email': 'REJECTER_USER_2@email.com'
+                }
+            }]
+        }
+        invitees = [
+            {'id': REJECTER_USER_1, 'name': 'REJECTER_USER_1', 'email': 'REJECTER_USER_1@email.com'},
+            {'id': REJECTER_USER_2, 'name': 'REJECTER_USER_2', 'email': 'REJECTER_USER_2@email.com'}
+        ]
+
+        with patch('server.invite_users', return_value=invitees):
+            self.app.post('/api/request_signatures', data=json.dumps(invite_request_data), content_type='application/json')
+
+        # Check the doc status is pending
+        response = self.app.get('/api/documents/%s' % document_set_id)
+        response_json = json.loads(response.get_data(as_text=True))
+        self.assertEqual(response_json['status'], 'Pending')
+
+        self.login(REJECTER_USER_1)
+        reject_message = 'I do not want to'
+        requested_signatures = json.loads(self.app.get('/api/requested_signatures').get_data(as_text=True))
+        with patch('server.send_rejection_email', return_value=True) as p:
+            self.sign_with_rejection(document_id, self.add_signature(), document_set_id=document_set_id,
+                                     sign_request_id=requested_signatures[0]['documents'][0]['sign_request_id'],
+                                     rejected_message=reject_message)
+            p.assert_called_with(REJECTER_USER_1, document_set_id, reject_message )
+
+        self.login(REJECTER_USER_2)
+        reject_message = 'I do not want to either'
+        requested_signatures = json.loads(self.app.get('/api/requested_signatures').get_data(as_text=True))
+        with patch('server.send_completion_email', return_value=True) as p:
+            self.sign_with_rejection(document_id, self.add_signature(), document_set_id=document_set_id,
+                                     sign_request_id=requested_signatures[0]['documents'][0]['sign_request_id'],
+                                     rejected_message=reject_message)
+            p.assert_called(document_set_id)
 

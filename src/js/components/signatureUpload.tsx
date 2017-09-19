@@ -11,34 +11,39 @@ const removeImageBackground = (file: File) => {
     const reader = new FileReader();
     const WHITE_THRESHOLD = 230;
     // Read the uploaded file
-    reader.readAsDataURL(file);
-    return new Promise((resolve) => {
-        reader.onload = () => {
-        // Create an image for the uploaded file
-        const signatureImage = new Image();
-        signatureImage.src = reader.result;
+    return new Promise((resolve, reject) => {
+        try{
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+            // Create an image for the uploaded file
+            const signatureImage = new Image();
+            signatureImage.src = reader.result;
 
-        signatureImage.onload = () => {
-            // Make the canvas the same size as the uploaded image
-            canvas.width = signatureImage.width;
-            canvas.height = signatureImage.height;
+            signatureImage.onload = () => {
+                // Make the canvas the same size as the uploaded image
+                canvas.width = signatureImage.width;
+                canvas.height = signatureImage.height;
 
-            context.drawImage(signatureImage, 0,0);
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            let data = imageData.data;
+                context.drawImage(signatureImage, 0,0);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                let data = imageData.data;
 
-        // Remove the background
-            for (var i = 0; i < data.length; i += 4) {
-                const red = data[i], green = data[i + 1], blue = data[i + 2];
+            // Remove the background
+                for (var i = 0; i < data.length; i += 4) {
+                    const red = data[i], green = data[i + 1], blue = data[i + 2];
 
-                // If the red, green, and blue are brighter than the white threshold - make that pixel transparent
-                if (red > WHITE_THRESHOLD && green > WHITE_THRESHOLD && blue > WHITE_THRESHOLD) {
-                    data[i + 3] = 0;
+                    // If the red, green, and blue are brighter than the white threshold - make that pixel transparent
+                    if (red > WHITE_THRESHOLD && green > WHITE_THRESHOLD && blue > WHITE_THRESHOLD) {
+                        data[i + 3] = 0;
+                    }
+                }
+                context.putImageData(imageData, 0, 0);
+                resolve(canvas);
                 }
             }
-            context.putImageData(imageData, 0, 0);
-            resolve(canvas);
-            }
+        }
+        catch(e) {
+            reject(e)
         }
     });
 }
@@ -79,7 +84,8 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
         this.state = {
             signatureDataURL: null,
             width: null,
-            height: null
+            height: null,
+            error: null
         }
     }
 
@@ -88,12 +94,13 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
     }
 
     setImage(canvas: HTMLCanvasElement){
-        this.setState({ signatureDataURL: canvas.toDataURL(), width: canvas.width, height: canvas.height});
+        this.setState({ signatureDataURL: canvas.toDataURL(), width: canvas.width, height: canvas.height, error: null});
     }
 
     readImage(image: File) {
         removeImageBackground(image)
             .then(this.setImage)
+            .catch(() => this.setState({error: 'Sorry, could not process image'}))
     }
 
     fileDrop(files: File[]) {
@@ -130,7 +137,7 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
         return (
                 <FileDropZone onDrop={this.fileDrop}>
             <div className='signature-display'>
-
+            { this.state.error && <div className="alert alert-danger">{ this.state.error } </div>}
 
                 <div className="explanation fake-drop-zone" onClick={this.onClick}>
                     <span className="drag-instruction">Drag an image of your signature here, or click to select</span>
@@ -145,7 +152,7 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
 
     renderCanvas() {
         return <div>
-            <img className="signature-preview" src={this.state.signatureDataURL} />
+        <div className="transparency-grid"><img className="signature-preview" src={this.state.signatureDataURL} /></div>
             <ButtonGroup>
             <Button onClick={this.rotateLeft}><i className="fa fa-rotate-left" aria-hidden="true"></i></Button>
             <Button onClick={this.rotateRight}><i className="fa fa-rotate-right" aria-hidden="true"></i></Button>

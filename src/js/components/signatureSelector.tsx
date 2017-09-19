@@ -156,7 +156,7 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
                             <div className='signature-canvas-container clearfix'>
                                 { this.props.uploading && <Loading />}
                                 { !this.props.uploading &&
-                                        <DimensionedDrawingCanvas innerRef={(ref: DrawingCanvas) => this.signatureCanvas = ref} />
+                                   <DimensionedDrawingCanvas innerRef={(ref: DrawingCanvas) => this.signatureCanvas = ref} />
                                 }
                             </div>
                         </Tab>
@@ -168,8 +168,8 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
                                     { this.state.signatureUploaderErrors }
                                 </Alert>
                             }
-                            {this.props.uploading && <Loading />}
-                            {!this.props.uploading && <SignatureUpload ref='signature-uploader' />}
+                                {this.props.uploading && <Loading />}
+                                {!this.props.uploading && <SignatureUpload ref='signature-uploader' />}
                             </div>
                         </Tab>
                     </Tabs>

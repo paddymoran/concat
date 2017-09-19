@@ -205,13 +205,13 @@ def send_completion_email(document_set_id):
 
         # if all rejected:
         if all([status == 'Rejected' for status in statuses]):
-            msg = 'Signing Session Complete, All Documents Rejected in CataLex Sign'
+            msg = 'Signing Session Complete, All Documents Rejected'
         # if some
         if any([status == 'Rejected' for status in statuses]):
-            msg = 'Signing Session Complete, Documents Partially Rejected in Catalex Sign'
+            msg = 'Signing Session Complete, Some Documents Rejected'
 
         if all([status == 'Signed' for status in statuses]):
-            msg = 'Signing Session Complete, Documents Signed & Ready in CataLex Sign'
+            msg = 'Signing Session Complete, All Documents Signed'
 
         for responder in responders:
             # if they accepted any

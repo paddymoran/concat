@@ -175,7 +175,7 @@ def send_email(template, email, name, subject, data):
             'email': email,
             'name': name,
             'subject': subject,
-            'data': data
+            'data': json.dumps(data)
         }
 
         response = requests.post(app.config.get('AUTH_SERVER') + '/mail/send', data=params)
@@ -199,11 +199,11 @@ def send_completion_email(document_set_id):
         for responder in responders:
             # if they accepted any
             if responder['any_accepted']:
-                data = json.dumps({
+                data = {
                     'name': responder['name'],
                     'setDescription': 'The documents that you signed for %s are now complete' % user['name'],
                     'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
-                })
+                }
                 send_email('emails.sign.signing-complete', responder['email'], responder['name'], 'Documents Signed & Ready in CataLex Sign', data)
 
         if len(responders) == 1:
@@ -211,11 +211,11 @@ def send_completion_email(document_set_id):
         else:
             set_description = """%s have all responded to your sign requests.""" % join_and([r['name'] for r in responders])
 
-        data = json.dumps({
+        data = {
             'name': user['name'],
             'setDescription': set_description,
             'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
-        })
+        }
         return send_email('emails.sign.signing-complete', user['email'], user['name'], 'Documents Signed & Ready in CataLex Sign', data)
 
     except Exception as e:
@@ -235,22 +235,14 @@ def send_rejection_email(user_id, document_set_id, rejectedMessage=None):
         inviter = db.get_document_set_owner(document_set_id)
         rejector = db.get_user_info(user_id)
 
-        params = {
-            'client_id': app.config.get('OAUTH_CLIENT_ID'),
-            'client_secret': app.config.get('OAUTH_CLIENT_SECRET'),
-            'template': 'emails.sign.signing-complete',
-            'email': inviter['email'],
-            'name': inviter['name'],
-            'subject': 'Document Rejected in CataLex Sign',
-            'data': json.dumps({
-                'recipientName': inviter['name'],
-                'rejectorName': rejector['name'],
-                'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
-            })
+        data = {
+            'recipientName': inviter['name'],
+            'rejectorName': rejector['name'],
+            'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id),
+            'rejectedMessage': rejectedMessage
         }
 
-        response = requests.post(app.config.get('AUTH_SERVER') + '/mail/send', data=params)
-        return response.json()
+        return send_email('emails.sign.signing-complete', inviter['email'], inviter['name'], 'Document Rejected in CataLex Sign', data)
     except Exception as e:
         print(e)
         raise InvalidUsage('Failed to send rejection email', status_code=500)
@@ -527,7 +519,6 @@ def sign_document():
     else:
         db.reject_document(session['user_id'], document_id, sign_request_id, {'rejectedMessage': args.get('rejectedMessage')})
     if sign_request_id:
-
         is_complete = is_set_complete(args['documentSetId'])
         if is_complete:
             send_completion_email(args['documentSetId'])

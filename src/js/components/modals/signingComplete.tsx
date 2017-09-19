@@ -57,12 +57,12 @@ class ConnectedSigningComplete extends React.PureComponent<ConnectedSigningCompl
                 <Modal.Header closeButton>
                     <Modal.Title>Signing Complete</Modal.Title>
                 </Modal.Header>
-                
+
                 <Modal.Body>
                     <i className="fa fa-pencil modal-icon" aria-hidden="true"></i>
 
                     <p className='text-center'>{this.props.documents.length === 1 ? content.singleDocument : content.multipleDocuments}</p>
-                    
+
                     <h3>Documents</h3>
 
                     {this.props.documents.map(document => <p key={document.id}>{document.filename}: <SignStatus signStatus={document.signStatus}/></p>)}
@@ -89,7 +89,7 @@ class ConnectedSigningComplete extends React.PureComponent<ConnectedSigningCompl
 export default connect<{}, {}, {}>(
     (state: Sign.State) => {
         const { documentSetId } = state.modals;
-        
+
         const documentSet = state.documentSets[documentSetId];
         const recipients = documentSet ? documentSet.recipients : null;
 
@@ -99,15 +99,15 @@ export default connect<{}, {}, {}>(
         const documents = documentSet.documentIds.map(documentId => {
             const document = state.documents[documentId];
             const signStatus =  (state.documentViewer.documents[documentId] || { signStatus: Sign.SignStatus.PENDING }).signStatus
-            
+
             if (signStatus === Sign.SignStatus.REJECTED) {
                 userIsRejecting = true;
             }
-            
+
             return {
                 id: documentId,
-                signStatus,
                 ...state.documents[documentId],
+                signStatus,
             }
         });
 

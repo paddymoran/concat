@@ -6,7 +6,7 @@ import { uploadSignature, selectSignature, selectInitial, showSignatureSelection
 import { connect } from 'react-redux';
 import Loading from './loading';
 import { signatureUrl, signatureCanvasMinDimensions  } from '../utils';
-
+import sizeMe from 'react-sizeme';
 
 interface SignatureSelectorProps {
     uploading: boolean;
@@ -32,6 +32,18 @@ const DRAW_SIGNATURE_TAB = 2;
 const UPLOAD_SIGNATURE_TAB = 3;
 
 
+
+//sizeMe({refreshMode: 'debounce', monitorWidth: true})
+/*
+export class SignatureDrawing extends React.PureComponent<> {
+    render() {
+        return false;
+    }
+}
+
+const DimensionedSignatureDrawing = sizeMe({refreshMode: 'debounce', monitorWidth: true})(SignatureDrawing);
+
+*/
 
 export class SignatureSelector extends React.PureComponent<SignatureSelectorProps, SignatureSelectorState> {
     private signatureCanvas: SignatureCanvas;

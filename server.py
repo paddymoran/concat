@@ -188,7 +188,7 @@ def send_email(template, email, name, subject, data):
 
 def send_completion_email(document_set_id):
     # a document is complete when every recipient has responded
-# a response can be a sign or a reject
+    # a response can be a sign or a reject
     # a document set is complete when is every document is complete
     # when a document set is 'complete' you will receive a notification if:
     # 1) you are the inviter
@@ -196,15 +196,33 @@ def send_completion_email(document_set_id):
     try:
         user = db.get_document_set_owner(document_set_id)
         responders = db.get_document_set_signers(document_set_id)
+        document_set = db.get_document_set(user['user_id'], document_set_id)
+
+        statuses = []
+        for document in document_set['documents']:
+            for request_info in document.get('request_info', []):
+                statuses.append(request_info['status'])
+
+        # if all rejected:
+        if all([status == 'Rejected' for status in statuses]):
+            msg = 'Signing Session Complete, All Documents Rejected in CataLex Sign'
+        # if some
+        if any([status == 'Rejected' for status in statuses]):
+            msg = 'Signing Session Complete, Documents Partially Rejected in Catalex Sign'
+
+        if all([status == 'Signed' for status in statuses]):
+            msg = 'Signing Session Complete, Documents Signed & Ready in CataLex Sign'
+
         for responder in responders:
             # if they accepted any
             if responder['any_accepted']:
                 data = {
+                    'title': msg,
                     'name': responder['name'],
                     'setDescription': 'The documents that you signed for %s are now complete' % user['name'],
                     'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
                 }
-                send_email('emails.sign.signing-complete', responder['email'], responder['name'], 'Documents Signed & Ready in CataLex Sign', data)
+                send_email('emails.sign.signing-complete', responder['email'], responder['name'], msg, data)
 
         if len(responders) == 1:
             set_description = """%s has responded to your sign request.""" % responders[0]['name']
@@ -212,11 +230,13 @@ def send_completion_email(document_set_id):
             set_description = """%s have all responded to your sign requests.""" % join_and([r['name'] for r in responders])
 
         data = {
+            'title': msg,
             'name': user['name'],
             'setDescription': set_description,
             'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
         }
-        return send_email('emails.sign.signing-complete', user['email'], user['name'], 'Documents Signed & Ready in CataLex Sign', data)
+
+        return send_email('emails.sign.signing-complete', user['email'], user['name'], msg, data)
 
     except Exception as e:
         print(e)

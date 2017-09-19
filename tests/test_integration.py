@@ -146,9 +146,10 @@ class Integration(DBTestCase):
     def upload_doc(self, doc_id, set_id, file):
         data = { 'file[]': file, 'document_id': doc_id, 'document_set_id': set_id }
         response = self.app.post('/api/documents', data=data, content_type='multipart/form-data')
-
-        response = json.loads(response.get_data(as_text=True))
-        return response[0]['document_id']
+        if response.status_code == 200:
+            return json.loads(response.get_data(as_text=True))[0]['document_id']
+        else:
+            raise Exception()
 
     def add_signature(self):
         current_path = os.path.dirname(os.path.realpath(__file__))
@@ -423,6 +424,12 @@ class Integration(DBTestCase):
         data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
         self.assertEqual(data['signed_this_unit'], 3)
         self.assertEqual(data['max_allowance_reached'], True)
+        with self.assertRaises(Exception):
+            self.upload_doc(document_id, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
+
+
+        # pair wise limitation
+
 
 
     def test_0007_signature_access(self):

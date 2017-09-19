@@ -180,9 +180,8 @@ CREATE FUNCTION document_status(uuid) RETURNS text
     LANGUAGE sql
     AS $_$
     SELECT CASE
-        WHEN (every(sr.sign_request_id is null) and every(srrr.sign_result_id is not null)) THEN 'Signed' -- self signed
-        WHEN bool_or(NOT srr.accepted) THEN 'Rejected'
-        WHEN every(srr.sign_request_id is not null) THEN 'Signed'
+        WHEN (every(sr.sign_request_id is null) and every(srrr.sign_result_id is not null)) THEN 'Complete' -- self signed
+        WHEN every(srr.sign_request_id is not null) THEN 'Complete'
         ELSE 'Pending' END as status
     FROM documents d
     LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
@@ -307,9 +306,9 @@ SELECT json_agg(
     'prompts', sr.field_data,
     'created_at', format_iso_date(d.created_at),
     'size',  d.length,
-    'sign_status', CASE WHEN srr.sign_result_id IS NOT NULL
+    'sign_status', document_status(sr.document_id),
+    'request_status', CASE WHEN srr.sign_result_id IS NOT NULL
         THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
-
         ELSE 'Pending' END
     )) as documents,
     d.document_set_id, ds.name, format_iso_date(ds.created_at) as created_at, u.name as "requester", u.user_id,  ds.user_id = $1 as is_owner
@@ -429,7 +428,6 @@ CREATE FUNCTION usage(user_id integer, default_amount_per_unit integer, default_
         (SELECT requested_this_unit FROM total_requested),
         (SELECT  amount_per_unit FROM usage_allowance),
         (SELECT unit FROM usage_allowance)
-
         ) q
 $_$;
 

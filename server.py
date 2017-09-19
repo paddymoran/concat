@@ -186,8 +186,6 @@ def send_email(template, email, name, subject, data):
 
 
 
-
-
 def send_completion_email(document_set_id):
     # a document is complete when every recipient has responded
 # a response can be a sign or a reject

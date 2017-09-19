@@ -255,6 +255,7 @@ SELECT json_agg(
     'created_at', format_iso_date(d.created_at),
     'size',  d.length,
     'sign_status', document_status(sr.document_id),
+
     'request_status', CASE WHEN srr.sign_result_id IS NOT NULL
         THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
         ELSE 'Pending' END

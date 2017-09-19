@@ -600,9 +600,9 @@ class UnconnectedRequestPrompt extends React.PureComponent<ConnectedRequestPromp
                 // Find the centered position of the signature on the page
                 let ratioX = this.props.requestPrompt.ratioX;
                 let ratioY = ratioX / xyRatio;
-                if(ratioY > this.props.requestPrompt.ratioY){
 
-                    ratioX = ratioX * (ratioY/this.props.requestPrompt.ratioY);
+                if(ratioY > this.props.requestPrompt.ratioY){
+                    ratioX = ratioX * (this.props.requestPrompt.ratioY/ratioY);
                     ratioY = this.props.requestPrompt.ratioY;
                 }
                 this.props.addSignatureToDocument({

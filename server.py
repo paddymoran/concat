@@ -596,7 +596,7 @@ def user_meta():
 def update_user_meta():
     user_id = session['user_id']
     meta = request.get_json()
-    db.update_user_meta(user_id, json.dumps(meta.get('meta')))
+    db.update_user_meta(user_id, meta.get('meta'))
     return jsonify({'message': 'User meta updated'})
 
 

@@ -194,7 +194,6 @@ def get_signature(signature_id, user_id):
             FROM signatures
             WHERE signature_id = %(signature_id)s
                 AND user_id = %(user_id)s
-                AND deleted IS FALSE
         """
         cursor.execute(query, {
             'signature_id': signature_id,
@@ -690,7 +689,7 @@ def get_user_meta(user_id):
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, { 'user_id': user_id })
         try:
-            return json.loads(cursor.fetchone().get('data'))
+            return cursor.fetchone().get('data')
         except: 
             return {}
         finally:

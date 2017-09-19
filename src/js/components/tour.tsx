@@ -88,8 +88,8 @@ const arrayOfSteps = [
       {
         name: "GUIDE",
         title: 'Guide Button',
-        text: 'Click this button will scroll you to the next prompt you have been asked to fill out.',
-        selector: '.sign-control.guide-button',
+        text: 'Click this button will scroll you to the next prompt you have been asked to fill out, if the requester has creating signing prompts for you.',
+        selector: '.sign-control.guide-control',
         style: {
           mainColor: '#a6171d',
         },
@@ -157,7 +157,7 @@ class Tour extends React.PureComponent<TourProps,  {stepIndex: number, steps: an
                     }
                 });
                  // get 'next index, based on what has been skipped'
-                this.setState({stepIndex: data.index})
+                this.setState({stepIndex: data.index+1})
             }
             if(data.type === "error:target_not_found"){
               if(data.index + 1 < this.state.steps.length){
@@ -182,7 +182,7 @@ class Tour extends React.PureComponent<TourProps,  {stepIndex: number, steps: an
             disableOverlay={true}
             showSkipButton={true}
             type='continuous'
-            debug={true}
+            debug={!!DEV}
             locale={{ back: 'Back', close: 'Close', last: 'Done', next: 'Next', skip: 'Skip' }}
             /> }
             { this.props.children }

@@ -22,7 +22,12 @@ INVITE_OTHERS_USER_1_ID = 5
 INVITE_OTHERS_USER_2_ID = 6
 INVITE_OTHERS_USER_3_ID = 7
 
+REVOKE_USER_1_ID = 8
+REVOKE_OTHER_1_ID = 9
+REVOKE_OTHER_2_ID = 10
+
 PHOCA_PDF_PATH = 'fixtures/pdfs/phoca-pdf.pdf'
+
 
 class Integration(DBTestCase):
 
@@ -75,7 +80,27 @@ class Integration(DBTestCase):
                         'subscribed': True,
                         'email_verified': True
                         })
-
+            upsert_user({
+                        'user_id': REVOKE_USER_1_ID,
+                        'name': 'REVOKE_USER_1_ID',
+                        'email': 'REVOKE_USER_1_ID@email.com',
+                        'subscribed': True,
+                        'email_verified': True
+                        })
+            upsert_user({
+                        'user_id': REVOKE_OTHER_1_ID,
+                        'name': 'REVOKE_OTHER_1_ID',
+                        'email': 'REVOKE_OTHER_1_ID@email.com',
+                        'subscribed': True,
+                        'email_verified': True
+                        })
+            upsert_user({
+                        'user_id': REVOKE_OTHER_2_ID,
+                        'name': 'REVOKE_OTHER_2_ID',
+                        'email': 'REVOKE_OTHER_2_ID@email.com',
+                        'subscribed': True,
+                        'email_verified': True
+                        })
 
 
     def login(self, user_id):
@@ -257,7 +282,7 @@ class Integration(DBTestCase):
         self.assertEqual(sign_request['requester'], 'INVITE_OTHERS_USER_1_ID')
         self.assertEqual(sign_request['user_id'], INVITE_OTHERS_USER_1_ID) # Check the requester id
 
-        
+
         documents = sign_request['documents']
         self.assertEqual(len(documents), 1) # Check only one document is in the sign request
 
@@ -287,7 +312,7 @@ class Integration(DBTestCase):
             'reject': False,
             'signRequestId': document['sign_request_id']
         }
-        
+
         # with patch('server.send_completion_email'):
         #     response = self.app.post('/api/sign', data=json.dumps(sign_data), content_type='application/json')
         # print(response)
@@ -403,11 +428,66 @@ class Integration(DBTestCase):
         self.assertEqual(response.status_code, 401)
 
 
-
-
-
-
     def test_0008_revoke_requests(self):
         # revoke some requests or sometthing
-        pass
+        self.login(REVOKE_USER_1_ID)
+        # Upload a document
+        document_set_id = str(uuid4())
+        document_id = str(uuid4())
+
+        uploaded_doc_id = self.upload_doc(document_id, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
+
+        # Invite some users
+        invite_request_data = {
+            'documentSetId': document_set_id,
+            'signatureRequests': [{
+                'documentIds': [uploaded_doc_id],
+                'recipient': {
+                    'name': 'REVOKE_OTHER_1_ID',
+                    'email': 'REVOKE_OTHER_1_ID@email.com'
+                }
+            }, {
+                'documentIds': [uploaded_doc_id],
+                'recipient': {
+                    'name': 'REVOKE_OTHER_2_ID',
+                    'email': 'REVOKE_OTHER_2_ID@email.com'
+                }
+            }]
+        }
+        invitees = [
+            {'id': REVOKE_OTHER_1_ID, 'name': 'REVOKE_OTHER_1_ID', 'email': 'REVOKE_OTHER_1_ID@email.com'},
+            {'id': REVOKE_OTHER_2_ID, 'name': 'REVOKE_OTHER_2_ID', 'email': 'REVOKE_OTHER_2_ID@email.com'}
+        ]
+
+        with patch('server.invite_users', return_value=invitees):
+            self.app.post('/api/request_signatures', data=json.dumps(invite_request_data), content_type='application/json')
+
+        response = self.app.get('/api/documents/%s' % document_set_id)
+        response_json = json.loads(response.get_data(as_text=True))
+        requests = response_json['documents'][0]['request_info']
+        self.assertEqual(len(requests), 2)
+
+        self.login(REVOKE_OTHER_1_ID)
+        revoke = self.app.delete('/api/request_signatures/%s' % requests[0]['sign_request_id'])
+        self.assertEqual(revoke.status_code, 401)
+        response = self.app.post('/api/sign', data=json.dumps({'documentId': document_id,
+                                                              'documentSetId': document_set_id,
+                                                              'signRequestId': requests[0]['sign_request_id'],
+                                                'signatures': [{
+                                                    'signatureId': self.add_signature(),
+                                                    'pageNumber': 0,
+                                                    'offsetX': 0,
+                                                    'offsetY': 0,
+                                                    'ratioX': 0.5,
+                                                    'ratioY': 0.05
+                                                  }]
+                                      }), content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+
+        with patch('server.send_completion_email', return_value=True) as p:
+            self.login(REVOKE_USER_1_ID)
+            revoke = self.app.delete('/api/request_signatures/%s' % requests[1]['sign_request_id'])
+            self.assertEqual(revoke.status_code, 200)
+            self.login(REVOKE_OTHER_2_ID)
+            p.assert_called_with(document_set_id)
 

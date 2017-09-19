@@ -502,6 +502,9 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
             documentSetId: this.props.documentSetId,
             documentId: this.props.documentId
         };
+        if(!height){
+            return false;
+        }
         const body = (
             <div className={className} style={{position: 'relative'}} onClick={this.addSelected}>
                {  this.props.signaturesIndexes.map(signatureIndex => <SignaturePositionable key={signatureIndex} index={signatureIndex} {...props} />)}

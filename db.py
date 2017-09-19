@@ -179,6 +179,7 @@ def get_signatures_for_user(user_id):
         """
         cursor.execute(query, {'user_id': user_id})
         signatures = cursor.fetchall()
+        database.commit()
         return [dict(x) for x in signatures]
 
 
@@ -200,7 +201,7 @@ def get_signature(signature_id, user_id):
             'user_id': user_id,
         })
         first_row = cursor.fetchone()
-
+        database.commit()
         if first_row is None:
             return None
 
@@ -298,7 +299,9 @@ def get_user_info(user_id):
             SELECT user_id, name, email, email_verified, subscribed from users where user_id = %(user_id)s
         """
         cursor.execute(query, {'user_id': user_id})
-        return dict(cursor.fetchone())
+        result = dict(cursor.fetchone())
+        database.commit()
+        return result
 
 
 def get_user_document_sets(user_id):
@@ -314,7 +317,9 @@ def get_user_document_sets(user_id):
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {'user_id': user_id})
         data = cursor.fetchall()
-        return [x['document_set_json'] for x in data if x['document_set_json']]
+        result = [x['document_set_json'] for x in data if x['document_set_json']]
+        database.commit()
+        return result
 
 
 def get_document(user_id, document_id):
@@ -334,7 +339,7 @@ def get_document(user_id, document_id):
             'document_id': document_id
         })
         first_row = cursor.fetchone()
-
+        database.commit()
         if first_row is None:
             return None
 
@@ -394,6 +399,7 @@ def get_document_set(user_id, set_id):
             'set_id': set_id
         })
         data = cursor.fetchone()[0]
+        database.commit()
         return data
 
 
@@ -442,14 +448,14 @@ def document_set_from_request_id(user_id, sign_request_id):
             JOIN document_sets ds on ds.document_set_id = d.document_set_id
             WHERE ds.user_id = %(user_id)s and sign_request_id = %(sign_request_id)s
         """
-        with database.cursor() as cursor:
-            cursor.execute(query, {
-                           'user_id': user_id,
-                           'sign_request_id': sign_request_id
-                           })
+        cursor.execute(query, {
+                       'user_id': user_id,
+                       'sign_request_id': sign_request_id
+                       })
 
-            result = cursor.fetchone()
-            return result.get('document_set_id') if result else None
+        result = cursor.fetchone()
+        database.commit()
+        return result.get('document_set_id') if result else None
 
 
 def save_document_view(document_id, user_id, field_data):
@@ -495,6 +501,7 @@ def document_set_status(document_set_id):
             'document_set_id': document_set_id
         })
         data = cursor.fetchone()
+        database.commit()
         return data
 
 def get_signature_requests(user_id):
@@ -511,6 +518,7 @@ def get_signature_requests(user_id):
             'user_id': user_id
         })
         data = cursor.fetchone()
+        database.commit()
         return data[0] or []
 
 
@@ -534,6 +542,7 @@ def get_contacts(user_id):
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {'user_id': user_id})
         data = cursor.fetchall()
+        database.commit()
         return [dict(x) for x in data]
 
 
@@ -547,7 +556,9 @@ def get_sign_request(user_id, sign_request_id):
 
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {'user_id': user_id, 'sign_request_id': sign_request_id})
-        return cursor.fetchone()
+        result = cursor.fetchone()
+        database.commit()
+        return result
 
 
 def get_latest_version(document_id):
@@ -557,7 +568,9 @@ def get_latest_version(document_id):
     """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {'document_id': document_id})
-        return cursor.fetchone()['latest_document_id']
+        result = cursor.fetchone()['latest_document_id']
+        database.commit()
+        return result
 
 
 def get_document_set_owner(set_id):
@@ -575,6 +588,7 @@ def get_document_set_owner(set_id):
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, { 'set_id': set_id })
         data = cursor.fetchone()
+        database.commit()
         return dict(data)
 
 
@@ -590,6 +604,7 @@ def get_document_status(doc_id):
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, { 'doc_id': doc_id })
         data = cursor.fetchone()
+        database.commit()
         return dict(data)
 
 def get_document_set_recipients(set_id):
@@ -609,6 +624,7 @@ def get_document_set_recipients(set_id):
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {'set_id': set_id})
         data = cursor.fetchall()
+        database.commit()
         return [dict(x) for x in data]
 
 
@@ -623,7 +639,7 @@ def get_usage(user_id, default_amount_per_unit, default_unit):
                        'default_amount_per_unit': default_amount_per_unit,
                        'default_unit': default_unit})
         data = cursor.fetchone()
-
+        database.commit()
         return dict(data)
 
 
@@ -637,6 +653,7 @@ def signed_by(user_id, file_hash):
         cursor.execute(query, { 'user_id': user_id,
                        'hash': file_hash})
         data = cursor.fetchone()
+        database.commit()
         return data['signed_by']
 
 
@@ -654,6 +671,8 @@ def get_user_meta(user_id):
             return json.loads(cursor.fetchone().get('data'))
         except: 
             return {}
+        finally:
+            database.commit()
 
 
 
@@ -703,3 +722,24 @@ def update_user_meta(user_id, meta):
                 })
     
     database.commit()
+
+
+def user_owns_document(user_id, document_id):
+    database = get_db()
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        query = """
+            SELECT ds.document_set_id  as document_set_id
+            FROM documents d
+            JOIN document_sets ds on ds.document_set_id = d.document_set_id
+            WHERE ds.user_id = %(user_id)s and document_id = %(document_id)s
+        """
+        cursor.execute(query, {
+                       'user_id': user_id,
+                       'document_id': document_id
+                       })
+
+        result = cursor.fetchone()
+        database.commit()
+        return True if result else False
+
+

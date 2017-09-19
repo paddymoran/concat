@@ -273,6 +273,9 @@ def get_user_meta():
         return db.get_user_meta(session['user_id'])
 
 
+def owns_document(user_id, document_id):
+    return db.user_owns_document(user_id, document_id)
+
 def login_redirect(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -481,7 +484,7 @@ def sign_document():
     sign_request_id = args.get('signRequestId', None)
     if not sign_request_id:
         # if signing a new doc, confirm they are allowed
-        if not can_sign_or_submit(session['user_id']):
+        if not can_sign_or_submit(session['user_id']) or not owns_document(session['user_id'], document_id):
             abort(401)
     else:
         # if signing a request, confirm they are invited and haven't signed yet
@@ -510,6 +513,7 @@ def sign_document():
     if sign_request_id:
 
         is_complete = is_set_complete(args['documentSetId'])
+        print(is_complete)
         if is_complete:
             send_completion_email(args['documentSetId'])
         elif are_user_requests_complete(session['user_id'], args['documentSetId']):
@@ -530,7 +534,7 @@ def request_signatures():
     [db.upsert_user({'name': user['name'], 'email': user['email'], 'user_id': user['id']}) for user in users]
     users = {user['email']: user for user in users}
     for req in args['signatureRequests']:
-        req['recipient']['user_id'] =  users[req['recipient']['email']]['id']
+        req['recipient']['user_id'] = users[req['recipient']['email']]['id']
     db.add_signature_requests(args['documentSetId'], args['signatureRequests'])
     return jsonify({'message': 'Requests sent'})
 

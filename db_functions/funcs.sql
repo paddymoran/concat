@@ -329,7 +329,7 @@ AS $$
         (SELECT requested_this_unit FROM total_requested),
         (SELECT  amount_per_unit FROM usage_allowance),
         (SELECT unit FROM usage_allowance)
-
         ) q
 $$ LANGUAGE sql;
+
 

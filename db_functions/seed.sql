@@ -417,10 +417,10 @@ CREATE FUNCTION usage(user_id integer, default_amount_per_unit integer, default_
 
     ),
     total_requested as (
-	    SELECT count(document_set_id)::integer as "requested_this_unit"
-	    FROM requested_doc_set_ids
+        SELECT count(document_set_id)::integer as "requested_this_unit"
+        FROM requested_doc_set_ids
     )
-    SELECT signed_this_unit, requested_this_unit, amount_per_unit, unit, (signed_this_unit + requested_this_unit) > amount_per_unit as max_allowance_reached
+    SELECT signed_this_unit, requested_this_unit, amount_per_unit, unit, (signed_this_unit + requested_this_unit) >= amount_per_unit as max_allowance_reached
     FROM (
     SELECT
         (SELECT signed_this_unit FROM total_signed),

@@ -77,19 +77,19 @@ const arrayOfSteps = [
         },
     },
       {
-        name: "REJECT",
-        title: 'Reject Button',
-        text: 'If you do not wish to sign the document, click this button.  The sender will be informed of your rejection, along with an optional message that you can add.',
-        selector: '.sign-control.reject-control',
+        name: "GUIDE",
+        title: 'Guide Button',
+        text: 'Click this button will scroll you to the next prompt you have been asked to fill out, if the requester has creating signing prompts for you.',
+        selector: '.sign-control.guide-control',
         style: {
           mainColor: '#a6171d',
         },
     },
       {
-        name: "GUIDE",
-        title: 'Guide Button',
-        text: 'Click this button will scroll you to the next prompt you have been asked to fill out, if the requester has creating signing prompts for you.',
-        selector: '.sign-control.guide-control',
+        name: "REJECT",
+        title: 'Reject Button',
+        text: 'If you do not wish to sign the document, click this button.  The sender will be informed of your rejection, along with an optional message that you can add.',
+        selector: '.sign-control.reject-control',
         style: {
           mainColor: '#a6171d',
         },

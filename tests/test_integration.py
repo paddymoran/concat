@@ -372,8 +372,7 @@ class Integration(DBTestCase):
         max_sign_unit = server.app.config.get('MAX_SIGN_UNIT')
 
         self.login(UNSUBSCRIBED_USER_1)
-        response = self.app.get('/api/usage')
-        data = json.loads(response.get_data(as_text=True))
+        data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
 
         self.assertEqual(data['requested_this_unit'], 0)
         self.assertEqual(data['max_allowance_reached'], False)
@@ -384,16 +383,14 @@ class Integration(DBTestCase):
         document_set_id = str(uuid4())
         document_id = str(uuid4())
 
-        uploaded_doc_id = self.upload_doc(document_id, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
-        response = self.app.get('/api/usage')
-        data = json.loads(response.get_data(as_text=True))
-
+        document_id = self.upload_doc(document_id, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
+        data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
         self.assertEqual(data['max_allowance_reached'], False)
         self.assertEqual(data['signed_this_unit'], 0)
         signature_id = self.add_signature()
-        response = self.sign_with_signature(document_id, signature_id)
-
-
+        self.sign_with_signature(document_id, signature_id)
+        data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
+        self.assertEqual(data['signed_this_unit'], 1)
 
     def test_0007_signature_access(self):
         # new user creates signature

@@ -32,21 +32,43 @@ const DRAW_SIGNATURE_TAB = 2;
 const UPLOAD_SIGNATURE_TAB = 3;
 
 
+export class DrawingCanvas extends React.PureComponent<{size: {width: number}, innerRef: (ref: DrawingCanvas) => void}> {
+    private signatureCanvas: SignatureCanvas;
+    clearCanvas() {
+        this.signatureCanvas.clear();
+    }
 
-//sizeMe({refreshMode: 'debounce', monitorWidth: true})
-/*
-export class SignatureDrawing extends React.PureComponent<> {
+    componentDidMount(){
+        this.props.innerRef && this.props.innerRef(this);
+    }
+
+    componentWillUnmount(){
+        this.props.innerRef && this.props.innerRef(undefined);
+    }
+
+    toDataUrl() {
+        return signatureCanvasMinDimensions(this.signatureCanvas.getTrimmedCanvas()).toDataURL();
+    }
+
     render() {
-        return false;
+        const canvasProps = {
+            width: this.props.size.width,
+            height: 200
+        }
+        return <div className='signature-display'>
+            <SignatureCanvas canvasProps={canvasProps} ref={(ref: SignatureCanvas) => this.signatureCanvas = ref}/>
+            <a className='btn btn-default btn-block' onClick={this.clearCanvas.bind(this)}>Clear</a>
+        </div>
+
     }
 }
 
-const DimensionedSignatureDrawing = sizeMe({refreshMode: 'debounce', monitorWidth: true})(SignatureDrawing);
+const DimensionedDrawingCanvas = sizeMe<{innerRef: (ref: DrawingCanvas) => void}>({refreshMode: 'debounce', monitorWidth: true})(DrawingCanvas);
 
-*/
+
 
 export class SignatureSelector extends React.PureComponent<SignatureSelectorProps, SignatureSelectorState> {
-    private signatureCanvas: SignatureCanvas;
+    private signatureCanvas: DrawingCanvas;
 
     constructor(props: SignatureSelectorProps) {
         super(props);
@@ -68,10 +90,6 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
         this.props.selectSignature(selectedSignatureId);
     }
 
-    clearCanvas() {
-        this.signatureCanvas.clear();
-    }
-
     deleteSignature() {
         this.props.deleteSignature(this.props.selectedId);
         this.props.selectSignature(null);
@@ -89,7 +107,7 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
             }
         }
         else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
-            const signature = signatureCanvasMinDimensions(this.signatureCanvas.getTrimmedCanvas()).toDataURL();
+            const signature = this.signatureCanvas.toDataUrl();
 
             this.props.uploadSignature(signature);
         }
@@ -99,10 +117,6 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
 
 
     render() {
-        const signatureCanvasOptions = {
-            width: 500,
-            height: 200
-        };
         return  (
             <Modal backdrop='static' show={true} onHide={this.props.closeModal}>
                 <Modal.Header closeButton>
@@ -142,10 +156,7 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
                             <div className='signature-canvas-container clearfix'>
                                 { this.props.uploading && <Loading />}
                                 { !this.props.uploading &&
-                                    <div className='signature-display'>
-                                        <SignatureCanvas canvasProps={signatureCanvasOptions} ref={(ref: SignatureCanvas) => this.signatureCanvas = ref} />
-                                        <a className='btn btn-default btn-block' onClick={this.clearCanvas.bind(this)}>Clear</a>
-                                    </div>
+                                        <DimensionedDrawingCanvas innerRef={(ref: DrawingCanvas) => this.signatureCanvas = ref} />
                                 }
                             </div>
                         </Tab>

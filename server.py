@@ -227,7 +227,7 @@ def should_send_reject_email(user_id, document_set_id):
     # if this users requests are complete and any documents are rejected, return true
     for doc_set in db.get_signature_requests(session['user_id']):
         if doc_set['document_set_id'] == document_set_id:
-            return (all([doc['request_status'] != 'Penidng' for doc in doc_set['documents']]) and
+            return (all([doc['request_status'] != 'Pending' for doc in doc_set['documents']]) and
                     any([doc['request_status'] == 'Rejected' for doc in doc_set['documents']]))
     return False
 
@@ -244,7 +244,7 @@ def send_rejection_email(user_id, document_set_id, rejectedMessage=None):
             'rejectedMessage': rejectedMessage
         }
 
-        return send_email('emails.sign.signing-complete', inviter['email'], inviter['name'], 'Document Rejected in CataLex Sign', data)
+        return send_email('emails.sign.document-rejected', inviter['email'], inviter['name'], 'Document Rejected in CataLex Sign', data)
     except Exception as e:
         print(e)
         raise InvalidUsage('Failed to send rejection email', status_code=500)

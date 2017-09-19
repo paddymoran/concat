@@ -175,6 +175,7 @@ interface SignAndNextProps {
     nextDocumentId: string;
     markDocumentAsComplete: (payload: Sign.Actions.MarkDocumentAsCompletePayload) => void;
     goToDocument: (documentId: string) => void;
+    isDocumentOwner: boolean;
 }
 
 class SignAndNext extends React.PureComponent<SignAndNextProps> {
@@ -199,6 +200,9 @@ class SignAndNext extends React.PureComponent<SignAndNextProps> {
                 <i className="fa fa-forward modal-icon" aria-hidden="true"></i>
 
                 <p className='text-center'>Are you sure you want to move to the next document?</p>
+
+                {/* TODO: finish when we have time */}
+                {/*{!this.props.isDocumentOwner && <SignMessageReduxForm />}*/}
 
                 <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.goToDocument} />
 
@@ -462,6 +466,7 @@ class SignConfirmation extends React.PureComponent<UnconnectedSignConfirmationPr
                 title = 'Sign & Continue';
                 body = <SignAndNext
                             documents={this.props.documents}
+                            isDocumentOwner={this.props.isDocumentOwner}
                             currentDocumentId={this.props.documentId}
                             nextDocumentId={this.props.nextDocumentId}
                             markDocumentAsComplete={this.props.markDocumentAsComplete}
@@ -518,6 +523,23 @@ export const RejectReduxForm = reduxForm<{ reason: string; }>(
     { form: Sign.FormName.REJECT }
 )(RejectForm);
 
+class SignMessageForm extends React.PureComponent<InjectedFormProps> {
+    render() {
+        return (
+            <Form className="text-left">
+                <FormGroup>
+                    <ControlLabel>Message (optional)</ControlLabel>
+                    <Field name="message" component={TextareaReduxField as any} />
+                </FormGroup>
+            </Form>
+        );
+    }
+}
+
+export const SignMessageReduxForm = reduxForm<{ reason: string; }>(
+    { form: Sign.FormName.SIGN_MESSAGE }
+)(SignMessageForm);
+
 export function isSigning(documentViewer: Sign.DocumentViewer, documentIds: string[]) {
     const signaturesIndexes = Object.keys(documentViewer.signatures).filter(signatureIndex => documentIds.indexOf(documentViewer.signatures[signatureIndex].documentId) >= 0);
     const dateIndexes = Object.keys(documentViewer.dates).filter(dateIndex => documentIds.indexOf(documentViewer.dates[dateIndex].documentId) >= 0);
@@ -534,6 +556,7 @@ export function isSigning(documentViewer: Sign.DocumentViewer, documentIds: stri
 
 export default connect<{}, {}, SignConfirmationProps>(
     (state: Sign.State) => {
+        // debugger;
         const { documentId, documentSetId } = state.modals;
 
         const documentSet = state.documentSets[state.modals.documentSetId];

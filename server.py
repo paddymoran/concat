@@ -230,7 +230,7 @@ def are_user_requests_complete(user_id, document_set_id):
     return False
 
 
-def send_rejection_email(user_id, document_set_id):
+def send_rejection_email(user_id, document_set_id, rejectedMessage=None):
     try:
         inviter = db.get_document_set_owner(document_set_id)
         rejector = db.get_user_info(user_id)
@@ -532,7 +532,7 @@ def sign_document():
         if is_complete:
             send_completion_email(args['documentSetId'])
         elif are_user_requests_complete(session['user_id'], args['documentSetId']):
-            send_rejection_email(session['user_id'], args['documentSetId'])
+            send_rejection_email(session['user_id'], args['documentSetId'], args.get('rejectedMessage'))
 
     return jsonify({'message': 'done'})
 

@@ -380,10 +380,11 @@ class Integration(DBTestCase):
         self.assertEqual(data['unit'], max_sign_unit)
         self.assertEqual(data['signed_this_unit'], 0)
 
+
+        # upload 1 document
         document_set_id = str(uuid4())
         document_id = str(uuid4())
-
-        document_id = self.upload_doc(document_id, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
+        self.upload_doc(document_id, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
         data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
         self.assertEqual(data['max_allowance_reached'], False)
         self.assertEqual(data['signed_this_unit'], 0)
@@ -391,6 +392,38 @@ class Integration(DBTestCase):
         self.sign_with_signature(document_id, signature_id)
         data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
         self.assertEqual(data['signed_this_unit'], 1)
+
+        # upload 2 in a set
+        document_set_id = str(uuid4())
+        document_id_1 = str(uuid4())
+        document_id_2 = str(uuid4())
+        self.upload_doc(document_id_1, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
+        self.upload_doc(document_id_2, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
+        data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
+        self.assertEqual(data['max_allowance_reached'], False)
+        self.assertEqual(data['signed_this_unit'], 1)
+        signature_id = self.add_signature()
+        self.sign_with_signature(document_id, signature_id)
+        data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
+        self.sign_with_signature(document_id_1, signature_id)
+        data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
+        self.assertEqual(data['signed_this_unit'], 2)
+        self.sign_with_signature(document_id_2, signature_id)
+        data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
+        self.assertEqual(data['signed_this_unit'], 2)
+
+        # upload 1 document again
+        document_set_id = str(uuid4())
+        document_id = str(uuid4())
+        self.upload_doc(document_id, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
+        data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
+        self.assertEqual(data['max_allowance_reached'], False)
+        signature_id = self.add_signature()
+        self.sign_with_signature(document_id, signature_id)
+        data = json.loads(self.app.get('/api/usage').get_data(as_text=True))
+        self.assertEqual(data['signed_this_unit'], 3)
+        self.assertEqual(data['max_allowance_reached'], True)
+
 
     def test_0007_signature_access(self):
         # new user creates signature
@@ -518,5 +551,5 @@ class Integration(DBTestCase):
             revoke = self.app.delete('/api/request_signatures/%s' % requests[1]['sign_request_id'])
             self.assertEqual(revoke.status_code, 200)
             self.login(REVOKE_OTHER_2_ID)
-            #p.assert_called_with(document_set_id)
+            p.assert_called()
 

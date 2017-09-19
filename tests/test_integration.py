@@ -26,6 +26,11 @@ REVOKE_USER_1_ID = 8
 REVOKE_OTHER_1_ID = 9
 REVOKE_OTHER_2_ID = 10
 
+UNSUBSCRIBED_USER_1 = 11
+UNSUBSCRIBED_USER_2 = 12
+SUBSCRIBED_USER_1 = 13
+
+
 PHOCA_PDF_PATH = 'fixtures/pdfs/phoca-pdf.pdf'
 
 
@@ -101,6 +106,27 @@ class Integration(DBTestCase):
                         'subscribed': True,
                         'email_verified': True
                         })
+            upsert_user({
+                        'user_id': UNSUBSCRIBED_USER_1,
+                        'name': 'UNSUBSCRIBED_USER_1',
+                        'email': 'UNSUBSCRIBED_USER_1@email.com',
+                        'subscribed': False,
+                        'email_verified': True
+                        })
+            upsert_user({
+                        'user_id': UNSUBSCRIBED_USER_2,
+                        'name': 'UNSUBSCRIBED_USER_2',
+                        'email': 'UNSUBSCRIBED_USER_2@email.com',
+                        'subscribed': False,
+                        'email_verified': True
+                        })
+            upsert_user({
+                        'user_id': SUBSCRIBED_USER_1,
+                        'name': 'SUBSCRIBED_USER_1',
+                        'email': 'SUBSCRIBED_USER_1@email.com',
+                        'subscribed': True,
+                        'email_verified': True
+                        })
 
 
     def login(self, user_id):
@@ -133,6 +159,22 @@ class Integration(DBTestCase):
         response = self.app.post('/api/signatures/upload', data=json.dumps({'base64Image': signature, 'type': 'signature'}), content_type='application/json')
         response_json = json.loads(response.get_data(as_text=True))
         return response_json['signature_id']
+
+    def sign_with_signature(self, document_id, signature_id, document_set_id=None, sign_request_id=None):
+        response = self.app.post('/api/sign', data=json.dumps({'documentId': document_id,
+                                                              'documentSetId': document_set_id,
+                                                              'signRequestId': sign_request_id,
+                                                'signatures': [{
+                                                    'signatureId': signature_id,
+                                                    'pageNumber': 0,
+                                                    'offsetX': 0,
+                                                    'offsetY': 0,
+                                                    'ratioX': 0.5,
+                                                    'ratioY': 0.05
+                                                  }]
+                                      }), content_type='application/json')
+        return response
+
 
     def open_pdf(self, pdf_path):
         current_path = os.path.dirname(os.path.realpath(__file__))
@@ -241,7 +283,7 @@ class Integration(DBTestCase):
                     'name': 'INVITE_OTHERS_USER_2_ID',
                     'email': 'INVITE_OTHERS_USER_2_ID@email.com'
                 }
-            },{
+            }, {
                 'documentIds': [uploaded_doc_id],
                 'recipient': {
                     'name': 'INVITE_OTHERS_USER_3_ID',
@@ -313,6 +355,7 @@ class Integration(DBTestCase):
             'signRequestId': document['sign_request_id']
         }
 
+
         # with patch('server.send_completion_email'):
         #     response = self.app.post('/api/sign', data=json.dumps(sign_data), content_type='application/json')
         # print(response)
@@ -325,15 +368,32 @@ class Integration(DBTestCase):
         pass
 
     def test_0006_usage_limits(self):
-        # new user, unsubscribed
-        # self sign 1 document
-        # invite others two a sign another x documents (where x is config.MAX_SIGNS - 1)
-        # confirm they can't upload anymore
-        # delete sets
-        # confirm they still can't upload anymore
-        # set them to subscribed
-        # confirm they can upload more
-        pass
+        amount_per_unit = server.app.config.get('MAX_SIGNS')
+        max_sign_unit = server.app.config.get('MAX_SIGN_UNIT')
+
+        self.login(UNSUBSCRIBED_USER_1)
+        response = self.app.get('/api/usage')
+        data = json.loads(response.get_data(as_text=True))
+
+        self.assertEqual(data['requested_this_unit'], 0)
+        self.assertEqual(data['max_allowance_reached'], False)
+        self.assertEqual(data['amount_per_unit'], amount_per_unit)
+        self.assertEqual(data['unit'], max_sign_unit)
+        self.assertEqual(data['signed_this_unit'], 0)
+
+        document_set_id = str(uuid4())
+        document_id = str(uuid4())
+
+        uploaded_doc_id = self.upload_doc(document_id, document_set_id, (BytesIO(self.open_pdf(PHOCA_PDF_PATH)), 'file.pdf'))
+        response = self.app.get('/api/usage')
+        data = json.loads(response.get_data(as_text=True))
+
+        self.assertEqual(data['max_allowance_reached'], False)
+        self.assertEqual(data['signed_this_unit'], 0)
+        signature_id = self.add_signature()
+        response = self.sign_with_signature(document_id, signature_id)
+
+
 
     def test_0007_signature_access(self):
         # new user creates signature
@@ -381,16 +441,7 @@ class Integration(DBTestCase):
         data = json.loads(response.get_data(as_text=True))
         document_id = data[0]['document_id']
 
-        response = self.app.post('/api/sign', data=json.dumps({'documentId': document_id,
-                                                'signatures': [{
-                                                    'signatureId': signature_id,
-                                                    'pageNumber': 0,
-                                                    'offsetX': 0,
-                                                    'offsetY': 0,
-                                                    'ratioX': 0.5,
-                                                    'ratioY': 0.05
-                                                  }]
-                                      }), content_type='application/json')
+        response = self.sign_with_signature(document_id, signature_id)
 
         self.assertEqual(response.status_code, 200)
 
@@ -415,16 +466,7 @@ class Integration(DBTestCase):
         data = json.loads(response.get_data(as_text=True))
         document_id = data[0]['document_id']
 
-        response = self.app.post('/api/sign', data=json.dumps({'documentId': document_id,
-                                                'signatures': [{
-                                                    'signatureId': signature_id,
-                                                    'pageNumber': 0,
-                                                    'offsetX': 0,
-                                                    'offsetY': 0,
-                                                    'ratioX': 0.5,
-                                                    'ratioY': 0.05
-                                                  }]
-                                      }), content_type='application/json')
+        response = self.sign_with_signature(document_id, signature_id)
         self.assertEqual(response.status_code, 401)
 
 
@@ -470,18 +512,8 @@ class Integration(DBTestCase):
         self.login(REVOKE_OTHER_1_ID)
         revoke = self.app.delete('/api/request_signatures/%s' % requests[0]['sign_request_id'])
         self.assertEqual(revoke.status_code, 401)
-        response = self.app.post('/api/sign', data=json.dumps({'documentId': document_id,
-                                                              'documentSetId': document_set_id,
-                                                              'signRequestId': requests[0]['sign_request_id'],
-                                                'signatures': [{
-                                                    'signatureId': self.add_signature(),
-                                                    'pageNumber': 0,
-                                                    'offsetX': 0,
-                                                    'offsetY': 0,
-                                                    'ratioX': 0.5,
-                                                    'ratioY': 0.05
-                                                  }]
-                                      }), content_type='application/json')
+        response = self.sign_with_signature(document_id, self.add_signature(), document_set_id=document_set_id, sign_request_id=requests[0]['sign_request_id'])
+
         self.assertEqual(response.status_code, 200)
 
         with patch('server.send_email', return_value=True) as p:

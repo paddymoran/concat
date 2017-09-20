@@ -9,11 +9,18 @@ var autoprefixer = require('autoprefixer');
 var WebpackNotifierPlugin = require('webpack-notifier');
 
 
-module.exports = {
+module.exports = function(env){
+    var output = 'public';
+
+    if(env && env.output){
+        output = env.output
+    }
+    console.log("OUTPUT: ", path.resolve(__dirname, output))
+    return {
     entry: './src/js/main.tsx',
     output: {
         filename: DEV ?  'app.js' : 'app.[hash].js',
-        path:  path.resolve(__dirname, 'public'),
+        path:  path.resolve(__dirname, output),
         publicPath: '/'
 
     },
@@ -120,4 +127,5 @@ module.exports = {
             inject: 'body'
         })
     ]
+    }
 };

@@ -3,13 +3,13 @@ import { ImageDropZone as FileDropZone } from './fileDropZone';
 import * as Promise from 'bluebird';
 import * as Button from 'react-bootstrap/lib/Button';
 import * as ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
+import Slider  from 'rc-slider';
 
 
-const removeImageBackground = (file: File) => {
+const fileToImageData = (file: File) => {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     const reader = new FileReader();
-    const WHITE_THRESHOLD = 230;
     // Read the uploaded file
     return new Promise((resolve, reject) => {
         try{
@@ -23,22 +23,8 @@ const removeImageBackground = (file: File) => {
                 // Make the canvas the same size as the uploaded image
                 canvas.width = signatureImage.width;
                 canvas.height = signatureImage.height;
-
                 context.drawImage(signatureImage, 0,0);
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                let data = imageData.data;
-
-            // Remove the background
-                for (var i = 0; i < data.length; i += 4) {
-                    const red = data[i], green = data[i + 1], blue = data[i + 2];
-
-                    // If the red, green, and blue are brighter than the white threshold - make that pixel transparent
-                    if (red > WHITE_THRESHOLD && green > WHITE_THRESHOLD && blue > WHITE_THRESHOLD) {
-                        data[i + 3] = 0;
-                    }
-                }
-                context.putImageData(imageData, 0, 0);
-                resolve(canvas);
+                resolve(context.getImageData(0, 0, canvas.width, canvas.height));
                 }
             }
         }
@@ -48,23 +34,64 @@ const removeImageBackground = (file: File) => {
     });
 }
 
-function rotate(imageURL: string, width: number, height: number, angle: number) {
-    const image = new Image();
+function imageDataToCanvas(data: ImageData){
+    const canvas = document.createElement('canvas');
+    canvas.width = data.width;
+    canvas.height = data.height;
+    const context = canvas.getContext('2d');
+    context.putImageData(data, 0, 0);
+    return canvas;
+}
 
-    return new Promise((resolve) => {
-        image.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = height;
-            canvas.height = width;
-            ctx.translate(canvas.width/2,canvas.height/2);
-            ctx.rotate(angle);
-             ctx.drawImage(image, -canvas.height*0.5, -canvas.width*0.5);
-             return resolve(canvas);
-         };
-        image.src = imageURL;
-     });
+function copyImageData(data: ImageData){
+    // cross browser way is annoying
+    const canvas = imageDataToCanvas(data);
+    const context = canvas.getContext('2d');
+    return context.getImageData(0, 0, canvas.width, canvas.height);
+}
+
+function imageDataToDataUrl(imageData: ImageData) {
+    return imageDataToCanvas(imageData).toDataURL();
+}
+
+const removeImageBackground = (imageData: ImageData, threshold: number) => {
+    let data = imageData.data;
+    // Remove the background
+    for (var i = 0; i < data.length; i += 4) {
+        const red = data[i], green = data[i + 1], blue = data[i + 2];
+        // If the red, green, and blue are brighter than the white threshold - make that pixel transparent
+        if (red > threshold && green > threshold && blue > threshold) {
+            data[i + 3] = 0;
+        }
+    }
+    return imageData;
+
+}
+
+
+function rotate(imageData: ImageData, rotation: number) {
+    if(!rotation){
+        return imageData;
+    }
+    const angle = (Math.PI/2) * rotation;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const width =  imageData.width;
+    const height = imageData.height;
+    canvas.width = rotation % 2 == 0 ? width : height;
+    canvas.height = rotation % 2 == 0 ? height: width;
+    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.rotate(angle);
+    const imageCanvas = imageDataToCanvas(imageData);
+    if(rotation % 2){
+        ctx.drawImage(imageCanvas, -canvas.height/2, -canvas.width/2);
+    }
+    else{
+        ctx.drawImage(imageCanvas, -canvas.width/2, -canvas.height/2);
+    }
+    return ctx.getImageData(0, 0, canvas.width, canvas.height)
 };
+
 
 
 interface SignatureUploadProps {}
@@ -80,27 +107,29 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
         this.rotateRight = this.rotateRight.bind(this);
         this.clearImage = this.clearImage.bind(this);
         this.setImage = this.setImage.bind(this);
-
+        this.onSliderChange = this.onSliderChange.bind(this);
         this.state = {
-            signatureDataURL: null,
-            width: null,
-            height: null,
-            error: null
+            imageData: null,
+            rotation: 0,
+            error: null,
+            sliderValue: 200
         }
     }
 
     toDataURL() {
-        return this.state.signatureDataURL;
+        return this.processImage();
     }
 
-    setImage(canvas: HTMLCanvasElement){
-        this.setState({ signatureDataURL: canvas.toDataURL(), width: canvas.width, height: canvas.height, error: null});
+    setImage(imageData : ImageData){
+        this.setState({imageData});
     }
 
     readImage(image: File) {
-        removeImageBackground(image)
-            .then(this.setImage)
-            .catch(() => this.setState({error: 'Sorry, could not process image'}))
+        fileToImageData(image)
+            .then((imageData: ImageData) =>  this.setState({imageData, rotation: 0}))
+            .catch((e) =>{
+                this.setState({error: 'Sorry, could not process image'})
+             })
     }
 
     fileDrop(files: File[]) {
@@ -118,19 +147,25 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
         }
     }
 
+    onSliderChange(sliderValue: number) {
+        this.setState({sliderValue});
+    }
 
     rotateLeft() {
-        rotate(this.state.signatureDataURL, this.state.width, this.state.height, -Math.PI/2)
-            .then(this.setImage)
+        this.setState({rotation: this.state.rotation -1})
+
     }
 
     rotateRight() {
-        rotate(this.state.signatureDataURL, this.state.width, this.state.height, Math.PI/2)
-            .then(this.setImage)
+        this.setState({rotation: this.state.rotation +1})
     }
 
     clearImage() {
-        this.setState({signatureDataURL: null})
+        this.setState({imageData: null})
+    }
+
+    processImage(){
+        return imageDataToDataUrl(rotate(removeImageBackground(copyImageData(this.state.imageData), this.state.sliderValue), this.state.rotation));
     }
 
     renderDrop() {
@@ -138,7 +173,6 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
                 <FileDropZone onDrop={this.fileDrop}>
             <div className='signature-display'>
             { this.state.error && <div className="alert alert-danger">{ this.state.error } </div>}
-
                 <div className="explanation fake-drop-zone" onClick={this.onClick}>
                     <span className="drag-instruction">Drag an image of your signature here, or click to select</span>
                     <span className="drop-instruction">DROP HERE</span>
@@ -152,7 +186,17 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
 
     renderCanvas() {
         return <div>
-        <div className="transparency-grid"><img className="signature-preview" src={this.state.signatureDataURL} /></div>
+        <div className="transparency-grid"><img className="signature-preview" src={this.processImage()} /></div>
+        <div className="slider-help">Move the slider until you can only see the background grid and your signature</div>
+        <Slider
+            defaultValue={this.state.sliderValue}
+               onChange={this.onSliderChange}
+            onAfterChange={this.onSliderChange}
+            step={1}
+            max={255}
+            min={0}
+             />
+
             <ButtonGroup>
             <Button onClick={this.rotateLeft}><i className="fa fa-rotate-left" aria-hidden="true"></i></Button>
             <Button onClick={this.rotateRight}><i className="fa fa-rotate-right" aria-hidden="true"></i></Button>
@@ -162,7 +206,7 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
     }
 
     render() {
-        if(!this.state.signatureDataURL){
+        if(!this.state.imageData){
             return this.renderDrop()
         }
         return this.renderCanvas();

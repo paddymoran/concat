@@ -98,7 +98,7 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
     select() {
         if (this.state.currentTab == UPLOAD_SIGNATURE_TAB) {
             const uploader = this.refs['signature-uploader']  as SignatureUpload;
-            const signature = uploader.state.signatureDataURL;
+            const signature = uploader.toDataURL();
             if (signature === null) {
                 this.setState({ signatureUploaderErrors: 'Please upload a file' });
             }
@@ -108,7 +108,6 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
         }
         else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
             const signature = this.signatureCanvas.toDataUrl();
-
             this.props.uploadSignature(signature);
         }
 

@@ -67,7 +67,21 @@ const removeImageBackground = (imageData: ImageData, threshold: number) => {
         }
     }
     return imageData;
+}
 
+
+interface CropBoxDimensions {
+    x: number,
+    y: number,
+    width: number,
+    height: number;
+}
+
+
+function cropImageData(imageData: ImageData, crop: CropBoxDimensions) {
+    const canvas = imageDataToCanvas(imageData);
+    const ctx = canvas.getContext('2d');
+    return ctx.getImageData(crop.x*imageData.width, crop.y*imageData.height, crop.width*imageData.width, crop.height*imageData.height);
 }
 
 
@@ -99,13 +113,11 @@ interface CropBoxProps {
     innerRef: (ref: CropBox) => void;
 }
 
-interface CropBoxState {
-    x: number,
-    y: number,
-    width: number,
-    height: number;
-}
 
+
+interface CropBoxState extends CropBoxDimensions {
+
+}
 
 
 export class CropBox extends React.PureComponent<CropBoxProps, CropBoxState> {
@@ -121,7 +133,9 @@ export class CropBox extends React.PureComponent<CropBoxProps, CropBoxState> {
     };
 
     constructor(props: CropBoxProps) {
-        super(props)
+        super(props);
+        this.onDrag = this.onDrag.bind(this);
+        this.onResize = this.onResize.bind(this);
         this.state = {
             width:  props.size.width * 0.8,
             height:  props.size.height  * 0.8,
@@ -141,31 +155,61 @@ export class CropBox extends React.PureComponent<CropBoxProps, CropBoxState> {
 
     componentWillReceiveProps(newProps: CropBoxProps) {
         if(this.props.size.height !== newProps.size.height) {
-            this.setState({
+            const newPosition = {
                 width: newProps.size.width * 0.8,
                 height: newProps.size.height  * 0.8,
                 x: newProps.size.width * 0.1,
                 y: newProps.size.height * 0.1
-            });
+            };
+            this.setState(newPosition);
+            const el = this.refs.rnd as ReactRnd;
+            if(el){
+                el.updateSize(newPosition);
+                el.updatePosition(newPosition);
+            }
+
 
         }
     }
 
+    onDrag(e: any, d:any) {
+        let x = Math.max(0, d.x);
+        let y = Math.max(0, d.y);
+        x = Math.min(this.props.size.width -this.state.width, x);
+        y = Math.min(this.props.size.height - this.state.height, y);
+        this.setState({ x, y })
+    }
+
+    onResize(e:any, direction:any, ref:any, delta:any, position:any){
+
+        this.setState({
+              width: ref.offsetWidth,
+              height: ref.offsetHeight,
+              ...position,
+        });
+    }
+
+    getRelativeCrop() {
+        return {
+            x: this.state.x/this.props.size.width,
+            y: this.state.y/this.props.size.height,
+            width: this.state.width/this.props.size.width,
+            height: this.state.height/this.props.size.height,
+        }
+    }
+
     render() {
+        if(!this.props.size.height){
+            return <div> { this.props.children } </div>
+        }
          return <div className="crop-box">
              <ReactRnd
                 ref="rnd"
                 default={this.state}
                   size={{ width: this.state.width,  height: this.state.height }}
                   position={{ x: this.state.x, y: this.state.y }}
-                  onDrag={(e: any, d:any) => { this.setState({ x: d.x, y: d.y }) }}
-                  onResize={(e:any, direction:any, ref:any, delta:any, position:any) => {
-                    this.setState({
-                      width: ref.offsetWidth,
-                      height: ref.offsetHeight,
-                      ...position,
-                    });
-                  }}
+                  onDrag={this.onDrag}
+                  onResize={this.onResize}
                 bounds="parent"
                 minWidth={10}
                 minHeight={10}
@@ -173,10 +217,14 @@ export class CropBox extends React.PureComponent<CropBoxProps, CropBoxState> {
                 className={'signature-crop'}
             />
             { this.props.children }
-             <div className="crop-box-bg" style={{left: 0, top:0, bottom: 0, width: Math.max(this.state.x, 0)}}/>
-             <div className="crop-box-bg" style={{left: Math.max(this.state.x, 0), top:0,  height: Math.max(this.state.y, 0), width: this.state.width}}/>
-             <div className="crop-box-bg" style={{top: 0,  bottom:0,  left: Math.max(this.state.x, 0) + this.state.width, right: 0}}/>
-             <div className="crop-box-bg" style={{left: Math.max(this.state.x, 0),  bottom:0,  top: Math.max(this.state.y, 0) + this.state.height , width: this.state.width}}/>
+            {/* left */ }
+             <div className="crop-box-bg" style={{left: 0, top:0, bottom: 0, width: this.state.x}} />
+            {/* top */ }
+             <div className="crop-box-bg" style={{left: this.state.x, top: 0, height: this.state.y, width: this.state.width}} />
+            {/* right */ }
+             <div className="crop-box-bg" style={{top: 0,  bottom:0,  left: this.state.x + this.state.width, right: 0}} />
+            {/* bottom */ }
+             <div className="crop-box-bg" style={{left: this.state.x, bottom: 0, top: this.state.y + this.state.height, width: this.state.width}} />
 
             </div>
     }
@@ -211,7 +259,12 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
     }
 
     toDataURL() {
-        return this.processImage();
+        let imageData = this.processImage();
+        if(this.cropBox){
+            const crop = this.cropBox.getRelativeCrop();
+            imageData = cropImageData(imageData, crop)
+        }
+        return imageDataToDataUrl(imageData);
     }
 
     setImage(imageData : ImageData){
@@ -259,7 +312,11 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
     }
 
     processImage(){
-        return imageDataToDataUrl(rotate(removeImageBackground(copyImageData(this.state.imageData), this.state.sliderValue), this.state.rotation));
+        return rotate(removeImageBackground(copyImageData(this.state.imageData), this.state.sliderValue), this.state.rotation);
+    }
+
+    processImageToUrl(){
+        return imageDataToDataUrl(this.processImage());
     }
 
     renderDrop() {
@@ -282,11 +339,11 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
 
         return <div>
         <div className="transparency-grid">
-            { /* <DimensionedCropBox  innerRef={(ref: CropBox) => { this.cropBox = ref }}> */ }
+             <DimensionedCropBox  innerRef={(ref: CropBox) => { this.cropBox = ref }}>
 
-            <img className="signature-preview" src={this.processImage()} />
+            <img className="signature-preview" src={this.processImageToUrl()} />
 
-             { /* </DimensionedCropBox> */ }
+              </DimensionedCropBox>
 
         </div>
         <div className="slider-help">Move the slider until you can only see the background grid and your signature</div>

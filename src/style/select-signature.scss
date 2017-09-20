@@ -38,6 +38,7 @@
 
 .signature-upload-container{
     margin: 20px 0;
+    user-select: none;
     .alert{
         margin: 0 0 20px 0;
     }
@@ -73,6 +74,14 @@ $grid-dark: #abdff9;
   background-size: 40px 40px;
   background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
   height:100%;
+      position: relative;
+      .crop-box{
+
+        .crop-box-bg{
+            position: absolute;
+            background-color: rgba(0,0,0, 0.3)
+        }
+      }
 
 }
 

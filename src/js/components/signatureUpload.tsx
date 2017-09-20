@@ -4,6 +4,8 @@ import * as Promise from 'bluebird';
 import * as Button from 'react-bootstrap/lib/Button';
 import * as ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
 import Slider  from 'rc-slider';
+import ReactRnd from 'react-rnd';
+import sizeMe from 'react-sizeme';
 
 
 const fileToImageData = (file: File) => {
@@ -92,12 +94,104 @@ function rotate(imageData: ImageData, rotation: number) {
     return ctx.getImageData(0, 0, canvas.width, canvas.height)
 };
 
+interface CropBoxProps {
+    size: {width: number, height: number};
+    innerRef: (ref: CropBox) => void;
+}
+
+interface CropBoxState {
+    x: number,
+    y: number,
+    width: number,
+    height: number;
+}
+
+
+
+export class CropBox extends React.PureComponent<CropBoxProps, CropBoxState> {
+    private static HANDLER_STYLES = {
+        bottom: 'handler',
+        bottomLeft: 'handler-corner',
+        bottomRight: 'handler-corner',
+        left: 'handler',
+        right: 'handler',
+        top: 'handler',
+        topLeft: 'handler-corner',
+        topRight: 'handler-corner'
+    };
+
+    constructor(props: CropBoxProps) {
+        super(props)
+        this.state = {
+            width:  props.size.width * 0.8,
+            height:  props.size.height  * 0.8,
+            x: props.size.width * 0.1,
+            y: props.size.height * 0.1
+        };
+
+    }
+
+    componentDidMount(){
+        this.props.innerRef && this.props.innerRef(this);
+    }
+
+    componentWillUnmount(){
+        this.props.innerRef && this.props.innerRef(undefined);
+    }
+
+    componentWillReceiveProps(newProps: CropBoxProps) {
+        if(this.props.size.height !== newProps.size.height) {
+            this.setState({
+                width: newProps.size.width * 0.8,
+                height: newProps.size.height  * 0.8,
+                x: newProps.size.width * 0.1,
+                y: newProps.size.height * 0.1
+            });
+
+        }
+    }
+
+    render() {
+         return <div className="crop-box">
+             <ReactRnd
+                ref="rnd"
+                default={this.state}
+                  size={{ width: this.state.width,  height: this.state.height }}
+                  position={{ x: this.state.x, y: this.state.y }}
+                  onDrag={(e: any, d:any) => { this.setState({ x: d.x, y: d.y }) }}
+                  onResize={(e:any, direction:any, ref:any, delta:any, position:any) => {
+                    this.setState({
+                      width: ref.offsetWidth,
+                      height: ref.offsetHeight,
+                      ...position,
+                    });
+                  }}
+                bounds="parent"
+                minWidth={10}
+                minHeight={10}
+                resizeHandlerClasses={CropBox.HANDLER_STYLES}
+                className={'signature-crop'}
+            />
+            { this.props.children }
+             <div className="crop-box-bg" style={{left: 0, top:0, bottom: 0, width: Math.max(this.state.x, 0)}}/>
+             <div className="crop-box-bg" style={{left: Math.max(this.state.x, 0), top:0,  height: Math.max(this.state.y, 0), width: this.state.width}}/>
+             <div className="crop-box-bg" style={{top: 0,  bottom:0,  left: Math.max(this.state.x, 0) + this.state.width, right: 0}}/>
+             <div className="crop-box-bg" style={{left: Math.max(this.state.x, 0),  bottom:0,  top: Math.max(this.state.y, 0) + this.state.height , width: this.state.width}}/>
+
+            </div>
+    }
+}
+
+const DimensionedCropBox = sizeMe<{innerRef: (ref: CropBox) => void}>({refreshMode: 'debounce', monitorWidth: true, monitorHeight: true})(CropBox);
 
 
 interface SignatureUploadProps {}
 
 export default class SignatureUpload extends React.PureComponent<SignatureUploadProps, any> {
     _fileInput: HTMLInputElement;
+
+    cropBox: CropBox;
+
     constructor(props: SignatureUploadProps) {
         super(props);
         this.collectFiles = this.collectFiles.bind(this);
@@ -185,8 +279,16 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
     }
 
     renderCanvas() {
+
         return <div>
-        <div className="transparency-grid"><img className="signature-preview" src={this.processImage()} /></div>
+        <div className="transparency-grid">
+            { /* <DimensionedCropBox  innerRef={(ref: CropBox) => { this.cropBox = ref }}> */ }
+
+            <img className="signature-preview" src={this.processImage()} />
+
+             { /* </DimensionedCropBox> */ }
+
+        </div>
         <div className="slider-help">Move the slider until you can only see the background grid and your signature</div>
         <Slider
             defaultValue={this.state.sliderValue}

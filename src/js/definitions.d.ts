@@ -1112,7 +1112,14 @@ declare namespace ReactRnd {
             width: number;
             height: number;
         };
-
+        position?: {
+            x: number;
+            y: number;
+        };
+        size?: {
+            width: number;
+            height: number;
+        }
         minWidth?: number;
         minHeight?: number;
         style?: Object;
@@ -1121,7 +1128,9 @@ declare namespace ReactRnd {
         lockAspectRatio?: boolean;
         resizeHandlerClasses? : HandlerClasses;
         dragHandlerClassName? : string;
+        onDrag?: (event: DraggableData, direction: any, delta: any, position: any) => void;
         onDragStop?: (event: DraggableData, resizeData: ResizeData) => void;
+        onResize?: (event: any, ref: any, direction: any, delta: any, position: any) => void;
         onResizeStop?: (event: any, resizeDirection: string, element: any) => void;
         className?: string;
     }

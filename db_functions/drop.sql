@@ -15,6 +15,7 @@ DROP FUNCTION IF EXISTS signature_requests(user_id integer);
 DROP FUNCTION IF EXISTS latest_document_id(uuid);
 DROP FUNCTION IF EXISTS document_set_status(uuid);
 DROP FUNCTION IF EXISTS document_status(uuid);
+DROP FUNCTION IF EXISTS add_merged_file(bytea, uuid[]);
 
 DROP FUNCTION IF EXISTS usage(user_id integer, default_amount_per_unit integer, default_unit text);
 

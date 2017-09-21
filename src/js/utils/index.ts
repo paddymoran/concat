@@ -178,7 +178,7 @@ export function getNextDocument(documentIds: string[], documents: Sign.DocumentV
         const document = documents[documentId];
         let needsSigned = true;
         if (document) {
-            if (document.signStatus === Sign.SignStatus.SIGNED || document.signStatus === Sign.SignStatus.REJECTED) {
+            if (document.completed) {
                 needsSigned = false;
             }
         }

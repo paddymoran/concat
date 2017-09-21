@@ -83,6 +83,12 @@ declare namespace Sign {
         email?: string;
     }
 
+    interface Verified {
+        filename: string;
+        signees: User[];
+    }
+
+
     interface TourMetaData {
         tourViewed?: string[];
         tourDismissed?: boolean;
@@ -235,7 +241,7 @@ declare namespace Sign {
 
     interface Verifications {
         [hash: string]: {
-            users: User[];
+            verified: Verified[];
             status: Sign.DownloadStatus
         }
     }
@@ -943,7 +949,7 @@ declare namespace Sign.Actions {
     interface UpdateVerificationPayload {
         hash: string;
         status: Sign.DownloadStatus;
-        users?: Sign.User[]
+        verified?: Verified[];
     }
 
     interface FinishSigningPayload {

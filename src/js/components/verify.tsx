@@ -27,7 +27,7 @@ interface Showing {
     hash?: string;
 }
 
-interface DocumentVerityProps {
+interface DocumentVerifyProps {
     loading: boolean;
     filename: string;
     verified: boolean;
@@ -56,7 +56,7 @@ class UnverifiedIcon extends React.PureComponent {
     }
 }
 
-class LoadingVerityIcon extends React.PureComponent {
+class LoadingVerifyIcon extends React.PureComponent {
     render() {
         return (
             <span className="verification-icon fa fa-stack fa-lg verify-heading-icon">
@@ -67,12 +67,12 @@ class LoadingVerityIcon extends React.PureComponent {
     }
 }
 
-class DocumentVerity extends React.PureComponent<DocumentVerityProps> {
+class DocumentVerify extends React.PureComponent<DocumentVerifyProps> {
     render() {
         if (this.props.loading) {
             return (
                 <div className="verification">
-                    <LoadingVerityIcon />
+                    <LoadingVerifyIcon />
                     <div>
                         <div className="filename">{ this.props.filename }</div>
                         <div>Loading...</div>
@@ -161,10 +161,16 @@ class UnconnectedVerify extends React.PureComponent<VerifyDocumentsProps, {showi
                         const result = this.props.verifications[showing.hash];
                         const loading = result === undefined ? true : result.status !== Sign.DownloadStatus.Complete;
 
-                        const users = loading ? null : result.users;
-                        const verified = users ? users.length > 0 : false;
+                        const files = loading ? null : result.verified;
 
-                        return <DocumentVerity key={index} loading={loading} verified={verified} filename={showing.filename} users={users} />
+                        const verified = !!(files && files.length);
+
+                        if(!loading && verified){
+                            return files.map((r: Sign.Verified, i:number) => {
+                                return <DocumentVerify key={`${i}-${index}`} loading={false} verified={true} filename={r.filename} users={r.signees} />
+                            })
+                        }
+                        return <DocumentVerify key={index} loading={loading} verified={verified} filename={showing.filename} users={null} />
                     })}
                 </div>
             </div>

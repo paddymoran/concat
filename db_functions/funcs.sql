@@ -126,19 +126,20 @@ $$
         WHERE t.document_id = tt.result_document_id
     )
     SELECT json_agg(row_to_json(q)) FROM (
-        SELECT u.name, u.email, u.user_id
+        SELECT filename, d.document_id, json_agg(
+        json_build_object('name', u.name, 'email', u.email, 'user_id', u.user_id)) as signees
         FROM
         documents d
+        LEFT OUTER JOIN merge_map mm on d.document_id = mm.document_id
         JOIN back_docs bd ON d.document_id = bd.original_id
         JOIN sign_results sr ON sr.result_document_id = bd.document_id
         JOIN users u ON sr.user_id = u.user_id
         WHERE
-        hash = $1
+        (d.hash = $1 or mm.hash = $1)
         AND accepted = TRUE
-        ORDER BY generation DESC
+        GROUP BY filename, d.document_id
     ) q
 $$ LANGUAGE sql;
-
 
 
 CREATE OR REPLACE FUNCTION document_set_json(user_id integer, uuid)
@@ -165,18 +166,21 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
                 request_info(start_id) as request_info
             FROM (
                 SELECT
-                DISTINCT last_value(d.document_id) over wnd AS document_id, array_agg(d.document_id) OVER wnd as versions, first_value(d.document_id) over wnd as start_id
+                DISTINCT last_value(d.document_id) over wnd AS document_id, array_agg(d.document_id) OVER wnd as versions, first_value(d.document_id) over wnd as start_id, dd.order_index
                 FROM docs d
                 JOIN documents dd on d.document_id = dd.document_id
                 WHERE d.document_set_id = $2 and dd.deleted_at IS NULL
-                ORDER BY order_index ASC
+
                 WINDOW wnd AS (
                    PARTITION BY original_id ORDER BY generation ASC
                    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
                 )
+
             ) q
             JOIN documents d on d.document_id = q.document_id
             LEFT OUTER JOIN document_view dv ON (d.document_id = dv.document_id and user_id = $1)
+            ORDER BY q.order_index ASC
+
         ) qq
         JOIN document_sets ds ON ds.document_set_id = $2
         GROUP BY ds.name, ds.created_at, ds.user_id
@@ -333,4 +337,25 @@ AS $$
         (SELECT unit FROM usage_allowance)
         ) q
 $$ LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION add_merged_file(
+    data bytea,
+    document_ids uuid[])
+  RETURNS void AS
+$$
+DECLARE
+    data_hash text;
+    document_id uuid;
+BEGIN
+
+    data_hash := encode(digest(data, 'sha256'), 'hex');
+    DELETE FROM merge_map WHERE hash = data_hash;
+     FOREACH document_id IN ARRAY document_ids
+    LOOP
+       INSERT INTO merge_map (hash, document_id) VALUES (data_hash, document_id);
+    END LOOP;
+END
+$$
+  LANGUAGE plpgsql VOLATILE;
 

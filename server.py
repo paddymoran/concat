@@ -465,6 +465,8 @@ def concat_set(set_id):
     try:
         documents = db.get_document_set(session['user_id'], set_id)
         output = concat([BytesIO(db.get_document(session['user_id'], doc['document_id'])['data']) for doc in documents['documents']])
+        db.add_merged_file(output.read(), [doc['document_id'] for doc in documents['documents']])
+        output.seek(0)
         date_string = request.args.get('datestring', parse(documents['created_at']).strftime("%a, %-I:%-M:%-S %p"))
         return send_file(output, mimetype='application/pdf', attachment_filename=('CataLex Sign - %s.pdf' % date_string), as_attachment=True)
     except Exception as e:
@@ -575,7 +577,7 @@ def sign_document():
         return jsonify({'message': 'done'})
     except Exception as e:
         print(e)
-        raise InvalidUsage('Failed', status_code=404)
+        raise InvalidUsage('Failed', status_code=401)
 
 
 @app.route('/api/request_signatures', methods=['POST'])

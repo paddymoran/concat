@@ -779,4 +779,14 @@ def order_documents(user_id, document_set_id, document_ids):
                            'document_set_id': document_set_id,
                            'order_index': index
                            })
-    database.commit()                
+    database.commit()
+
+
+def add_merged_file(data, document_ids):
+    database = get_db()
+    query = """
+        SELECT add_merged_file(%(data)s, %(document_ids)s::uuid[])
+    """
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        cursor.execute(query, { 'data': psycopg2.Binary(data), 'document_ids': document_ids})
+        database.commit()                    

@@ -27,12 +27,11 @@ class DownloadModal extends React.PureComponent<DownloadProps> {
 
                 <Modal.Body>
                 <p className="text-center">
-                    <a className="btn btn-primary " target="_blank" href={`/api/download_set/${this.props.documentSetId}?datestring=${encodeURIComponent(this.props.documentSetLabel)}`}><i className="fa fa-file-zip-o" /> Download as a Zip file</a>
+                    <a className="btn btn-primary " target="_blank" href={`/api/download_set/${this.props.documentSetId}?datestring=${encodeURIComponent(this.props.documentSetLabel)}`} onClick={this.props.hideModal}><i className="fa fa-file-zip-o" /> Download as a Zip file</a>
                 </p>
                 <p className="text-center"> - or - </p>
                  <p className="text-center">
-                       <a className="btn btn-primary " target="_blank" href={`/api/concat_set/${this.props.documentSetId}?datestring=${encodeURIComponent(this.props.documentSetLabel)}`}><i className="fa fa-file-pdf-o" /> Merge into one PDF</a> </p>
-                 <p className="text-center"><em>If you let us merge you can still use our verification system</em></p>
+                       <a className="btn btn-primary " target="_blank" href={`/api/concat_set/${this.props.documentSetId}?datestring=${encodeURIComponent(this.props.documentSetLabel)}`} onClick={this.props.hideModal}><i className="fa fa-file-pdf-o" /> Merge into one PDF</a> </p>
                 </Modal.Body>
 
                 <Modal.Footer>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { requestDocumentSets, showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet } from '../actions';
+import { requestDocumentSets, showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet, showDownloadAllModal } from '../actions';
 import * as moment from 'moment';
 import { Link } from 'react-router';
 import { Nav, NavItem } from 'react-bootstrap';
@@ -37,6 +37,7 @@ interface UnconnectedDocumentSetListProps {
 }
 
 interface DocumentSetListProps extends UnconnectedDocumentSetListProps {
+    downloadAll: (payload: Sign.Actions.ShowDownloadAllModalPayload) => void;
     emailDocuments: (payload: Sign.Actions.ShowEmailDocumentsModalPayload) => void;
     revokeSignInvitation: (payload: Sign.Actions.RevokeSignInvitationPayload) => void;
     deleteDocument: (payload: Sign.Actions.DeleteDocumentPayload) => void;
@@ -154,7 +155,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                             <tr className="document-set-controls">
                                 <td colSpan={4} className="text-center">
                                     {hasDownloadAll &&
-                                        <a className="btn btn-default btn-sm" target="_blank" href={`/api/download_set/${this.props.documentSetId}?datestring=${encodeURIComponent(documentSetLabel)}`}>
+                                        <a className="btn btn-default btn-sm" onClick={() => this.props.downloadAll({ documentSetId: this.props.documentSetId }) }>
                                             <i className="fa fa-download" /> Download All
                                         </a>
                                     }
@@ -184,7 +185,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
 const DocumentSetList = connect<{}, {}, UnconnectedDocumentSetListProps>(() => ({
         showNotFound: false
     }),
-    { emailDocuments: showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet }
+    { emailDocuments: showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet, downloadAll: showDownloadAllModal }
 )(UnconnectedDocumentSetList);
 
 

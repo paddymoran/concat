@@ -19,7 +19,7 @@ DROP FUNCTION IF EXISTS document_status(uuid);
 DROP FUNCTION IF EXISTS usage(user_id integer, default_amount_per_unit integer, default_unit text);
 
 DROP TYPE IF EXISTS signature_type CASCADE;
-
+DROP TABLE IF EXISTS public.merge_map;
 DROP TABLE IF EXISTS public.user_usage_limits;
 DROP TABLE IF EXISTS public.document_view;
 DROP TABLE IF EXISTS public.signatures;

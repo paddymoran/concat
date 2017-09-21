@@ -311,17 +311,17 @@ SELECT json_agg(
     'request_status', CASE WHEN srr.sign_result_id IS NOT NULL
         THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
         ELSE 'Pending' END
-    )) as documents,
+    ) ORDER BY d.order_index ASC) as documents,
     d.document_set_id, ds.name, format_iso_date(ds.created_at) as created_at, u.name as "requester", u.user_id,  ds.user_id = $1 as is_owner
-FROM sign_requests sr
+FROM sign_requests  sr
 JOIN documents d ON d.document_id = sr.document_id
 JOIN document_sets ds ON ds.document_set_id = d.document_set_id
 JOIN users u ON u.user_id = ds.user_id
 LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
 WHERE sr.user_id = $1 AND d.deleted_at IS NULL and ds.deleted_at IS NULL
 
-GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id, ds.user_id, d.order_index
-ORDER BY ds.created_at DESC , d.order_index ASC
+GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id, ds.user_id
+ORDER BY ds.created_at DESC
 ) q
 $_$;
 
@@ -500,6 +500,16 @@ CREATE TABLE documents (
 
 
 --
+-- Name: merge_map; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE merge_map (
+    hash text NOT NULL,
+    document_id uuid NOT NULL
+);
+
+
+--
 -- Name: migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -674,6 +684,14 @@ ALTER TABLE ONLY document_view
 
 ALTER TABLE ONLY documents
     ADD CONSTRAINT documents_pkey PRIMARY KEY (document_id);
+
+
+--
+-- Name: merge_map_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY merge_map
+    ADD CONSTRAINT merge_map_pkey PRIMARY KEY (hash, document_id);
 
 
 --

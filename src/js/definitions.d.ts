@@ -907,6 +907,7 @@ declare namespace Sign.Actions {
     interface MarkDocumentAsCompletePayload {
         documentId: string;
         complete: boolean;
+        signStatus: Sign.SignStatus;
     }
 
     interface FinishedSigningDocumentPayload {

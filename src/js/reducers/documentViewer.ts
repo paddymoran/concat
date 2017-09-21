@@ -113,7 +113,7 @@ function rejectDocument(state: Sign.DocumentViewer, action: Sign.Actions.RejectD
 
 function completeDocument(state: Sign.DocumentViewer, action: Sign.Actions.MarkDocumentAsComplete): Sign.DocumentViewer {
     const updateData: Partial<Sign.DocumentView> = {
-        signStatus: Sign.SignStatus.SIGNED,
+        signStatus: action.payload.signStatus,
         completed: action.payload.complete,
         rejectReason: undefined
     };

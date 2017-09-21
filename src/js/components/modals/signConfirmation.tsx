@@ -169,16 +169,23 @@ class LoadingModalBody extends React.PureComponent<{isSigning: boolean}> {
     }
 }
 
-interface SignAndNextProps {
+interface UnconnectedSignAndNextProps {
     documents: DocumentWithStatus[];
     currentDocumentId: string;
+    documentSetId: string;
     nextDocumentId: string;
     markDocumentAsComplete: (payload: Sign.Actions.MarkDocumentAsCompletePayload) => void;
     goToDocument: (documentId: string) => void;
     isDocumentOwner: boolean;
 }
 
-class SignAndNext extends React.PureComponent<SignAndNextProps> {
+interface SignAndNextProps extends UnconnectedSignAndNextProps {
+    isRequestingSignatures: boolean;
+
+}
+
+class UnconnectedSignAndNext extends React.PureComponent<SignAndNextProps> {
+
     constructor(props: SignAndNextProps) {
         super(props);
         this.next = this.next.bind(this);
@@ -190,7 +197,7 @@ class SignAndNext extends React.PureComponent<SignAndNextProps> {
     }
 
     goToDocument(documentId: string) {
-        this.props.markDocumentAsComplete({ documentId: this.props.currentDocumentId, complete: true });
+        this.props.markDocumentAsComplete({ documentId: this.props.currentDocumentId, complete: true, signStatus: this.props.isRequestingSignatures ?  Sign.SignStatus.PENDING : Sign.SignStatus.SIGNED });
         this.props.goToDocument(documentId);
     }
 
@@ -211,6 +218,15 @@ class SignAndNext extends React.PureComponent<SignAndNextProps> {
         );
     }
 }
+
+const SignAndNext = connect<{}, {}, UnconnectedSignAndNextProps>(
+    (state: Sign.State, ownProps: UnconnectedSignAndNextProps) => {
+        const documentSet = state.documentSets[ownProps.documentSetId];
+        return {
+            isRequestingSignatures: documentSet.recipients ? documentSet.recipients.length > 0 : false,
+        }
+    }
+)(UnconnectedSignAndNext);
 
 interface SignAndSubmitProps {
     currentDocumentId: string;
@@ -242,7 +258,7 @@ class UnconnectedSignAndSubmit extends React.PureComponent<ConnectedSignAndSubmi
 
     sign() {
         let payload = this.props.submitPayload;
-        this.props.markDocumentAsComplete({ documentId: this.props.currentDocumentId, complete: true });
+        this.props.markDocumentAsComplete({ documentId: this.props.currentDocumentId, complete: true, signStatus: this.props.isRequestingSignatures ?  Sign.SignStatus.PENDING : Sign.SignStatus.SIGNED  });
         if(this.props.recipients && this.props.recipients.length && this.props.showMessage && this.props.message){
             payload = {...payload};
             payload.signatureRequests = payload.signatureRequests.map((r: Sign.SignatureRequest) => {
@@ -253,7 +269,7 @@ class UnconnectedSignAndSubmit extends React.PureComponent<ConnectedSignAndSubmi
     }
 
     goToDocument(documentId: string) {
-        this.props.markDocumentAsComplete({ documentId: this.props.currentDocumentId, complete: true });
+        this.props.markDocumentAsComplete({ documentId: this.props.currentDocumentId, complete: true, signStatus: this.props.isRequestingSignatures ?  Sign.SignStatus.PENDING : Sign.SignStatus.SIGNED  });
         this.props.goToDocument(documentId);
     }
 
@@ -465,6 +481,7 @@ class SignConfirmation extends React.PureComponent<UnconnectedSignConfirmationPr
             if (this.props.nextDocumentId) {
                 title = 'Sign & Continue';
                 body = <SignAndNext
+                            documentSetId={this.props.documentSetId}
                             documents={this.props.documents}
                             isDocumentOwner={this.props.isDocumentOwner}
                             currentDocumentId={this.props.documentId}

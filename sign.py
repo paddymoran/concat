@@ -1,4 +1,4 @@
-from pdfrw import PdfReader, PdfWriter, PageMerge
+from pdfrw import PdfReader, PdfWriter, PageMerge, IndirectPdfDict
 from reportlab.pdfgen import canvas
 from io import BytesIO
 from reportlab.lib.utils import ImageReader
@@ -6,6 +6,16 @@ from collections import defaultdict
 from PIL import Image
 
 # Get all the filenames
+
+
+def concat(input_files):
+    out = BytesIO()
+    writer = PdfWriter(out)
+    for f in input_files:
+        writer.addpages(PdfReader(f).pages)
+    writer.write()
+    out.seek(0)
+    return out
 
 
 def sign(input_file, signatures, overlays):

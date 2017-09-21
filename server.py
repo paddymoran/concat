@@ -16,7 +16,7 @@ from io import BytesIO
 from subprocess import Popen, STDOUT
 import uuid
 import tempfile
-from sign import sign
+from sign import sign, concat
 import codecs
 from copy import deepcopy
 from base64 import b64decode
@@ -453,8 +453,22 @@ def get_document_set_zip(set_id):
                 z.writestr(document['filename'], document['data'])
         output.seek(0)
         date_string = request.args.get('datestring', parse(documents['created_at']).strftime("%a, %-I:%-M:%-S %p"))
-        return send_file(output, mimetype='application/pdf', attachment_filename=('CataLex Sign - %s.zip' % date_string), as_attachment=True)
+        return send_file(output, mimetype='application/zip', attachment_filename=('CataLex Sign - %s.zip' % date_string), as_attachment=True)
     except Exception as e:
+        raise InvalidUsage(e, status_code=500)
+
+
+@app.route('/api/concat_set/<set_id>', methods=['GET'])
+@protected
+@nocache
+def concat_set(set_id):
+    try:
+        documents = db.get_document_set(session['user_id'], set_id)
+        output = concat([BytesIO(db.get_document(session['user_id'], doc['document_id'])['data']) for doc in documents['documents']])
+        date_string = request.args.get('datestring', parse(documents['created_at']).strftime("%a, %-I:%-M:%-S %p"))
+        return send_file(output, mimetype='application/pdf', attachment_filename=('CataLex Sign - %s.pdf' % date_string), as_attachment=True)
+    except Exception as e:
+        print(e)
         raise InvalidUsage(e, status_code=500)
 '''
 Signatures

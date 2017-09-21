@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { requestRequestedSignatures,  showEmailDocumentsModal, toggleToSignShowComplete } from '../actions';
+import { requestRequestedSignatures,  showEmailDocumentsModal, toggleToSignShowComplete, showDownloadAllModal } from '../actions';
 import * as moment from 'moment';
 import { stringToDateTime, fileSize } from '../utils';
 import { Link } from 'react-router';
@@ -50,6 +50,7 @@ interface RequestedSignatureDocumentSetProps {
 
 interface ConnectedRequestedSignatureDocumentSetProps extends RequestedSignatureDocumentSetProps {
     showEmailDocumentsModal: (payload: Sign.Actions.ShowEmailDocumentsModalPayload) => void;
+    downloadAll: (payload: Sign.Actions.ShowDownloadAllModalPayload) => void;
     documents: {
         [documentId: string]: Sign.Document
     },
@@ -122,7 +123,7 @@ const ConnectedRequestedSignatureDocumentSet = connect((state: Sign.State, ownPr
     documentSet: state.documentSets[ownProps.documentSetId],
     documents: state.documents
 }), {
-showEmailDocumentsModal
+showEmailDocumentsModal, downloadAll: showDownloadAllModal
 })(RequestedSignatureDocumentSet);
 
 
@@ -166,7 +167,7 @@ export const RequestedSignaturesPending = connect((state: Sign.State) => ({
     title: 'pending'
 }), {
     requestRequestedSignatures,
-    toggleShowComplete: toggleToSignShowComplete
+    toggleShowComplete: toggleToSignShowComplete,
 })(RequestedSignatures);
 
 

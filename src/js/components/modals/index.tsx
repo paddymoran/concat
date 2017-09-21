@@ -10,6 +10,7 @@ import EmailDocument from './emailDocument';
 import ActivateControl from './activateControl';
 import ConfirmAction from './confirmAction';
 import SigningComplete from './signingComplete';
+import Download from './download';
 
 interface ModalsProps {
     showing: string;
@@ -50,6 +51,9 @@ class Modals extends React.PureComponent<ModalsProps>{
 
             case Sign.ModalType.SIGNING_COMPLETE:
                 return <SigningComplete />
+
+            case Sign.ModalType.DOWNLOAD_ALL:
+                return <Download />
 
             default:
                 return false;

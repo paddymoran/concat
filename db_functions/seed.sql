@@ -160,11 +160,11 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
                 request_info(start_id) as request_info
             FROM (
                 SELECT
-                DISTINCT last_value(d.document_id) over wnd AS document_id, array_agg(d.document_id) OVER wnd as versions, first_value(d.document_id) over wnd as start_id, dd.order_index
+                DISTINCT last_value(d.document_id) over wnd AS document_id, array_agg(d.document_id) OVER wnd as versions, first_value(d.document_id) over wnd as start_id, first_value(dd.order_index) OVER wnd as order_index
                 FROM docs d
                 JOIN documents dd on d.document_id = dd.document_id
                 WHERE d.document_set_id = $2 and dd.deleted_at IS NULL
-		
+
                 WINDOW wnd AS (
                    PARTITION BY original_id ORDER BY generation ASC
                    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
@@ -174,7 +174,7 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
             JOIN documents d on d.document_id = q.document_id
             LEFT OUTER JOIN document_view dv ON (d.document_id = dv.document_id and user_id = $1)
             ORDER BY q.order_index ASC
-            
+
         ) qq
         JOIN document_sets ds ON ds.document_set_id = $2
         GROUP BY ds.name, ds.created_at, ds.user_id

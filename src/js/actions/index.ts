@@ -383,6 +383,14 @@ export function showEmailDocumentsModal(payload: Sign.Actions.ShowEmailDocuments
     }
 }
 
+export function showDownloadAllModal(payload: Sign.Actions.ShowDownloadAllModalPayload): Sign.Actions.ShowDownloadAllModal {
+    return {
+        type: Sign.Actions.Types.SHOW_DOWNLOAD_ALL_MODAL,
+        payload
+    }
+}
+
+
 export function emailDocuments(payload: Sign.Actions.EmailDocumentsPayload): Sign.Actions.EmailDocuments {
     return {
         type: Sign.Actions.Types.EMAIL_DOCUMENT,
@@ -541,6 +549,13 @@ export function changeTour(payload: Sign.Actions.ChangeTourPayload): Sign.Action
 export function updateUserMeta(payload: Sign.Actions.UpdateUserMetaDataPayload) : Sign.Actions.UpdateUserMetaData {
     return {
         type: Sign.Actions.Types.UPDATE_USER_META,
+        payload
+    }
+}
+
+export function defineDocumentOrder(payload: Sign.Actions.DefineDocumentOrderPayload) : Sign.Actions.DefineDocumentOrder{
+    return {
+        type: Sign.Actions.Types.DEFINE_DOCUMENT_ORDER,
         payload
     }
 }

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocument, requestDocumentSet, defineRecipients, setInviteSignatories } from '../actions';
+import { addDocument, requestDocumentSet, defineRecipients, setInviteSignatories, defineDocumentOrder } from '../actions';
 import { generateUUID } from './uuid';
 import { push } from 'react-router-redux';
 import { InviteForm } from './selectRecipients';
@@ -127,6 +127,9 @@ class UnconnectedUploadDocumentsFull extends React.PureComponent<ConnectedUpload
 
     nextPage(){
         if(this.props.documentIds.length){
+            if(this.props.documentIds.length > 1){
+                this.props.defineDocumentOrder(this.props.documentSetId, this.props.documentIds)
+            }
             this.props.nextPage(this.props.documentSetId, this.props.documentIds[0])
         }
     }
@@ -171,6 +174,7 @@ interface ConnectedUploadDocumentsFullProps extends UploadDocumentsFullProps{
     submit: () => void;
     defineRecipients: (documentSetId: string, recipients: Sign.Recipients) => void;
     nextPage: (documentSetId: string, documentId: string) => void;
+    defineDocumentOrder: (documentSetId: string, documentIds: string[]) => void;
     setInviteSignatories: (inviteSignatories: boolean) => void;
 }
 
@@ -183,6 +187,7 @@ export const UploadDocumentsFull = connect(
         submit: () => submit(Sign.FormName.RECIPIENTS),
         defineRecipients: (documentSetId: string, recipients: Sign.Recipients) =>  defineRecipients({ documentSetId, recipients }),
         nextPage: (documentSetId: string, documentId: string) => push(`/documents/${documentSetId}/${documentId}`),
+        defineDocumentOrder: (documentSetId: string, documentIds: string[]) => defineDocumentOrder({documentSetId, documentIds}),
         setInviteSignatories: (inviteSignatories: boolean) => setInviteSignatories({ inviteSignatories })
     }
 )(UnconnectedUploadDocumentsFull);

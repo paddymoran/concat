@@ -169,7 +169,7 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
                 FROM docs d
                 JOIN documents dd on d.document_id = dd.document_id
                 WHERE d.document_set_id = $2 and dd.deleted_at IS NULL
-
+                ORDER BY order_index ASC
                 WINDOW wnd AS (
                    PARTITION BY original_id ORDER BY generation ASC
                    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
@@ -259,9 +259,9 @@ SELECT json_agg(
     'request_status', CASE WHEN srr.sign_result_id IS NOT NULL
         THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
         ELSE 'Pending' END
-    )) as documents,
+    ) ORDER BY d.order_index ASC) as documents,
     d.document_set_id, ds.name, format_iso_date(ds.created_at) as created_at, u.name as "requester", u.user_id,  ds.user_id = $1 as is_owner
-FROM sign_requests sr
+FROM sign_requests  sr
 JOIN documents d ON d.document_id = sr.document_id
 JOIN document_sets ds ON ds.document_set_id = d.document_set_id
 JOIN users u ON u.user_id = ds.user_id
@@ -272,6 +272,7 @@ GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id, ds.user_i
 ORDER BY ds.created_at DESC
 ) q
 $$ LANGUAGE sql;
+
 
 
 

@@ -76,6 +76,13 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
                 showing: Sign.ModalType.SIGNING_COMPLETE,
             };
 
+        case Sign.Actions.Types.SHOW_DOWNLOAD_ALL_MODAL:
+            return {
+                ...state,
+                ...action.payload,
+                showing: Sign.ModalType.DOWNLOAD_ALL
+            };
+
         default:
             return state;
     }

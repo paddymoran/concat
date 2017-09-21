@@ -307,6 +307,7 @@ SELECT json_agg(
     'created_at', format_iso_date(d.created_at),
     'size',  d.length,
     'sign_status', document_status(sr.document_id),
+
     'request_status', CASE WHEN srr.sign_result_id IS NOT NULL
         THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
         ELSE 'Pending' END
@@ -319,8 +320,8 @@ JOIN users u ON u.user_id = ds.user_id
 LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
 WHERE sr.user_id = $1 AND d.deleted_at IS NULL and ds.deleted_at IS NULL
 
-GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id, ds.user_id
-ORDER BY ds.created_at DESC
+GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id, ds.user_id, d.order_index
+ORDER BY ds.created_at DESC , d.order_index ASC
 ) q
 $_$;
 

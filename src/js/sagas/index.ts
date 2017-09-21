@@ -37,6 +37,7 @@ export default function *rootSaga(): any {
         requestUsageSaga(),
         finishedSigningDocumentSaga(),
         userMeta(),
+        documentOrder(),
         ...pdfStoreSagas,
         ...signatureSagas,
         ...documentViewerSagas,
@@ -173,6 +174,16 @@ function *deleteDocumentSaga() {
     }
 }
 
+function *documentOrder() {
+    yield takeEvery(Sign.Actions.Types.DEFINE_DOCUMENT_ORDER, documentOrder);
+    function *documentOrder(action: Sign.Actions.DefineDocumentOrder) {
+        try {
+            const response = yield call(axios.post, `/api/document_order/${action.payload.documentSetId}`, {documentIds: action.payload.documentIds});
+        } catch(e) {
+            //swallow
+        }
+    }
+}
 function formatRequests(r: any) : Sign.SignatureRequestInfos {
     if(r){
         return r.map((r: any) => ({userId: r.user_id, name: r.name, email: r.email, status: r.status, signRequestId: r.sign_request_id, rejectedMessage: r.rejection_explaination ? r.rejection_explaination.rejectedMessage : null}))

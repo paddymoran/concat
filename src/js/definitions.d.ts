@@ -402,6 +402,7 @@ declare namespace Sign {
         ACTIVATE_CONTROL = 'ACTIVATE_CONTROL',
         CONFIRM_ACTION = 'CONFIRM_ACTION',
         SIGNING_COMPLETE = 'SIGNING_COMPLETE',
+        DOWNLOAD_ALL = 'DOWNLOAD_ALL'
     }
 
     interface SignatureRequest {
@@ -497,7 +498,7 @@ declare namespace Sign.Actions {
         SET_ACTIVE_PAGE = 'SET_ACTIVE_PAGE',
 
         SHOW_RESULTS = 'SHOW_RESULTS',
-
+        SHOW_DOWNLOAD_ALL_MODAL = 'SHOW_DOWNLOAD_ALL_MODAL',
         FINISH_SIGNING = 'FINISH_SIGNING',
 
         // Modals
@@ -550,7 +551,9 @@ declare namespace Sign.Actions {
 
         CHANGE_TOUR = 'CHANGE_TOUR',
 
-        UPDATE_USER_META = 'UPDATE_USER_META'
+        UPDATE_USER_META = 'UPDATE_USER_META',
+
+        DEFINE_DOCUMENT_ORDER = 'DEFINE_DOCUMENT_ORDER'
     }
 
 
@@ -954,6 +957,16 @@ declare namespace Sign.Actions {
 
     }
 
+    interface ShowDownloadAllModalPayload {
+        documentSetId: string;
+    }
+
+
+    interface DefineDocumentOrderPayload {
+        documentSetId: string;
+        documentIds: string[];
+    }
+
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
     interface ViewDocument extends ActionCreator<ViewDocumentPayload> {}
@@ -1021,6 +1034,7 @@ declare namespace Sign.Actions {
     interface ShowActivateControlModal extends ActionCreator<ShowActivateControlModalPayload> {}
     interface ConfirmAction<T> extends ActionCreator<ConfirmActionPayload<T>> {}
     interface ShowSigningCompleteModal extends ActionCreator<ShowSigningCompleteModalPayload> {}
+    interface ShowDownloadAllModal extends ActionCreator<ShowDownloadAllModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}
@@ -1053,6 +1067,7 @@ declare namespace Sign.Actions {
     interface ChangeTour extends ActionCreator<ChangeTourPayload> {}
 
     interface UpdateUserMetaData extends ActionCreator<UpdateUserMetaDataPayload> {}
+    interface DefineDocumentOrder extends ActionCreator<DefineDocumentOrderPayload> {}
 
 
 }

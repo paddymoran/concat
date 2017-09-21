@@ -764,3 +764,19 @@ def user_owns_document(user_id, document_id):
         return True if result else False
 
 
+def order_documents(user_id, document_set_id, document_ids):
+    database = get_db()
+    with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        for index, document_id in enumerate(document_ids):
+            query = """
+                UPDATE documents d SET order_index = %(order_index)s
+                FROM document_sets ds
+                WHERE d.document_set_id = ds.document_set_id and ds.user_id = %(user_id)s and d.document_id = %(document_id)s
+            """
+            cursor.execute(query, {
+                           'user_id': user_id,
+                           'document_id': document_id,
+                           'document_set_id': document_set_id,
+                           'order_index': index
+                           })
+    database.commit()                

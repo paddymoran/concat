@@ -411,6 +411,17 @@ def get_documents(set_id):
         raise InvalidUsage(e, status_code=500)
 
 
+@app.route('/api/document_order/<set_id>', methods=['POST'])
+@protected
+@nocache
+def document_order(set_id):
+    try:
+        documents = db.order_documents(session['user_id'], set_id, request.get_json()['documentIds'])
+        return jsonify(documents)
+    except Exception as e:
+
+        raise InvalidUsage(e, status_code=500)
+
 @app.route('/api/document/<doc_id>', methods=['GET'])
 @protected
 @nocache
@@ -508,7 +519,7 @@ def sign_document():
     args = request.get_json()
     saveable = deepcopy(args)
     document_db = db.get_document(session['user_id'], args['documentId'])
-    document_id = args['documentId']
+    document_id = args.get('documentId')
     document = BytesIO(document_db['data'])
     filename = document_db['filename']
     sign_request_id = args.get('signRequestId', None)
@@ -524,30 +535,33 @@ def sign_document():
     # confirm that this document is the latest in the series
     if not document_is_latest(document_id):
         raise InvalidUsage('Could not sign document', status_code=500, payload={'type': 'OLD_VERSION'})
+    try:
+        for signature in args.get('signatures', []):
+            sig = db.get_signature(signature['signatureId'], session['user_id'])
+            if not sig:
+                abort(401)
+            signature['imgData'] = BytesIO(sig)
+        for overlay in args.get('overlays', []):
+            base64Image = overlay['dataUrl']
+            overlay['imgData'] = BytesIO(b64decode(base64Image.split(",")[1]))
+        if not args.get('reject'):
+            result = sign(document, args.get('signatures', []), args.get('overlays', []))
+            saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
+            result.close()
+            db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
+        else:
+            db.reject_document(session['user_id'], document_id, sign_request_id, {'rejectedMessage': args.get('rejectedMessage')})
+        if sign_request_id:
+            is_complete = is_set_complete(args['documentSetId'])
+            if is_complete:
+                send_completion_email(args['documentSetId'])
+            elif should_send_reject_email(session['user_id'], args['documentSetId']):
+                send_rejection_email(session['user_id'], args['documentSetId'], args.get('rejectedMessage'))
 
-    for signature in args.get('signatures', []):
-        sig = db.get_signature(signature['signatureId'], session['user_id'])
-        if not sig:
-            abort(401)
-        signature['imgData'] = BytesIO(sig)
-    for overlay in args.get('overlays', []):
-        base64Image = overlay['dataUrl']
-        overlay['imgData'] = BytesIO(b64decode(base64Image.split(",")[1]))
-    if not args.get('reject'):
-        result = sign(document, args.get('signatures', []), args.get('overlays', []))
-        saved_document_id = db.add_document(None, None, filename, result.read())['document_id']
-        result.close()
-        db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
-    else:
-        db.reject_document(session['user_id'], document_id, sign_request_id, {'rejectedMessage': args.get('rejectedMessage')})
-    if sign_request_id:
-        is_complete = is_set_complete(args['documentSetId'])
-        if is_complete:
-            send_completion_email(args['documentSetId'])
-        elif should_send_reject_email(session['user_id'], args['documentSetId']):
-            send_rejection_email(session['user_id'], args['documentSetId'], args.get('rejectedMessage'))
-
-    return jsonify({'message': 'done'})
+        return jsonify({'message': 'done'})
+    except Exception as e:
+        print(e)
+        raise InvalidUsage('Failed', status_code=404)
 
 
 @app.route('/api/request_signatures', methods=['POST'])
@@ -763,6 +777,7 @@ def custom_401(error):
 
 
 @app.errorhandler(404)
+@login_redirect
 def send_index(path):
     return render_root()
 

@@ -334,6 +334,15 @@ def nocache(view):
 
     return update_wrapper(no_cache, view)
 
+def fullcache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Cache-Control'] = 'public, max-age=31536000'
+        return response
+
+    return update_wrapper(no_cache, view)
+
 @app.route('/api/documents', methods=['GET'])
 @protected
 @nocache
@@ -422,9 +431,10 @@ def document_order(set_id):
 
         raise InvalidUsage(e, status_code=500)
 
-# do cache
+
 @app.route('/api/document/<doc_id>', methods=['GET'])
 @protected
+@fullcache
 def get_document(doc_id):
     try:
         document = db.get_document(session['user_id'], doc_id)

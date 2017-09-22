@@ -70,7 +70,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
         return (
             <div className="document-set">
                 <div className="document-set-title">{documentSetLabel}</div>
-                    <div className="table-responsive">
+                    <div >
                     <table className=" table table-hover">
                         <thead></thead>
 

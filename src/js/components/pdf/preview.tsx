@@ -4,7 +4,7 @@ import PDFPage from './page';
 import { connect } from 'react-redux';
 import LazyLoad from 'react-lazy-load';
 import  * as Scroll from 'react-scroll/modules/mixins/scroller';
-
+import sizeMe from 'react-sizeme';
 
 interface ThumbProps {
     width: number;
@@ -55,18 +55,28 @@ const ConnectedThumb = connect(
 )(Thumb);
 
 
+export class UndimensionedPDFPreview extends React.PureComponent<Sign.Components.SizedPDFPreviewProps> {
 
-export default class PDFPreview extends React.PureComponent<Sign.Components.SizedPDFPreviewProps> {
+    render() {
+        return <div>
+        { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
+            const width = this.props.size.width - 10;
+            const defaultHeight = width * Math.sqrt(2);
+            const height = this.props.pageViewports[index] ?  (width / this.props.pageViewports[index].width) * this.props.pageViewports[index].height : defaultHeight;
+            return <ConnectedThumb key={index} {...this.props} index={index} width={width} height={height}  />
+        }) }
+        </div>
+    }
+}
+
+const DimensionedPDFPreview = sizeMe<Sign.Components.PDFPreviewProps>({refreshRate: 300})(UndimensionedPDFPreview);
+
+export default class PDFPreview extends React.PureComponent<Sign.Components.PDFPreviewProps> {
 
     render() {
         return (
             <div className='pdf-preview-panel' id="pdf-preview-panel-scroll">
-                { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
-                    const width = this.props.size.width - 30;
-                    const defaultHeight = width * Math.sqrt(2);
-                    const height = this.props.pageViewports[index] ?  (width / this.props.pageViewports[index].width) * this.props.pageViewports[index].height : defaultHeight;
-                    return <ConnectedThumb key={index} {...this.props} index={index} width={width} height={height}  />
-                }) }
+                <DimensionedPDFPreview {...this.props} />
             </div>
         )
     }

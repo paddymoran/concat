@@ -12,8 +12,7 @@ import { SignaturePositionable, DatePositionable, TextPositionable, PromptPositi
 import * as AutoAffix from 'react-overlays/lib/AutoAffix'
 import { Col, Row } from 'react-bootstrap';
 import LazyLoad from 'react-lazy-load';
-import sizeMe from 'react-sizeme';
-import { signatureUrl, boundNumber, imageRatio, stringToCanvas, textDefaults, dateDefaults, massageDefaultPrompts, fileSize } from '../../utils';
+import { signatureUrl, boundNumber, imageRatio, stringToCanvas, textDefaults, dateDefaults, massageDefaultPrompts, fileSize, debounce } from '../../utils';
 import { generateUUID } from '../uuid';
 import { Controls } from '../controls'
 import { DropTarget } from 'react-dnd';
@@ -145,12 +144,14 @@ interface DocumentLoadingProps {
 class UnconnectedDocumentLoading extends React.PureComponent<DocumentLoadingProps>{
     render() {
         const progress = this.props.size ? `${fileSize((this.props.progress * this.props.size) || 0)} / ${fileSize(this.props.size)}` : '';
+        const isLarge = this.props.size > 10000000;
         return  <div className="document-loading">
             <CSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
                 { this.props.loading && <p className="text-center">Loading Document { progress } </p> }
-                    { this.props.loading && <div className="progress" key="progress">
-                        <div className="progress-bar progress-bar-striped active" style={{width: `${this.props.progress*100}%`}}></div>
-                    </div> }
+                { this.props.loading && <div className="progress" key="progress">
+                    <div className="progress-bar progress-bar-striped active" style={{width: `${this.props.progress*100}%`}}></div>
+                </div> }
+                { this.props.loading && isLarge && <p className="text-center">This file is particularly large and may take a few moments to prepare</p> }
             </CSSTransitionGroup>
             </div>
     }
@@ -179,6 +180,7 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
         else{
             height = this.props.containerWidth * Math.sqrt(2);
         }
+
         return <Waypoint topOffset='50px' bottomOffset={'50%'} onEnter={({ previousPosition, currentPosition, event }) => { this.props.setActivePage(this.props.pageNumber) }} >
                   <div className={className} id={`page-view-${this.props.pageNumber}`} >
             { this.props.pageNumber > 0 && <LazyLoad height={ height} offsetVertical={300}>
@@ -192,14 +194,17 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 
 type SourceIds =  {[index: string] : boolean};
 
-const PDFPreviewDimensions = sizeMe<Sign.Components.PDFPreviewProps>({refreshRate: 300})(PDFPreview);
+
 
 
 class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
 
+    private debouncedSetActivePage : (pageNumber: number) => void;
+
     constructor(props: ConnectedPDFViewerProps) {
         super(props);
         this.setActivePage = this.setActivePage.bind(this);
+        this.debouncedSetActivePage = debounce(this.setActivePage, 300);
         this.save = this.save.bind(this);
     }
 
@@ -266,7 +271,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                         <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true}  >
                             <AutoAffix viewportOffsetTop={50} offsetTop={0}  bottomClassName="bottom" affixClassName="affixed" >
                                 <div>
-                                    <PDFPreviewDimensions documentId={this.props.documentId} width={120}  pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
+                                    <PDFPreview documentId={this.props.documentId} width={120}  pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
                                 </div>
                             </AutoAffix>
                         </Col>
@@ -302,7 +307,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                         viewport={this.props.pageViewports[index] || {height: 0, width: 1}}>
                                         <PDFPageWrapper documentId={this.props.documentId}
                                             pageNumber={index}
-                                            setActivePage={this.setActivePage}
+                                            setActivePage={this.debouncedSetActivePage}
                                             viewport={this.props.pageViewports[index] || {height: 0, width: 1}}/>
                                     </DimensionedDropTargetSignaturesPageWrapper>
                                     </div>

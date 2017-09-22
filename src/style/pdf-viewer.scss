@@ -201,8 +201,8 @@ $submit-control-hover-background: darken($submit-control-background, 8%);
                 .pdf-thumbnail-number {
                     background: $dark;
                     position: absolute;
-                    top: 0;
-                    left: 0;
+                    top: -5px;
+                    left: -5px;
                     padding: 3px 10px;
                     text-align: center;
                     vertical-align: middle;

@@ -422,9 +422,9 @@ def document_order(set_id):
 
         raise InvalidUsage(e, status_code=500)
 
+# do cache
 @app.route('/api/document/<doc_id>', methods=['GET'])
 @protected
-@nocache
 def get_document(doc_id):
     try:
         document = db.get_document(session['user_id'], doc_id)

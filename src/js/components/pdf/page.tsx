@@ -22,6 +22,7 @@ interface PDFPageProps extends PDFPageConnectProps {
     requestDocument: Function;
     requestDocumentPage: Function;
     documentExists: boolean;
+    downloading: boolean;
 }
 
 
@@ -60,15 +61,16 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
     }
 
     render() {
+        let noCanvas = false;
         if (!this.props.page) {
-            if(!this.props.showLoading){
+            if(this.props.downloading){
                 return false;
             }
-            return <Loading />;
+            noCanvas = true;
         }
         return <span className={this.props.className || ''} style={{height: '100%', display: 'block', width: '100%'}}>
             <div ref="loading" className="loading-container"><Loading /></div>
-            <canvas style={{display: 'none'}} key={this._count++}  ref={(ref) => {
+            {!noCanvas && <canvas style={{display: 'none'}} key={this._count++}  ref={(ref) => {
                   if (!ref) return;
                     const canvas : HTMLCanvasElement = ref as HTMLCanvasElement;
                     const context = canvas.getContext('2d', { alpha: false, });
@@ -85,7 +87,7 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
                             canvas.style.display= 'block';
                         }
                     });
-        }}/>
+        }}/> }
         </span>;
     }
 }
@@ -93,6 +95,7 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
 export default connect(
     (state: Sign.State, ownProps: PDFPageConnectProps) => ({
         page: state.pdfStore[ownProps.documentId] ? state.pdfStore[ownProps.documentId].pages[ownProps.pageNumber] : null,
+        downloading: state.documents[ownProps.documentId] && (state.documents[ownProps.documentId].readStatus === Sign.DocumentReadStatus.NotStarted || state.documents[ownProps.documentId].readStatus === Sign.DocumentReadStatus.InProgress),
         documentExists: !!state.documents[ownProps.documentId] && state.documents[ownProps.documentId].readStatus !== Sign.DocumentReadStatus.NotStarted
     }),
     {

@@ -132,7 +132,7 @@ export function signatureCanvasMinDimensions(canvas: HTMLCanvasElement, minXY = 
     return canvas;
 }
 
-export function debounce(func: () => void, wait = 50) {
+export function debounce(func: any, wait = 50) {
     let h: number;
     return () => {
         // use window so TS knows its not node

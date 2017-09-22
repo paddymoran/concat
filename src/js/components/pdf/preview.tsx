@@ -25,12 +25,11 @@ class Thumb extends React.PureComponent<ConnectedThumbProps> {
     scrollTo() {
         Scroll.scrollTo(`page-view-${this.props.index}`, {smooth: true, duration: 350, offset: -60})
     }
-    componentWillUpdate(nextProps : ConnectedThumbProps) {
+    /*componentWillUpdate(nextProps : ConnectedThumbProps) {
         if(this.props.isActivePage !== nextProps.isActivePage && nextProps.isActivePage) {
-
             //Scroll.scrollTo(`page-preview-${this.props.index}`, {smooth: true, duration: 350, containerId: 'pdf-preview-panel-scroll'})
         }
-    }
+    }*/
 
     render() {
         const {  index, height, width, isActivePage } = this.props;
@@ -38,9 +37,10 @@ class Thumb extends React.PureComponent<ConnectedThumbProps> {
         if(isActivePage){
             classes += ' active '
         }
+        console.log(height, index)
         return <div className={classes} onClick={this.scrollTo} id={`page-preview-${index}`}>
             <div className='pdf-thumbnail-number'  >{index + 1}</div>
-            <LazyLoad offsetVertical={100} height={height}  >
+            <LazyLoad key={`${index}-${height}`} offsetVertical={100} height={height}  >
                 <PDFPage pageNumber={index} documentId={this.props.documentId} drawWidth={width } />
             </LazyLoad>
         </div>
@@ -60,7 +60,7 @@ export class UndimensionedPDFPreview extends React.PureComponent<Sign.Components
     render() {
         return <div>
         { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {
-            const width = this.props.size.width - 10;
+            const width = this.props.size.width-10; //minus border
             const defaultHeight = width * Math.sqrt(2);
             const height = this.props.pageViewports[index] ?  (width / this.props.pageViewports[index].width) * this.props.pageViewports[index].height : defaultHeight;
             return <ConnectedThumb key={index} {...this.props} index={index} width={width} height={height}  />

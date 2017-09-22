@@ -183,7 +183,7 @@ class PDFPageWrapper extends React.PureComponent<PDFPageWrapperProps> {
 
         return <Waypoint topOffset='50px' bottomOffset={'50%'} onEnter={({ previousPosition, currentPosition, event }) => { this.props.setActivePage(this.props.pageNumber) }} >
                   <div className={className} id={`page-view-${this.props.pageNumber}`} >
-            { this.props.pageNumber > 0 && <LazyLoad height={ height} offsetVertical={300}>
+            { this.props.pageNumber > 0 && <LazyLoad height={ height} offsetVertical={300} key={`${this.props.pageNumber}-${height}`}>
                    <PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber} />
              </LazyLoad> }
              { this.props.pageNumber === 0 &&  <div style={{height: height}}><PDFPage drawWidth={this.props.containerWidth} documentId={this.props.documentId} pageNumber={this.props.pageNumber}  /></div> }

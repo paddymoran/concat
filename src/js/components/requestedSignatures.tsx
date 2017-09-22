@@ -80,7 +80,7 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                 <div className="document-set-title">
                     <span className="inviter">{ inviter }</span> has requested that you sign the following ({documentSetLabel}):
                 </div>
-                    <div className="table-responsive">
+                    <div>
                     <table className=" table table-hover">
 
                 <thead></thead>

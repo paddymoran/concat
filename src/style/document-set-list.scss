@@ -9,30 +9,6 @@
 
         margin-bottom: 2em;
 
-        table{
-            width:100%;
-            td{
-                padding: 8px;
-                    word-break: break-word;
-                    border-top: none;
-
-            }
-            tr.condensed td{
-                padding: 2px 8px;
-            }
-            td.status{
-                width:100px;
-                text-align:right;
-                .sign-status{
-                    margin:0;
-                }
-            }
-            .filename-icon{
-                width:20px;
-                text-align:right;
-            }
-        }
-
 
         .btn{
             margin-left: 12px;
@@ -57,17 +33,73 @@
             background-color: white;
         }
 
-        .file-controls{
-            @extend .btn-group;
-                float: right;
-                text-align:right;
-            .btn{
-                   margin-left: 0;
-                   float:none;
-            }
-            @media(min-width: $screen-md-min) {
-                min-width: 326px;
 
+
+        table{
+             width:100%;
+            tr.condensed td{
+                padding: 2px 8px;
+            }
+            td{
+                float:left;
+                padding: 8px;
+                    word-break: break-word;
+                    border-top: none;
+
+            }
+            td.file-controls{
+                @extend .btn-group;
+                text-align:center;
+                    width: 100%;
+                .btn{
+                       margin-left: 0;
+                       float:none;
+                }
+                padding:0;
+            }
+            td.status{
+                width:25%;
+                text-align:right;
+                .sign-status{
+                    margin:0;
+                }
+
+            }
+            td.filename{
+                width:75%;
+            }
+           td.filename-icon{
+                display:none;
+           }
+
+       }
+    }
+
+
+
+    @media(min-width: $screen-md) {
+         .document-set {
+            table{
+                td{
+                    float:none;
+                }
+                td.status{
+                         width:100px;
+                }
+                td.filename{
+                    width:auto;
+                }
+                  td.filename-icon{
+                    display:table-cell;
+                    width:20px;
+                    text-align:right;
+                  }
+                td.file-controls{
+
+                    text-align:right;
+                    min-width: 326px;
+                    padding: 8px;
+                }
             }
         }
     }

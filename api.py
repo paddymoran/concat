@@ -450,7 +450,6 @@ def signature(id):
 
         if not signature:
             abort(404)
-
         signature_file = BytesIO(signature)
         return send_file(signature_file, attachment_filename='signature.png')
     except HTTPException as e:

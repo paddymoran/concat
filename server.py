@@ -137,8 +137,13 @@ def custom_401(error):
 
 
 @app.errorhandler(404)
+def not_found(error):
+    if request.blueprint == 'api':
+        return Response(json.dumps(error.description), 404)
+    return send_index()
+
 @login_redirect
-def send_index(path):
+def send_index(path=None):
     return render_root()
 
 

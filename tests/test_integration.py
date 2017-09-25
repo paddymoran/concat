@@ -523,6 +523,7 @@ class Integration(DBTestCase):
         self.assertEqual(response.status_code, 404)
         # confirm cannot delete that signature
         response = self.app.delete('/api/signatures/%s' % signature_id)
+
         self.assertEqual(response.status_code, 404)
 
         # confirm cannot sign with that signature

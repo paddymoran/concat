@@ -12,7 +12,7 @@ USER_LOGOUT_URL = 'http://192.168.0.153:8000/auth/logout'
 OAUTH_CLIENT_ID = 'sign'
 OAUTH_CLIENT_SECRET = 'test'
 
-SECRET_KEY = 'dfglihdklsjblfkdjhvliakhjdlkjashdfkleah'
+SECRET_KEY = 'dfglihdklsjblfkdjhvliakhjdlkjashdfkleahs'
 
 DB_NAME = 'catalex_sign'
 DB_USER = getpass.getuser()

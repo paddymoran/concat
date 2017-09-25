@@ -332,7 +332,7 @@ class Integration(DBTestCase):
             {'id': INVITE_OTHERS_USER_3_ID, 'name': 'INVITE_OTHERS_USER_3_ID', 'email': 'INVITE_OTHERS_USER_3_ID@email.com'},
         ]
 
-        with patch('server.invite_users', return_value=invitees):
+        with patch('api.invite_users', return_value=invitees):
             self.app.post('/api/request_signatures', data=json.dumps(invite_request_data), content_type='application/json')
 
         # Check the doc status is pending
@@ -391,7 +391,7 @@ class Integration(DBTestCase):
         }
 
 
-        # with patch('server.send_completion_email'):
+        # with patch('api.send_completion_email'):
         #     response = self.app.post('/api/sign', data=json.dumps(sign_data), content_type='application/json')
         # print(response)
 
@@ -572,7 +572,7 @@ class Integration(DBTestCase):
             {'id': REVOKE_OTHER_2_ID, 'name': 'REVOKE_OTHER_2_ID', 'email': 'REVOKE_OTHER_2_ID@email.com'}
         ]
 
-        with patch('server.invite_users', return_value=invitees):
+        with patch('api.invite_users', return_value=invitees):
             self.app.post('/api/request_signatures', data=json.dumps(invite_request_data), content_type='application/json')
 
         response = self.app.get('/api/documents/%s' % document_set_id)
@@ -587,7 +587,7 @@ class Integration(DBTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        with patch('server.send_email', return_value=True) as p:
+        with patch('api.send_email', return_value=True) as p:
             self.login(REVOKE_USER_1_ID)
             revoke = self.app.delete('/api/request_signatures/%s' % requests[1]['sign_request_id'])
             self.assertEqual(revoke.status_code, 200)
@@ -622,7 +622,7 @@ class Integration(DBTestCase):
             {'id': REJECTER_USER_2, 'name': 'REJECTER_USER_2', 'email': 'REJECTER_USER_2@email.com'}
         ]
 
-        with patch('server.invite_users', return_value=invitees):
+        with patch('api.invite_users', return_value=invitees):
             self.app.post('/api/request_signatures', data=json.dumps(invite_request_data), content_type='application/json')
 
         # Check the doc status is pending
@@ -633,7 +633,7 @@ class Integration(DBTestCase):
         self.login(REJECTER_USER_1)
         reject_message = 'I do not want to'
         requested_signatures = json.loads(self.app.get('/api/requested_signatures').get_data(as_text=True))
-        with patch('server.send_rejection_email', return_value=True) as p:
+        with patch('api.send_rejection_email', return_value=True) as p:
             self.sign_with_rejection(document_id, self.add_signature(), document_set_id=document_set_id,
                                      sign_request_id=requested_signatures[0]['documents'][0]['sign_request_id'],
                                      rejected_message=reject_message)
@@ -642,7 +642,7 @@ class Integration(DBTestCase):
         self.login(REJECTER_USER_2)
         reject_message = 'I do not want to either'
         requested_signatures = json.loads(self.app.get('/api/requested_signatures').get_data(as_text=True))
-        with patch('server.send_completion_email', return_value=True) as p:
+        with patch('api.send_completion_email', return_value=True) as p:
             self.sign_with_rejection(document_id, self.add_signature(), document_set_id=document_set_id,
                                      sign_request_id=requested_signatures[0]['documents'][0]['sign_request_id'],
                                      rejected_message=reject_message)

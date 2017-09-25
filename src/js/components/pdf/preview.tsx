@@ -37,7 +37,7 @@ class Thumb extends React.PureComponent<ConnectedThumbProps> {
         if(isActivePage){
             classes += ' active '
         }
-        console.log(height, index)
+
         return <div className={classes} onClick={this.scrollTo} id={`page-preview-${index}`}>
             <div className='pdf-thumbnail-number'  >{index + 1}</div>
             <LazyLoad key={`${index}-${height}`} offsetVertical={100} height={height}  >

@@ -18,8 +18,14 @@ import { formatUsage } from '../utils'
 axios.interceptors.request.use(function (config) {
     // Do something before request is sent
     if(config.method !== 'get') {
-        config.data = config.data || {};
-        config.data['_csrf_token'] = window._CSRF_TOKEN;
+
+        if(config.data.set){
+            config.data.set('_csrf_token', window._CSRF_TOKEN);
+        }
+        else{
+            config.data = config.data || {};
+            config.data['_csrf_token'] = window._CSRF_TOKEN;
+        }
     }
     return config;
   }, function (error) {

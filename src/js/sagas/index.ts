@@ -17,9 +17,10 @@ import { handleErrors } from './errors'
 
 axios.interceptors.request.use(function (config) {
     // Do something before request is sent
+
     if(config.method !== 'get') {
 
-        if(config.data.set){
+        if(config.data && config.data.set){
             config.data.set('_csrf_token', window._CSRF_TOKEN);
         }
         else{

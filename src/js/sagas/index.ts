@@ -147,20 +147,33 @@ function *requestDocumentSaga() {
             // swallow
         }
         finally {
-            const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(state.headers['content-disposition'])[1].replace(/"/g, '');
-            const data = state.data;
-            yield all([
-                // Finish the file upload to the document store
-                put(updateDocument({
+            if(state && state.error){
+                const resolved = yield handleErrors(state.error);
+                if(!resolved){
+                    yield put(showFailureModal({message: 'Sorry, could not retrieve this document.'}))
+                }
+                yield put(updateDocument({
                     documentId: action.payload.documentId,
-                    filename,
-                    data,
-                    readStatus: Sign.DocumentReadStatus.Complete,
-                    downloadProgress: 1
-                })),
-                // Add the document to the PDF store
-                put(addPDFToStore({ id: action.payload.documentId, data }))
-            ]);
+                    readStatus: Sign.DocumentReadStatus.Failed
+                }));
+            }
+            else{
+                const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(state.headers['content-disposition'])[1].replace(/"/g, '');
+                const data = state.data;
+
+                yield all([
+                    // Finish the file upload to the document store
+                    put(updateDocument({
+                        documentId: action.payload.documentId,
+                        filename,
+                        data,
+                        readStatus: Sign.DocumentReadStatus.Complete,
+                        downloadProgress: 1
+                    })),
+                    // Add the document to the PDF store
+                    put(addPDFToStore({ id: action.payload.documentId, data }))
+                ]);
+            }
         }
      }
 
@@ -176,6 +189,10 @@ function *requestDocumentSaga() {
             axios.get(`/api/document/${documentId}`, { onDownloadProgress, responseType: 'arraybuffer' })
                 .then(response => {
                     emitter(response);
+                    emitter(END);
+                })
+                .catch((e) => {
+                    emitter({status: Sign.DocumentReadStatus.Failed, error: e})
                     emitter(END);
                 });
 

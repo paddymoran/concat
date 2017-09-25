@@ -6,6 +6,8 @@ import configureStore from './configureStore';
 import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { formatUsage, formatUser } from './utils'
+import configureRaven from './configureRaven';
+
 
 let data : any = {};
 
@@ -40,6 +42,10 @@ try{
 
 const store = configureStore(browserHistory, data);
 const history = syncHistoryWithStore(browserHistory, store);
+if(!DEV){
+    // Sentry error reporting
+    configureRaven(store.getState);
+}
 
 ReactDOM.render(
      <Root store={store} history={history} />,

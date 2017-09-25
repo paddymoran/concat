@@ -139,8 +139,7 @@ def send_email(template, email, name, subject, data):
         response = requests.post(current_app.config.get('AUTH_SERVER') + '/mail/send', data=params)
         return response.json()
     except Exception as e:
-        print(e)
-        raise InvalidUsage('Failed to send email %s' % template, status_code=500)
+        raise InvalidUsage('Failed to send email %s' % template, status_code=500, error=e)
 
 
 
@@ -197,8 +196,7 @@ def send_completion_email(document_set_id):
         return send_email('emails.sign.signing-complete', user['email'], user['name'], msg, data)
 
     except Exception as e:
-        print(e)
-        raise InvalidUsage('Failed to send completion email', status_code=500)
+        raise InvalidUsage('Failed to send completion email', status_code=500, error=e)
 
 
 def should_send_reject_email(user_id, document_set_id):
@@ -224,8 +222,7 @@ def send_rejection_email(user_id, document_set_id, rejectedMessage=None):
 
         return send_email('emails.sign.document-rejected', inviter['email'], inviter['name'], 'Document Rejected in CataLex Sign', data)
     except Exception as e:
-        print(e)
-        raise InvalidUsage('Failed to send rejection email', status_code=500)
+        raise InvalidUsage('Failed to send rejection email', status_code=500, error=e)
 
 
 def can_sign_or_submit(user_id):
@@ -284,7 +281,7 @@ def document_upload():
         user_id = session['user_id']
         return jsonify(upload_document(file, set_id, document_id, user_id))
     except Exception as e:
-        raise InvalidUsage(e.args, status_code=500)
+        raise InvalidUsage(e.args, status_code=500, error=e)
 
 
 @api.route('/save_view/<document_id>', methods=['POST'])
@@ -296,7 +293,7 @@ def save_document_view(document_id):
         return jsonify({'message': 'Saved'})
     except Exception as e:
         print(e)
-        raise InvalidUsage(e.message, status_code=500)
+        raise InvalidUsage(e.message, status_code=500, error=e)
 
 
 @api.route('/document/<document_id>', methods=['DELETE'])
@@ -309,7 +306,7 @@ def remove_document_from_set(document_id):
         return jsonify({'message': 'Document removed'})
     except Exception as e:
         print(e)
-        raise InvalidUsage('Failed to removed document', status_code=500)
+        raise InvalidUsage('Failed to removed document', status_code=500, error=e)
 
 
 @api.route('/documents/<set_id>', methods=['DELETE'])
@@ -326,7 +323,7 @@ def remove_document_set(set_id):
         return jsonify({'message': 'Document set removed'})
     except Exception as e:
         print(e)
-        raise InvalidUsage('Failed to removed document set', status_code=500)
+        raise InvalidUsage('Failed to removed document set', status_code=500, error=e)
 
 
 @api.route('/documents/<set_id>', methods=['GET'])
@@ -368,7 +365,7 @@ def get_document(doc_id):
         return response
     except Exception as e:
         print(e)
-        raise InvalidUsage(e.message, status_code=500)
+        raise InvalidUsage(e.message, status_code=500, error=e)
 
 
 @api.route('/download_set/<set_id>', methods=['GET'])
@@ -386,7 +383,7 @@ def get_document_set_zip(set_id):
         date_string = request.args.get('datestring', parse(documents['created_at']).strftime("%a, %-I:%-M:%-S %p"))
         return send_file(output, mimetype='application/zip', attachment_filename=('CataLex Sign - %s.zip' % date_string), as_attachment=True)
     except Exception as e:
-        raise InvalidUsage(e, status_code=500)
+        raise InvalidUsage(e, status_code=500, error=e)
 
 
 @api.route('/concat_set/<set_id>', methods=['GET'])
@@ -402,7 +399,7 @@ def concat_set(set_id):
         return send_file(output, mimetype='application/pdf', attachment_filename=('CataLex Sign - %s.pdf' % date_string), as_attachment=True)
     except Exception as e:
         print(e)
-        raise InvalidUsage(e, status_code=500)
+        raise InvalidUsage(e, status_code=500, error=e)
 '''
 Signatures
 '''
@@ -417,7 +414,7 @@ def signature_upload():
         signature_type = request.get_json()['type']
         return jsonify(upload_signature(base64Image, signature_type))
     except Exception as e:
-        raise InvalidUsage(e.message, status_code=500)
+        raise InvalidUsage(e.message, status_code=500, error=e)
 
 @api.route('/signatures/<id>', methods=['DELETE'])
 @protected
@@ -426,7 +423,7 @@ def signature_delete(id):
     try:
         return jsonify(delete_signature(id))
     except Exception as e:
-        raise InvalidUsage('Failed', status_code=404)
+        raise InvalidUsage('Failed', status_code=404, error=e)
 
 
 @api.route('/signatures', methods=['GET'])
@@ -437,7 +434,7 @@ def signatures_list():
         signatures = db.get_signatures_for_user(session['user_id'])
         return jsonify(signatures)
     except Exception as e:
-        raise InvalidUsage('Failed', status_code=500)
+        raise InvalidUsage('Failed', status_code=500, error=e)
 
 
 @api.route('/signatures/<id>', methods=['GET'])
@@ -453,7 +450,7 @@ def signature(id):
         signature_file = BytesIO(signature)
         return send_file(signature_file, attachment_filename='signature.png')
     except Exception as e:
-        raise InvalidUsage('Failed', status_code=404)
+        raise InvalidUsage('Failed', status_code=404, error=e)
 
 
 '''
@@ -472,6 +469,7 @@ def sign_document():
     document = BytesIO(document_db['data'])
     filename = document_db['filename']
     sign_request_id = args.get('signRequestId', None)
+
     if not sign_request_id:
         # if signing a new doc, confirm they are allowed
         if not can_sign_or_submit(session['user_id']) or not owns_document(session['user_id'], document_id):
@@ -480,7 +478,6 @@ def sign_document():
         # if signing a request, confirm they are invited and haven't signed yet
         if not has_sign_request(session['user_id'], sign_request_id) or not has_verified_email(session['user_id']):
             abort(401)
-
     # confirm that this document is the latest in the series
     if not document_is_latest(document_id):
         raise InvalidUsage('Could not sign document', status_code=500, payload={'type': 'OLD_VERSION'})
@@ -509,8 +506,7 @@ def sign_document():
 
         return jsonify({'message': 'done'})
     except Exception as e:
-        print(e)
-        raise InvalidUsage('Failed', status_code=401)
+        raise InvalidUsage('Failed', status_code=401, error=e)
 
 
 @api.route('/request_signatures', methods=['POST'])
@@ -619,7 +615,6 @@ def email_documents():
 
         return jsonify(response.json())
     except Exception as e:
-        print(e)
-        raise InvalidUsage('Send document failed', status_code=500)
+        raise InvalidUsage('Send document failed', status_code=500, error=e)
 
 

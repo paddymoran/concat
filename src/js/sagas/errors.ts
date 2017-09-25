@@ -1,5 +1,7 @@
 import { select, takeEvery, put, take, call, all } from 'redux-saga/effects';
 import { showSessionEndedModal } from '../actions';
+import * as Raven from 'raven-js';
+import { prepState } from '../configureRaven'
 
 export function *handleErrors(e : any) {
 
@@ -7,6 +9,9 @@ export function *handleErrors(e : any) {
         yield put(showSessionEndedModal({}))
         return true;
     }
-
+    const context = yield select(prepState);
+    Raven.captureException(e, {
+        extra: context
+    });
     return false;
 }

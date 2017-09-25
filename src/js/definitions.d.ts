@@ -24,7 +24,8 @@ declare namespace Sign {
     const enum DocumentReadStatus {
         NotStarted,
         InProgress,
-        Complete
+        Complete,
+        Failed
     }
 
     interface DocumentData {

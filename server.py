@@ -14,6 +14,8 @@ import os.path
 from utils import login_redirect, nocache, InvalidUsage
 from api import api, get_user_info, get_user_usage, get_user_meta
 import uuid
+from raven.contrib.flask import Sentry
+
 
 logging.basicConfig()
 
@@ -23,6 +25,8 @@ config_file_path = os.environ.get('CONFIG_FILE') or sys.argv[1]
 app.config.from_pyfile(os.path.join(os.getcwd(), config_file_path))
 
 PORT = app.config.get('PORT')
+if(app.config.get('SENTRY')):
+    sentry = Sentry(app, dsn=app.config.get('SENTRY'))
 
 
 @app.route('/login', methods=['GET'])
@@ -87,6 +91,7 @@ def login():
         print(e)
         raise InvalidUsage('Could not log in', status_code=500)
 
+
 @app.route('/verify', methods=['GET'], endpoint="verify")
 def verify():
     return render_root()
@@ -138,6 +143,8 @@ def send_index(path):
 
 @app.errorhandler(InvalidUsage)
 def handle_invalid_usage(error):
+    if sentry:
+        sentry.captureException(error.error if error.error else error)
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response

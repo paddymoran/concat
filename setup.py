@@ -13,7 +13,8 @@ setup(name='catalex_sign',
           'psycopg2',
           'pdfrw',
           'reportlab',
-          'python-dateutil'
+          'python-dateutil',
+          'raven[flask]'
       ],
         dependency_links=[
             "git+https://github.com/pmaupin/pdfrw.git#egg=pdfrw"

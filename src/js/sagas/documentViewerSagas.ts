@@ -3,6 +3,8 @@ import axios from 'axios';
 import { setSignRequestStatus, showResults, closeModal, showFailureModal, setSaveStatus, resetDocuments, requestDocument, showSigningCompleteModal } from '../actions';
 import { push } from 'react-router-redux';
 import { findSetForDocument, stringToCanvas, getNextDocument } from '../utils';
+import { handleErrors } from './errors';
+
 
 function *signDocumentWithRedirect(action: Sign.Actions.SignDocument){
     const success = yield signDocument(action);
@@ -91,6 +93,10 @@ function *submitDocumentSet() {
         }
         catch (e) {
             yield put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION }));
+            const resolved = yield handleErrors(e);
+            if(resolved){
+                return;
+            }
             if (e.response && e.response.data && e.response.data.type === 'OLD_VERSION') {
                 yield put(showFailureModal({message: 'Sorry, this version of the document has already been signed.'}));
                 yield all([
@@ -98,7 +104,7 @@ function *submitDocumentSet() {
                     put(push(`/documents/${action.payload.documentSetId}`))
                 ]);
             }
-            else {
+            else{
                 yield put(showFailureModal({message: 'Sorry, we could not sign at this time.'}));
             }
             return;
@@ -121,6 +127,7 @@ function *submitDocumentSet() {
                 put(showFailureModal({message: 'Sorry, we could not send invitations at this time.'})),
                 put(setSignRequestStatus(Sign.DownloadStatus.Failed))
             ]);
+            const resolved = yield handleErrors(e);
         }
     }
 }
@@ -164,7 +171,9 @@ function *saveDocumentViewSaga() {
             yield put(setSaveStatus({status: Sign.DownloadStatus.Complete, documentId: action.payload.documentId}));
         }
         catch(e) {
+            const resolved = yield handleErrors(e);
             yield put(setSaveStatus({status: Sign.DownloadStatus.Failed, documentId: action.payload.documentId}));
+
         }
 
     }

@@ -419,7 +419,8 @@ declare namespace Sign {
         ACTIVATE_CONTROL = 'ACTIVATE_CONTROL',
         CONFIRM_ACTION = 'CONFIRM_ACTION',
         SIGNING_COMPLETE = 'SIGNING_COMPLETE',
-        DOWNLOAD_ALL = 'DOWNLOAD_ALL'
+        DOWNLOAD_ALL = 'DOWNLOAD_ALL',
+        SESSION_ENDED = 'SESSION_ENDED'
     }
 
     interface SignatureRequest {
@@ -527,6 +528,8 @@ declare namespace Sign.Actions {
         SHOW_EMAIL_DOCUMENT_MODAL = 'SHOW_EMAIL_DOCUMENT_MODAL',
         SHOW_ACTIVATE_CONTROL_MODAL = 'SHOW_ACTIVATE_CONTROL_MODAL',
         SHOW_SIGNING_COMPLETE_MODAL = 'SHOW_SIGNING_COMPLETE_MODAL',
+        SHOW_SESSION_ENDED_MODAL = 'SHOW_SESSION_ENDED_MODAL',
+
 
         UPDATE_DOCUMENT_WIDTH = 'UPDATE_DOCUMENT_WIDTH',
 
@@ -571,6 +574,7 @@ declare namespace Sign.Actions {
         UPDATE_USER_META = 'UPDATE_USER_META',
 
         DEFINE_DOCUMENT_ORDER = 'DEFINE_DOCUMENT_ORDER'
+
     }
 
 
@@ -847,6 +851,9 @@ declare namespace Sign.Actions {
     interface ShowSigningCompleteModalPayload {
         documentSetId: string;
     }
+    interface ShowSessionEndedModalPayload {
+
+    }
 
     interface UpdateDocumentWidthPayload {
         width: number
@@ -1054,6 +1061,7 @@ declare namespace Sign.Actions {
     interface ConfirmAction<T> extends ActionCreator<ConfirmActionPayload<T>> {}
     interface ShowSigningCompleteModal extends ActionCreator<ShowSigningCompleteModalPayload> {}
     interface ShowDownloadAllModal extends ActionCreator<ShowDownloadAllModalPayload> {}
+    interface ShowSessionEndedModal extends ActionCreator<ShowSessionEndedModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
     interface DefineRecipients extends ActionCreator<DefineRecipientsPayload> {}

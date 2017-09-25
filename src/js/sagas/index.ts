@@ -13,7 +13,7 @@ import documentViewerSagas from './documentViewerSagas';
 import documentSagas from './documents';
 import verificationsSagas from './verifications';
 import { formatUsage } from '../utils'
-
+import { handleErrors } from './errors'
 
 axios.interceptors.request.use(function (config) {
     // Do something before request is sent
@@ -32,6 +32,8 @@ axios.interceptors.request.use(function (config) {
     // Do something with request error
     return Promise.reject(error);
   });
+
+
 
 
 function shouldFetch(status: Sign.DownloadStatus){
@@ -189,6 +191,7 @@ function *deleteDocumentSaga() {
             const response = yield call(axios.delete, `/api/document/${action.payload.documentId}`);
         } catch(e) {
             //swallow
+            const resolved = yield handleErrors(e);
         }
     }
 }
@@ -200,6 +203,7 @@ function *documentOrder() {
             const response = yield call(axios.post, `/api/document_order/${action.payload.documentSetId}`, {documentIds: action.payload.documentIds});
         } catch(e) {
             //swallow
+            const resolved = yield handleErrors(e);
         }
     }
 }
@@ -384,7 +388,10 @@ function *emailDocumentSaga() {
             yield put(updateModalData({ status: Sign.DownloadStatus.Complete }));
         }
         catch (e) {
-            yield put(updateModalData({ status: Sign.DownloadStatus.Failed }));
+            const resolved = yield handleErrors(e);
+            if(!resolved){
+                yield put(updateModalData({ status: Sign.DownloadStatus.Failed }));
+            }
         }
     }
 }
@@ -400,6 +407,7 @@ function *userMeta() {
         }
         catch (e) {
             //swallow
+            const resolved = yield handleErrors(e);
         }
     }
 }
@@ -507,7 +515,10 @@ function *uploadDocumentSaga() {
 
             if(state && state.error){
                 yield put(removeDocument(action.payload.documentId));
-                yield put(showFailureModal({message: 'You do not have permission to upload documents'}))
+                const resolved = yield handleErrors(state.error);
+                if(!resolved){
+                    yield put(showFailureModal({message: 'You do not have permission to upload documents'}))
+                }
             }
             else{
                 yield put(updateDocument({
@@ -537,8 +548,8 @@ function *uploadDocumentSaga() {
                 .then((response) => {
                     return emitter(END);
                 })
-                .catch(() => {
-                    emitter({status: Sign.DocumentUploadStatus.Failed, error: true})
+                .catch((e) => {
+                    emitter({status: Sign.DocumentUploadStatus.Failed, error: e})
                     emitter(END);
                 });
 

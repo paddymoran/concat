@@ -324,6 +324,15 @@ export function showInviteModal(payload: Sign.Actions.ShowInviteModalPayload): S
     };
 }
 
+export function showSessionEndedModal(payload: Sign.Actions.ShowSessionEndedModalPayload): Sign.Actions.ShowSessionEndedModal {
+    return {
+        type: Sign.Actions.Types.SHOW_SESSION_ENDED_MODAL,
+        payload
+    };
+}
+
+
+
 export function updateDocumentWidth(payload: Sign.Actions.UpdateDocumentWidthPayload) : Sign.Actions.UpdateDocumentWidth {
     return {
         type: Sign.Actions.Types.UPDATE_DOCUMENT_WIDTH,

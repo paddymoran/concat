@@ -1,6 +1,8 @@
 import { all, takeEvery, put, call } from 'redux-saga/effects';
 import axios from 'axios';
 import { closeModal, resetDocuments, showFailureModal } from '../actions';
+import { handleErrors } from './errors';
+
 
 function *revokeSignInvitationSaga() {
     yield takeEvery(Sign.Actions.Types.REVOKE_SIGN_INVITATION, revokeSignInvitation);
@@ -18,7 +20,10 @@ function *revokeSignInvitationSaga() {
                 put(resetDocuments()),
                 put(closeModal({ modalName: Sign.ModalType.CONFIRM_ACTION }))
             ]);
-            yield put(showFailureModal({ title: 'Revoke Failed', message: 'Sorry, we were unable to revoke this invitation. Please try again.' }));
+            const resolved = yield handleErrors(e);
+            if(!resolved){
+                yield put(showFailureModal({ title: 'Revoke Failed', message: 'Sorry, we were unable to revoke this invitation. Please try again.' }));
+            }
         }
     }
 }
@@ -39,7 +44,10 @@ function *deleteDocumentSaga() {
                 put(resetDocuments()),
                 put(closeModal({ modalName: Sign.ModalType.CONFIRM_ACTION }))
             ]);
-            yield put(showFailureModal({ title: 'Delete Failed', message: 'Sorry, we were unable to delete this document. Please try again.' }));
+            const resolved = yield handleErrors(e);
+            if(!resolved){
+                yield put(showFailureModal({ title: 'Delete Failed', message: 'Sorry, we were unable to delete this document. Please try again.' }));
+            }
         }
     }
 }
@@ -60,7 +68,10 @@ function *deleteDocumentSetSaga() {
                 put(resetDocuments()),
                 put(closeModal({ modalName: Sign.ModalType.CONFIRM_ACTION }))
             ]);
-            yield put(showFailureModal({ title: 'Delete Set Failed', message: 'Sorry, we were unable to delete this document set. Please try again.' }));
+            const resolved = yield handleErrors(e);
+            if(!resolved){
+                yield put(showFailureModal({ title: 'Delete Set Failed', message: 'Sorry, we were unable to delete this document set. Please try again.' }));
+            }
         }
     }
 }

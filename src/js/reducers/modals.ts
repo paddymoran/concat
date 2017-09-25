@@ -83,6 +83,12 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
                 showing: Sign.ModalType.DOWNLOAD_ALL
             };
 
+        case Sign.Actions.Types.SHOW_SESSION_ENDED_MODAL:
+            return {
+                ...state,
+                ...action.payload,
+                showing: Sign.ModalType.SESSION_ENDED
+            };
         default:
             return state;
     }

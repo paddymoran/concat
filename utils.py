@@ -10,7 +10,7 @@ def protected(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
-            return Response(json.dumps({'message': 'Unauthorized'}), 401)
+            return Response(json.dumps({'message': 'Unauthorized', 'type': 'LOGGED_OUT'}), 401)
         return f(*args, **kwargs)
     return decorated_function
 

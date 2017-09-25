@@ -11,6 +11,7 @@ import ActivateControl from './activateControl';
 import ConfirmAction from './confirmAction';
 import SigningComplete from './signingComplete';
 import Download from './download';
+import SessionEndedModal from './sessionEnded';
 
 interface ModalsProps {
     showing: string;
@@ -54,6 +55,11 @@ class Modals extends React.PureComponent<ModalsProps>{
 
             case Sign.ModalType.DOWNLOAD_ALL:
                 return <Download />
+
+            case Sign.ModalType.SESSION_ENDED:
+                return <SessionEndedModal />
+
+
 
             default:
                 return false;

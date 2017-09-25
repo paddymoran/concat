@@ -2,6 +2,8 @@ import { takeEvery, takeLatest, put, call, all, select } from 'redux-saga/effect
 import * as Axios from 'axios';
 import axios from 'axios';
 import { selectSignature, setSignatureIds, closeModal, selectInitial, showFailureModal } from '../actions/index'
+import { handleErrors } from './errors';
+
 
 interface SignaturesUploadResponse extends Axios.AxiosResponse {
     data: {
@@ -31,7 +33,10 @@ function *uploadSignature() {
             yield put(selectAction);
         }
         catch (e) {
-            yield put(showFailureModal({ title: 'Upload Signature Failed', message: 'Upload signature failed. Please try again.' }));
+            const resolved = yield handleErrors(e);
+            if(!resolved){
+                yield put(showFailureModal({ title: 'Upload Signature Failed', message: 'Upload signature failed. Please try again.' }));
+            }
         }
     }
 }
@@ -44,7 +49,10 @@ function *deleteSignature() {
             yield axios.delete(`/api/signatures/${action.payload.signatureId}`);
         }
         catch(e) {
-            yield put(showFailureModal({ title: 'Delete Signature Failed', message: 'Delete signature failed. Please try again.' }));
+            const resolved = yield handleErrors(e);
+            if(!resolved){
+                yield put(showFailureModal({ title: 'Delete Signature Failed', message: 'Delete signature failed. Please try again.' }));
+            }
         }
     }
 }

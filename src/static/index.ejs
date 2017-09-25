@@ -9,6 +9,9 @@
     </head>
 
     <body>
+        <script type="application/json" id="token">
+        {{ token|tojson|safe }}
+        </script>
         <script type="application/json" id="data">
         {{ store|tojson|safe }}
         </script>

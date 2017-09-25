@@ -15,6 +15,19 @@ import verificationsSagas from './verifications';
 import { formatUsage } from '../utils'
 
 
+axios.interceptors.request.use(function (config) {
+    // Do something before request is sent
+    if(config.method !== 'get') {
+        config.data = config.data || {};
+        config.data['_csrf_token'] = window._CSRF_TOKEN;
+    }
+    return config;
+  }, function (error) {
+    // Do something with request error
+    return Promise.reject(error);
+  });
+
+
 function shouldFetch(status: Sign.DownloadStatus){
     return [
         Sign.DownloadStatus.NotStarted,

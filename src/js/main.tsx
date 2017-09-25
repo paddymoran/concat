@@ -10,6 +10,13 @@ import { formatUsage, formatUser } from './utils'
 let data : any = {};
 
 try{
+    const input : any = JSON.parse(document.getElementById("token").textContent)
+    window._CSRF_TOKEN = input['_csrf_token'];
+}catch(e){
+
+}
+
+try{
     const input : any = JSON.parse(document.getElementById("data").textContent)
     if(input.usage){
         data.usage = formatUsage(input.usage)

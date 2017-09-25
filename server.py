@@ -11,16 +11,9 @@ import db
 import requests
 import os
 import os.path
-from utils import login_redirect, protected, nocache, InvalidUsage
+from utils import login_redirect, nocache, InvalidUsage
 from api import api, get_user_info, get_user_usage, get_user_meta
-
-try:
-    from subprocess import DEVNULL  # py3k
-except ImportError:
-    import os
-    DEVNULL = open(os.devnull, 'wb')
-
-
+import uuid
 
 logging.basicConfig()
 
@@ -30,10 +23,6 @@ config_file_path = os.environ.get('CONFIG_FILE') or sys.argv[1]
 app.config.from_pyfile(os.path.join(os.getcwd(), config_file_path))
 
 PORT = app.config.get('PORT')
-
-
-
-
 
 
 @app.route('/login', methods=['GET'])
@@ -123,7 +112,8 @@ def logout():
 @nocache
 def render_root():
     # TODO go async or combine these queries
-    return render_template('index.html', store={'user': get_user_info(), 'usage': get_user_usage(), 'userMeta': get_user_meta()})
+    return render_template('index.html', store={'user': get_user_info(), 'usage': get_user_usage(), 'userMeta': get_user_meta()},
+                           token={'_csrf_token': generate_csrf_token()})
 
 
 @app.route('/', defaults={'path': ''})
@@ -135,6 +125,8 @@ def catch_all(path):
 
 @app.errorhandler(401)
 def custom_401(error):
+    if hasattr(error, 'description'):
+        return Response(json.dumps(error.description), 401)
     return Response(json.dumps({'message': 'Unauthorized'}), 401)
 
 
@@ -150,6 +142,19 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
+
+def generate_csrf_token():
+    if '_csrf_token' not in session:
+        session['_csrf_token'] = uuid.uuid4().hex
+    return session['_csrf_token']
+
+
+@app.before_request
+def csrf_protect():
+    if request.method != "GET" and not app.testing:
+        token = session.get('_csrf_token', None)
+        if True or not token or token != request.get_json().get('_csrf_token'):
+            abort(401, {'type': 'INVALID_TOKEN'})
 
 
 if __name__ == '__main__':

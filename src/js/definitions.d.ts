@@ -1,6 +1,13 @@
 
 declare let DEV : boolean;
 
+
+interface Window {
+     _CSRF_TOKEN: string;
+}
+
+
+
 declare namespace Sign {
     interface Viewport {
         width: number,

@@ -1,7 +1,7 @@
 from flask import (
     Flask, request, redirect, send_file, jsonify, session, abort, url_for,
     send_from_directory, Response, render_template, make_response, Blueprint,
-    current_app
+    current_app,
 )
 from io import BytesIO
 from subprocess import Popen, STDOUT
@@ -17,6 +17,8 @@ from dateutil.parser import parse
 import json
 from utils import login_redirect, protected, nocache, fullcache, InvalidUsage
 import requests
+from werkzeug.exceptions import HTTPException
+
 
 api = Blueprint('api', __name__)
 
@@ -274,12 +276,14 @@ def get_document_set_list():
 def document_upload():
     try:
         if not can_sign_or_submit(session['user_id']):
-            abort(401)
+            abort(401, {'type': 'USAGE_LIMIT_REACHED'})
         file = request.files.getlist('file[]')
         set_id = request.form.get('document_set_id')
         document_id = request.form.get('document_id')
         user_id = session['user_id']
         return jsonify(upload_document(file, set_id, document_id, user_id))
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise InvalidUsage(e.args, status_code=500, error=e)
 
@@ -334,7 +338,6 @@ def get_documents(set_id):
         documents = db.get_document_set(session['user_id'], set_id)
         return jsonify(documents)
     except Exception as e:
-
         raise InvalidUsage(e, status_code=500)
 
 
@@ -346,7 +349,6 @@ def document_order(set_id):
         documents = db.order_documents(session['user_id'], set_id, request.get_json()['documentIds'])
         return jsonify(documents)
     except Exception as e:
-
         raise InvalidUsage(e, status_code=500)
 
 
@@ -363,6 +365,8 @@ def get_document(doc_id):
         response = send_file(BytesIO(document['data']), mimetype='application/pdf', attachment_filename=document['filename'], as_attachment=True);
         response.headers['content-length'] = len(document['data'])
         return response
+    except HTTPException as e:
+        raise e
     except Exception as e:
         print(e)
         raise InvalidUsage(e.message, status_code=500, error=e)
@@ -449,6 +453,9 @@ def signature(id):
 
         signature_file = BytesIO(signature)
         return send_file(signature_file, attachment_filename='signature.png')
+    except HTTPException as e:
+        raise e
+
     except Exception as e:
         raise InvalidUsage('Failed', status_code=404, error=e)
 
@@ -472,8 +479,10 @@ def sign_document():
 
     if not sign_request_id:
         # if signing a new doc, confirm they are allowed
-        if not can_sign_or_submit(session['user_id']) or not owns_document(session['user_id'], document_id):
-            abort(401)
+        if not can_sign_or_submit(session['user_id']):
+            abort(401, {'type': 'USAGE_LIMIT_REACHED'})
+        if not owns_document(session['user_id'], document_id):
+            abort(401, {'type': 'CANNOT_ACCESS_DOCUMENT'})
     else:
         # if signing a request, confirm they are invited and haven't signed yet
         if not has_sign_request(session['user_id'], sign_request_id) or not has_verified_email(session['user_id']):
@@ -505,6 +514,8 @@ def sign_document():
                 send_rejection_email(session['user_id'], args['documentSetId'], args.get('rejectedMessage'))
 
         return jsonify({'message': 'done'})
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise InvalidUsage('Failed', status_code=401, error=e)
 

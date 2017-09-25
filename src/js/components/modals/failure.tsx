@@ -6,6 +6,7 @@ import { closeModal } from '../../actions';
 interface FailureProps {
     message: string;
     title: string;
+    type: string;
     closeModal: () => void;
 }
 
@@ -16,11 +17,14 @@ class FailureModal  extends React.PureComponent<FailureProps> {
                 <Modal.Header closeButton>
                     <Modal.Title>{this.props.title || 'Action Failure'}</Modal.Title>
                 </Modal.Header>
-                
+
                 <Modal.Body>
                     <p>{this.props.message}</p>
-                    <Button onClick={this.props.closeModal}>Close</Button>
                 </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={this.props.closeModal}>Close</Button>
+                    { this.props.type === 'USAGE_LIMIT_REACHED' && <a className="btn btn-primary" href="/signup">Upgrade</a> }
+                </Modal.Footer>
             </Modal>
         );
     }
@@ -29,7 +33,8 @@ class FailureModal  extends React.PureComponent<FailureProps> {
 export default connect(
     (state: Sign.State) => ({
         message: state.modals.message,
-        title: state.modals.title
+        title: state.modals.title,
+        type: state.modals.type
     }),
     { closeModal: () => closeModal({modalName: Sign.ModalType.FAILURE})  },
 )(FailureModal);

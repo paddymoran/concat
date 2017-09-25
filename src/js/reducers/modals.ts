@@ -35,7 +35,9 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
             return {
                 ...state,
                 showing: Sign.ModalType.FAILURE,
-                message: action.payload.message
+                message: action.payload.message,
+                title: action.payload.title,
+                type: action.payload.type
             };
 
         case Sign.Actions.Types.CLOSE_SHOWING_MODAL:

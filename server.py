@@ -25,6 +25,7 @@ config_file_path = os.environ.get('CONFIG_FILE') or sys.argv[1]
 app.config.from_pyfile(os.path.join(os.getcwd(), config_file_path))
 
 PORT = app.config.get('PORT')
+sentry = None
 if(app.config.get('SENTRY')):
     sentry = Sentry(app, dsn=app.config.get('SENTRY'))
 
@@ -89,7 +90,7 @@ def login():
         return redirect(redirect_uri)
     except Exception as e:
         print(e)
-        raise InvalidUsage('Could not log in', status_code=500)
+        raise InvalidUsage('Could not log in', status_code=500, error=e)
 
 
 @app.route('/verify', methods=['GET'], endpoint="verify")
@@ -144,7 +145,8 @@ def send_index(path):
 @app.errorhandler(InvalidUsage)
 def handle_invalid_usage(error):
     if sentry:
-        sentry.captureException(error.error if error.error else error)
+        if isinstance(error, InvalidUsage):
+            sentry.captureException(error.error)
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response

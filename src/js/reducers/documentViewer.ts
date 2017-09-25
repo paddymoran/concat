@@ -115,7 +115,8 @@ function completeDocument(state: Sign.DocumentViewer, action: Sign.Actions.MarkD
     const updateData: Partial<Sign.DocumentView> = {
         signStatus: action.payload.signStatus,
         completed: action.payload.complete,
-        rejectReason: undefined
+        rejectReason: undefined,
+        acceptedMessage: action.payload.acceptedMessage
     };
 
     return updateDocument(state, action.payload.documentId, updateData);

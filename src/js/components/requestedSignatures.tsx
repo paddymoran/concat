@@ -85,9 +85,9 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
 
                 <thead></thead>
                 <tbody>
-                {Object.keys(this.props.requestDocumentSet).map((documentId: string, i: number) => {
+                {Object.keys(this.props.requestDocumentSet).reduce((acc: any[], documentId: string, i: number) => {
                     const document : Sign.Document = this.props.documents[documentId]
-                    return <tr key={i}>
+                    acc.push(<tr key={i}>
                                   <td className="status">
                                        <SignStatus signStatus={document.requestStatus}/>
                                   </td>
@@ -109,8 +109,25 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                                   </td>
 
 
-                            </tr>
-                }) }
+                            </tr>);
+                    if(document.rejectedMessage){
+                        acc.push(
+                            <tr key={`signed-${i}`} className="rejection-info condensed">
+                                <td/>
+                                <td/>
+                                <td colSpan={2}>Rejected with message: "{document.rejectedMessage}"</td>
+                            </tr>)
+                    }
+                    else if(document.acceptedMessage){
+                        acc.push(
+                            <tr key={`signed-${i}`} className="signed-info condensed">
+                                <td/>
+                                <td/>
+                                <td colSpan={2}>Signed with message: "{document.acceptedMessage}"</td>
+                            </tr>)
+                    }
+                    return acc;
+                }, []) }
                 </tbody>
                 </table>
             </div>

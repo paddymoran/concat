@@ -16,6 +16,7 @@ import zipfile
 from dateutil.parser import parse
 import json
 from utils import login_redirect, protected, nocache, fullcache, InvalidUsage
+import requests
 
 api = Blueprint('api', __name__)
 
@@ -464,6 +465,8 @@ Sign
 def sign_document():
     args = request.get_json()
     saveable = deepcopy(args)
+    if '_csrf_token' in saveable:
+        del saveable['_csrf_token']
     document_db = db.get_document(session['user_id'], args['documentId'])
     document_id = args.get('documentId')
     document = BytesIO(document_db['data'])

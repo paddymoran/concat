@@ -153,7 +153,7 @@ def generate_csrf_token():
 def csrf_protect():
     if request.method != "GET" and not app.testing:
         token = session.get('_csrf_token', None)
-        if True or not token or token != request.get_json().get('_csrf_token'):
+        if not token or token != request.get_json().get('_csrf_token'):
             abort(401, {'type': 'INVALID_TOKEN'})
 
 

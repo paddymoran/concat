@@ -289,7 +289,8 @@ SELECT json_agg(row_to_json(q)) FROM (
         WHEN NOT srr.accepted THEN 'Rejected'
         ELSE 'Pending'
     END as status,
-    CASE WHEN NOT srr.accepted THEN srr.field_data ELSE NULL END as rejection_explaination
+    CASE WHEN NOT srr.accepted THEN srr.field_data ELSE NULL END as rejection_explaination,
+    CASE WHEN srr.accepted THEN srr.field_data->>'acceptedMessage' ELSE NULL END AS accepted_message
     FROM documents d
     LEFT OUTER JOIN sign_requests sr on d.document_id = sr.document_id
     LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
@@ -332,7 +333,8 @@ SELECT json_agg(
     'created_at', format_iso_date(d.created_at),
     'size',  d.length,
     'sign_status', document_status(sr.document_id),
-
+    'rejection_explaination', CASE WHEN NOT srr.accepted THEN srr.field_data ELSE NULL END ,
+    'accepted_message', CASE WHEN srr.accepted THEN srr.field_data->>'acceptedMessage' ELSE NULL END,
     'request_status', CASE WHEN srr.sign_result_id IS NOT NULL
         THEN CASE WHEN srr.accepted = True THEN 'Signed' ELSE 'Rejected' END
         ELSE 'Pending' END

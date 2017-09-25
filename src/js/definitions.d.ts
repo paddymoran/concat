@@ -50,6 +50,7 @@ declare namespace Sign {
         email: string,
         status: string,
         rejectedMessage: string;
+        acceptedMessage: string;
         signRequestId: number;
     }
 
@@ -71,6 +72,8 @@ declare namespace Sign {
         requestStatus?:  SignStatus;
         signatureRequestInfos?: SignatureRequestInfos,
         size?: number;
+        acceptedMessage?: string;
+        rejectedMessage?: string;
     }
 
 
@@ -219,6 +222,7 @@ declare namespace Sign {
         completed: boolean;
         signStatus: Sign.SignStatus;
         rejectReason?: string;
+        acceptedMessage?: string;
     }
 
     interface DocumentViews {
@@ -921,6 +925,7 @@ declare namespace Sign.Actions {
         documentId: string;
         complete: boolean;
         signStatus: Sign.SignStatus;
+        acceptedMessage?: string;
     }
 
     interface FinishedSigningDocumentPayload {

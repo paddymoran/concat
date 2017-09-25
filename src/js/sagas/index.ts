@@ -199,7 +199,7 @@ function *documentOrder() {
 }
 function formatRequests(r: any) : Sign.SignatureRequestInfos {
     if(r){
-        return r.map((r: any) => ({userId: r.user_id, name: r.name, email: r.email, status: r.status, signRequestId: r.sign_request_id, rejectedMessage: r.rejection_explaination ? r.rejection_explaination.rejectedMessage : null}))
+        return r.map((r: any) => ({userId: r.user_id, name: r.name, email: r.email, status: r.status, signRequestId: r.sign_request_id, rejectedMessage: r.rejection_explaination ? r.rejection_explaination.rejectedMessage : null, acceptedMessage: r.accepted_message}))
     }
 }
 
@@ -351,6 +351,8 @@ function *requestRequestedSignaturesSaga() {
                 prompts: (d.prompts || []).map((p: Sign.DocumentPrompt) => {
                     return {...p, documentId: d.document_id}
                 }),
+                rejectedMessage: d.rejection_explaination ? d.rejection_explaination.rejectedMessage : null,
+                acceptedMessage: d.accepted_message,
                 signRequestId: d.sign_request_id,
                 requestStatus: d.request_status,
                 signStatus: d.sign_status,

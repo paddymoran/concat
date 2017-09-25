@@ -138,11 +138,12 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                     );
                                 }
                                 else {
+                                     const string = r.acceptedMessage ? `Signed by ${r.name} - "${r.acceptedMessage}"` : `Signed by ${r.name}`;
                                     rows.push(
                                         <tr key={`signed-${keyModifier}`} className="signed-info condensed">
                                             <td/>
                                             <td/>
-                                            <td colSpan={2}><i className="fa fa-check" /> Signed by { r.name }</td>
+                                            <td colSpan={2}><i className="fa fa-check" /> { string }</td>
                                         </tr>
                                     );
                                 }

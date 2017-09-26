@@ -11,7 +11,7 @@ export function *handleErrors(e : any) {
             return true;
         }
         else if(e.response.data && e.response.data.type === 'USAGE_LIMIT_REACHED'){
-            yield put(showFailureModal({title: 'Subscription Required', message: 'Upgrade to the pro version of CataLex Sign for unlimited signing.  Subscriptions cost just $5 per month (when paid annually).', type: e.response.data.type}))
+            yield put(showFailureModal({title: 'Subscription Required', message: 'You have reached the monthly limit for free signing - subscribe today and receive unlimited signing.  Subscriptions cost just $5 per month (when paid annually).', type: e.response.data.type}))
             return true;
         }
     }

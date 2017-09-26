@@ -23,7 +23,7 @@ class FailureModal  extends React.PureComponent<FailureProps> {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onClick={this.props.closeModal}>Close</Button>
-                    { this.props.type === 'USAGE_LIMIT_REACHED' && <a className="btn btn-primary" href="/signup">Upgrade</a> }
+                    { this.props.type === 'USAGE_LIMIT_REACHED' && <a className="btn btn-primary" href="/signup">Subscribe</a> }
                 </Modal.Footer>
             </Modal>
         );

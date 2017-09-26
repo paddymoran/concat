@@ -290,3 +290,9 @@ $submit-control-hover-background: darken($submit-control-background, 8%);
     left: 10%;
     right: 10%;
 }
+
+.button-column{
+    .btn-block  {
+        margin-top: 5px;
+    }
+}

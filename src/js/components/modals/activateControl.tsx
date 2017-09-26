@@ -66,14 +66,20 @@ class UnconnectedActivateControlModal extends React.PureComponent<ConnectedContr
                 </Modal.Header>
 
                 <Modal.Body>
-                    <Button block bsSize="lg" onClick={this.activateSignature}>Signature</Button>
-                    <Button block bsSize="lg" onClick={this.activateInitial}>Initial</Button>
-                    <Button block bsSize="lg" onClick={this.activateDate}>Date</Button>
-                    <Button block bsSize="lg" onClick={this.activateText}>Text</Button>
-                    {this.props.showPrompts && <Button block bsSize="lg" onClick={this.activatePrompt}>Request Signature</Button>}
-                    {this.props.showSave && <Button block bsSize="lg" onClick={this.saveDraft}>Save Draft</Button>}
-                    {this.props.showInvite && <Button block bsSize="lg" onClick={this.showInviteModal}>Invite</Button>}
-                    {this.props.showReject && <Button block bsSize="lg" onClick={this.reject}>Reject</Button>}
+                    <div className="row">
+                        <div className="col-sm-6 button-column">
+                        <Button block bsSize="lg" onClick={this.activateSignature}><i className="fa fa-pencil-square-o"/> Signature</Button>
+                        <Button block bsSize="lg" onClick={this.activateDate}><i className="fa fa-calendar"/> Date</Button>
+                        { this.props.showPrompts && <Button block bsSize="lg" onClick={this.activatePrompt}><i className="fa fa-paste" /> Request Signature</Button>}
+                        { this.props.showSave && <Button block bsSize="lg" onClick={this.saveDraft}><i className="fa fa-save" /> Save Draft</Button>}
+                        </div>
+                        <div className="col-sm-6 button-column">
+                        <Button block bsSize="lg" onClick={this.activateInitial}><i className="fa fa-pencil-square"/> Initial</Button>
+                        <Button block bsSize="lg" onClick={this.activateText}><i className="fa fa-font" /> Text</Button>
+                        { this.props.showInvite && <Button block bsSize="lg" onClick={this.showInviteModal}><i className="fa fa-users" /> Invite</Button>}
+                        { this.props.showReject && <Button block bsSize="lg" onClick={this.reject}><i className="fa fa-times" / >Reject</Button> }
+                        </div>
+                        </div>
                 </Modal.Body>
             </Modal>
         );

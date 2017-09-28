@@ -17,7 +17,9 @@
     transition: opacity 250ms ease;
 }
 
-
+.static-loading-container{
+    min-height:100px;
+}
 .loading-container.finished .loading{
     opacity: 0;
 }

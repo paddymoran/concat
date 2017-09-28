@@ -7,6 +7,8 @@ import Slider  from 'rc-slider';
 import ReactRnd from 'react-rnd';
 import sizeMe from 'react-sizeme';
 import { debounce } from '../utils'
+import Loading from './loading';
+
 
 const fileToImageData = (file: File) => {
     const canvas = document.createElement('canvas');
@@ -70,6 +72,20 @@ const removeImageBackground = (imageData: ImageData, threshold: number) => {
 }
 
 
+function downsampleImage(imageData: ImageData, maxWidth: number) {
+    if(imageData.width <= maxWidth){
+        return imageData;
+    }
+    const canvas = imageDataToCanvas(imageData);
+    const outputCanvas = document.createElement('canvas');
+    const width = outputCanvas.width = maxWidth;
+    const height = outputCanvas.height = (width/imageData.width) * imageData.height;
+    const context = outputCanvas.getContext('2d');
+    context.drawImage(canvas, 0, 0, width, height);
+    return context.getImageData(0, 0, width, height);
+}
+
+
 interface CropBoxDimensions {
     x: number,
     y: number,
@@ -77,6 +93,7 @@ interface CropBoxDimensions {
     height: number;
 }
 
+const IMAGE_WIDTH = 600;
 
 function cropImageData(imageData: ImageData, crop: CropBoxDimensions) {
     const canvas = imageDataToCanvas(imageData);
@@ -249,22 +266,23 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
         this.rotateRight = this.rotateRight.bind(this);
         this.clearImage = this.clearImage.bind(this);
         this.setImage = this.setImage.bind(this);
-        this.onSliderChange = debounce(this.onSliderChange.bind(this), 300);
+        this.onSliderChange = debounce(this.onSliderChange.bind(this), 100);
         this.state = {
             imageData: null,
             rotation: 0,
             error: null,
-            sliderValue: 200
+            sliderValue: 200,
+            loading: false,
         }
     }
 
     toDataURL() {
-        let imageData = this.processImage();
+        let imageData = this.processImage(this.state.originalImageData);
         if(this.cropBox){
             const crop = this.cropBox.getRelativeCrop();
             imageData = cropImageData(imageData, crop)
         }
-        return imageDataToDataUrl(imageData);
+        return imageDataToDataUrl(downsampleImage(imageData, IMAGE_WIDTH));
     }
 
     setImage(imageData : ImageData){
@@ -272,8 +290,13 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
     }
 
     readImage(image: File) {
+        this.setState({loading: true})
         fileToImageData(image)
-            .then((imageData: ImageData) =>  this.setState({imageData, rotation: 0}))
+            .then((imageData: ImageData) =>  {
+                this.setState({originalImageData: imageData})
+                return downsampleImage(imageData, IMAGE_WIDTH)
+            })
+            .then((imageData: ImageData) =>  this.setState({imageData, rotation: 0, error: null, loading: false}))
             .catch((e) =>{
                 this.setState({error: 'Sorry, could not process image'})
              })
@@ -311,8 +334,8 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
         this.setState({imageData: null})
     }
 
-    processImage(){
-        return rotate(removeImageBackground(copyImageData(this.state.imageData), this.state.sliderValue), this.state.rotation);
+    processImage(imageData?: ImageData){
+        return rotate(removeImageBackground(copyImageData(imageData || this.state.imageData), this.state.sliderValue), this.state.rotation);
     }
 
     processImageToUrl(){
@@ -365,6 +388,10 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
     }
 
     render() {
+        if(this.state.loading){
+            return <div className="static-loading-container"><Loading /></div>
+        }
+
         if(!this.state.imageData){
             return this.renderDrop()
         }

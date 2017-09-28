@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import PDFViewer from './pdf/viewer';
-import { requestRequestedSignatures, requestDocumentSet } from '../actions';
+import { requestRequestedSignatures, requestDocumentSet, endSigningSession } from '../actions';
 
 
 
@@ -15,6 +15,7 @@ interface DocumentViewProps {
 
 interface ConnectedDocumentViewProps extends DocumentViewProps {
     requestDocumentSet: (documentId: string) => void
+    endSigningSession: () => void
 }
 
 
@@ -24,13 +25,15 @@ export class UnconnectedDocumentView extends React.PureComponent<ConnectedDocume
         this.props.requestDocumentSet(this.props.params.documentSetId)
     }
 
+    componentWillUnmount() {
+        this.props.endSigningSession();
+    }
+
     render() {
         return (
                <div>
 
             <div className="pdf-screen">
-
-
                 <PDFViewer documentId={this.props.params.documentId} documentSetId={this.props.params.documentSetId} isDocumentOwner={true} />
             </div>
             </div>
@@ -42,7 +45,7 @@ export const DocumentView = connect<{}, {}, ConnectedDocumentViewProps>((state: 
     return {
     }
 }, {
-   requestDocumentSet
+   requestDocumentSet, endSigningSession
 })(UnconnectedDocumentView);
 
 export default DocumentView;
@@ -52,6 +55,7 @@ interface RequestedSignatureProps extends DocumentViewProps {
     requestRequestedSignatures: () => void;
     requestedSignatures: Sign.RequestedSignatures;
     requestedSignatureInfo?: Sign.RequestedSignatureDocumentInfo;
+    endSigningSession: () => void
 }
 
 
@@ -59,6 +63,9 @@ interface RequestedSignatureProps extends DocumentViewProps {
 class UnconnectedRequestedDocumentView extends React.PureComponent<RequestedSignatureProps>  {
     componentDidMount() {
         this.props.requestRequestedSignatures()
+    }
+    componentWillUnmount() {
+        this.props.endSigningSession();
     }
     render() {
         // get the request info
@@ -74,7 +81,7 @@ export const RequestedDocumentView = connect<{}, {}, RequestedSignatureProps>((s
     const requestedDocumentSet  = state.requestedSignatures.documentSets[ownProps.params.documentSetId];
     const requestedSignatureInfo : Sign.RequestedSignatureDocumentInfo = requestedDocumentSet && requestedDocumentSet[ownProps.params.documentId];
     return {
-        requestedSignatureInfo
+        requestedSignatureInfo, endSigningSession
     }
 }, {
     requestRequestedSignatures

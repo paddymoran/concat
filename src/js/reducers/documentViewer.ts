@@ -14,6 +14,7 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
         case Sign.Actions.Types.RESET_DOCUMENTS:
         case Sign.Actions.Types.START_SIGNING_SESSION:
         case Sign.Actions.Types.START_SELF_SIGNING_SESSION:
+        case Sign.Actions.Types.END_SIGNING_SESSION:
             return DEFAULT_STATE;
 
         case Sign.Actions.Types.SELECT_SIGNATURE:

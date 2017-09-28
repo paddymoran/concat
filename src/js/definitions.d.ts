@@ -578,7 +578,9 @@ declare namespace Sign.Actions {
 
         START_SELF_SIGNING_SESSION = 'START_SELF_SIGNING_SESSION',
 
-        START_SIGNING_SESSION = 'START_SIGNING_SESSION'
+        START_SIGNING_SESSION = 'START_SIGNING_SESSION',
+
+        END_SIGNING_SESSION = 'END_SIGNING_SESSION'
 
     }
 
@@ -1009,6 +1011,10 @@ declare namespace Sign.Actions {
         documentSetId: string;
     }
 
+    interface EndSigningSessionPayload {
+
+    }
+
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
     interface ViewDocument extends ActionCreator<ViewDocumentPayload> {}
@@ -1115,6 +1121,7 @@ declare namespace Sign.Actions {
     interface StartSelfSigningSession extends ActionCreator<StartSelfSigningSessionPayload> {}
     interface StartSigningSession extends ActionCreator<StartSigningSessionPayload> {}
 
+    interface EndSigningSession extends ActionCreator<EndSigningSessionPayload> {}
 
 }
 

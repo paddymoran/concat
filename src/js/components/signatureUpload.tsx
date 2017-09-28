@@ -6,7 +6,7 @@ import * as ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
 import Slider  from 'rc-slider';
 import ReactRnd from 'react-rnd';
 import sizeMe from 'react-sizeme';
-
+import { debounce } from '../utils'
 
 const fileToImageData = (file: File) => {
     const canvas = document.createElement('canvas');
@@ -249,7 +249,7 @@ export default class SignatureUpload extends React.PureComponent<SignatureUpload
         this.rotateRight = this.rotateRight.bind(this);
         this.clearImage = this.clearImage.bind(this);
         this.setImage = this.setImage.bind(this);
-        this.onSliderChange = this.onSliderChange.bind(this);
+        this.onSliderChange = debounce(this.onSliderChange.bind(this), 300);
         this.state = {
             imageData: null,
             rotation: 0,

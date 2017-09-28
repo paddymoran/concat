@@ -141,7 +141,7 @@ const ConnectedRequestedSignatureDocumentSet = connect((state: Sign.State, ownPr
     documentSet: state.documentSets[ownProps.documentSetId],
     documents: state.documents
 }), {
-showEmailDocumentsModal, downloadAll: showDownloadAllModal
+showEmailDocumentsModal, downloadAll: showDownloadAllModal, sign: startSigningSession
 })(RequestedSignatureDocumentSet);
 
 
@@ -185,7 +185,7 @@ export const RequestedSignaturesPending = connect((state: Sign.State) => ({
     title: 'pending'
 }), {
     requestRequestedSignatures,
-    toggleShowComplete: toggleToSignShowComplete, sign: startSigningSession
+    toggleShowComplete: toggleToSignShowComplete
 })(RequestedSignatures);
 
 

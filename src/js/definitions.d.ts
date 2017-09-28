@@ -574,7 +574,11 @@ declare namespace Sign.Actions {
 
         UPDATE_USER_META = 'UPDATE_USER_META',
 
-        DEFINE_DOCUMENT_ORDER = 'DEFINE_DOCUMENT_ORDER'
+        DEFINE_DOCUMENT_ORDER = 'DEFINE_DOCUMENT_ORDER',
+
+        START_SELF_SIGNING_SESSION = 'START_SELF_SIGNING_SESSION',
+
+        START_SIGNING_SESSION = 'START_SIGNING_SESSION'
 
     }
 
@@ -995,6 +999,16 @@ declare namespace Sign.Actions {
         documentIds: string[];
     }
 
+    interface StartSelfSigningSessionPayload {
+        documentId: string;
+        documentSetId: string;
+    }
+
+    interface StartSigningSessionPayload {
+        documentId: string;
+        documentSetId: string;
+    }
+
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
     interface ViewDocument extends ActionCreator<ViewDocumentPayload> {}
@@ -1097,6 +1111,9 @@ declare namespace Sign.Actions {
 
     interface UpdateUserMetaData extends ActionCreator<UpdateUserMetaDataPayload> {}
     interface DefineDocumentOrder extends ActionCreator<DefineDocumentOrderPayload> {}
+
+    interface StartSelfSigningSession extends ActionCreator<StartSelfSigningSessionPayload> {}
+    interface StartSigningSession extends ActionCreator<StartSigningSessionPayload> {}
 
 
 }

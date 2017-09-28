@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import FileDropZone from './fileDropZone';
 import DocumentList from './documentList';
-import { addDocument, requestDocumentSet, defineRecipients, setInviteSignatories, defineDocumentOrder } from '../actions';
+import { addDocument, requestDocumentSet, defineRecipients, setInviteSignatories, defineDocumentOrder, startSelfSigningSession } from '../actions';
 import { generateUUID } from './uuid';
 import { push } from 'react-router-redux';
 import { InviteForm } from './selectRecipients';
@@ -186,7 +186,7 @@ export const UploadDocumentsFull = connect(
     {
         submit: () => submit(Sign.FormName.RECIPIENTS),
         defineRecipients: (documentSetId: string, recipients: Sign.Recipients) =>  defineRecipients({ documentSetId, recipients }),
-        nextPage: (documentSetId: string, documentId: string) => push(`/documents/${documentSetId}/${documentId}`),
+        nextPage: (documentSetId: string, documentId: string) => startSelfSigningSession({documentSetId, documentId}),
         defineDocumentOrder: (documentSetId: string, documentIds: string[]) => defineDocumentOrder({documentSetId, documentIds}),
         setInviteSignatories: (inviteSignatories: boolean) => setInviteSignatories({ inviteSignatories })
     }

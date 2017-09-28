@@ -12,6 +12,8 @@ const DEFAULT_STATE: Sign.DocumentViewer = {
 export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STATE, action: any): Sign.DocumentViewer {
     switch (action.type) {
         case Sign.Actions.Types.RESET_DOCUMENTS:
+        case Sign.Actions.Types.START_SIGNING_SESSION:
+        case Sign.Actions.Types.START_SELF_SIGNING_SESSION:
             return DEFAULT_STATE;
 
         case Sign.Actions.Types.SELECT_SIGNATURE:

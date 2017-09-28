@@ -204,9 +204,27 @@ export function* preloader() {
   }
 }
 
+function *startSelfSigningSessionSaga() {
+    yield takeEvery(Sign.Actions.Types.START_SELF_SIGNING_SESSION, startSigning);
+
+    function *startSigning(action: Sign.Actions.StartSelfSigningSession) {
+        yield put(push(`/documents/${action.payload.documentSetId}/${action.payload.documentId}`))
+    }
+}
+
+function *startSigningSessionSaga() {
+    yield takeEvery(Sign.Actions.Types.START_SIGNING_SESSION, startSigning);
+
+    function *startSigning(action: Sign.Actions.StartSigningSession) {
+        yield put(push(`/sign/${action.payload.documentSetId}/${action.payload.documentId}`))
+    }
+}
+
 export default [
     submitDocumentSet(),
     saveDocumentViewSaga(),
     preloader(),
     finishSigningSaga(),
+    startSelfSigningSessionSaga(),
+    startSigningSessionSaga(),
 ];

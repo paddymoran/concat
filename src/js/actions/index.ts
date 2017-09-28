@@ -568,3 +568,18 @@ export function defineDocumentOrder(payload: Sign.Actions.DefineDocumentOrderPay
         payload
     }
 }
+
+export function startSelfSigningSession(payload: Sign.Actions.StartSelfSigningSessionPayload) : Sign.Actions.StartSelfSigningSession{
+    return {
+        type: Sign.Actions.Types.START_SELF_SIGNING_SESSION,
+        payload
+    }
+}
+
+export function startSigningSession(payload: Sign.Actions.StartSigningSessionPayload) : Sign.Actions.StartSigningSession{
+    return {
+        type: Sign.Actions.Types.START_SIGNING_SESSION,
+        payload
+    }
+}
+

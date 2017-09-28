@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { requestRequestedSignatures,  showEmailDocumentsModal, toggleToSignShowComplete, showDownloadAllModal } from '../actions';
+import { requestRequestedSignatures,  showEmailDocumentsModal, toggleToSignShowComplete, showDownloadAllModal, startSigningSession } from '../actions';
 import * as moment from 'moment';
 import { stringToDateTime, fileSize } from '../utils';
 import { Link } from 'react-router';
@@ -51,6 +51,7 @@ interface RequestedSignatureDocumentSetProps {
 interface ConnectedRequestedSignatureDocumentSetProps extends RequestedSignatureDocumentSetProps {
     showEmailDocumentsModal: (payload: Sign.Actions.ShowEmailDocumentsModalPayload) => void;
     downloadAll: (payload: Sign.Actions.ShowDownloadAllModalPayload) => void;
+    sign: (payload: Sign.Actions.StartSigningSessionPayload) => void;
     documents: {
         [documentId: string]: Sign.Document
     },
@@ -104,7 +105,7 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                                         <a className="btn btn-default btn-sm" onClick={() => this.props.showEmailDocumentsModal({ documentIds: [documentId] })}>
                                             <i className="fa fa-send"/> Email
                                         </a>
-                                        { showLink && <Link className="btn btn-primary btn-sm" to={`/sign/${this.props.documentSetId}/${documentId}`}><i className="fa fa-pencil-square-o"/>Review & Sign</Link> }
+                                        { showLink && <a className="btn btn-primary btn-sm" onClick={() => this.props.sign({documentSetId: this.props.documentSetId, documentId})}><i className="fa fa-pencil-square-o"/>Review & Sign</a> }
 
                                   </td>
 
@@ -184,7 +185,7 @@ export const RequestedSignaturesPending = connect((state: Sign.State) => ({
     title: 'pending'
 }), {
     requestRequestedSignatures,
-    toggleShowComplete: toggleToSignShowComplete,
+    toggleShowComplete: toggleToSignShowComplete, sign: startSigningSession
 })(RequestedSignatures);
 
 

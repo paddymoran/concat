@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { requestDocumentSets, showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet, showDownloadAllModal } from '../actions';
+import { requestDocumentSets, showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet, showDownloadAllModal, startSelfSigningSession } from '../actions';
 import * as moment from 'moment';
 import { Link } from 'react-router';
 import { Nav, NavItem } from 'react-bootstrap';
@@ -42,6 +42,7 @@ interface DocumentSetListProps extends UnconnectedDocumentSetListProps {
     revokeSignInvitation: (payload: Sign.Actions.RevokeSignInvitationPayload) => void;
     deleteDocument: (payload: Sign.Actions.DeleteDocumentPayload) => void;
     deleteDocumentSet: (payload: Sign.Actions.DeleteDocumentSetPayload) => void;
+    sign: (payload: Sign.Actions.StartSelfSigningSessionPayload) => void;
 }
 
 class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProps> {
@@ -103,7 +104,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                             </a>
                                         }
                                         { this.props.documentSet.isOwner && !document.signatureRequestInfos && !statusComplete(document.signStatus) &&
-                                           <Link className="btn btn-primary btn-sm" to={`/documents/${this.props.documentSetId}/${documentId}`}><i className="fa fa-pencil-square-o"/>Sign</Link>
+                                           <a className="btn btn-primary btn-sm" onClick={() => this.props.sign({documentSetId: this.props.documentSetId, documentId})}><i className="fa fa-pencil-square-o"/>Sign</a>
                                         }
 
                                     </td>
@@ -186,7 +187,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
 const DocumentSetList = connect<{}, {}, UnconnectedDocumentSetListProps>(() => ({
         showNotFound: false
     }),
-    { emailDocuments: showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet, downloadAll: showDownloadAllModal }
+    { emailDocuments: showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet, downloadAll: showDownloadAllModal, sign: startSelfSigningSession }
 )(UnconnectedDocumentSetList);
 
 

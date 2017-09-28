@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 import zipfile
 from dateutil.parser import parse
 import json
-from utils import login_redirect, protected, nocache, fullcache, InvalidUsage
+from utils import login_redirect, protected, nocache, fullcache, InvalidUsage, catalex_protected
 import requests
 from werkzeug.exceptions import HTTPException
 
@@ -628,3 +628,10 @@ def email_documents():
         raise InvalidUsage('Send document failed', status_code=500, error=e)
 
 
+
+@api.route('/catalex/document', methods=['POST'])
+@catalex_protected
+@nocache
+def catalex_upload_document():
+    url = 'hello'
+    return jsonify({'url': url})

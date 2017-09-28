@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from flask import (
     Flask, request, redirect, send_file, jsonify, session, abort, url_for,
-    send_from_directory, Response, render_template, make_response, Blueprint
+    send_from_directory, Response, render_template, make_response, Blueprint, current_app
 )
 
 def protected(f):
@@ -11,6 +11,15 @@ def protected(f):
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
             return Response(json.dumps({'message': 'Unauthorized', 'type': 'LOGGED_OUT'}), 401)
+        return f(*args, **kwargs)
+    return decorated_function
+
+def catalex_protected(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        secret = current_app.config.get('UPLOAD_DOCUMENT_SECRET')
+        if not secret or secret != request.get_json(force=True).get('UPLOAD_DOCUMENT_SECRET'):
+            return Response(json.dumps({'message': 'Unauthorized', 'type': 'INVALID_SECRET'}), 401)
         return f(*args, **kwargs)
     return decorated_function
 

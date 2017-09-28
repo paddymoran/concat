@@ -190,7 +190,7 @@ $submit-control-hover-background: darken($submit-control-background, 8%);
         .pdf-preview-panel {
             background: #fff;
             margin: 8px 0;
-            overflow: auto;
+            overflow-y: scroll;
             height: calc(100vh - #{$header-height + $control-height + 8 + 8});
                 overflow-x: hidden;
                 position:relative;

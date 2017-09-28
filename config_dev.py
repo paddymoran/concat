@@ -26,6 +26,6 @@ MAX_SIGN_UNIT = 'month'
 MAX_PAIR_WISE_SIGNS = 15
 MAX_PAIR_WISE_UNIT = 'year'
 
-
+UPLOAD_DOCUMENT_SECRET = 'nobodyknows'
 
 #DEV_USER_ID = 1

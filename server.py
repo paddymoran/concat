@@ -142,6 +142,7 @@ def not_found(error):
         return Response(json.dumps(error.description), 404)
     return send_index()
 
+
 @login_redirect
 def send_index(path=None):
     return render_root()

@@ -358,7 +358,6 @@ def document_order(set_id):
 def get_document(doc_id):
     try:
         document = db.get_document(session['user_id'], doc_id)
-
         if not document:
             abort(404)
 
@@ -633,5 +632,7 @@ def email_documents():
 @catalex_protected
 @nocache
 def catalex_upload_document():
-    url = 'hello'
+    file = request.files.getlist('file[]')
+    if not file:
+        abort(400)
     return jsonify({'url': url})

@@ -23,6 +23,7 @@ interface PDFPageProps extends PDFPageConnectProps {
     requestDocumentPage: Function;
     documentExists: boolean;
     downloading: boolean;
+    failed: boolean;
 }
 
 
@@ -68,6 +69,9 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
             }
             noCanvas = true;
         }
+        if(this.props.failed){
+            return false;
+        }
         return <span className={this.props.className || ''} style={{height: '100%', display: 'block', width: '100%'}}>
             <div ref="loading" className="loading-container"><Loading /></div>
             {!noCanvas && <canvas style={{display: 'none'}} key={this._count++}  ref={(ref) => {
@@ -96,6 +100,7 @@ export default connect(
     (state: Sign.State, ownProps: PDFPageConnectProps) => ({
         page: state.pdfStore[ownProps.documentId] ? state.pdfStore[ownProps.documentId].pages[ownProps.pageNumber] : null,
         downloading: state.documents[ownProps.documentId] && (state.documents[ownProps.documentId].readStatus === Sign.DocumentReadStatus.NotStarted || state.documents[ownProps.documentId].readStatus === Sign.DocumentReadStatus.InProgress),
+        failed: state.documents[ownProps.documentId] && (state.documents[ownProps.documentId].readStatus === Sign.DocumentReadStatus.Failed),
         documentExists: !!state.documents[ownProps.documentId] && state.documents[ownProps.documentId].readStatus !== Sign.DocumentReadStatus.NotStarted
     }),
     {

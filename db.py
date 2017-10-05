@@ -327,10 +327,13 @@ def get_document(user_id, document_id):
     """
     database = get_db()
     query = """
-        SELECT document_id, d.document_set_id, hash, filename, data
+        SELECT d.document_id, d.document_set_id, d.hash, d.filename, dd.data
         FROM documents d
         JOIN document_data dd on d.document_data_id = dd.document_data_id
-        WHERE d.document_id = %(document_id)s
+        JOIN documents ddd on ddd.document_id = original_document_id(%(document_id)s)
+        JOIN document_sets ds on ddd.document_set_id = ds.document_set_id
+        LEFT OUTER JOIN sign_requests sr ON sr.document_id = ddd.document_id
+        WHERE d.document_id = %(document_id)s AND (ds.user_id = %(user_id)s OR sr.user_id = %(user_id)s)
     """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {

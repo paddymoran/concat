@@ -269,6 +269,12 @@ class Integration(DBTestCase):
         # Check both were uploaded
         self.assertEqual(self.doc_count(), 2)
 
+        response = self.app.get('/api/document%s' % (document_ids[0]))
+        self.assertEqual(response.status_code, 200)
+
+        self.login(INVITE_OTHERS_USER_1_ID)
+        response = self.app.get('/api/document/%s' % (document_ids[0]))
+        self.assertEqual(response.status_code, 404)
 
 
     def test_0003_sign_and_verify_document(self):

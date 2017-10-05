@@ -13,3 +13,6 @@ MAX_PAIR_WISE_SIGNS = 15
 MAX_PAIR_WISE_UNIT = 'year'
 
 SECRET_KEY = 'hi'
+
+
+UPLOAD_DOCUMENT_SECRET = 'testsecret'

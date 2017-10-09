@@ -334,8 +334,10 @@ class Integration(DBTestCase):
         }
 
         invitees = [
-            {'id': INVITE_OTHERS_USER_2_ID, 'name': 'INVITE_OTHERS_USER_2_ID', 'email': 'INVITE_OTHERS_USER_2_ID@email.com'},
-            {'id': INVITE_OTHERS_USER_3_ID, 'name': 'INVITE_OTHERS_USER_3_ID', 'email': 'INVITE_OTHERS_USER_3_ID@email.com'},
+            {'id': INVITE_OTHERS_USER_2_ID, 'name': 'INVITE_OTHERS_USER_2_ID', 'email': 'INVITE_OTHERS_USER_2_ID@email.com',
+            'requestedEmail': 'INVITE_OTHERS_USER_2_ID@email.com'},
+            {'id': INVITE_OTHERS_USER_3_ID, 'name': 'INVITE_OTHERS_USER_3_ID', 'email': 'INVITE_OTHERS_USER_3_ID@email.com',
+            'requestedEmail': 'INVITE_OTHERS_USER_3_ID@email.com'},
         ]
 
         with patch('api.invite_users', return_value=invitees):
@@ -575,8 +577,10 @@ class Integration(DBTestCase):
             }]
         }
         invitees = [
-            {'id': REVOKE_OTHER_1_ID, 'name': 'REVOKE_OTHER_1_ID', 'email': 'REVOKE_OTHER_1_ID@email.com'},
-            {'id': REVOKE_OTHER_2_ID, 'name': 'REVOKE_OTHER_2_ID', 'email': 'REVOKE_OTHER_2_ID@email.com'}
+            {'id': REVOKE_OTHER_1_ID, 'name': 'REVOKE_OTHER_1_ID', 'email': 'REVOKE_OTHER_1_ID@email.com',
+            'requestedEmail': 'REVOKE_OTHER_1_ID@email.com'},
+            {'id': REVOKE_OTHER_2_ID, 'name': 'REVOKE_OTHER_2_ID', 'email': 'REVOKE_OTHER_2_ID@email.com',
+            'requestedEmail': 'REVOKE_OTHER_2_ID@email.com' }
         ]
 
         with patch('api.invite_users', return_value=invitees):
@@ -625,8 +629,8 @@ class Integration(DBTestCase):
             }]
         }
         invitees = [
-            {'id': REJECTER_USER_1, 'name': 'REJECTER_USER_1', 'email': 'REJECTER_USER_1@email.com'},
-            {'id': REJECTER_USER_2, 'name': 'REJECTER_USER_2', 'email': 'REJECTER_USER_2@email.com'}
+            {'id': REJECTER_USER_1, 'name': 'REJECTER_USER_1', 'email': 'REJECTER_USER_1@email.com', 'requestedEmail': 'REJECTER_USER_1@email.com'},
+            {'id': REJECTER_USER_2, 'name': 'REJECTER_USER_2', 'email': 'REJECTER_USER_2@email.com', 'requestedEmail': 'REJECTER_USER_2@email.com'}
         ]
 
         with patch('api.invite_users', return_value=invitees):

@@ -26,7 +26,8 @@ const DATE_FORMATS = [
     'DD MMMM YYYY',
     'DD-MM-YY',
     'DD/MM/YY',
-    'YYYY/MM/DD'
+    'YYYY/MM/DD',
+    'DD/MM/YYYY',
 ]
 
 

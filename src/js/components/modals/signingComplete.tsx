@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { closeModal, finishSigning } from '../../actions';
-import { Modal, Button } from 'react-bootstrap';
+import {  Button } from 'react-bootstrap';
 import { DocumentsList, isSigning } from './signConfirmation';
 import { SignStatus } from '../requestedSignatures';
+import Modal from './modal';
+
 
 interface ConnectedSigningCompleteProps {
     documentSetId: string;

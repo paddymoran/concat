@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
+import Modal from './modal';
 import { closeModal, setActiveSignControl, saveDocumentView } from '../../actions';
 import { connect } from 'react-redux';
 import { connectControls, ControlProps, ConnectedControlProps } from '../controls';

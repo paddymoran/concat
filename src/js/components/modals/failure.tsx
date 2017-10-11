@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Button, Modal } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { closeModal } from '../../actions';
+import Modal from './modal';
 
 interface FailureProps {
     message: string;

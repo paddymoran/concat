@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Button, Modal, ButtonToolbar } from 'react-bootstrap';
+import { Button,  ButtonToolbar } from 'react-bootstrap';
+import Modal from './modal';
 import { connect } from 'react-redux';
 import { closeModal } from '../../actions';
 import {  stringToDateTime } from '../../utils'

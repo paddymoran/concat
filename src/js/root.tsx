@@ -12,6 +12,7 @@ interface RootProps {
     store: any
 }
 
+
 class Root extends React.PureComponent<RootProps> {
     render() {
         return (

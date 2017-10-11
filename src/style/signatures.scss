@@ -8,7 +8,7 @@
     .positionable-controls {
         position: absolute;
         right: 15px;
-        top: -25px;
+        top: -36px;
         font-size: 20px;
         line-height: 20px;
         @extend .btn-group;
@@ -16,19 +16,29 @@
         min-width: 66px;
 
         & > button {
+
            @extend .btn;
-           @extend .btn-default;
+
            @extend .btn-sm;
+           background-color:$gray;
+           color:white;
            font-size:16px;
            padding: 2px 8px;
            float:none;
+           font-weight:bold;
 
-            &:focus {
+            &:focus, &:active{
+                outline: none;
+                color:white;
+            }
+             &:active:focus {
                 outline: none;
             }
 
             &:hover {
+                color: $gray;
                 background: $gray-lighter;
+                border-color: $gray;
             }
         }
     }

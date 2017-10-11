@@ -1,12 +1,13 @@
 import  * as React from "react";
 import SignatureCanvas from 'react-signature-canvas';
-import { Alert, Button, Modal, Tab, Tabs } from 'react-bootstrap';
+import { Alert, Button, Tab, Tabs } from 'react-bootstrap';
 import SignatureUpload from './signatureUpload';
 import { uploadSignature, selectSignature, selectInitial, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures, closeModal, showInitialSelectionModal, setActiveSignControl } from '../actions/index';
 import { connect } from 'react-redux';
 import Loading from './loading';
 import { signatureUrl, signatureCanvasMinDimensions  } from '../utils';
 import sizeMe from 'react-sizeme';
+import Modal from './modals/modal';
 
 interface SignatureSelectorProps {
     uploading: boolean;

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Modal, ButtonToolbar, Button } from 'react-bootstrap';
+import {  ButtonToolbar, Button } from 'react-bootstrap';
+import Modal from './modal';
 import { closeModal, emailDocuments } from '../../actions';
 import { InviteForm } from '../selectRecipients';
 import { submit } from 'redux-form';

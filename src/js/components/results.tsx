@@ -1,7 +1,7 @@
 import  * as React from "react";
-import { Modal, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
-
+import Modal from './modals/modal';
 
 class Results extends React.PureComponent<any> {
     render() {

@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { reduxForm, Field, InjectedFormProps, formValueSelector, WrappedFieldProps } from 'redux-form';
-import { Modal, Button, Form, ControlLabel, FormGroup, FormControl } from 'react-bootstrap';
+import { Button, Form, ControlLabel, FormGroup, FormControl } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { closeModal, markDocumentAsComplete, submitDocumentSet, rejectDocument } from '../../actions';
 import { push } from 'react-router-redux';
 import { signDocumentRoute, getNextDocument } from '../../utils';
 import { SignStatus } from '../requestedSignatures';
 import { Checkbox } from 'react-bootstrap';
+import Modal from './modal';
 
 function prepareSubmitPayload(documentSetId: string, documentSet: Sign.DocumentSet, documentViewer: Sign.DocumentViewer): Sign.Actions.SubmitDocumentSetPayload {
     const prompts = Object.keys(documentViewer.prompts).reduce((acc: any, key: string) => {

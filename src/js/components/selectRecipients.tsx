@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Field, FieldArray,reduxForm, FormErrors, BaseFieldProps,  InjectedFormProps, WrappedFieldProps, change, touch } from 'redux-form'
+import { Field, FieldArray,reduxForm, FormErrors, InjectedFormProps, WrappedFieldProps, change, touch } from 'redux-form'
 import { ControlLabel, FormGroup, FormGroupProps, HelpBlock, Col, Row, Button, FormControl } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { defineRecipients, requestContacts } from '../actions';
 import { push } from 'react-router-redux';
 import { Combobox } from 'react-widgets';
 
-type FormProps = { } & InjectedFormProps
+type FormProps = { } & InjectedFormProps;
 
 type FieldProps = {
     type: string;

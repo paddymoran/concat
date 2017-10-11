@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import {  DragLayer } from 'react-dnd';
-import { Button, Modal } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { signatureUrl, imageRatio, stringToCanvas } from '../utils';
 import { connect } from 'react-redux';
 

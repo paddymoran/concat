@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import * as Promise from 'bluebird';
-import { Button, Modal } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import PDFPreview from './preview';
 import PDFPage from './page';
 import { connect } from 'react-redux';

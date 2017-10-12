@@ -226,3 +226,8 @@ export function massageDefaultPrompts(overlayDefaults : Sign.OverlayDefaults, do
     }
     return overlayDefaults;
 }
+
+
+export function getDisplayName(WrappedComponent: any) {
+     return WrappedComponent.displayName || WrappedComponent.name || 'Component';
+}

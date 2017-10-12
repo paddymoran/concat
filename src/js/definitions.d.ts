@@ -1301,3 +1301,9 @@ declare module 'sha.js' {
     namespace createHash {}
     export = createHash;
 }
+
+declare module 'document-offset' {
+    function offset(el: Element): {top: number; left: number};
+    namespace offset {}
+    export = offset;
+}

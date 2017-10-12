@@ -22,6 +22,7 @@
     "bluebird": "^3.1.1",
     "catalex_shared": "github:joshgagnon/catalex_shared",
     "clean-webpack-plugin": "^0.1.9",
+    "document-offset": "^1.0.4",
     "extract-text-webpack-plugin": "^2.1.0",
     "font-awesome": "^4.7.0",
     "history": "^4.6.3",

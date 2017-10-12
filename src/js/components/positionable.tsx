@@ -11,7 +11,7 @@ import {
     addSignatureToDocument, addDateToDocument, addTextToDocument, showInviteModal
  } from '../actions';
 import { connect } from 'react-redux';
-import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas, imageRatio, textDefaults, dateDefaults } from '../utils';
+import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas, imageRatio, textDefaults, dateDefaults, getDisplayName } from '../utils';
 import { generateUUID } from './uuid';
 import * as Calendar from 'react-widgets/lib/Calendar';
 import * as Popover from 'react-bootstrap/lib/Popover'
@@ -19,7 +19,7 @@ import * as OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
 import { Overlay } from 'react-bootstrap';
 import * as Moment from 'moment';
 import * as Promise from 'bluebird';
-
+import * as offset from 'document-offset';
 
 
 const DATE_FORMATS = [
@@ -59,6 +59,7 @@ interface ControlProps {
     containerWidth: number;
     documentSetId: string;
     documentId: string;
+    placement?: string;
 }
 
 interface DateControlProps extends ControlProps{
@@ -86,6 +87,48 @@ class SimpleControls extends React.PureComponent<ControlProps> {
         </div>
     }
 }
+
+
+
+function PositionOverlay<P>(WrappedComponent: React.ComponentClass<P> | React.SFC<P>) {
+    return class PositionOverlay extends React.PureComponent<any, {placement: string}> {
+        displayName = `PositionOverlay(${getDisplayName(WrappedComponent)})`;
+
+        constructor(props: P){
+            super(props);
+            this.state = {placement: 'top'}
+        }
+
+        checkPlacement() {
+            const PLACEMENT_BOTTOM_THRESHOLD = 350;
+            const el = findDOMNode(this);
+            if(el){
+                const { top, left } = offset(el);
+                if(top < PLACEMENT_BOTTOM_THRESHOLD){
+                    this.setState({placement: 'bottom'})
+                }
+                else{
+                    this.setState({placement: 'top'})
+                }
+            }
+        }
+
+        componentDidMount() {
+            this.checkPlacement();
+        }
+
+        componentDidUpdate() {
+            this.checkPlacement();
+        }
+
+        render() {
+            return <WrappedComponent {...this.props} placement={this.state.placement} />
+        }
+    }
+
+
+}
+
 
 
 class DateControls extends React.PureComponent<DateControlProps> {
@@ -130,9 +173,10 @@ class DateControls extends React.PureComponent<DateControlProps> {
         });
     }
 
+
     render(){
         return <div className="positionable-controls">
-             <OverlayTrigger  trigger="click" rootClose placement="top" overlay={
+             <OverlayTrigger  trigger="click" rootClose placement={this.props.placement} overlay={
                 <Popover id={`popover-for-${this.props.index}`} >
                      <div className="form-group" >
                     <Calendar value={new Date(this.props.date.timestamp)} onChange={this.onChangeDate}/>
@@ -156,7 +200,7 @@ const ConnectedDateControls = connect((state, ownProps: ControlProps) => ({
     date: state.documentViewer.dates[ownProps.index]  as Sign.DocumentDate,
 }), {
     updateDate: moveDate
-})(DateControls)
+})(PositionOverlay(DateControls))
 
 class TextControls extends React.PureComponent<TextControlProps, {show: boolean}> {
     constructor(props: TextControlProps){
@@ -203,7 +247,7 @@ class TextControls extends React.PureComponent<TextControlProps, {show: boolean}
 
         return <div className="positionable-controls">
                 <button className="button-no-style "   ref="target" onClick={this.show}><span className="fa fa-font"/></button>
-             <Overlay placement="top" {...sharedProps}>
+             <Overlay placement={this.props.placement} {...sharedProps}>
                     <Popover id={`popover-for-${this.props.index}`} >
                         <div className="form-group">
                             <textarea className="form-control" rows={2} value={this.props.text.value} onChange={this.onChangeValue}></textarea>
@@ -220,7 +264,7 @@ const ConnectedTextControls = connect((state, ownProps: ControlProps) => ({
     text: state.documentViewer.texts[ownProps.index]  as Sign.DocumentText,
 }), {
     updateText: moveText
-})(TextControls)
+})(PositionOverlay(TextControls))
 
 
 class PromptControls extends React.PureComponent<PromptControlProps, {show: boolean}> {
@@ -291,7 +335,7 @@ class PromptControls extends React.PureComponent<PromptControlProps, {show: bool
 
         return <div className="positionable-controls">
             <button className="button-no-style "  ref="target" onClick={this.show}><span className="fa fa-edit"/></button>
-             <Overlay placement="top" {...sharedProps}>
+             <Overlay  placement={this.props.placement} {...sharedProps}>
                     <Popover id={`popover-for-${this.props.index}`} className="prompt-controls">
                         <div className="text-center form-group">
                             <button className="btn btn-default" onClick={this.showInvite}><i className="fa fa-users"/> {hasRecipients ? 'Invite Others' : 'Invite Recipients'}</button>
@@ -329,7 +373,7 @@ const ConnectedPromptControls = connect((state, ownProps: ControlProps) => {
         }
     }, {
     updatePrompt: movePrompt, showInviteModal
-})(PromptControls)
+})(PositionOverlay(PromptControls))
 
 
 // Keep numbers between 0 and 1

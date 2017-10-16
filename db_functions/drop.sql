@@ -47,3 +47,4 @@ DROP SEQUENCE IF EXISTS public.sign_requests_id_seq;
 DROP TABLE IF EXISTS public.users;
 
 DROP TABLE IF EXISTS public.migrations;
+DROP TYPE IF EXISTS document_source;

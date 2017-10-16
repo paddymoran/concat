@@ -106,7 +106,7 @@ def find_or_create_and_validate_document_set(set_id, user_id):
             database.commit()
 
 
-def add_document(set_id, document_id, filename, binary_file_data):
+def add_document(set_id, document_id, filename, binary_file_data, source=None):
     """
     Add a document to the database. If no UUID is passed, one will be created
     by the database.
@@ -129,8 +129,8 @@ def add_document(set_id, document_id, filename, binary_file_data):
 
         # Create the document record, including the ID of the document data
         create_document_query = """
-            INSERT INTO documents (document_id, document_set_id, filename, document_data_id)
-            VALUES (%(document_id)s, %(set_id)s, %(filename)s, %(document_data_id)s)
+            INSERT INTO documents (document_id, document_set_id, filename, document_data_id, source)
+            VALUES (%(document_id)s, %(set_id)s, %(filename)s, %(document_data_id)s, %(source)s)
             RETURNING document_id
         """
 
@@ -138,7 +138,8 @@ def add_document(set_id, document_id, filename, binary_file_data):
             'document_id': document_id,
             'set_id': set_id,
             'filename': filename,
-            'document_data_id': data_id
+            'document_data_id': data_id,
+            'source': source
         })
         document_id = cursor.fetchone()[0]
 
@@ -444,7 +445,7 @@ def document_set_from_request_id(user_id, sign_request_id):
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         query = """
             SELECT ds.document_set_id  as document_set_id
-            FROM 
+            FROM
             sign_requests sr
             JOIN documents d on sr.document_id = d.document_id
             JOIN document_sets ds on ds.document_set_id = d.document_set_id
@@ -693,7 +694,7 @@ def get_user_meta(user_id):
         cursor.execute(query, { 'user_id': user_id })
         try:
             return cursor.fetchone().get('data')
-        except: 
+        except:
             return {}
         finally:
             database.commit()
@@ -709,7 +710,7 @@ def update_user_meta(user_id, meta):
                 (user_id, data)
             VALUES
                 (%(user_id)s, %(data)s)
-            
+
             ON CONFLICT (user_id)
                 DO UPDATE SET data = %(data)s;
         """
@@ -725,7 +726,7 @@ def update_user_meta(user_id, meta):
                 INSERT INTO user_meta (user_id, data)
                 VALUES (%(user_id)s, %(data)s)
             """
-            
+
             with database.cursor() as cursor:
                 cursor.execute(query, {
                     'user_id': user_id,
@@ -734,17 +735,17 @@ def update_user_meta(user_id, meta):
 
         except:
             database.rollback()
-            
+
             query = """
                 UPDATE user_meta SET data = %(data)s where user_id = %(user_id)s
             """
-            
+
             with database.cursor() as cursor:
                 cursor.execute(query, {
                     'user_id': user_id,
                     'data': meta
                 })
-    
+
     database.commit()
 
 
@@ -792,4 +793,4 @@ def add_merged_file(data, document_ids):
     """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, { 'data': psycopg2.Binary(data), 'document_ids': document_ids})
-        database.commit()                    
+        database.commit()

@@ -44,6 +44,16 @@ COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 SET search_path = public, pg_catalog;
 
 --
+-- Name: document_source; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE document_source AS ENUM (
+    'uploaded',
+    'gc'
+);
+
+
+--
 -- Name: signature_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -524,7 +534,8 @@ CREATE TABLE documents (
     created_at timestamp with time zone DEFAULT now(),
     order_index integer DEFAULT 0,
     deleted_at timestamp with time zone,
-    length integer
+    length integer,
+    source document_source DEFAULT 'uploaded'::document_source
 );
 
 

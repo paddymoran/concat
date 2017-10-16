@@ -373,7 +373,7 @@ const ConnectedPromptControls = connect((state, ownProps: ControlProps) => {
         }
     }, {
     updatePrompt: movePrompt, showInviteModal
-})(PositionOverlay(PromptControls))
+})(PositionOverlay(PromptControls));
 
 
 // Keep numbers between 0 and 1

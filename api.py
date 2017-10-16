@@ -18,7 +18,7 @@ import json
 from utils import login_redirect, protected, nocache, fullcache, InvalidUsage, catalex_protected
 import requests
 from werkzeug.exceptions import HTTPException
-
+from uuid import uuid4
 
 api = Blueprint('api', __name__)
 
@@ -28,7 +28,7 @@ ALLOWED_PDF_MIME_TYPES = [
     'applications/vnd.pdf', 'text/pdf', 'text/x-pd'
 ]
 
-def upload_document(files, set_id, document_id, user_id):
+def upload_document(files, set_id, document_id, user_id, source=None):
     document_info = []
 
     db.find_or_create_and_validate_document_set(set_id, user_id)
@@ -36,7 +36,7 @@ def upload_document(files, set_id, document_id, user_id):
         if (not file.content_type or
                 file.content_type in ALLOWED_PDF_MIME_TYPES):
             document_info.append(db.add_document(
-                set_id, document_id, file.filename, file.read(),
+                set_id, document_id, file.filename, file.read(), source
             ))
     return document_info
 
@@ -95,8 +95,6 @@ def thumb(file_id):
         output.close()
 
 
-
-
 def invite_users(users, link, sender):
     for user in users:
         user['link'] = link
@@ -111,6 +109,27 @@ def invite_users(users, link, sender):
         params=params
     )
     return response.json()
+
+
+def lookup_user(user_id):
+    params = {
+        'client_id': current_app.config.get('OAUTH_CLIENT_ID'),
+        'client_secret': current_app.config.get('OAUTH_CLIENT_SECRET'),
+    }
+    response = requests.get(
+        '%s/%s/%s' % (current_app.config.get('AUTH_SERVER'), '/api/user', user_id),
+        params=params
+    )
+    results = response.json()
+    results['user_id'] = results['id']
+    return results
+
+
+def lookup_user_and_upsert(user_id):
+    user = lookup_user(user_id)
+    db.upsert_user(user)
+    return user
+
 
 def join_and(names):
     n = len(names)
@@ -627,7 +646,6 @@ def email_documents():
         raise InvalidUsage('Send document failed', status_code=500, error=e)
 
 
-
 @api.route('/catalex/document', methods=['POST'])
 @catalex_protected
 @nocache
@@ -635,4 +653,14 @@ def catalex_upload_document():
     file = request.files.getlist('file[]')
     if not file:
         abort(400)
-    return jsonify({'url': url})
+    document_id = str(uuid4())
+    document_set_id = str(uuid4())
+    user_id = request.form.get('user_id')
+    if not user_id:
+        abort(400)
+    user_data = lookup_user_and_upsert(user_id)
+    upload_document(file, document_set_id, document_id, user_id, source='gc')
+
+    return jsonify({'document_id': document_id, 'document_set_id': document_set_id}), 201
+
+

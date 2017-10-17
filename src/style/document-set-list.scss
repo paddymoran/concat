@@ -42,17 +42,19 @@
 
         table{
              width:100%;
-                 table-layout: fixed;
+             table-layout: fixed;
             tr.condensed td{
-                padding: 2px 8px;
-                text-align:center;
-                    width: 100%;
+                padding: 8px;
+                line-height: 35px;
+            }
+            tr.pending-info.condensed td.file-controls{
+                width: auto;
             }
             td{
                 float:left;
                 padding: 8px;
-                    word-break: break-word;
-                    border-top: none;
+                word-break: break-word;
+                border-top: none;
 
             }
             td.file-controls{
@@ -88,11 +90,12 @@
     @media(min-width: $screen-md) {
          .document-set {
             table{
-            tr.condensed td{
-                text-align:left;
-                    width: auto;
-            }
-
+                tr.condensed td{
+                    width: 100%;
+                    padding: 2px 8px;
+                }
+                tr.pending-info.condensed td.file-controls{
+                    width: 100%;                }
                 td{
                     float:none;
                 }

@@ -179,8 +179,9 @@ class DateControls extends React.PureComponent<DateControlProps> {
              <OverlayTrigger  trigger="click" rootClose placement={this.props.placement} overlay={
                 <Popover id={`popover-for-${this.props.index}`} >
                      <div className="form-group" >
-                    <Calendar value={new Date(this.props.date.timestamp)} onChange={this.onChangeDate}/>
+                        <Calendar value={new Date(this.props.date.timestamp)} onChange={this.onChangeDate}/>
                     </div>
+                    <label>Date Format</label>
                     <select className="form-control" value={this.props.date.format} onChange={this.onChangeFormat}>
                         { DATE_FORMATS.map((d, i) => {
                             return <option key={i} value={d}>{ Moment(this.props.date.timestamp).format(d) }</option>

@@ -660,6 +660,7 @@ def catalex_upload_document():
         abort(400)
     user_data = lookup_user_and_upsert(user_id)
     upload_document(file, document_set_id, document_id, user_id, source='gc')
+    # todo, get info about who and what company,
 
     return jsonify({'document_id': document_id, 'document_set_id': document_set_id}), 201
 

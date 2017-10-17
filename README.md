@@ -52,6 +52,7 @@ sudo apt-get install -y git nodejs python-certbot-nginx libjpeg-dev npm python3-
 sudo pip3 install --upgrade pip
 sudo pip3 install virtualenv
 sudo npm install -g npm webpack
+sudo npm install -g yarn
 sudo adduser --disabled-password sign
 
 sudo touch /var/log/sign.log
@@ -72,7 +73,7 @@ sudo -u sign git clone https://github.com/joshgagnon/document-signer.git sign
 s
 sudo su sign
 cd sign
-npm install
+yarn install
 virtualenv -p /usr/bin/python3.5 .
 source bin/activate
 pip install uwsgi

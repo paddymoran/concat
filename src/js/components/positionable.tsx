@@ -11,7 +11,7 @@ import {
     addSignatureToDocument, addDateToDocument, addTextToDocument, showInviteModal
  } from '../actions';
 import { connect } from 'react-redux';
-import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas, imageRatio, textDefaults, dateDefaults, getDisplayName } from '../utils';
+import { signatureUrl, stringToCanvas, promptToCanvas, requestPromptToCanvas, imageRatio, textDefaults, dateDefaults, getDisplayName, stopPropagation } from '../utils';
 import { generateUUID } from './uuid';
 import * as Calendar from 'react-widgets/lib/Calendar';
 import * as Popover from 'react-bootstrap/lib/Popover'
@@ -89,7 +89,6 @@ class SimpleControls extends React.PureComponent<ControlProps> {
 }
 
 
-
 function PositionOverlay<P>(WrappedComponent: React.ComponentClass<P> | React.SFC<P>) {
     return class PositionOverlay extends React.PureComponent<any, {placement: string}> {
         displayName = `PositionOverlay(${getDisplayName(WrappedComponent)})`;
@@ -97,6 +96,7 @@ function PositionOverlay<P>(WrappedComponent: React.ComponentClass<P> | React.SF
         constructor(props: P){
             super(props);
             this.state = {placement: 'top'}
+
         }
 
         checkPlacement() {
@@ -120,6 +120,8 @@ function PositionOverlay<P>(WrappedComponent: React.ComponentClass<P> | React.SF
         componentDidUpdate() {
             this.checkPlacement();
         }
+
+
 
         render() {
             return <WrappedComponent {...this.props} placement={this.state.placement} />
@@ -246,7 +248,7 @@ class TextControls extends React.PureComponent<TextControlProps, {show: boolean}
 
 
 
-        return <div className="positionable-controls">
+        return <div className="positionable-controls" onMouseDown={stopPropagation}>
                 <button className="button-no-style "   ref="target" onClick={this.show}><span className="fa fa-font"/></button>
              <Overlay placement={this.props.placement} {...sharedProps}>
                     <Popover id={`popover-for-${this.props.index}`} >
@@ -334,7 +336,7 @@ class PromptControls extends React.PureComponent<PromptControlProps, {show: bool
 
         const hasRecipients = !!this.props.recipients.length;
 
-        return <div className="positionable-controls">
+        return <div className="positionable-controls"  onMouseDown={stopPropagation} >
             <button className="button-no-style "  ref="target" onClick={this.show}><span className="fa fa-edit"/></button>
              <Overlay  placement={this.props.placement} {...sharedProps}>
                     <Popover id={`popover-for-${this.props.index}`} className="prompt-controls">
@@ -494,6 +496,8 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
         this.props.removePositionableFromDocument({ [this.props.indexKey]: this.props.index })
     }
 
+
+
     render() {
 
         const { positionable, containerWidth, containerHeight, className } = this.props;
@@ -527,14 +531,12 @@ class Positionable extends React.PureComponent<ConnectedPositionableProps> {
             element={() => this.positionable}
             containerWidth={containerWidth}
             documentSetId={this.props.documentSetId}
-            documentId={this.props.documentId}/>
+            documentId={this.props.documentId} />
             <div id={`overlay-${this.props.index}`}/>
             </ReactRnd>
         );
     }
 }
-
-
 
 
 export const SignaturePositionable = connect<{}, {}, PositionableProps>(

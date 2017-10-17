@@ -231,3 +231,8 @@ export function massageDefaultPrompts(overlayDefaults : Sign.OverlayDefaults, do
 export function getDisplayName(WrappedComponent: any) {
      return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
+
+export function stopPropagation(e: any){
+    e.stopPropagation();
+    e.nativeEvent.stopImmediatePropagation();
+}

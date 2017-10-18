@@ -77,11 +77,12 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
             {!noCanvas && <canvas style={{display: 'none'}} key={this._count++}  ref={(ref) => {
                   if (!ref) return;
                     const canvas : HTMLCanvasElement = ref as HTMLCanvasElement;
-                    const context = canvas.getContext('2d', { alpha: false, });
-                    const scale = this.props.scale || 1;
+                    const context = canvas.getContext('2d', { alpha: false });
+                    const scale = (this.props.scale || 1) / (window.devicePixelRatio || 1);
                     const viewport = this.props.page.getViewport(this.props.drawWidth / this.props.page.getViewport(scale).width);
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
+                    canvas.style.width = `${this.props.drawWidth}px`;
                     this.props.page.render({ canvasContext: context, viewport })
                     .then(() => {
                         const element = (findDOMNode(this.refs.loading) as HTMLElement);

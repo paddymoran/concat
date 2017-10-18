@@ -461,7 +461,6 @@ def signatures_list():
 
 @api.route('/signatures/<id>', methods=['GET'])
 @protected
-@nocache
 def signature(id):
     try:
         signature = db.get_signature(id, session['user_id'])

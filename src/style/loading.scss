@@ -20,8 +20,14 @@
 .static-loading-container{
     min-height:100px;
 }
-.loading-container.finished .loading{
-    opacity: 0;
+
+.loading-container.finished {
+    pointer-events: none;
+
+    .loading{
+        opacity: 0;
+
+    }
 }
 
 @keyframes spinner {

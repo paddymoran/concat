@@ -20,6 +20,7 @@ interface SignatureSelectorProps {
     uploadSignature: (data: string) => void;
     deleteSignature: (signatureId: number) => void;
     addSignatureToDocument: (payload: Sign.Actions.AddSignatureToDocumentPayload) => void;
+    setActiveSignControl: () => void;
     requestSignatures: () => void;
 }
 
@@ -111,7 +112,7 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
             const signature = this.signatureCanvas.toDataUrl();
             this.props.uploadSignature(signature);
         }
-
+        this.props.setActiveSignControl();
         this.props.closeModal();
     }
 
@@ -275,6 +276,7 @@ export const SignatureModal = connect(
         deleteSignature,
         addSignatureToDocument,
         requestSignatures,
+        setActiveSignControl: () => setActiveSignControl({ activeSignControl: Sign.SignControl.SIGNATURE}),
         closeModal: () => closeModal({ modalName: 'selectSignature' })
     }
 )(SignatureSelector);
@@ -293,6 +295,7 @@ export const InitialsModal = connect(
         deleteSignature,
         addSignatureToDocument,
         requestSignatures,
+        setActiveSignControl: () => setActiveSignControl({ activeSignControl: Sign.SignControl.INITIAL }),
         closeModal: () => closeModal({ modalName: 'selectInitial' })
     }
 )(SignatureSelector);

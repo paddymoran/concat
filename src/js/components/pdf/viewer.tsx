@@ -290,7 +290,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
 
                                 const filteredRequestPrompts = requestPrompts && requestPrompts.filter((r : Sign.DocumentPrompt) => r.pageNumber === index);
                                 return (
-                                        <div className="page-separator" key={index}>
+                                        <div className="page-separator" key={index} >
                                     <DimensionedDropTargetSignaturesPageWrapper
                                         pageNumber={index}
                                         documentId={this.props.documentId}
@@ -392,7 +392,6 @@ class UnconnectedOverlayPageWrapper extends React.PureComponent<OverlayPageWrapp
     }
 
     addSelected(e: React.MouseEvent<HTMLElement>) {
-
         if (this.props.activeSignControl === Sign.SignControl.NONE) {
             return;
         }

@@ -533,6 +533,7 @@ def sign_document():
     except HTTPException as e:
         raise e
     except Exception as e:
+        print(e)
         raise InvalidUsage('Failed', status_code=401, error=e)
 
 

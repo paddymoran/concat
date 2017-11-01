@@ -1,9 +1,19 @@
 from pdfrw import PdfReader, PdfWriter, PageMerge, IndirectPdfDict
+from pdfrw.findobjs import find_objects
 from reportlab.pdfgen import canvas
 from io import BytesIO
 from reportlab.lib.utils import ImageReader
 from collections import defaultdict
 from PIL import Image
+from subprocess import Popen, STDOUT
+import uuid
+import tempfile
+import os
+try:
+    from subprocess import DEVNULL  # py3k
+except ImportError:
+    import os
+    DEVNULL = open(os.devnull, 'wb')
 
 # Get all the filenames
 
@@ -18,9 +28,33 @@ def concat(input_files):
     return out
 
 
-def sign(input_file, signatures, overlays):
 
+def remove_password(input_file):
+    with tempfile.TemporaryDirectory() as directory:
+        input_name = os.path.join(directory, 'input.pdf')
+        output_name = os.path.join(directory, 'output.pdf')
+        with open(input_name, 'wb') as in_pdf:
+            in_pdf.write(input_file.read())
+        args = ['gs', '-q', '-dNOPAUSE', '-dBATCH', '-sDEVICE=pdfwrite', '-sOutputFile=%s' % output_name, '-c .setpdfwrite', '-f', input_name]
+        Popen(args,
+            stdout=DEVNULL,
+            stderr=STDOUT).wait()
+        with open(output_name, 'rb') as out_pdf:
+            return PdfReader(out_pdf)
+
+
+def is_encrypted(pdf):
+    # has owner password
+    return pdf.Encrypt is not None and bool(pdf.Encrypt.get('/O'))
+
+
+def sign(input_file, signatures, overlays):
+   #input_file = clone_pdf(input_file)
     pdf = PdfReader(input_file)
+    if is_encrypted(pdf):
+        input_file.seek(0)
+        pdf = remove_password(input_file)
+
     input_file = None
     # group by page
     page_map = defaultdict(list)

@@ -50,7 +50,11 @@ def is_encrypted(pdf):
 
 def sign(input_file, signatures, overlays):
    #input_file = clone_pdf(input_file)
-    pdf = PdfReader(input_file)
+    try:
+        pdf = PdfReader(input_file)
+    except:
+        input_file.seek(0)
+        pdf = remove_password(input_file)
     if is_encrypted(pdf):
         input_file.seek(0)
         pdf = remove_password(input_file)

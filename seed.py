@@ -34,11 +34,10 @@ def populate_migration(db):
 
 
 def run(args):
-    if not len(sys.argv) > 1:
-        raise Exception('Missing configuration file')
-    config = importlib.import_module(sys.argv[1].replace('.py', ''))
+    config = importlib.import_module(args.get('config').replace('.py', ''))
     db = connect_db(config)
-    if not args.get('migrations-only'):
+
+    if not args.get('migrations_only'):
         seed(db)
     populate_migration(db)
 
@@ -48,6 +47,7 @@ def run(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Seed the db')
-    parser.add_argument('--migrations-only', help='only add migration entries')
+    parser.add_argument('config', help='config file')
+    parser.add_argument('--migrations-only', help='only add migration entries', action='store_true')
     args = vars(parser.parse_args())
     run(args)

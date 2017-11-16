@@ -1,1 +1,1 @@
-DROP FUNCTION delete_document(integer,uuid);
+DROP FUNCTION IF EXISTS delete_document(integer,uuid);

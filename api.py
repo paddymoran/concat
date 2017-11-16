@@ -28,7 +28,7 @@ ALLOWED_PDF_MIME_TYPES = [
     'applications/vnd.pdf', 'text/pdf', 'text/x-pd'
 ]
 
-def upload_document(files, set_id, document_id, user_id, source=None):
+def upload_document(files, set_id, document_id, user_id, source='uploaded'):
     document_info = []
 
     db.find_or_create_and_validate_document_set(set_id, user_id)
@@ -646,7 +646,7 @@ def email_documents():
         raise InvalidUsage('Send document failed', status_code=500, error=e)
 
 
-@api.route('/catalex/document', methods=['POST'])
+@api.route('/catalex/document', methods=['POST'], endpoint="external")
 @catalex_protected
 @nocache
 def catalex_upload_document():
@@ -661,7 +661,7 @@ def catalex_upload_document():
     user_data = lookup_user_and_upsert(user_id)
     upload_document(file, document_set_id, document_id, user_id, source='gc')
     # todo, get info about who and what company,
-
+    db.add_document_meta(document_id, json.dumps(request.form.get('meta', '{}')))
     return jsonify({'document_id': document_id, 'document_set_id': document_set_id}), 201
 
 

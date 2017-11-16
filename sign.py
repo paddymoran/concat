@@ -17,6 +17,7 @@ except ImportError:
 
 # Get all the filenames
 
+SCALE_FACTOR = 1
 
 def concat(input_files):
     out = BytesIO()
@@ -64,7 +65,7 @@ def sign(input_file, signatures, overlays):
     page_map = defaultdict(list)
     for signature in signatures:
         image = Image.open(signature['imgData'])
-        signature['image'] = image.resize((image.size[0] * 4, image.size[1] * 4), Image.BICUBIC)
+        signature['image'] = image.resize((image.size[0] * 4, image.size[1] * SCALE_FACTOR), Image.BICUBIC)
         page_map[signature['pageNumber']].append(signature)
 
     for overlay in overlays:

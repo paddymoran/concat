@@ -106,7 +106,7 @@ def find_or_create_and_validate_document_set(set_id, user_id):
             database.commit()
 
 
-def add_document(set_id, document_id, filename, binary_file_data, source=None):
+def add_document(set_id, document_id, filename, binary_file_data, source='uploaded'):
     """
     Add a document to the database. If no UUID is passed, one will be created
     by the database.
@@ -151,6 +151,17 @@ def add_document(set_id, document_id, filename, binary_file_data, source=None):
             'filename': filename
         }
 
+def add_document_meta(document_id, meta):
+    database = get_db()
+
+    with database.cursor() as cursor:
+        cursor.execute("""
+                       INSERT INTO document_meta (document_id, field_data) VALUES (%(document_id)s, %(field_data)s)
+                       """, {
+            'document_id': document_id,
+            'field_data': psycopg2.extras.Json(meta)
+        })
+        database.commit()
 
 def remove_document_from_set(user_id, document_id):
     database = get_db()

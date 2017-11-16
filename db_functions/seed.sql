@@ -166,11 +166,17 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
             sum(size) as size,
             ds.user_id = $1 as is_owner
         FROM (
-            SELECT d.document_id, filename, format_iso_date(created_at), versions, dv.field_data, document_status(start_id) as sign_status, d.length as size,
+            SELECT d.document_id, filename, format_iso_date(created_at), versions, dv.field_data, document_status(start_id) as sign_status,
+                d.length as size,
+                    q.source as source,
                 request_info(start_id) as request_info
             FROM (
                 SELECT
-                DISTINCT last_value(d.document_id) over wnd AS document_id, array_agg(d.document_id) OVER wnd as versions, first_value(d.document_id) over wnd as start_id, first_value(dd.order_index) OVER wnd as order_index
+                DISTINCT last_value(d.document_id) over wnd AS document_id,
+                array_agg(d.document_id) OVER wnd as versions,
+                first_value(d.document_id) over wnd as start_id,
+                first_value(dd.order_index) OVER wnd as order_index,
+                first_value(dd.source) OVER wnd as source
                 FROM docs d
                 JOIN documents dd on d.document_id = dd.document_id
                 WHERE d.document_set_id = $2 and dd.deleted_at IS NULL
@@ -498,6 +504,29 @@ CREATE TABLE document_data (
 
 
 --
+-- Name: document_meta_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE document_meta_id_seq
+    START WITH 17
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: document_meta; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE document_meta (
+    document_meta_id integer DEFAULT nextval('document_meta_id_seq'::regclass) NOT NULL,
+    document_id uuid,
+    field_data jsonb
+);
+
+
+--
 -- Name: document_sets; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -703,6 +732,14 @@ ALTER TABLE ONLY document_data
 
 
 --
+-- Name: document_meta_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY document_meta
+    ADD CONSTRAINT document_meta_pkey PRIMARY KEY (document_meta_id);
+
+
+--
 -- Name: document_sets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -795,6 +832,14 @@ ALTER TABLE ONLY access_tokens
 
 ALTER TABLE ONLY access_tokens
     ADD CONSTRAINT access_tokens_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
+
+
+--
+-- Name: document_meta_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY document_meta
+    ADD CONSTRAINT document_meta_document_id_fk FOREIGN KEY (document_id) REFERENCES documents(document_id);
 
 
 --

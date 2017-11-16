@@ -319,6 +319,7 @@ AS $$
         WHERE
         ds.user_id = $1
         AND d.created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
+        AND d.source = 'uploaded'
     ),
     total_signed as (
         SELECT
@@ -329,7 +330,7 @@ AS $$
         sr.sign_request_id IS NULL
         AND user_id = $1
         AND d.created_at > (now() - ( '1 ' || (SELECT unit FROM usage_allowance) )::INTERVAL)
-
+        AND d.source = 'uploaded'
 
     ),
     total_requested as (

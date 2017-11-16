@@ -35,6 +35,7 @@ DROP TABLE IF EXISTS public.sign_requests;
 DROP TABLE IF EXISTS  public.access_tokens;
 
 DROP TABLE IF EXISTS public.document_set_mapper;
+DROP TABLE IF EXISTS public.document_meta;
 
 DROP TABLE IF EXISTS public.documents;
 
@@ -43,6 +44,7 @@ DROP TABLE IF EXISTS public.document_data;
 DROP SEQUENCE IF EXISTS public.signatures_id_seq;
 DROP SEQUENCE IF EXISTS public.sign_results_id_seq;
 DROP SEQUENCE IF EXISTS public.sign_requests_id_seq;
+DROP SEQUENCE IF EXISTS public.document_meta_id_seq;
 
 DROP TABLE IF EXISTS public.users;
 

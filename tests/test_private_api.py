@@ -49,7 +49,6 @@ class TestPrivateAPI(DBTestCase):
                     'subscribed': True
                     }):
 
-
             response = self.app.post('/api/catalex/document', data=data,
                                      content_type='multipart/form-data')
         self.assertEqual(response.status_code, 201)

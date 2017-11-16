@@ -166,7 +166,7 @@ def generate_csrf_token():
 
 @app.before_request
 def csrf_protect():
-    if request.method != "GET" and not app.testing:
+    if request.method != "GET" and not app.testing and not request.endpoint != 'external':
         token = session.get('_csrf_token', None)
         data = request.get_json() or request.form
         if not token or token != data.get('_csrf_token'):

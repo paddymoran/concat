@@ -3,6 +3,7 @@ import importlib
 import sys
 import psycopg2
 import os
+import argparse
 
 
 def seed(db):
@@ -32,12 +33,13 @@ def populate_migration(db):
 
 
 
-def run():
+def run(args):
     if not len(sys.argv) > 1:
         raise Exception('Missing configuration file')
     config = importlib.import_module(sys.argv[1].replace('.py', ''))
     db = connect_db(config)
-    seed(db)
+    if not args.get('migrations-only'):
+        seed(db)
     populate_migration(db)
 
     db.commit()
@@ -45,4 +47,7 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    parser = argparse.ArgumentParser(description='Seed the db')
+    parser.add_argument('--migrations-only', help='only add migration entries')
+    args = vars(parser.parse_args())
+    run(args)

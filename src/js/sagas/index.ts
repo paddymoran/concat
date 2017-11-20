@@ -543,6 +543,7 @@ function *uploadDocumentSaga() {
                     documentId: action.payload.documentId,
                     uploadStatus: Sign.DocumentUploadStatus.Complete
                 }));
+                yield put(updateDocumentSet(formatDocumentSet(state.data)));
             }
         }
     }
@@ -564,6 +565,7 @@ function *uploadDocumentSaga() {
             // Upload the document
             const response = axios.post('/api/documents', data, { onUploadProgress })
                 .then((response) => {
+                    emitter({data: response.data})
                     return emitter(END);
                 })
                 .catch((e) => {

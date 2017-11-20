@@ -325,7 +325,9 @@ def document_upload():
         set_id = request.form.get('document_set_id')
         document_id = request.form.get('document_id')
         user_id = session['user_id']
-        return jsonify(upload_document(file, set_id, document_id, user_id))
+        upload_document(file, set_id, document_id, user_id)
+        documents = db.get_document_set(session['user_id'], set_id)
+        return jsonify(documents)
     except HTTPException as e:
         raise e
     except Exception as e:

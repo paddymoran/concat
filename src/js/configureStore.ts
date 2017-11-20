@@ -22,7 +22,6 @@ const sagaMiddleware = createSagaMiddleware();
     ) : applyMiddleware(
         sagaMiddleware,
         <any>thunk.default,
-        loggerMiddleware,
         routerMiddleware(history)
     )
 

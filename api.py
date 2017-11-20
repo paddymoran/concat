@@ -684,6 +684,7 @@ def catalex_upload_document():
     upload_document(file, document_set_id, document_id, user_id, source='gc')
     # todo, get info about who and what company,
     db.add_document_set_meta(document_set_id, json.loads(request.form.get('meta', '{}')))
+    print({'document_id': document_id, 'document_set_id': document_set_id})
     return jsonify({'document_id': document_id, 'document_set_id': document_set_id}), 201
 
 

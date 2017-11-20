@@ -527,7 +527,7 @@ function *uploadDocumentSaga() {
             while (true) {
                 state = yield take(channel);
 
-                yield put(updateDocument({ documentId: action.payload.documentId, ...{...state, data: null} }));
+                yield put(updateDocument({ documentId: action.payload.documentId, ...state }));
             }
         } finally {
             // Set the document upload status to complete
@@ -544,7 +544,6 @@ function *uploadDocumentSaga() {
                     documentId: action.payload.documentId,
                     uploadStatus: Sign.DocumentUploadStatus.Complete
                 }));
-                yield put(updateDocumentSet(formatDocumentSet(state.data)));
             }
         }
     }

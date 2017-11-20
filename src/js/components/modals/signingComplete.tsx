@@ -15,6 +15,7 @@ interface ConnectedSigningCompleteProps {
     documents: Sign.Document[];
     closeModal: () => void;
     finishSigning: (payload: Sign.Actions.FinishSigningPayload) => void;
+    exportTarget?: Sign.ExportTarget
 }
 
 const strings = {
@@ -80,8 +81,10 @@ class ConnectedSigningComplete extends React.PureComponent<ConnectedSigningCompl
                             )}
                         </div>
                     }
-
+                    <div className="btn-row">
                     <Button bsStyle='primary' bsSize="lg" onClick={() => this.props.finishSigning({ documentSetId: this.props.documentSetId })}>View Documents</Button>
+                    {this.props.exportTarget && <a href={this.props.exportTarget.url} className="btn btn-lg btn-primary">View at {this.props.exportTarget.name}</a> }
+                    </div>
                 </Modal.Body>
             </Modal>
         );
@@ -90,7 +93,7 @@ class ConnectedSigningComplete extends React.PureComponent<ConnectedSigningCompl
 
 export default connect<{}, {}, {}>(
     (state: Sign.State) => {
-        const { documentSetId } = state.modals;
+        const { documentSetId, exportTarget } = state.modals;
 
         const documentSet = state.documentSets[documentSetId];
         const recipients = documentSet ? documentSet.recipients : null;
@@ -113,7 +116,7 @@ export default connect<{}, {}, {}>(
             }
         });
 
-        return { recipients, documentSetId, documents, userIsSigning, userIsRejecting };
+        return { recipients, documentSetId, documents, userIsSigning, userIsRejecting, exportTarget};
     },
     {
         finishSigning,

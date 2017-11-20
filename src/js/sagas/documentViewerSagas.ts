@@ -56,7 +56,7 @@ function *signDocument(action: Sign.Actions.SignDocument) {
         const response = yield call(axios.post, '/api/sign', postPayload);
 
         yield put(setSignRequestStatus(Sign.DownloadStatus.Complete));
-        return true;
+        return response;
     }
     catch (e) {
         yield put(setSignRequestStatus(Sign.DownloadStatus.Failed));
@@ -80,10 +80,14 @@ function *submitDocumentSet() {
         const documentViewer = yield select((state: Sign.State) => state.documentViewer);
         const documentSets = yield select((state: Sign.State) => state.documentSets);
         const documentIds = documentSets[action.payload.documentSetId].documentIds;
+        let exportTarget;
         try {
             for (let documentId of documentIds) {
                 if (hasSomethingToSign(documentViewer, documentId)) {
-                    yield signDocument({type: Sign.Actions.Types.SIGN_DOCUMENT, payload: {documentSetId: action.payload.documentSetId, documentId}} as Sign.Actions.SignDocument);
+                    const response = yield signDocument({type: Sign.Actions.Types.SIGN_DOCUMENT, payload: {documentSetId: action.payload.documentSetId, documentId}} as Sign.Actions.SignDocument);
+                    if(response.data && response.data.export_target){
+                        exportTarget = response.data.export_target;
+                    }
                 }
             }
             const status = yield select((state: Sign.State) => state.documentViewer.signRequestStatus);
@@ -119,7 +123,7 @@ function *submitDocumentSet() {
                 put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
                 put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
             ]);
-            yield put(showSigningCompleteModal({ documentSetId: action.payload.documentSetId }));
+            yield put(showSigningCompleteModal({ documentSetId: action.payload.documentSetId, exportTarget }));
         }
         catch (e) {
             yield all([

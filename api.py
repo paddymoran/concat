@@ -233,12 +233,16 @@ def send_completion_target(document_set_id):
                 files.append(
                     ('file', (document['filename'], BytesIO(document['data']), 'application/pdf'))
                 )
-            print(meta.get('callbackUrl'))
             response = requests.post(meta.get('callbackUrl'), files=files)
-            return response.json().get('url')
+            return {'export_target': {
+                'url': response.json().get('url'),
+                'name': 'Good Companies'
+                }
+            }
+        return {}
     except Exception as e:
         print(e)
-        pass
+        return {}
 
 
 def should_send_reject_email(user_id, document_set_id):
@@ -543,15 +547,22 @@ def sign_document():
             db.sign_document(session['user_id'], document_id, saved_document_id, sign_request_id, saveable)
         else:
             db.reject_document(session['user_id'], document_id, sign_request_id, {'rejectedMessage': args.get('rejectedMessage')})
+
+        is_complete = is_set_complete(args['documentSetId'])
+
         if sign_request_id:
-            is_complete = is_set_complete(args['documentSetId'])
             if is_complete:
                 send_completion_email(args['documentSetId'])
             elif should_send_reject_email(session['user_id'], args['documentSetId']):
                 send_rejection_email(session['user_id'], args['documentSetId'], args.get('rejectedMessage'))
 
-        send_completion_target(args['documentSetId'])
-        return jsonify({'message': 'done'})
+        if is_complete:
+            completion_results = send_completion_target(args['documentSetId'])
+        else:
+            completion_results = {}
+        message = {'message': 'done'}
+        completion_results.update(message)
+        return jsonify(completion_results)
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -684,7 +695,6 @@ def catalex_upload_document():
     upload_document(file, document_set_id, document_id, user_id, source='gc')
     # todo, get info about who and what company,
     db.add_document_set_meta(document_set_id, json.loads(request.form.get('meta', '{}')))
-    print({'document_id': document_id, 'document_set_id': document_set_id})
     return jsonify({'document_id': document_id, 'document_set_id': document_set_id}), 201
 
 

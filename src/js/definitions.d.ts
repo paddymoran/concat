@@ -431,6 +431,10 @@ declare namespace Sign {
         message?: string;
     }
 
+    interface ExportTarget {
+        url: string;
+        name: string;
+    }
 }
 
 
@@ -856,8 +860,10 @@ declare namespace Sign.Actions {
         documentSetId: string;
     }
 
+
     interface ShowSigningCompleteModalPayload {
         documentSetId: string;
+        exportTarget?: Sign.ExportTarget
     }
     interface ShowSessionEndedModalPayload {
 

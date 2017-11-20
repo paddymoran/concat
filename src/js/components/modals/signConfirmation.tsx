@@ -631,7 +631,7 @@ export default connect<{}, {}, SignConfirmationProps>(
         });
 
         const isUploading = !!stillUploading.length;
-        const uploadProgress = isUploading ? 1 :stillUploading.reduce((sum, documentId) => {
+        const uploadProgress = !isUploading ? 1 :stillUploading.reduce((sum, documentId) => {
             return sum + state.documents[documentId].progress;
         }, 0) / stillUploading.length;
         return {

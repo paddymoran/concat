@@ -314,6 +314,7 @@ def get_document_set_list():
     return jsonify(db.get_user_document_sets(session['user_id']))
 
 
+
 @api.route('/documents', methods=['POST'])
 @protected
 @nocache

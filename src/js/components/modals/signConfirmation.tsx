@@ -8,6 +8,8 @@ import { signDocumentRoute, getNextDocument } from '../../utils';
 import { SignStatus } from '../requestedSignatures';
 import { Checkbox } from 'react-bootstrap';
 import Modal from './modal';
+import { CSSTransitionGroup } from 'react-transition-group';
+
 
 function prepareSubmitPayload(documentSetId: string, documentSet: Sign.DocumentSet, documentViewer: Sign.DocumentViewer): Sign.Actions.SubmitDocumentSetPayload {
     const prompts = Object.keys(documentViewer.prompts).reduce((acc: any, key: string) => {
@@ -67,6 +69,8 @@ interface InjectedSignConfirmationProps {
     documents: DocumentWithStatus[];
     submitPayload: Sign.Actions.SubmitDocumentSetPayload;
     isSigning: boolean;
+    isUploading: boolean;
+    uploadProgress: number;
 }
 
 type UnconnectedSignConfirmationProps = SignConfirmationProps & InjectedSignConfirmationProps;
@@ -500,6 +504,21 @@ const RejectAndSubmit = connect<{}, {}, RejectAndSubmitProps>(
     { rejectDocument, submitDocumentSet }
 )(UnconnectedRejectAndSubmit);
 
+
+class Uploading extends React.PureComponent<{uploadProgress: number}> {
+    render() {
+        return <div>
+            <p>Please wait while your documents finish uploading.</p>
+            <CSSTransitionGroup transitionName="progress" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+            <div className="progress" key="progress">
+                <div className="progress-bar progress-bar-striped active" style={{width: `${this.props.uploadProgress*100}%`}}></div>
+            </div>
+            </CSSTransitionGroup>
+        </div>
+    }
+}
+
+
 class SignConfirmation extends React.PureComponent<UnconnectedSignConfirmationProps> {
     constructor(props: UnconnectedSignConfirmationProps) {
         super(props);
@@ -541,6 +560,11 @@ class SignConfirmation extends React.PureComponent<UnconnectedSignConfirmationPr
                             markDocumentAsComplete={this.props.markDocumentAsComplete}
                             goToDocument={this.goToDocument} />
             }
+            else if (this.props.isUploading) {
+                title = 'Uploading Documents';
+                body = <Uploading uploadProgress={this.props.uploadProgress} />
+            }
+
             else {
                 title = 'Sign & Submit All';
                 body = <SignAndSubmit
@@ -602,12 +626,22 @@ export default connect<{}, {}, SignConfirmationProps>(
             signStatus: (state.documentViewer.documents[documentId] || { signStatus: Sign.SignStatus.PENDING }).signStatus
         }));
 
+        const stillUploading = documentIds.filter(documentId => {
+            return state.documents[documentId].uploadStatus === Sign.DocumentUploadStatus.InProgress
+        });
+
+        const isUploading = !!stillUploading.length;
+        const uploadProgress = isUploading ? 1 :stillUploading.reduce((sum, documentId) => {
+            return sum + state.documents[documentId].progress;
+        }, 0) / stillUploading.length;
         return {
             documentId, documentSetId, documents, recipients, nextDocumentId,
             signRequestStatus: state.documentViewer.signRequestStatus,
             isDocumentOwner: state.modals.isDocumentOwner,
             isSigning: isSigning(state.documentViewer, documentIds),
-            submitPayload: prepareSubmitPayload(documentSetId, state.documentSets[documentSetId], state.documentViewer)
+            submitPayload: prepareSubmitPayload(documentSetId, state.documentSets[documentSetId], state.documentViewer),
+            isUploading,
+            uploadProgress,
         }
     },
     { submitDocumentSet, push, closeModal: () => closeModal({modalName: Sign.ModalType.SIGN_CONFIRMATION}), markDocumentAsComplete },

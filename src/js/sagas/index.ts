@@ -290,7 +290,7 @@ function *requestDocumentSetSaga() {
         else {
             yield put(updateDocumentSet({
                 isOwner: true,
-                documents: [],
+                //documents: [],
                 downloadStatus: Sign.DownloadStatus.Complete,
                 documentSetId: action.payload.documentSetId
             }));
@@ -526,7 +526,8 @@ function *uploadDocumentSaga() {
         try {
             while (true) {
                 state = yield take(channel);
-                yield put(updateDocument({ documentId: action.payload.documentId, ...state }));
+
+                yield put(updateDocument({ documentId: action.payload.documentId, ...{...state, data: null} }));
             }
         } finally {
             // Set the document upload status to complete

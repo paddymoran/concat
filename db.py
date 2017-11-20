@@ -151,17 +151,33 @@ def add_document(set_id, document_id, filename, binary_file_data, source='upload
             'filename': filename
         }
 
-def add_document_meta(document_id, meta):
+def add_document_set_meta(document_set_id, meta):
     database = get_db()
 
     with database.cursor() as cursor:
         cursor.execute("""
-                       INSERT INTO document_meta (document_id, field_data) VALUES (%(document_id)s, %(field_data)s)
+                       INSERT INTO document_meta (document_set_id, field_data) VALUES (%(document_set_id)s, %(field_data)s)
                        """, {
-            'document_id': document_id,
+            'document_set_id': document_set_id,
             'field_data': psycopg2.extras.Json(meta)
         })
         database.commit()
+
+
+def get_document_set_meta(document_set_id):
+    database = get_db()
+
+    with database.cursor() as cursor:
+        cursor.execute("""
+                       SELECT field_data FROM  document_meta WHERE document_set_id = %(document_set_id)s
+                       """, {
+            'document_set_id': document_set_id
+        })
+        try:
+            return cursor.fetchone()[0]
+        except:
+            return None
+
 
 def remove_document_from_set(user_id, document_id):
     database = get_db()

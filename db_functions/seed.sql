@@ -521,8 +521,8 @@ CREATE SEQUENCE document_meta_id_seq
 
 CREATE TABLE document_meta (
     document_meta_id integer DEFAULT nextval('document_meta_id_seq'::regclass) NOT NULL,
-    document_id uuid,
-    field_data jsonb
+    field_data jsonb,
+    document_set_id uuid
 );
 
 
@@ -835,11 +835,11 @@ ALTER TABLE ONLY access_tokens
 
 
 --
--- Name: document_meta_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: document_meta_document_set_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY document_meta
-    ADD CONSTRAINT document_meta_document_id_fk FOREIGN KEY (document_id) REFERENCES documents(document_id);
+    ADD CONSTRAINT document_meta_document_set_id_fk FOREIGN KEY (document_set_id) REFERENCES document_sets(document_set_id);
 
 
 --

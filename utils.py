@@ -18,7 +18,6 @@ def catalex_protected(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         secret = current_app.config.get('UPLOAD_DOCUMENT_SECRET')
-        print(secret, request.form.get('UPLOAD_DOCUMENT_SECRET'))
         if not secret or secret != request.form.get('UPLOAD_DOCUMENT_SECRET'):
             return Response(json.dumps({'message': 'Unauthorized', 'type': 'INVALID_SECRET'}), 401)
         return f(*args, **kwargs)

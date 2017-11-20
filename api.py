@@ -19,6 +19,7 @@ from utils import login_redirect, protected, nocache, fullcache, InvalidUsage, c
 import requests
 from werkzeug.exceptions import HTTPException
 from uuid import uuid4
+import requests
 
 api = Blueprint('api', __name__)
 
@@ -213,11 +214,31 @@ def send_completion_email(document_set_id):
             'setDescription': set_description,
             'link': '%s/documents/%s' % (get_service_url(request.url), document_set_id)
         }
-
+        #check_send_to_external_service()
         return send_email('emails.sign.signing-complete', user['email'], user['name'], msg, data)
 
     except Exception as e:
         raise InvalidUsage('Failed to send completion email', status_code=500, error=e)
+
+
+def send_completion_target(document_set_id):
+    meta = db.get_document_set_meta(document_set_id)
+    try:
+        if meta and meta.get('callbackUrl'):
+            user = db.get_document_set_owner(document_set_id)
+            documents = db.get_document_set(user['user_id'], document_set_id)
+            files = []
+            for doc in documents['documents']:
+                document = db.get_document(session['user_id'], doc['document_id'])
+                files.append(
+                    ('file', (document['filename'], BytesIO(document['data']), 'application/pdf'))
+                )
+            print(meta.get('callbackUrl'))
+            response = requests.post(meta.get('callbackUrl'), files=files)
+            return response.json().get('url')
+    except Exception as e:
+        print(e)
+        pass
 
 
 def should_send_reject_email(user_id, document_set_id):
@@ -529,6 +550,7 @@ def sign_document():
             elif should_send_reject_email(session['user_id'], args['documentSetId']):
                 send_rejection_email(session['user_id'], args['documentSetId'], args.get('rejectedMessage'))
 
+        send_completion_target(args['documentSetId'])
         return jsonify({'message': 'done'})
     except HTTPException as e:
         raise e
@@ -661,7 +683,7 @@ def catalex_upload_document():
     user_data = lookup_user_and_upsert(user_id)
     upload_document(file, document_set_id, document_id, user_id, source='gc')
     # todo, get info about who and what company,
-    db.add_document_meta(document_id, json.dumps(request.form.get('meta', '{}')))
+    db.add_document_set_meta(document_set_id, json.loads(request.form.get('meta', '{}')))
     return jsonify({'document_id': document_id, 'document_set_id': document_set_id}), 201
 
 

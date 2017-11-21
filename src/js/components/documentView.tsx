@@ -21,6 +21,7 @@ interface ConnectedDocumentViewProps extends DocumentViewProps {
 
 
 export class UnconnectedDocumentView extends React.PureComponent<ConnectedDocumentViewProps>  {
+
     componentDidMount() {
         this.props.requestDocumentSet(this.props.params.documentSetId)
     }
@@ -32,7 +33,6 @@ export class UnconnectedDocumentView extends React.PureComponent<ConnectedDocume
     render() {
         return (
                <div>
-
             <div className="pdf-screen">
                 <PDFViewer documentId={this.props.params.documentId} documentSetId={this.props.params.documentSetId} isDocumentOwner={true} />
             </div>
@@ -61,12 +61,15 @@ interface RequestedSignatureProps extends DocumentViewProps {
 
 
 class UnconnectedRequestedDocumentView extends React.PureComponent<RequestedSignatureProps>  {
+
     componentDidMount() {
         this.props.requestRequestedSignatures()
     }
+
     componentWillUnmount() {
         this.props.endSigningSession();
     }
+
     render() {
         // get the request info
         return (

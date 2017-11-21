@@ -16,8 +16,11 @@ interface ConnectedStatusBarProps extends StatusBarProps{
     usage: Sign.Usage;
     requestedSignatures: Sign.RequestedSignatures;
     documents: Sign.Documents;
+    location: string;
 }
 
+
+const SHOW_REQUESTED_ROUTE_BLACK_LIST = ['/pending']
 
 class StatusBar extends React.PureComponent<ConnectedStatusBarProps> {
     componentDidMount() {
@@ -42,7 +45,8 @@ class StatusBar extends React.PureComponent<ConnectedStatusBarProps> {
 
     renderRequested() {
         const count = getNonCompletedRequestKeys(this.props.requestedSignatures, this.props.documents).length;
-        if(count > 0){
+
+        if(count > 0 && SHOW_REQUESTED_ROUTE_BLACK_LIST.indexOf(this.props.location) === -1){
             return <span  className="status-message">You have documents that require signing, click <Link to='/to_sign'>here</Link> to view.</span>
         }
     }
@@ -80,6 +84,7 @@ export default connect<{}, {}, StatusBarProps>((state: Sign.State) => ({
     emailVerified: state.user.emailVerified,
     requestedSignatures: state.requestedSignatures,
     documents: state.documents,
+    location: state.routing.locationBeforeTransitions.pathname
 }), {
     requestUsage, requestRequestedSignatures
 })(StatusBar)

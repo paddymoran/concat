@@ -453,7 +453,7 @@ export const InitialsModal = connect(
         ids: state.signatures.initialIds,
         selectedId: state.documentViewer.selectedInitialId,
         title: 'Initial',
-        username: state.user.name
+        username: (state.user.name || '').split(' ').map(s => s[0]).join('')
     }),
     {
         uploadSignature: (data: string) => uploadSignature({ data, type: Sign.SignatureType.INITIAL }),

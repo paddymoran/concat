@@ -108,7 +108,8 @@ export default function documentViewer(state: Sign.DocumentViewer = DEFAULT_STAT
 function rejectDocument(state: Sign.DocumentViewer, action: Sign.Actions.RejectDocument): Sign.DocumentViewer {
     const updateData: Partial<Sign.DocumentView> = {
         signStatus: Sign.SignStatus.REJECTED,
-        rejectReason: action.payload.reason
+        rejectReason: action.payload.reason,
+        completed: true
     };
 
     return updateDocument(state, action.payload.documentId, updateData);

@@ -1,13 +1,19 @@
 import  * as React from "react";
+import * as Promise from 'bluebird';
 import SignatureCanvas from 'react-signature-canvas';
 import { Alert, Button, Tab, Tabs } from 'react-bootstrap';
 import SignatureUpload from './signatureUpload';
-import { uploadSignature, selectSignature, selectInitial, showSignatureSelection,  deleteSignature, addSignatureToDocument, requestSignatures, closeModal, showInitialSelectionModal, setActiveSignControl } from '../actions/index';
+import { uploadSignature, selectSignature, selectInitial, showSignatureSelection,  deleteSignature,
+    addSignatureToDocument, requestSignatures, closeModal, showInitialSelectionModal, setActiveSignControl } from '../actions/index';
 import { connect } from 'react-redux';
 import Loading from './loading';
-import { signatureUrl, signatureCanvasMinDimensions  } from '../utils';
+import { signatureUrl, signatureCanvasMinDimensions, signatureToCanvas  } from '../utils';
 import sizeMe from 'react-sizeme';
 import Modal from './modals/modal';
+import * as WebFontLoader from 'webfontloader';
+
+
+
 
 interface SignatureSelectorProps {
     uploading: boolean;
@@ -22,6 +28,7 @@ interface SignatureSelectorProps {
     addSignatureToDocument: (payload: Sign.Actions.AddSignatureToDocumentPayload) => void;
     setActiveSignControl: () => void;
     requestSignatures: () => void;
+    username: string;
 }
 
 interface SignatureSelectorState {
@@ -30,22 +37,114 @@ interface SignatureSelectorState {
 }
 
 const SELECT_SIGNATURE_TAB = 1;
-const DRAW_SIGNATURE_TAB = 2;
-const UPLOAD_SIGNATURE_TAB = 3;
+const TEXT_SIGNATURE_TAB = 2;
+const DRAW_SIGNATURE_TAB = 3;
+const UPLOAD_SIGNATURE_TAB = 4;
+
+const fonts = ["Alex Brush", "Allura", "Caveat", "Courgette", "Damion", "Dancing Script", "Great Vibes", "Sacramento", "Tangerine", "Yellowtail"]
 
 
-export class DrawingCanvas extends React.PureComponent<{size: {width: number}, innerRef: (ref: DrawingCanvas) => void}> {
+function loadFonts() {
+    return new Promise((resolve, reject) => {
+        const WebFontConfig = {
+            google: {
+                families: fonts
+            },
+            active: function(){
+                resolve()
+            },
+            inactive: function(){
+                reject();
+            }
+        }
+        WebFontLoader.load(WebFontConfig)
+    })
+}
+
+interface TextSignatureCanvasProps {
+    username: string;
+    canvasProps: {
+        width: number;
+        height: number;
+    }
+}
+
+
+export class SignatureText extends React.PureComponent<{font: string, text: string}> {
+
+    render() {
+        const canvas = signatureToCanvas(200, this.props.text, this.props.font);
+        return <div style={{width: '100%', height:'200px'}}>
+            <img src={canvas.toDataURL()}  style={{maxWidth: '100%'}}/>
+        </div>
+    }
+}
+
+export class TextSignatureCanvas extends React.PureComponent<TextSignatureCanvasProps, {font: string, text: string}> {
+
+    constructor(props: TextSignatureCanvasProps) {
+        super(props);
+        this.changeText = this.changeText.bind(this);
+        this.changeFont = this.changeFont.bind(this);
+        this.state = {font: fonts[0], text: props.username}
+    }
+
+    changeText(event: React.FormEvent<HTMLInputElement>) {
+        this.setState({text: event.currentTarget.value});
+
+    }
+
+    changeFont(event : React.FormEvent<HTMLSelectElement>) {
+        this.setState({font: event.currentTarget.value});
+    }
+
+
+    getTrimmedCanvas() {
+        return signatureToCanvas(200, this.state.text, this.state.font);
+    }
+
+    render() {
+        return <div>
+            <SignatureText {...this.state} />
+            <div className="form-group">
+            <label>Text</label>
+            <input className="form-control" value={this.state.text} onChange={this.changeText}/>
+            </div>
+            <div className="form-group">
+            <label>Font</label>
+            <select className="form-control" value={this.state.font} onChange={this.changeFont}>
+                { fonts.map((font, i) => {
+                    return <option key={i} value={font}>{ font } </option>
+                }) }
+            </select>
+            </div>
+        </div>
+    }
+}
+
+
+
+interface DrawingCanvasProps {
+    size: {width: number};
+    innerRef: (ref: DrawingCanvas) => void;
+}
+
+
+export class DrawingCanvas extends React.PureComponent<DrawingCanvasProps> {
     private signatureCanvas: SignatureCanvas;
+
     clearCanvas() {
         this.signatureCanvas.clear();
     }
 
     componentDidMount(){
         this.props.innerRef && this.props.innerRef(this);
+
     }
 
     componentWillUnmount(){
         this.props.innerRef && this.props.innerRef(undefined);
+
     }
 
     toDataUrl() {
@@ -65,12 +164,63 @@ export class DrawingCanvas extends React.PureComponent<{size: {width: number}, i
     }
 }
 
+
+interface TextCanvasProps {
+    size: {width: number};
+    innerRef: (ref: TextCanvas) => void;
+    username: string;
+}
+
+
+export class TextCanvas extends React.PureComponent<TextCanvasProps, {loaded: boolean}> {
+    private signatureCanvas: TextSignatureCanvas;
+    private _unmounted: boolean;
+
+    constructor(props: TextCanvasProps) {
+        super(props);
+        this.state = {loaded: false}
+    }
+
+    componentDidMount(){
+        this.props.innerRef && this.props.innerRef(this);
+        this._unmounted = false;
+        loadFonts()
+            .then(() => {
+                !this._unmounted && this.setState({loaded: true});
+            })
+    }
+
+    componentWillUnmount(){
+        this.props.innerRef && this.props.innerRef(undefined);
+        this._unmounted = true;
+    }
+
+    toDataUrl() {
+        return signatureCanvasMinDimensions(this.signatureCanvas.getTrimmedCanvas()).toDataURL();
+    }
+
+    render() {
+        const canvasProps = {
+            width: this.props.size.width,
+            height: 200
+        }
+        return <div className='signature-display'>
+            { !this.state.loaded && <Loading /> }
+            { this.state.loaded && <TextSignatureCanvas username={this.props.username} canvasProps={canvasProps} ref={(ref: TextSignatureCanvas) => this.signatureCanvas = ref}/> }
+        </div>
+
+    }
+}
+
+
 const DimensionedDrawingCanvas = sizeMe<{innerRef: (ref: DrawingCanvas) => void}>({refreshMode: 'debounce', monitorWidth: true})(DrawingCanvas);
+const DimensionedTextCanvas = sizeMe<{innerRef: (ref: TextCanvas) => void, username: string}>({refreshMode: 'debounce', monitorWidth: true})(TextCanvas);
 
 
 
 export class SignatureSelector extends React.PureComponent<SignatureSelectorProps, SignatureSelectorState> {
-    private signatureCanvas: DrawingCanvas;
+    private drawCanvas: DrawingCanvas ;
+    private textCanvas: TextCanvas;
 
     constructor(props: SignatureSelectorProps) {
         super(props);
@@ -109,9 +259,14 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
             }
         }
         else if (this.state.currentTab == DRAW_SIGNATURE_TAB) {
-            const signature = this.signatureCanvas.toDataUrl();
+            const signature = this.drawCanvas.toDataUrl();
             this.props.uploadSignature(signature);
         }
+        else if (this.state.currentTab == TEXT_SIGNATURE_TAB) {
+            const signature = this.textCanvas.toDataUrl();
+            this.props.uploadSignature(signature);
+        }
+
         this.props.setActiveSignControl();
         this.props.closeModal();
     }
@@ -153,11 +308,20 @@ export class SignatureSelector extends React.PureComponent<SignatureSelectorProp
                             </div>
                         </Tab>
 
+                        <Tab eventKey={TEXT_SIGNATURE_TAB} title={`Type`}>
+                            <div className='signature-canvas-container clearfix'>
+                                { this.props.uploading && <Loading />}
+                                { !this.props.uploading &&
+                                   <DimensionedTextCanvas username={this.props.username} innerRef={(ref: TextCanvas) => this.textCanvas = ref} />
+                                }
+                            </div>
+                        </Tab>
+
                         <Tab eventKey={DRAW_SIGNATURE_TAB} title={`Draw`}>
                             <div className='signature-canvas-container clearfix'>
                                 { this.props.uploading && <Loading />}
                                 { !this.props.uploading &&
-                                   <DimensionedDrawingCanvas innerRef={(ref: DrawingCanvas) => this.signatureCanvas = ref} />
+                                   <DimensionedDrawingCanvas innerRef={(ref: DrawingCanvas) => this.drawCanvas = ref} />
                                 }
                             </div>
                         </Tab>
@@ -269,6 +433,7 @@ export const SignatureModal = connect(
         ids: state.signatures.signatureIds,
         selectedId: state.documentViewer.selectedSignatureId,
         title: 'Signature',
+        username: state.user.name
     }),
     {
         uploadSignature: (data: string) => uploadSignature({ data, type: Sign.SignatureType.SIGNATURE }),
@@ -288,6 +453,7 @@ export const InitialsModal = connect(
         ids: state.signatures.initialIds,
         selectedId: state.documentViewer.selectedInitialId,
         title: 'Initial',
+        username: state.user.name
     }),
     {
         uploadSignature: (data: string) => uploadSignature({ data, type: Sign.SignatureType.INITIAL }),

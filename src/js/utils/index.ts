@@ -36,6 +36,23 @@ export function imageRatio(url: string) {
     });
 }
 
+export function signatureToCanvas(height: number, string: string, font: string ) {
+    const canvas = document.createElement('canvas');
+    const canvasHeight = height;
+    canvas.height = canvasHeight;
+    canvas.width = 10;
+    const margin = canvasHeight / 4;
+    const ctx = canvas.getContext('2d');
+    const canvasFont = `${canvas.height-(margin*2)}px ${font}`;
+    ctx.font = canvasFont;
+    const textLength = ctx.measureText(string).width;
+    canvas.width =  textLength + (margin * 2);
+    ctx.font = canvasFont;
+    ctx.fillStyle = '#000'
+    ctx.textBaseline="top";
+    ctx.fillText(string, margin, margin);
+    return canvas;
+}
 
 export function stringToCanvas(height: number, string: string, minWidth = 0) {
     const canvas = document.createElement('canvas');
@@ -44,11 +61,11 @@ export function stringToCanvas(height: number, string: string, minWidth = 0) {
     canvas.width = 10;
     const margin = canvasHeight / 8;
     const ctx = canvas.getContext('2d');
-    const font = `bold ${canvas.height-(margin*2)}px san serif`;
-    ctx.font = font;
+    const canvasFont = `bold ${canvas.height-(margin*2)}px san serif`
+    ctx.font = canvasFont;
     const textLength = ctx.measureText(string).width;
     canvas.width = Math.max(minWidth, textLength + (margin * 2));
-    ctx.font = font;
+    ctx.font = canvasFont;
     ctx.fillStyle = '#000'
     ctx.textBaseline="top";
     ctx.fillText(string, margin, margin);

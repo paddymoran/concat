@@ -204,6 +204,12 @@ export function getNextDocument(documentIds: string[], documents: Sign.DocumentV
     });
 }
 
+export function isFinished(documents: Sign.DocumentViews): boolean {
+    return Object.keys(documents).every(documentId => {
+        return documents[documentId].completed;
+    });
+}
+
 
 export function formatUsage(data: any) : Sign.Usage {
     return {

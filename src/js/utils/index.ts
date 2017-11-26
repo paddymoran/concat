@@ -204,9 +204,9 @@ export function getNextDocument(documentIds: string[], documents: Sign.DocumentV
     });
 }
 
-export function isFinished(documents: Sign.DocumentViews): boolean {
-    return Object.keys(documents).every(documentId => {
-        return documents[documentId].completed;
+export function isFinished(documentIds: string[], documents: Sign.DocumentViews): boolean {
+    return (documentIds||[]).every(documentId => {
+        return documents[documentId] && documents[documentId].completed;
     });
 }
 

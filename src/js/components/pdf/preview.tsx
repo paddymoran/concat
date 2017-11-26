@@ -25,11 +25,6 @@ class Thumb extends React.PureComponent<ConnectedThumbProps> {
     scrollTo() {
         Scroll.scrollTo(`page-view-${this.props.index}`, {smooth: true, duration: 350, offset: -60})
     }
-    /*componentWillUpdate(nextProps : ConnectedThumbProps) {
-        if(this.props.isActivePage !== nextProps.isActivePage && nextProps.isActivePage) {
-            //Scroll.scrollTo(`page-preview-${this.props.index}`, {smooth: true, duration: 350, containerId: 'pdf-preview-panel-scroll'})
-        }
-    }*/
 
     render() {
         const {  index, height, width, isActivePage } = this.props;

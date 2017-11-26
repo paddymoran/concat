@@ -5302,11 +5302,10 @@ react-router@^3.0.3:
     prop-types "^15.5.6"
     warning "^3.0.0"
 
-react-scroll@^1.5.4:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/react-scroll/-/react-scroll-1.6.0.tgz#947b20559d52711575d9d687a953a20e2031b3c3"
+react-scroll@1.6.7:
+  version "1.6.7"
+  resolved "https://registry.yarnpkg.com/react-scroll/-/react-scroll-1.6.7.tgz#23b55b1333411e729ea1a609686b1f87978ce77b"
   dependencies:
-    object-assign "^4.1.1"
     prop-types "^15.5.8"
 
 react-signature-canvas@^0.1.3:

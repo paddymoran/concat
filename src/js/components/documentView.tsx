@@ -25,20 +25,35 @@ interface ConnectedDirtyCheckProps extends DocumentViewProps {
 
 
 export class UnconnectedDirtyCheck extends React.PureComponent<ConnectedDirtyCheckProps> {
+    static LEAVE_WARNING = 'Are you sure you wish to leave?  Any unsaved changes will be lost.';
 
     constructor(props: ConnectedDirtyCheckProps) {
         super(props);
         this.routerWillLeave = this.routerWillLeave.bind(this);
+        this.navWillLeave = this.navWillLeave.bind(this);
     }
 
     componentDidMount() {
+        window.addEventListener('beforeunload', this.navWillLeave);
         this.props.router.setRouteLeaveHook(this.props.route, this.routerWillLeave);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('beforeunload', this.navWillLeave);
+    }
+
+    navWillLeave(e: any) {
+        if(!this.props.isFinished){
+            e.returnValue = UnconnectedDirtyCheck.LEAVE_WARNING;    // Gecko, Trident, Chrome 34+
+            return UnconnectedDirtyCheck.LEAVE_WARNING;
+        }
+        return null;
     }
 
     routerWillLeave(location: History.Location) {
         // if new route doesn't contain the documentSetId, then we must be navigation away.
         if(!this.props.isFinished && location.pathname.indexOf(this.props.params.documentSetId) === -1){
-            return 'Are you sure you wish to leave?  Any unsaved changes will be lost.';
+            return UnconnectedDirtyCheck.LEAVE_WARNING
         }
         return null;
     }
@@ -49,8 +64,9 @@ export class UnconnectedDirtyCheck extends React.PureComponent<ConnectedDirtyChe
 }
 
 export const DirtyCheck = connect<{}, {}, DocumentViewProps>((state: Sign.State, ownProps: DocumentViewProps) => {
+    const documentIds = state.documentSets[ownProps.params.documentSetId] && state.documentSets[ownProps.params.documentSetId].documentIds
     return {
-        isFinished: isFinished(state.documentViewer.documents)
+        isFinished: isFinished(documentIds, state.documentViewer.documents)
     }
 })(UnconnectedDirtyCheck);
 

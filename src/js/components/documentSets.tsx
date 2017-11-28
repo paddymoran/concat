@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { requestDocumentSets, showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet, showDownloadAllModal, startSelfSigningSession } from '../actions';
+import { requestDocumentSets, showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet, showDownloadAllModal, showInviteTokensModal, startSelfSigningSession } from '../actions';
 import * as moment from 'moment';
 import { Link } from 'react-router';
 import { Nav, NavItem } from 'react-bootstrap';
@@ -43,6 +43,7 @@ interface DocumentSetListProps extends UnconnectedDocumentSetListProps {
     deleteDocument: (payload: Sign.Actions.DeleteDocumentPayload) => void;
     deleteDocumentSet: (payload: Sign.Actions.DeleteDocumentSetPayload) => void;
     sign: (payload: Sign.Actions.StartSelfSigningSessionPayload) => void;
+    showInviteTokens: (payload: Sign.Actions.ShowInviteTokensModalPayload) => void;
 }
 
 class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProps> {
@@ -66,7 +67,11 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
         const hasDownloadAll =  this.props.showDownloadAll && this.props.documentSet.documentIds.length > 1;
         const hasEmailAll =  this.props.documentSet.documentIds.length > 1;
         const hasDeleteAll =  this.props.documentSet.isOwner && this.props.documentSet.documentIds.length > 1;
-        const hasSetControls = hasDownloadAll || hasDeleteAll;
+        const hasInviteTokens = this.props.documentSet.documentIds.some(documentId => {
+            const document = this.props.documents[documentId];
+            return document.signatureRequestInfos && !!document.signatureRequestInfos.length;
+        });
+        const hasSetControls = hasDownloadAll || hasDeleteAll || hasEmailAll || hasInviteTokens;
 
         return (
             <div className="document-set">
@@ -167,12 +172,18 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                                         </a>
                                     }
 
-                                    {hasDeleteAll &&
+                                    { hasDeleteAll &&
                                         <a className="btn btn-default btn-sm" onClick={this.deleteSet}>
                                             <i className="fa fa-trash" /> Delete All
                                         </a>
-
                                     }
+
+                                    { hasInviteTokens &&
+                                        <a className="btn btn-default btn-sm" onClick={() => this.props.showInviteTokens({ documentSetId: this.props.documentSetId })}>
+                                            <i className="fa fa-link" /> Invite URLS
+                                        </a>
+                                    }
+
                                 </td>
                             </tr>
                         }
@@ -187,7 +198,7 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
 const DocumentSetList = connect<{}, {}, UnconnectedDocumentSetListProps>(() => ({
         showNotFound: false
     }),
-    { emailDocuments: showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet, downloadAll: showDownloadAllModal, sign: startSelfSigningSession }
+    { emailDocuments: showEmailDocumentsModal, revokeSignInvitation, deleteDocument, deleteDocumentSet, downloadAll: showDownloadAllModal, sign: startSelfSigningSession, showInviteTokens: showInviteTokensModal }
 )(UnconnectedDocumentSetList);
 
 

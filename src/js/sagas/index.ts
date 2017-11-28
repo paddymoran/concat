@@ -3,7 +3,8 @@ import { SagaMiddleware, delay, eventChannel, END } from 'redux-saga';
 import * as Axios from 'axios';
 import axios from 'axios';
 import { updateDocument, updateDocumentSet, updateDocumentSets, createDocumentSet, updateRequestedSignatures,
-    addPromptToDocument, updateModalData, addOverlays, defineRecipients, updateContacts, updateUsage, removeDocument, showFailureModal, showSignConfirmationModal } from '../actions';
+    addPromptToDocument, updateModalData, addOverlays, defineRecipients, updateContacts, updateUsage, removeDocument,
+    showFailureModal, showSignConfirmationModal, updateInviteToken } from '../actions';
 import { addPDFToStore } from '../actions/pdfStore';
 import { generateUUID } from '../components/uuid';
 
@@ -60,11 +61,12 @@ export default function *rootSaga(): any {
         finishedSigningDocumentSaga(),
         userMeta(),
         documentOrder(),
+        inviteTokens(),
         ...pdfStoreSagas,
         ...signatureSagas,
         ...documentViewerSagas,
         ...documentSagas,
-        ...verificationsSagas
+        ...verificationsSagas,
     ]);
 }
 
@@ -500,10 +502,27 @@ function *requestUsageSaga() {
         }
     }
 }
-/*
-import * as shajs from 'sha.js'
-const sha256 = shajs('sha256');
-        console.log(sha256.update(action.payload.file).digest('hex'));*/
+
+function *inviteTokens() {
+
+    yield takeEvery(Sign.Actions.Types.REQUEST_INVITE_TOKEN, requestToken);
+
+    function *requestToken(action: Sign.Actions.RequestInviteToken) {
+
+        yield put(updateInviteToken({ ...action.payload, status: Sign.DownloadStatus.InProgress }));
+
+        try {
+            const response = yield call(axios.post, '/api/invite_tokens', {
+                email: action.payload.email,
+                document_set_id: action.payload.documentSetId
+            });
+            yield put(updateInviteToken({ ...action.payload, url: response.data.url, status: Sign.DownloadStatus.Complete }));
+        }
+        catch (e) {
+            yield put(updateInviteToken({ ...action.payload, status: Sign.DownloadStatus.Failed }));
+        }
+    }
+}
 
 function *uploadDocumentSaga() {
     yield takeEvery(Sign.Actions.Types.ADD_DOCUMENT, uploadDocument);

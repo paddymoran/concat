@@ -316,6 +316,17 @@ declare namespace Sign {
         showing: boolean;
     }
 
+    interface InviteTokens {
+        [email: string]: {
+            url: string;
+            status: DownloadStatus;
+        }
+    }
+
+    interface DocumentSetInviteTokens {
+        [documentSetId: string]: InviteTokens;
+    }
+
     interface State {
         routing: any;
         documentSets: DocumentSets;
@@ -335,7 +346,8 @@ declare namespace Sign {
         verifications: Verifications;
         user: CurrentUser;
         userMeta: UserMetaData;
-        tour: Tour
+        tour: Tour,
+        inviteTokens: DocumentSetInviteTokens
     }
 
     interface ToSignPage {
@@ -421,6 +433,7 @@ declare namespace Sign {
         CONFIRM_ACTION = 'CONFIRM_ACTION',
         SIGNING_COMPLETE = 'SIGNING_COMPLETE',
         DOWNLOAD_ALL = 'DOWNLOAD_ALL',
+        INVITE_TOKENS = 'INVITE_TOKENS',
         SESSION_ENDED = 'SESSION_ENDED'
     }
 
@@ -520,11 +533,12 @@ declare namespace Sign.Actions {
         GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID = 'GENERATE_UPLOAD_DOCUMENTS_DOCUMENT_SET_ID',
         SET_ACTIVE_PAGE = 'SET_ACTIVE_PAGE',
 
+        // Modals
         SHOW_RESULTS = 'SHOW_RESULTS',
         SHOW_DOWNLOAD_ALL_MODAL = 'SHOW_DOWNLOAD_ALL_MODAL',
+        SHOW_INVITE_TOKENS_MODAL = 'SHOW_INVITE_TOKENS_MODAL',
         FINISH_SIGNING = 'FINISH_SIGNING',
 
-        // Modals
         CLOSE_SHOWING_MODAL = 'CLOSE_SHOWING_MODAL',
         UPDATE_MODAL_DATA = 'UPDATE_MODAL_DATA',
         SHOW_SIGN_CONFIRMATION_MODAL = 'SHOW_SIGN_CONFIRMATION_MODAL',
@@ -584,7 +598,10 @@ declare namespace Sign.Actions {
 
         START_SIGNING_SESSION = 'START_SIGNING_SESSION',
 
-        END_SIGNING_SESSION = 'END_SIGNING_SESSION'
+        END_SIGNING_SESSION = 'END_SIGNING_SESSION',
+
+        REQUEST_INVITE_TOKEN = 'REQUEST_INVITE_TOKEN',
+        UPDATE_INVITE_TOKEN = 'UPDATE_INVITE_TOKEN'
 
     }
 
@@ -1001,6 +1018,9 @@ declare namespace Sign.Actions {
         documentSetId: string;
     }
 
+    interface ShowInviteTokensModalPayload {
+        documentSetId: string;
+    }
 
     interface DefineDocumentOrderPayload {
         documentSetId: string;
@@ -1020,6 +1040,21 @@ declare namespace Sign.Actions {
     interface EndSigningSessionPayload {
 
     }
+
+    interface RequestInviteTokenPayload {
+        email: string;
+        documentSetId: string;
+    }
+
+    interface UpdateInviteTokenPayload {
+        email: string;
+        documentSetId: string;
+        status: DownloadStatus;
+        url?: string;
+    }
+
+
+
 
     interface ResetState extends ActionCreator<ResetStatePayload> {}
     interface ResetDocuments extends ActionCreator<ResetDocumentsPayload> {}
@@ -1089,6 +1124,7 @@ declare namespace Sign.Actions {
     interface ConfirmAction<T> extends ActionCreator<ConfirmActionPayload<T>> {}
     interface ShowSigningCompleteModal extends ActionCreator<ShowSigningCompleteModalPayload> {}
     interface ShowDownloadAllModal extends ActionCreator<ShowDownloadAllModalPayload> {}
+    interface ShowInviteTokensModal extends ActionCreator<ShowInviteTokensModalPayload> {}
     interface ShowSessionEndedModal extends ActionCreator<ShowSessionEndedModalPayload> {}
 
     interface UpdateDocumentWidth extends ActionCreator<UpdateDocumentWidthPayload> {}
@@ -1128,6 +1164,11 @@ declare namespace Sign.Actions {
     interface StartSigningSession extends ActionCreator<StartSigningSessionPayload> {}
 
     interface EndSigningSession extends ActionCreator<EndSigningSessionPayload> {}
+
+
+
+    interface RequestInviteToken extends ActionCreator<RequestInviteTokenPayload>{}
+    interface UpdateInviteToken extends ActionCreator<UpdateInviteTokenPayload>{}
 
 }
 

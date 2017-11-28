@@ -19,6 +19,7 @@ import verifications from './verifications';
 import user from './user';
 import userMeta from './userMeta';
 import tour from './tour';
+import inviteTokens from './inviteTokens';
 
 const appReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     routing,
@@ -40,7 +41,8 @@ const appReducer: Reducer<Sign.State> = combineReducers<Sign.State>({
     verifications,
     user,
     userMeta,
-    tour
+    tour,
+    inviteTokens
 });
 
 const rootReducer = (state : Sign.State, action: any) => {

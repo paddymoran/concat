@@ -399,6 +399,12 @@ export function showDownloadAllModal(payload: Sign.Actions.ShowDownloadAllModalP
     }
 }
 
+export function showInviteTokensModal(payload: Sign.Actions.ShowInviteTokensModalPayload): Sign.Actions.ShowInviteTokensModal {
+    return {
+        type: Sign.Actions.Types.SHOW_INVITE_TOKENS_MODAL,
+        payload
+    }
+}
 
 export function emailDocuments(payload: Sign.Actions.EmailDocumentsPayload): Sign.Actions.EmailDocuments {
     return {
@@ -590,3 +596,16 @@ export function endSigningSession(payload: Sign.Actions.EndSigningSessionPayload
     }
 }
 
+export function requestInviteToken(payload: Sign.Actions.RequestInviteTokenPayload) : Sign.Actions.RequestInviteToken {
+    return {
+        type: Sign.Actions.Types.REQUEST_INVITE_TOKEN,
+        payload
+    }
+}
+
+export function updateInviteToken(payload: Sign.Actions.UpdateInviteTokenPayload) : Sign.Actions.UpdateInviteToken {
+    return {
+        type: Sign.Actions.Types.UPDATE_INVITE_TOKEN,
+        payload
+    }
+}

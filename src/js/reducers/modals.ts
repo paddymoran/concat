@@ -85,6 +85,13 @@ export default function modals(state: Sign.Modals = DEFAULT_STATE, action: any) 
                 showing: Sign.ModalType.DOWNLOAD_ALL
             };
 
+        case Sign.Actions.Types.SHOW_INVITE_TOKENS_MODAL:
+            return {
+                ...state,
+                ...action.payload,
+                showing: Sign.ModalType.INVITE_TOKENS
+            };
+
         case Sign.Actions.Types.SHOW_SESSION_ENDED_MODAL:
             return {
                 ...state,

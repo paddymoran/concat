@@ -698,3 +698,26 @@ def catalex_upload_document():
     return jsonify({'document_id': document_id, 'document_set_id': document_set_id}), 201
 
 
+@api.route('/invite_tokens', methods=['POST'])
+@protected
+@nocache
+def invite_tokens():
+    try:
+        args = request.get_json()
+        params = {
+            'client_id': current_app.config.get('OAUTH_CLIENT_ID'),
+            'client_secret': current_app.config.get('OAUTH_CLIENT_SECRET'),
+            'email': args['email'],
+            'next': '%s/documents/%s' % (get_service_url(request.url), args['document_set_id'])
+        }
+
+        response = requests.post(
+            current_app.config.get('AUTH_SERVER') + '/api/user/link-to-login',
+            data=params
+        )
+
+        return jsonify(response.json())
+    except Exception as e:
+        print(e)
+        raise InvalidUsage('Could not get login url', status_code=500, error=e)
+

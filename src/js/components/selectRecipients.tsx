@@ -50,12 +50,27 @@ interface UnconnectedRecipientRowProps extends RecipientRowProps {
 
 interface ComboboxComponentProps extends WrappedFieldProps {
     dataDisplayField: string;
+    valueField: string;
     data: any[];
     onSelect: (value: Sign.Recipient) => void;
     placeholder?: string;
 }
 
 class ComboboxComponent extends React.PureComponent<ComboboxComponentProps> {
+    constructor(props: ComboboxComponentProps) {
+        super(props);
+        this.onChange = this.onChange.bind(this);
+    }
+
+    onChange(value: any) {
+        if(value && value[this.props.valueField]){
+            this.props.input.onChange(value[this.props.valueField]);
+        }
+        else{
+            this.props.input.onChange(value);
+        }
+    }
+
     render() {
         const { meta } = this.props;
         const formProps : FormGroupProps = {};
@@ -68,9 +83,9 @@ class ComboboxComponent extends React.PureComponent<ComboboxComponentProps> {
 
         return (
             <FormGroup {...formProps}>
-                <Combobox {...this.props.input} messages={{
+                <Combobox {...this.props.input} onChange={this.onChange} messages={{
                     emptyFilter: 'No Matches', open: null,  emptyList: 'No Matches'
-                }} filter='contains' suggest={true} textField={this.props.dataDisplayField} data={this.props.data} onSelect={this.props.onSelect} placeholder={this.props.placeholder}/>
+                }} filter='contains' suggest={true} textField={this.props.dataDisplayField} valueField={this.props.valueField} data={this.props.data} onSelect={this.props.onSelect} placeholder={this.props.placeholder}/>
                 <FormControl.Feedback />
                 {showValidation && <HelpBlock>{ meta.error }</HelpBlock>}
             </FormGroup>
@@ -100,7 +115,7 @@ class UnconnectedRecipientRow extends React.PureComponent<UnconnectedRecipientRo
             <li>
                 <Row>
                     <Col md={5}>
-                        <Field name={`${this.props.recipient}.name`} component={ComboboxComponent as any} props={{data: this.props.contacts, dataDisplayField: "name", onSelect: this.onSelect, placeholder: 'Name'} as any} />
+                        <Field name={`${this.props.recipient}.name`} component={ComboboxComponent as any} props={{data: this.props.contacts, valueField: 'email', dataDisplayField: "name", onSelect: this.onSelect, placeholder: 'Name'} as any} />
                     </Col>
 
                     <Col md={5}>

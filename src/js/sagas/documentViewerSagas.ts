@@ -91,7 +91,6 @@ function *submitDocumentSet() {
 
         }
         catch(e){
-            debugger
             yield all([
                 put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
                 put(showFailureModal({message: 'Sorry, we could not send invitations at this time.'})),

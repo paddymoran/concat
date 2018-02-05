@@ -531,7 +531,6 @@ def document_set_status(document_set_id):
             'document_set_id': document_set_id
         })
         data = cursor.fetchone()
-        database.commit()
         return data
 
 def get_signature_requests(user_id):
@@ -548,7 +547,6 @@ def get_signature_requests(user_id):
             'user_id': user_id
         })
         data = cursor.fetchone()
-        database.commit()
         return data[0] or []
 
 
@@ -572,7 +570,6 @@ def get_contacts(user_id):
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {'user_id': user_id})
         data = cursor.fetchall()
-        database.commit()
         return [dict(x) for x in data]
 
 

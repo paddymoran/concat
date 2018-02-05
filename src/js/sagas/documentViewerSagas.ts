@@ -81,6 +81,26 @@ function *submitDocumentSet() {
         const documentSets = yield select((state: Sign.State) => state.documentSets);
         const documentIds = documentSets[action.payload.documentSetId].documentIds;
         let exportTarget;
+
+        try{
+            if (action.payload.signatureRequests.length) {
+                yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
+                const response = yield call(axios.post, '/api/request_signatures', action.payload);
+                yield put(setSignRequestStatus(Sign.DownloadStatus.NotStarted));
+            }
+
+        }
+        catch(e){
+            debugger
+            yield all([
+                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
+                put(showFailureModal({message: 'Sorry, we could not send invitations at this time.'})),
+                put(setSignRequestStatus(Sign.DownloadStatus.Failed))
+            ]);
+            const resolved = yield handleErrors(e);
+            return;
+        }
+
         try {
             for (let documentId of documentIds) {
                 if (hasSomethingToSign(documentViewer, documentId)) {
@@ -113,26 +133,13 @@ function *submitDocumentSet() {
             }
             return;
         }
-        try {
-            if (action.payload.signatureRequests.length) {
-                yield put(setSignRequestStatus(Sign.DownloadStatus.InProgress));
-                const response = yield call(axios.post, '/api/request_signatures', action.payload);
-            }
+        yield all([
+            put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
+            put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
+        ]);
+        yield put(showSigningCompleteModal({ documentSetId: action.payload.documentSetId, exportTarget }));
 
-            yield all([
-                put(setSignRequestStatus(Sign.DownloadStatus.Complete)),
-                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-            ]);
-            yield put(showSigningCompleteModal({ documentSetId: action.payload.documentSetId, exportTarget }));
-        }
-        catch (e) {
-            yield all([
-                put(closeModal({ modalName: Sign.ModalType.SIGN_CONFIRMATION })),
-                put(showFailureModal({message: 'Sorry, we could not send invitations at this time.'})),
-                put(setSignRequestStatus(Sign.DownloadStatus.Failed))
-            ]);
-            const resolved = yield handleErrors(e);
-        }
+
     }
 }
 

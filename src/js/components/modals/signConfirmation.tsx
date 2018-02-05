@@ -355,7 +355,7 @@ class UnconnectedSignAndSubmit extends React.PureComponent<ConnectedSignAndSubmi
 
                 <p className='text-center'>{message}</p>
 
-                {this.props.recipients && this.props.recipients.length && <RecipientsList recipients={this.props.recipients} ref="recipients" showMessage={this.props.showMessage}/> }
+                {this.props.recipients && !!this.props.recipients.length && <RecipientsList recipients={this.props.recipients} ref="recipients" showMessage={this.props.showMessage}/> }
 
                 <DocumentsList documents={this.props.documents} currentDocumentId={this.props.currentDocumentId} goToDocument={this.goToDocument} />
 

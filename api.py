@@ -143,7 +143,6 @@ def join_and(names):
 
 
 def is_set_complete(document_set_id):
-    print(db.document_set_status(document_set_id)[0])
     return db.document_set_status(document_set_id)[0] == 'Complete'
 
 

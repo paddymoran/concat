@@ -82,6 +82,7 @@ export class PDFPage extends React.PureComponent<PDFPageProps>  {
                     const viewport = this.props.page.getViewport(this.props.drawWidth / this.props.page.getViewport(scale).width);
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
+
                     canvas.style.width = `${this.props.drawWidth}px`;
                     this.props.page.render({ canvasContext: context, viewport })
                     .then(() => {

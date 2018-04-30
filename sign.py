@@ -76,17 +76,21 @@ def sign(input_file, signatures, overlays):
     for page_number, signatures in page_map.items():
         page = pdf.pages[page_number]
         mbox = tuple(float(x) for x in page.MediaBox)
+        if page.Rotate is not None and (int(page.Rotate) == 90 or int(page.Rotate) == 270):
+            mbox = [mbox[0], mbox[1], mbox[3], mbox[2]]
         signature_data = BytesIO()
         signature_page = canvas.Canvas(signature_data, tuple(mbox[2:]))
         for signature in signatures:
             image = ImageReader(signature['image'])
             offsetY = mbox[3] - (mbox[3] * signature['offsetY']) - mbox[3] * signature['ratioY']
-
             signature_page.drawImage(image, mbox[2] * signature['offsetX'], offsetY, mbox[2] * signature['ratioX'], mbox[3] * signature['ratioY'], mask='auto')
+
         signature_page.save()
         signature_data.seek(0)
-
-        PageMerge(page).add(PdfReader(signature_data).pages[0]).render()
+        out_page = PdfReader(signature_data).pages[0]
+        if page.Rotate is not None and int(page.Rotate):
+            out_page.Rotate = -int(page.Rotate)
+        PageMerge(page).add(out_page).render()
 
     out = BytesIO()
     PdfWriter(out, trailer=pdf).write()

@@ -24,7 +24,10 @@ function *getPDFFromStore() {
             yield put(updateDocument({
                 documentId: action.payload.id,
                 pageCount: pdfDocumentProxy.numPages,
-                pageViewports: pages.map((p : PDFPageProxy) => ({width: p.view[2], height: p.view[3]}))
+                pageViewports: pages.map((p : PDFPageProxy) => {
+                    const viewport = p.getViewport(1);
+                    return {width: viewport.width, height: viewport.height}
+                    })
             }));
 
             const pageStatuses =  Array(pdfDocumentProxy.numPages).fill(1).map(() => Sign.DocumentReadStatus.Complete);
@@ -65,7 +68,6 @@ function *getPage(action: Sign.Actions.RequestDocumentPageAction) {
 
     const page = yield call(pdfStore.document.getPage.bind(pdfStore.document), action.payload.index + 1);
 
- 
     yield put(updatePDFPageToStore({
         id: action.payload.id,
         index: action.payload.index,

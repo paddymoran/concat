@@ -5,6 +5,7 @@ import { requestRequestedSignatures, requestDocumentSet, endSigningSession } fro
 import { RouteComponentProps, locationShape as Location } from 'react-router';
 import { isFinished} from '../utils';
 
+
 type RouterProps = RouteComponentProps<{documentSetId: string}, {}>
 
 interface DocumentViewProps extends RouterProps{
@@ -50,7 +51,7 @@ export class UnconnectedDirtyCheck extends React.PureComponent<ConnectedDirtyChe
         return null;
     }
 
-    routerWillLeave(location: History.Location) {
+    routerWillLeave(location: Location | any) {
         // if new route doesn't contain the documentSetId, then we must be navigation away.
         if(!this.props.isFinished && location.pathname.indexOf(this.props.params.documentSetId) === -1){
             return UnconnectedDirtyCheck.LEAVE_WARNING

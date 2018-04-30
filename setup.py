@@ -3,7 +3,7 @@ from setuptools import setup
 setup(name='catalex_sign',
       version='0.0.1',
       description='Digitally sign PDFs',
-      url='http://github.com/paddymoran/document-signer',
+      url='http://github.com/joshgagnon/document-signer',
       author='Joshua Gagnon',
       author_email='josh.n.gagnon@gmail.com',
       license='MIT',

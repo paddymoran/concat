@@ -39,6 +39,7 @@ class TestPrivateAPI(DBTestCase):
         response = self.app.post('/api/catalex/document', data=data,
                                  content_type='multipart/form-data')
         self.assertEqual(response.status_code, 400)
+        file = self.open_pdf('phoca-pdf.pdf')
         data = {'file[]': (file, 'phoca-pdf.pdf'), 'UPLOAD_DOCUMENT_SECRET': 'testsecret',
         'user_id': 1}
 

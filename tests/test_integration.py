@@ -158,6 +158,7 @@ class Integration(DBTestCase):
             # Modify the session in this context block.
             sess["user_id"] = user_id
 
+
     def doc_count(self):
             response = self.app.get('/api/documents')
             data = json.loads(response.get_data(as_text=True))
@@ -589,21 +590,29 @@ class Integration(DBTestCase):
         response = self.app.get('/api/documents/%s' % document_set_id)
         response_json = json.loads(response.get_data(as_text=True))
         requests = response_json['documents'][0]['request_info']
+
         self.assertEqual(len(requests), 2)
 
         self.login(REVOKE_OTHER_1_ID)
-        revoke = self.app.delete('/api/request_signatures/%s' % requests[0]['sign_request_id'])
+
+        first_request, second_request = sorted(requests, key=lambda x: x['user_id'] == REVOKE_OTHER_2_ID)
+        revoke = self.app.delete('/api/request_signatures/%s' % first_request['sign_request_id'])
+
         self.assertEqual(revoke.status_code, 401)
-        response = self.sign_with_signature(document_id, self.add_signature(), document_set_id=document_set_id, sign_request_id=requests[0]['sign_request_id'])
+
+        response = self.sign_with_signature(document_id, self.add_signature(), document_set_id=document_set_id, sign_request_id=first_request['sign_request_id'])
 
         self.assertEqual(response.status_code, 200)
 
         with patch('api.send_email', return_value=True) as p:
             self.login(REVOKE_USER_1_ID)
-            revoke = self.app.delete('/api/request_signatures/%s' % requests[1]['sign_request_id'])
+            revoke = self.app.delete('/api/request_signatures/%s' % first_request['sign_request_id'])
             self.assertEqual(revoke.status_code, 200)
             self.login(REVOKE_OTHER_2_ID)
-            #p.assert_called()
+        response = self.sign_with_signature(document_id, self.add_signature(), document_set_id=document_set_id, sign_request_id=second_request['sign_request_id'])
+        self.assertEqual(response.status_code, 401)
+
+
 
 
     def test_0008_reject(self):

@@ -275,7 +275,7 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
                                 </div>
                             </AutoAffix>
                         </Col>
-                        <Col lg={10} md={12} className="page-list">
+                        <Col lg={{span: 10, offset: 2}} md={12} className="page-list">
                             <WidthSpy />
                             <DocumentLoading documentId={this.props.documentId} />
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {

@@ -268,14 +268,14 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
 
                 <div className='pdf-container container'>
                     <Row>
-                        <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true}  >
+                        <Col lg={2} xsHidden={true} smHidden={true} mdHidden={true} style={{minHeight: 100}} >
                             <AutoAffix viewportOffsetTop={50} offsetTop={0}  bottomClassName="bottom" affixClassName="affixed" >
                                 <div>
                                     <PDFPreview documentId={this.props.documentId} width={120}  pageViewports={this.props.pageViewports} pageCount={this.props.pageCount} />
                                 </div>
                             </AutoAffix>
                         </Col>
-                        <Col lg={{span: 10, offset: 2}} md={12} className="page-list">
+                        <Col lg={10} md={12} className="page-list">
                             <WidthSpy />
                             <DocumentLoading documentId={this.props.documentId} />
                             { Array(this.props.pageCount).fill(null).map((item: any, index: number) => {

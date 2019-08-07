@@ -83,11 +83,10 @@ class UnconnectedDocumentSetList extends React.PureComponent<DocumentSetListProp
                         <tbody>
                         {this.props.documentSet.documentIds.reduce((rows: any, documentId, i : number) => {
                             const document = this.props.documents[documentId];
-
                             rows.push(
                                 <tr key={i}>
                                     <td className="status">
-                                        <SignStatus signStatus={document.signStatus} />
+                                        <SignStatus signStatus={document.requestStatus !== undefined ? document.requestStatus : document.signStatus} />
                                     </td>
 
                                     <td className="filename-icon">

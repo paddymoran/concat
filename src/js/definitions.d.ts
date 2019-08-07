@@ -221,7 +221,7 @@ declare namespace Sign {
     interface DocumentView {
         activePage: number;
         completed: boolean;
-        signStatus: Sign.SignStatus;
+        signStatus?: Sign.SignStatus;
         rejectReason?: string;
         acceptedMessage?: string;
     }

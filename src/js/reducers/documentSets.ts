@@ -48,7 +48,9 @@ export default function documentSets(state: Sign.DocumentSets = DEFAULT_STATE, a
                     ...state,
                     ...documentSets.reduce((acc : any, set : any) => {
                         acc = {...acc};
-                        acc[set.documentSetId] = {...acc[set.documentSetId], ...set, documentIds: set.documents.map((d: any) => d.documentId), downloadStatus: Sign.DownloadStatus.Complete}
+                        acc[set.documentSetId] = {...acc[set.documentSetId], ...set, 
+                        documentIds: set.documents.map((d: any) => d.documentId).filter(function(item: any, i: any, ar: any){ return ar.indexOf(item) === i; }), 
+                        downloadStatus: Sign.DownloadStatus.Complete}
                         return acc;
                     }, state)
                 };

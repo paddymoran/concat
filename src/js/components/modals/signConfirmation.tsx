@@ -618,7 +618,7 @@ export default connect<{}, {}, SignConfirmationProps>(
         const recipients = documentSet ? documentSet.recipients : null;
 
         const documentIds = state.documentSets[state.modals.documentSetId].documentIds;
-        const nextDocumentId = getNextDocument(documentIds, state.documentViewer.documents, state.modals.documentId);
+        const nextDocumentId = getNextDocument(documentIds, state.documentViewer.documents, state.modals.documentId, state.documents);
 
         const documents = documentIds.map(documentId => ({
             id: documentId,

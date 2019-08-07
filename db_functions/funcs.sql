@@ -254,6 +254,16 @@ CREATE OR REPLACE FUNCTION delete_document_set_if_empty(
 CREATE OR REPLACE FUNCTION signature_requests(user_id integer)
 RETURNS JSON as
 $$
+WITH latest_results AS (
+    SELECT * 
+    FROM sign_results sr 
+    JOIN (
+        SELECT distinct (sign_request_id) sign_request_id, sign_result_id, created_at
+        FROM sign_results
+        WHERE sign_request_id is NOT NULL
+        ORDER BY sign_result_id, created_at desc
+    ) q on sr.sign_result_id = q.sign_result_id
+)
 SELECT json_agg(row_to_json(q)) as "signature_requests"
 FROM (
 SELECT json_agg(
@@ -262,7 +272,7 @@ SELECT json_agg(
     'document_id', latest_document_id(sr.document_id),
     'filename', d.filename,
     'sign_request_id', sr.sign_request_id,
-    'prompts', sr.field_data,
+    'prompts', CASE WHEN srr.sign_result_id IS NULL THEN sr.field_data ELSE NULL END,
     'created_at', format_iso_date(d.created_at),
     'size',  d.length,
     'sign_status', document_status(sr.document_id),
@@ -279,7 +289,7 @@ JOIN document_sets ds ON ds.document_set_id = d.document_set_id
 JOIN users u ON u.user_id = ds.user_id
 LEFT OUTER JOIN sign_results srr on srr.sign_request_id = sr.sign_request_id
 WHERE sr.user_id = $1 AND d.deleted_at IS NULL and ds.deleted_at IS NULL
-
+AND ds.created_at > now() - interval '1 year'
 GROUP BY d.document_set_id, ds.name, ds.created_at, u.name, u.user_id, ds.user_id
 ORDER BY ds.created_at DESC
 ) q

@@ -103,7 +103,13 @@ export default connect<{}, {}, {}>(
 
         const documents = documentSet.documentIds.map(documentId => {
             const document = state.documents[documentId];
-            const signStatus =  (state.documentViewer.documents[documentId] || { signStatus: Sign.SignStatus.PENDING }).signStatus
+            let signStatus = Sign.SignStatus.PENDING;
+            if(document.requestStatus !== undefined && document.requestStatus !== Sign.SignStatus.PENDING) {
+                signStatus = document.requestStatus;
+            }
+            if(state.documentViewer.documents[documentId] && state.documentViewer.documents[documentId].signStatus) {
+                signStatus = state.documentViewer.documents[documentId].signStatus;
+            }
 
             if (signStatus === Sign.SignStatus.REJECTED) {
                 userIsRejecting = true;

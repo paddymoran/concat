@@ -256,6 +256,7 @@ export interface ConnectedControlProps extends ControlProps {
     hasText: boolean;
     hasPrompt: boolean;
     hasRecipients: boolean;
+    hasPreviouslySigned: boolean;
     showInviteModal: () => void;
     overlayDefaults: Sign.OverlayDefaults;
     nextInvalidOverlay?: string;
@@ -323,13 +324,13 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
     }
 
     canSubmit() {
-        const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients }  = this.props;
+        const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients,  hasPreviouslySigned }  = this.props;
         const hasSigned = ( hasSignature || hasInitial || hasDate || hasText);
-        return hasSigned || hasRecipients;
+        return hasSigned || hasRecipients || hasPreviouslySigned;
     }
 
     render() {
-        const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients, showNext }  = this.props;
+        const { hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients, showNext, hasPreviouslySigned }  = this.props;
         const hasSigned = ( hasSignature || hasInitial || hasDate || hasText);
         const selfSign = hasSigned && !hasPrompt && !hasRecipients;
         const otherSign = !hasSigned && hasRecipients;
@@ -343,6 +344,9 @@ class UnconnectedControls extends React.PureComponent<ConnectedControlProps> {
         }
         else if(mixSign){
             submitString = 'Sign & Send';
+        }
+        if(hasPreviouslySigned) {
+            submitString = 'Skip'
         }
         const nextPrompt = this.props.getNextPrompt();
 
@@ -481,7 +485,7 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
     const activeSignControl = state.documentViewer.activeSignControl;
     const documentId = ownProps.documentId;
     const documentIds = state.documentSets[documentSetId] ? state.documentSets[documentSetId].documentIds : [];
-     const nextDocumentId = getNextDocument(documentIds, state.documentViewer.documents, documentId);
+    const nextDocumentId = getNextDocument(documentIds, state.documentViewer.documents, documentId, state.documents);
 
     const signaturesIndexes = Object.keys(state.documentViewer.signatures).filter(signatureIndex => state.documentViewer.signatures[signatureIndex].documentId === documentId);
     const dateIndexes = Object.keys(state.documentViewer.dates).filter(dateIndex => state.documentViewer.dates[dateIndex].documentId === documentId);
@@ -494,6 +498,8 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
     const hasDate = !!dateIndexes.length;
     const hasText = !!textIndexes.length;
     const hasPrompt = !!promptIndexes.length;
+    const hasPreviouslySigned = state.documents[documentId] && state.documents[documentId].requestStatus === Sign.SignStatus.SIGNED;
+
     const hasRecipients = ((state.documentSets[documentSetId] || {recipients: []}).recipients || []).length > 0;
 
     function getNextPrompt() {
@@ -522,7 +528,7 @@ function mapStateToProps(state: Sign.State, ownProps: ControlProps) {
         activeSignControl,
 
         hasSignature, hasInitial, hasDate, hasText, hasPrompt, hasRecipients,
-
+        hasPreviouslySigned,
         isButtonActive,
 
         overlayDefaults: overlayDefaults,

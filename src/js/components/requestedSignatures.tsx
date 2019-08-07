@@ -87,7 +87,9 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                 <thead></thead>
                 <tbody>
                 {Object.keys(this.props.requestDocumentSet).reduce((acc: any[], documentId: string, i: number) => {
-                    const document : Sign.Document = this.props.documents[documentId]
+                    const document : Sign.Document = this.props.documents[documentId];
+                    const pending = document.requestStatus === Sign.SignStatus.PENDING; 
+
                     acc.push(<tr key={i}>
                                   <td className="status">
                                        <SignStatus signStatus={document.requestStatus}/>
@@ -105,8 +107,7 @@ class RequestedSignatureDocumentSet extends React.PureComponent<ConnectedRequest
                                         <a className="btn btn-default btn-sm" onClick={() => this.props.showEmailDocumentsModal({ documentIds: [documentId] })}>
                                             <i className="fa fa-send"/> Email
                                         </a>
-                                        { showLink && <a className="btn btn-primary btn-sm" onClick={() => this.props.sign({documentSetId: this.props.documentSetId, documentId})}><i className="fa fa-pencil-square-o"/>Review & Sign</a> }
-
+                                        { showLink && pending && <a className="btn btn-primary btn-sm" onClick={() => this.props.sign({documentSetId: this.props.documentSetId, documentId})}><i className="fa fa-pencil-square-o"/>Review & Sign</a> }
                                   </td>
 
 
@@ -154,6 +155,7 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
         const { hasEmailVerified } = this.props;
         const docSets = this.props.requestedSignatures.documentSets;
         let docSetKeys = Object.keys(docSets);
+        const loaded = this.props.requestedSignatures.downloadStatus === Sign.DownloadStatus.Complete;
         if (!this.props.showComplete) {
             docSetKeys = getNonCompletedRequestKeys(this.props.requestedSignatures, this.props.documents);
         }
@@ -167,9 +169,10 @@ class RequestedSignatures extends React.PureComponent<RequestedSignatureProps>  
                        You must verify your email address before you can respond to a sign request.  Click <a href='/verify_email'>here</a> here for more information.
                 </div>  }
 
-                { docSetKeys.length === 0 && <p>No { this.props.title } signature requests.</p> }
+                { !loaded && <p>Loading { this.props.title } signature requests... </p> }
+                { loaded && docSetKeys.length === 0 && <p>No { this.props.title } signature requests.</p> }
 
-                {docSetKeys.map((documentSetId: string, index: number) =>
+                { docSetKeys.map((documentSetId: string, index: number) =>
                     <ConnectedRequestedSignatureDocumentSet key={index} documentSetId={documentSetId}  requestDocumentSet={docSets[documentSetId]} showLink={hasEmailVerified && !this.props.showComplete} />
                 )}
             </div>

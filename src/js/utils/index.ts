@@ -190,12 +190,18 @@ export function signDocumentRoute(documentSetId: string, documentId: string, isD
     return `/sign/${documentSetId}/${documentId}`;
 }
 
-export function getNextDocument(documentIds: string[], documents: Sign.DocumentViews, currentDocumentId: string): string {
+export function getNextDocument(documentIds: string[], documentViews: Sign.DocumentViews, currentDocumentId: string, documents: Sign.Documents): string {
     return (documentIds||[]).filter(d => d != currentDocumentId).find(documentId => {
+        const documentView = documentViews[documentId];
         const document = documents[documentId];
         let needsSigned = true;
+        if (documentView) {
+            if (documentView.completed) {
+                needsSigned = false;
+            }
+        }
         if (document) {
-            if (document.completed) {
+            if (document.requestStatus !== undefined && document.requestStatus !== Sign.SignStatus.PENDING) {
                 needsSigned = false;
             }
         }

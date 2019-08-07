@@ -65,7 +65,10 @@ function *signDocument(action: Sign.Actions.SignDocument) {
 }
 
 
-function hasSomethingToSign(documentViewer : Sign.DocumentViewer, documentId : string) {
+function hasSomethingToSign(documentViewer : Sign.DocumentViewer, documentId : string, document: Sign.Document) {
+    if(document.requestStatus !== undefined && document.requestStatus !== Sign.SignStatus.PENDING) {
+        return false;
+    }
     const signatures = Object.keys(documentViewer.signatures).map(key => documentViewer.signatures[key]).filter(signature => signature.documentId === documentId);
     const dates = Object.keys(documentViewer.dates).map(key => documentViewer.dates[key]).filter(date => date.documentId === documentId);
     const texts = Object.keys(documentViewer.texts).map(key => documentViewer.texts[key]).filter(text => text.documentId === documentId);
@@ -79,6 +82,7 @@ function *submitDocumentSet() {
     function *submit(action: Sign.Actions.SubmitDocumentSet) {
         const documentViewer = yield select((state: Sign.State) => state.documentViewer);
         const documentSets = yield select((state: Sign.State) => state.documentSets);
+        const documents = yield select((state: Sign.State) => state.documents);
         const documentIds = documentSets[action.payload.documentSetId].documentIds;
         let exportTarget;
 
@@ -101,8 +105,9 @@ function *submitDocumentSet() {
         }
 
         try {
+
             for (let documentId of documentIds) {
-                if (hasSomethingToSign(documentViewer, documentId)) {
+                if (hasSomethingToSign(documentViewer, documentId, documents[documentId])) {
                     const response = yield signDocument({type: Sign.Actions.Types.SIGN_DOCUMENT, payload: {documentSetId: action.payload.documentSetId, documentId}} as Sign.Actions.SignDocument);
                     if(response.data && response.data.export_target){
                         exportTarget = response.data.export_target;
@@ -128,6 +133,7 @@ function *submitDocumentSet() {
                 ]);
             }
             else{
+                debugger;
                 yield put(showFailureModal({message: 'Sorry, we could not sign at this time.'}));
             }
             return;
@@ -203,9 +209,10 @@ export function* preloader() {
     if(downloaded && viewing && downloaded.id === viewing.documentId){
         const data = yield select((state: Sign.State) => ({
             documentSet: state.documentSets[viewing.documentSetId],
-            documents: state.documentViewer.documents
+            documentsViewerDocuments: state.documentViewer.documents,
+            documents: state.documents
         }));
-        const nextDocumentId = getNextDocument(data.documentSet.documentIds, data.documents, viewing.documentId);
+        const nextDocumentId = getNextDocument((data.documentSet || {}).documentIds, data.documentsViewerDocuments, viewing.documentId, data.documents);
         if(nextDocumentId){
             yield put(requestDocument(nextDocumentId))
         }

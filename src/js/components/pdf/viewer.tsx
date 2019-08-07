@@ -250,6 +250,8 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
             requestPrompts = prompts
                 .filter((prompt : Sign.DocumentPrompt) =>  prompt.documentId === this.props.documentId)
                 .filter((prompt : Sign.DocumentPrompt) => !sourceIds[prompt.promptIndex])
+
+
             return requestPrompts;
         }
     }
@@ -262,7 +264,12 @@ class PDFViewer extends React.PureComponent<ConnectedPDFViewerProps> {
             <div className='pdf-viewer'>
                <AutoAffix viewportOffsetTop={0} offsetTop={50}>
                    <div  className="controls-affix">
-                        <Controls isDocumentOwner={this.props.isDocumentOwner} requestPrompts={requestPrompts} documentId={this.props.documentId} requestedSignatureInfo={this.props.requestedSignatureInfo} documentSetId={this.props.documentSetId} />
+                        <Controls 
+                        isDocumentOwner={this.props.isDocumentOwner} 
+                        requestPrompts={requestPrompts} 
+                        documentId={this.props.documentId} 
+                        requestedSignatureInfo={this.props.requestedSignatureInfo} 
+                        documentSetId={this.props.documentSetId} />
                    </div>
                 </AutoAffix>
 

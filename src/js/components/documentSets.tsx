@@ -221,9 +221,15 @@ class UnconnectedBufferedDocumentSets extends React.PureComponent<BufferedDocume
         const keys = this.props.filter(this.state.documentSets, this.state.documents).sort((a, b) => {
             return moment(this.state.documentSets[b].createdAt).valueOf() - moment(this.state.documentSets[a].createdAt).valueOf()
         });
+        const loaded = this.props.documentSetsStatus === Sign.DownloadStatus.Complete;
+
         return (
             <div className="row">
                 <div className="col-md-12">
+
+                { !loaded && <p>Loading documents... </p> }
+                { loaded && keys.length === 0 && <p>No documents.</p> }
+
                 <div className="document-set-list">
                     { keys.map(documentSetId => <DocumentSetList
                         key={documentSetId}
@@ -253,10 +259,9 @@ class UnconnectedDocumentSet extends React.PureComponent<{documentSetId: string,
                 <div className="col-md-12">
                 <div className="document-set-list">
                      <DocumentSetList documentSetId={this.props.documentSetId}
-                            documentSet={this.props.documentSet}
-                            documents={this.props.documents}
-
-                     showDownloadAll={true} />
+                        documentSet={this.props.documentSet}
+                        documents={this.props.documents}
+                        showDownloadAll={true} />
                 </div>
                 </div>
             </div>

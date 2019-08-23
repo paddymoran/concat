@@ -200,7 +200,7 @@ export function getNextDocument(documentIds: string[], documentViews: Sign.Docum
                 needsSigned = false;
             }
         }
-        if (document && document.requestStatus === undefined && document.signStatus !== Sign.SignStatus.PENDING) {
+        if (document && document.requestStatus === undefined && document.signStatus !== Sign.DocumentStatus.PENDING) {
             needsSigned = false;
         }
         if (document && document.requestStatus !== undefined && document.requestStatus !== Sign.SignStatus.PENDING) {

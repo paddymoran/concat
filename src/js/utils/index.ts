@@ -200,10 +200,12 @@ export function getNextDocument(documentIds: string[], documentViews: Sign.Docum
                 needsSigned = false;
             }
         }
-        if (document) {
-            if (document.requestStatus !== undefined && document.requestStatus !== Sign.SignStatus.PENDING) {
-                needsSigned = false;
-            }
+        if (document && document.requestStatus === undefined && document.signStatus !== Sign.SignStatus.PENDING) {
+            needsSigned = false;
+        }
+        if (document && document.requestStatus !== undefined && document.requestStatus !== Sign.SignStatus.PENDING) {
+            needsSigned = false;
+
         }
 
         return needsSigned;

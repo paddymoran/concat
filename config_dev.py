@@ -14,9 +14,9 @@ OAUTH_CLIENT_SECRET = 'test'
 
 SECRET_KEY = 'dfglihdklsjblfkdjhvliakhjdlkjashdfkleahs'
 
-DB_NAME = 'sign'
-DB_USER = 'sign'
-DB_PASS = 'password'
+DB_NAME = 'catalex_sign'
+DB_USER = 'josh'
+DB_PASS = ''
 DB_HOST = '127.0.0.1'
 
 MAX_SIGNS = 3
@@ -28,4 +28,4 @@ MAX_PAIR_WISE_UNIT = 'year'
 
 UPLOAD_DOCUMENT_SECRET = 'nobodyknows'
 
-DEV_USER_ID = 47
+DEV_USER_ID = 9

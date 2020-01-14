@@ -331,21 +331,19 @@ def get_user_info(user_id):
         return result
 
 
+
 def get_user_document_sets(user_id):
     """
     Get latest document sets for a user
     """
     database = get_db()
     query = """
-        SELECT document_set_json(%(user_id)s, document_set_id)
-        FROM document_sets sets
-        WHERE sets.user_id = %(user_id)s AND deleted_at IS NULL
-        ORDER BY created_at DESC LIMIT 300 OFFSET 0;
+        SELECT user_document_sets_json(%(user_id)s)
     """
     with database.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
         cursor.execute(query, {'user_id': user_id})
         data = cursor.fetchall()
-        result = [x['document_set_json'] for x in data if x['document_set_json']]
+        result = [x[0] for x in data]
         database.commit()
         return result
 

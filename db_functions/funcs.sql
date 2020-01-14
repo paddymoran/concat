@@ -196,6 +196,63 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
  ) qqq
 $$ LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION user_document_sets_json(user_id integer)
+RETURNS TABLE(data json) as
+$$
+WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generation) as (
+    SELECT t.document_id, null::uuid, t.document_id,  document_set_id, 0
+    FROM documents t
+    UNION
+   SELECT result_document_id, input_document_id,original_id, document_set_id, generation + 1
+    FROM sign_results tt, docs t
+    WHERE t.document_id = tt.input_document_id AND tt.result_document_id IS NOT NULL
+),
+ document_data as (
+    SELECT
+        qq.document_set_id,
+             ds.name as name, format_iso_date(ds.created_at) as created_at,
+            array_to_json(array_agg(row_to_json(qq))) as documents,
+            CASE WHEN EVERY(sign_status != 'Pending') THEN 'Complete' ELSE 'Pending' END as status,
+            sum(size) as size,
+            true as is_owner
+        FROM (
+            SELECT d.document_id, q.document_set_id, filename, format_iso_date(created_at), versions, dv.field_data, document_status(start_id) as sign_status,
+                d.length as size,
+                    q.source as source,
+                request_info(start_id) as request_info
+            FROM (
+                SELECT
+                DISTINCT last_value(d.document_id) over wnd AS document_id,
+                array_agg(d.document_id) OVER wnd as versions,
+                first_value(d.document_set_id) OVER wnd as document_set_id,
+                first_value(d.document_id) over wnd as start_id,
+                first_value(dd.order_index) OVER wnd as order_index,
+                first_value(dd.source) OVER wnd as source
+                FROM docs d
+                JOIN documents dd on d.document_id = dd.document_id
+                WHERE dd.deleted_at IS NULL
+
+                WINDOW wnd AS (
+                   PARTITION BY original_id ORDER BY generation ASC
+                   ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+                )
+
+            ) q
+            JOIN documents d on d.document_id = q.document_id
+            LEFT OUTER JOIN document_view dv ON (d.document_id = dv.document_id and user_id = $1)
+            ORDER BY q.order_index ASC
+
+        ) qq
+        JOIN document_sets ds on qq.document_set_id = ds.document_set_id
+        WHERE user_id = $1
+        GROUP BY ds.name, ds.created_at, ds.user_id, qq.document_set_id
+ )
+ SELECT row_to_json(dd.*) as document_set_json
+ FROM document_data dd
+ JOIN document_sets ds on dd.document_set_id = ds.document_set_id and ds.deleted_at is null
+ ORDER BY ds.created_at DESC
+ $$ LANGUAGE sql;
+
 CREATE OR REPLACE FUNCTION revoke_signature_request(
     user_id integer,
     sign_request_id integer)
@@ -255,8 +312,8 @@ CREATE OR REPLACE FUNCTION signature_requests(user_id integer)
 RETURNS JSON as
 $$
 WITH latest_results AS (
-    SELECT * 
-    FROM sign_results sr 
+    SELECT *
+    FROM sign_results sr
     JOIN (
         SELECT distinct (sign_request_id) sign_request_id, sign_result_id, created_at
         FROM sign_results

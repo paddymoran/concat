@@ -200,8 +200,9 @@ CREATE OR REPLACE FUNCTION user_document_sets_json(user_id integer)
 RETURNS TABLE(data json) as
 $$
 WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generation) as (
-    SELECT t.document_id, null::uuid, t.document_id,  document_set_id, 0
+    SELECT t.document_id, null::uuid, t.document_id,  t.document_set_id, 0
     FROM documents t
+    JOIN document_sets ds on t.document_set_id = ds.document_set_id and ds.deleted_at is null and user_id = $1
     UNION
    SELECT result_document_id, input_document_id,original_id, document_set_id, generation + 1
     FROM sign_results tt, docs t
@@ -243,7 +244,7 @@ WITH RECURSIVE docs(document_id, prev_id, original_id, document_set_id, generati
             ORDER BY q.order_index ASC
 
         ) qq
-        JOIN document_sets ds on qq.document_set_id = ds.document_set_id
+        JOIN document_sets ds on qq.document_set_id = ds.document_set_id  and ds.deleted_at is null
         WHERE user_id = $1
         GROUP BY ds.name, ds.created_at, ds.user_id, qq.document_set_id
  )

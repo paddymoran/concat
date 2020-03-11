@@ -11,7 +11,7 @@ from sign import sign, concat
 import db
 from copy import deepcopy
 from base64 import b64decode
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 import zipfile
 from dateutil.parser import parse
 import json
@@ -405,8 +405,14 @@ def get_document(doc_id):
         if not document:
             abort(404)
 
-        response = send_file(BytesIO(document['data']), mimetype='application/pdf', attachment_filename=document['filename'], as_attachment=True);
+        response = send_file(BytesIO(document['data']), mimetype='application/pdf')
         response.headers['content-length'] = len(document['data'])
+        response.headers["Content-Disposition"] = \
+            "attachment; " \
+            "filename*=UTF-8''{quoted_filename}".format(
+                quoted_filename=quote(document['filename'])
+            )
+
         return response
     except HTTPException as e:
         raise e

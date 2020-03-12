@@ -160,7 +160,8 @@ function *requestDocumentSaga() {
                 }));
             }
             else{
-                const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(state.headers['content-disposition'])[1].replace(/"/g, '');
+                //attachment; filename*=UTF-8\'\'
+                const filename = decodeURIComponent(/filename[^;=\n]*\*?=(UTF-8'')?((['"]).*?\2|[^;\n]*)/.exec(state.headers['content-disposition'])[2].replace(/"/g, ''));
                 const data = state.data;
 
                 yield all([

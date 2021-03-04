@@ -17,6 +17,6 @@ setup(name='catalex_sign',
           'raven[flask]'
       ],
         dependency_links=[
-            "git+https://github.com/pmaupin/pdfrw.git#egg=pdfrw"
+            "git+https://github.com/joshgagnon/pdfrw.git#egg=pdfrw"
         ],
       zip_safe=False)

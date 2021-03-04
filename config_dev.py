@@ -14,9 +14,9 @@ OAUTH_CLIENT_SECRET = 'test'
 
 SECRET_KEY = 'dfglihdklsjblfkdjhvliakhjdlkjashdfkleahs'
 
-DB_NAME = 'catalex_sign'
-DB_USER = 'josh'
-DB_PASS = ''
+DB_NAME = 'sign'
+DB_USER = 'sign'
+DB_PASS = 'sign'
 DB_HOST = '127.0.0.1'
 
 MAX_SIGNS = 3
